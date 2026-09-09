@@ -17,7 +17,7 @@ const defaults={
  media:[
   {id:'M-ORIGIN-01',name:'Coastal coconut grove',status:'Approved',visible:true,placement:'Homepage',src:'assets/images/review/coastal-grove.png'},
   {id:'M-ORIGIN-02',name:'Backwater coconut grove',status:'Approved',visible:true,placement:'Sourcing',src:'assets/images/review/backwater-grove.png'},
-  {id:'M-LIVE-01',name:'Protected coconut hero',status:'Approved',visible:true,placement:'Product',src:'https://6a9bfce307bb9f014e510b7d--nariyal-sutra.netlify.app/assets/images/story-coconut-hero.png'}
+  {id:'M-LIVE-01',name:'Protected coconut hero',status:'Approved',visible:true,placement:'Product',src:'https://nariyal-sutra.netlify.app/assets/images/story-coconut-hero.png'}
  ],
  sections:[
   {id:'origin-grove',title:'Origin / Grove',visible:true,order:1,placement:'Homepage',motion:'Slow crossfade'},

@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 const Store=window.NSV421Store, MediaDB=window.NSV421MediaDB;
-const IMM='https://6a9bfce307bb9f014e510b7d--nariyal-sutra.netlify.app/assets/images/story-coconut-hero.png';
+const IMM='https://nariyal-sutra.netlify.app/assets/images/story-coconut-hero.png';
 const $=s=>document.querySelector(s);
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function faceSrc(id){return 'assets/images/ambassadors/'+id+'.webp';}

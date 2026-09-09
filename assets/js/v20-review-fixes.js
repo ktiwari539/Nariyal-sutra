@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-const IMM='https://6a9bfce307bb9f014e510b7d--nariyal-sutra.netlify.app/';
+const IMM='https://nariyal-sutra.netlify.app/';
 const FALLBACK=['assets/images/review/coastal-grove.png','assets/images/review/backwater-grove.png',IMM+'assets/images/nariyal-coconut-grove.webp'];
 function eligibleOriginMedia(){
   const Store=window.NSV421Store;if(!Store)return [];
