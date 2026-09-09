@@ -1,0 +1,505 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isOwner() {
+      return request.auth != null && request.auth.uid == "9FjkrCMDstfVS1Ghu2LlA0skoAf2";
+    }
+
+    function adminRolePath(uid) {
+      return /databases/$(database)/documents/adminRoles/$(uid);
+    }
+
+    function currentRole() {
+      return isOwner() ? 'Owner' : (
+        request.auth != null && exists(adminRolePath(request.auth.uid))
+          ? get(adminRolePath(request.auth.uid)).data.role
+          : ''
+      );
+    }
+
+    function hasRole(roles) {
+      return request.auth != null && currentRole() in roles;
+    }
+
+    function isAdminManager() { return hasRole(['Owner','Admin','Manager']); }
+    function canOrdersRead() { return hasRole(['Owner','Admin','Manager','Operations','Support','Sales']); }
+    function canOrdersWrite() { return hasRole(['Owner','Admin','Manager','Operations']); }
+    function canCustomersRead() { return hasRole(['Owner','Admin','Manager','Operations','Support','Sales']); }
+    function canCrmWrite() { return hasRole(['Owner','Admin','Manager','Support','Sales']); }
+    function canContent() { return hasRole(['Owner','Admin','Manager','Content']); }
+    function canDeliveryRead() { return hasRole(['Owner','Admin','Manager','Operations','Support','Sales']); }
+    function canDeliveryWrite() { return hasRole(['Owner','Admin','Manager','Operations']); }
+
+    function isSelf(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    function productPath(key) {
+      return /databases/$(database)/documents/products/$(key);
+    }
+
+    function orderPath(orderId) {
+      return /databases/$(database)/documents/orders/$(orderId);
+    }
+
+    function trackingPath(token) {
+      return /databases/$(database)/documents/publicTracking/$(token);
+    }
+
+    function defaultPrice(key) {
+      return key == 'bulk' ? 45 : 55;
+    }
+
+    function defaultMin(key) {
+      return key == 'bulk' ? 10 : 1;
+    }
+
+    function catalogPrice(key) {
+      return exists(productPath(key)) ? get(productPath(key)).data.price : defaultPrice(key);
+    }
+
+    function catalogMin(key) {
+      return exists(productPath(key)) ? get(productPath(key)).data.minQty : defaultMin(key);
+    }
+
+    function catalogActive(key) {
+      return exists(productPath(key)) ? get(productPath(key)).data.active == true : true;
+    }
+
+    function catalogStock(key) {
+      return exists(productPath(key)) ? get(productPath(key)).data.stock : 10000;
+    }
+
+    function validOrder() {
+      let d = request.resource.data;
+      return d.keys().hasOnly([
+          'orderId','customerName','phone','email','city','address','notes',
+          'productKey','productName','quantity','unitPrice','total',
+          'paymentType','paymentLabel','status','createdAt','updatedAt','source',
+          'country','state','pin','landmark','deliveryLat','deliveryLng','deliveryAccuracy',
+          'deliveryMethod','deliveryLabel','deliveryEtaMin','deliveryEtaMax','deliveryEta',
+          'isInternational','recurringPreference','trackingToken','deliveryOTP','qtyBand',
+          'customerUid'
+        ])
+        && d.orderId is string
+        && d.orderId.size() >= 8 && d.orderId.size() <= 40
+        && d.customerName is string
+        && d.customerName.size() >= 2 && d.customerName.size() <= 100
+        && d.phone is string
+        && d.phone.size() >= 10 && d.phone.size() <= 24
+        && d.email is string && d.email.size() <= 160
+        && d.city is string && d.city.size() <= 100
+        && d.address is string
+        && d.address.size() >= 10 && d.address.size() <= 500
+        && d.notes is string && d.notes.size() <= 500
+        && d.productKey in ['tender','green','bulk']
+        && d.productName is string && d.productName.size() <= 120
+        && d.quantity is int
+        && d.quantity >= catalogMin(d.productKey)
+        && d.quantity <= 10000
+        && d.quantity <= catalogStock(d.productKey)
+        && catalogActive(d.productKey)
+        && d.unitPrice is int
+        && d.unitPrice == catalogPrice(d.productKey)
+        && d.total is int
+        && d.total == d.quantity * d.unitPrice
+        && d.paymentType in ['cod','upi','card']
+        && d.paymentLabel is string && d.paymentLabel.size() <= 80
+        && d.status == 'pending'
+        && d.source == 'website'
+        && d.createdAt == request.time
+        && d.updatedAt == request.time
+        && d.country is string && d.country.size() <= 100
+        && d.state is string && d.state.size() <= 100
+        && d.pin is string && d.pin.size() <= 24
+        && d.landmark is string && d.landmark.size() <= 180
+        && (d.deliveryLat == null || d.deliveryLat is number)
+        && (d.deliveryLng == null || d.deliveryLng is number)
+        && (d.deliveryAccuracy == null || d.deliveryAccuracy is number)
+        && d.deliveryMethod is string && d.deliveryMethod.size() <= 60
+        && d.deliveryLabel is string && d.deliveryLabel.size() <= 100
+        && (d.deliveryEtaMin == null || d.deliveryEtaMin is number)
+        && (d.deliveryEtaMax == null || d.deliveryEtaMax is number)
+        && d.deliveryEta is string && d.deliveryEta.size() <= 120
+        && d.isInternational is bool
+        && d.recurringPreference in ['onetime','weekly','fortnightly','monthly','flexible']
+        && d.trackingToken is string
+        && d.trackingToken.matches('^[0-9a-fA-F]{48}$')
+        && d.deliveryOTP is string
+        && d.deliveryOTP.matches('^[0-9]{6}$')
+        && d.qtyBand in ['retail','value','small_event','mini_bulk','commercial','regional_bulk','wholesale']
+        && (
+          !d.keys().hasAny(['customerUid'])
+          || (
+            request.auth != null
+            && d.customerUid is string
+            && d.customerUid == request.auth.uid
+            && d.customerUid.size() >= 1
+            && d.customerUid.size() <= 128
+          )
+        );
+    }
+
+    function validPublicTrackingCreate(token) {
+      let d = request.resource.data;
+      return token.matches('^[0-9a-fA-F]{48}$')
+        && d.keys().hasOnly([
+          'trackingToken','orderId','status','productName','quantity',
+          'deliveryMethod','deliveryEstimate','estimatedTotal','destinationDisplay','eta','deliveryPartnerName','deliveryPartnerPhone','deliveryPartnerPhotoRef','vehicle','locationLabel','lat','lng','customerUpdate','deliveryOTP','updatedAt'
+        ])
+        && d.trackingToken == token
+        && d.orderId is string && d.orderId.size() >= 8 && d.orderId.size() <= 40
+        && d.status == 'pending'
+        && d.productName is string && d.productName.size() <= 120
+        && d.quantity is int && d.quantity >= 1 && d.quantity <= 10000
+        && d.deliveryMethod is string && d.deliveryMethod.size() <= 120
+        && d.deliveryEstimate is string && d.deliveryEstimate.size() <= 160
+        && d.estimatedTotal is string && d.estimatedTotal.size() <= 160
+        && d.destinationDisplay is string && d.destinationDisplay.size() <= 220
+        && d.eta is string && d.eta.size() <= 160
+        && (!d.keys().hasAny(['deliveryPartnerName']) || (d.deliveryPartnerName is string && d.deliveryPartnerName.size() <= 100))
+        && (!d.keys().hasAny(['deliveryPartnerPhone']) || (d.deliveryPartnerPhone is string && d.deliveryPartnerPhone.size() <= 24))
+        && (!d.keys().hasAny(['deliveryPartnerPhotoRef']) || (d.deliveryPartnerPhotoRef is string && d.deliveryPartnerPhotoRef.size() <= 180))
+        && (!d.keys().hasAny(['vehicle']) || (d.vehicle is string && d.vehicle.size() <= 80))
+        && (!d.keys().hasAny(['locationLabel']) || (d.locationLabel is string && d.locationLabel.size() <= 160))
+        && (!d.keys().hasAny(['lat']) || d.lat == null || d.lat is number)
+        && (!d.keys().hasAny(['lng']) || d.lng == null || d.lng is number)
+        && (!d.keys().hasAny(['customerUpdate']) || (d.customerUpdate is string && d.customerUpdate.size() <= 500))
+        && (!d.keys().hasAny(['deliveryOTP']) || (d.deliveryOTP is string && d.deliveryOTP.matches('^[0-9]{6}$')))
+        && d.updatedAt == request.time
+        && exists(orderPath(d.orderId))
+        && get(orderPath(d.orderId)).data.trackingToken == token
+        && get(orderPath(d.orderId)).data.productName == d.productName
+        && get(orderPath(d.orderId)).data.quantity == d.quantity;
+    }
+
+    function validInquiry() {
+      let d = request.resource.data;
+      return d.keys().hasOnly([
+          'inquiryId','role','inquiryType','inquiryTypeLabel','productPreference','frequency','packaging',
+          'name','phone','email','organization','quantity','requiredDate','destination',
+          'country','state','city','postalCode','preferredContact','message','status','createdAt','updatedAt','source'
+        ])
+        && d.inquiryId is string && d.inquiryId.size() >= 10 && d.inquiryId.size() <= 50
+        && d.role in ['buyer','supplier','partner']
+        && d.inquiryType in ['bulk','event','hospitality','wholesale','export','supplier','partnership','retail','other']
+        && d.inquiryTypeLabel is string && d.inquiryTypeLabel.size() <= 100
+        && d.productPreference in ['not_sure','tender','green','mixed']
+        && d.frequency in ['one_time','weekly','fortnightly','monthly','flexible']
+        && d.packaging in ['recommend','whole','sharp_cut','event','bulk','export']
+        && d.name is string && d.name.size() >= 2 && d.name.size() <= 100
+        && d.phone is string && d.phone.size() >= 10 && d.phone.size() <= 24
+        && d.email is string && d.email.size() <= 160
+        && d.organization is string && d.organization.size() <= 120
+        && d.quantity is int && d.quantity >= 0 && d.quantity <= 1000000
+        && d.requiredDate is string && d.requiredDate.size() <= 20
+        && d.destination is string && d.destination.size() >= 2 && d.destination.size() <= 180
+        && d.country is string && d.country.size() >= 2 && d.country.size() <= 80
+        && d.state is string && d.state.size() <= 100
+        && d.city is string && d.city.size() <= 120
+        && d.postalCode is string && d.postalCode.size() <= 20
+        && d.preferredContact in ['whatsapp','telegram','email','phone']
+        && d.message is string && d.message.size() <= 1200
+        && d.status == 'new'
+        && d.source == 'website'
+        && d.createdAt == request.time
+        && d.updatedAt == request.time;
+    }
+
+    function validCustomerProfileCreate(uid) {
+      let d = request.resource.data;
+      return d.keys().hasOnly([
+          'uid','email','contactEmail','emailVerified','phoneVerified','displayName','phone','photoURL','photoPath','preferredProduct','recurringPreference',
+          'telegramUsername','preferredChannel','notifyEmail','notifyWhatsapp','notifyTelegram',
+          'primaryCity','primaryState','primaryCountry','primaryPin','createdAt','updatedAt','lastLoginAt'
+        ])
+        && d.uid == uid
+        && d.uid is string && d.uid.size() >= 1 && d.uid.size() <= 128
+        && d.email is string && d.email.size() <= 160
+        && d.contactEmail is string && d.contactEmail.size() <= 160
+        && d.emailVerified is bool && d.emailVerified == (request.auth.token.email_verified == true)
+        && d.phoneVerified is bool && d.phoneVerified == (request.auth.token.phone_number is string)
+        && d.phone is string && d.phone.size() <= 24
+        && (
+          (request.auth.token.email is string && d.email == request.auth.token.email)
+          || (request.auth.token.phone_number is string && d.email == '' && d.phone == request.auth.token.phone_number)
+        )
+        && d.displayName is string && d.displayName.size() <= 100
+        && d.photoURL is string && d.photoURL.size() <= 700
+        && d.photoPath is string && d.photoPath == ''
+        && d.preferredProduct in ['','tender','green','bulk']
+        && d.recurringPreference in ['onetime','weekly','fortnightly','monthly','flexible']
+        && d.telegramUsername is string && d.telegramUsername.size() <= 64
+        && d.preferredChannel in ['whatsapp','email','telegram','any']
+        && d.notifyEmail is bool && d.notifyWhatsapp is bool && d.notifyTelegram is bool
+        && d.primaryCity is string && d.primaryCity.size() <= 120
+        && d.primaryState is string && d.primaryState.size() <= 100
+        && d.primaryCountry is string && d.primaryCountry.size() <= 80
+        && d.primaryPin is string && d.primaryPin.size() <= 24
+        && d.createdAt == request.time
+        && d.updatedAt == request.time
+        && d.lastLoginAt == request.time;
+    }
+
+    function validCustomerProfileUpdate(uid) {
+      let d = request.resource.data;
+      return d.keys().hasOnly([
+          'uid','email','contactEmail','emailVerified','phoneVerified','displayName','phone','photoURL','photoPath','preferredProduct','recurringPreference',
+          'telegramUsername','preferredChannel','notifyEmail','notifyWhatsapp','notifyTelegram',
+          'primaryCity','primaryState','primaryCountry','primaryPin','createdAt','updatedAt','lastLoginAt'
+        ])
+        && d.uid == uid
+        && d.email is string && d.email.size() <= 160
+        && d.email == resource.data.email
+        && d.contactEmail is string && d.contactEmail.size() <= 160
+        && d.emailVerified is bool && d.emailVerified == (request.auth.token.email_verified == true)
+        && d.phoneVerified is bool && d.phoneVerified == (request.auth.token.phone_number is string)
+        && d.displayName is string && d.displayName.size() <= 100
+        && d.phone is string && d.phone.size() <= 24
+        && (d.email != '' || !(request.auth.token.phone_number is string) || d.phone == request.auth.token.phone_number)
+        && d.photoURL is string && d.photoURL.size() <= 700
+        && d.photoPath is string && d.photoPath == ''
+        && d.preferredProduct in ['','tender','green','bulk']
+        && d.recurringPreference in ['onetime','weekly','fortnightly','monthly','flexible']
+        && d.telegramUsername is string && d.telegramUsername.size() <= 64
+        && d.preferredChannel in ['whatsapp','email','telegram','any']
+        && d.notifyEmail is bool && d.notifyWhatsapp is bool && d.notifyTelegram is bool
+        && d.primaryCity is string && d.primaryCity.size() <= 120
+        && d.primaryState is string && d.primaryState.size() <= 100
+        && d.primaryCountry is string && d.primaryCountry.size() <= 80
+        && d.primaryPin is string && d.primaryPin.size() <= 24
+        && d.createdAt == resource.data.createdAt
+        && d.updatedAt == request.time
+        && (d.lastLoginAt == resource.data.lastLoginAt || d.lastLoginAt == request.time);
+    }
+
+    function validCustomerAddressCreate() {
+      let d = request.resource.data;
+      return d.keys().hasOnly([
+          'label','recipientName','phone','address','city','state','country','pin','landmark','isDefault','createdAt','updatedAt'
+        ])
+        && d.label is string && d.label.size() >= 2 && d.label.size() <= 40
+        && d.recipientName is string && d.recipientName.size() <= 100
+        && d.phone is string && d.phone.size() >= 10 && d.phone.size() <= 24
+        && d.address is string && d.address.size() >= 5 && d.address.size() <= 500
+        && d.city is string && d.city.size() >= 2 && d.city.size() <= 120
+        && d.state is string && d.state.size() <= 100
+        && d.country is string && d.country.size() >= 2 && d.country.size() <= 80
+        && d.pin is string && d.pin.size() <= 24
+        && d.landmark is string && d.landmark.size() <= 180
+        && d.isDefault is bool
+        && d.createdAt == request.time
+        && d.updatedAt == request.time;
+    }
+
+    function validCustomerAddressUpdate() {
+      let d = request.resource.data;
+      return d.keys().hasOnly([
+          'label','recipientName','phone','address','city','state','country','pin','landmark','isDefault','createdAt','updatedAt'
+        ])
+        && d.label is string && d.label.size() >= 2 && d.label.size() <= 40
+        && d.recipientName is string && d.recipientName.size() <= 100
+        && d.phone is string && d.phone.size() >= 10 && d.phone.size() <= 24
+        && d.address is string && d.address.size() >= 5 && d.address.size() <= 500
+        && d.city is string && d.city.size() >= 2 && d.city.size() <= 120
+        && d.state is string && d.state.size() <= 100
+        && d.country is string && d.country.size() >= 2 && d.country.size() <= 80
+        && d.pin is string && d.pin.size() <= 24
+        && d.landmark is string && d.landmark.size() <= 180
+        && d.isDefault is bool
+        && d.createdAt == resource.data.createdAt
+        && d.updatedAt == request.time;
+    }
+
+    function validCustomerOrderShape(uid, orderId) {
+      let d = request.resource.data;
+      return d.keys().hasOnly([
+          'customerUid','orderId','productKey','productName','quantity','unitPrice','total','status','paymentLabel',
+          'deliveryMethod','deliveryEstimate','estimatedTotal','destinationDisplay','trackingToken','source','createdAt','updatedAt'
+        ])
+        && d.customerUid == uid
+        && d.orderId == orderId
+        && d.orderId is string && d.orderId.size() >= 8 && d.orderId.size() <= 40
+        && d.productKey is string && d.productKey.size() <= 20
+        && d.productName is string && d.productName.size() <= 120
+        && d.quantity is int && d.quantity >= 1 && d.quantity <= 10000
+        && d.unitPrice is number && d.unitPrice >= 0
+        && d.total is number && d.total >= 0
+        && d.status in ['pending','confirmed','preparing','ready_for_dispatch','out_for_delivery','arrived','delivered','cancelled']
+        && d.paymentLabel is string && d.paymentLabel.size() <= 80
+        && d.deliveryMethod is string && d.deliveryMethod.size() <= 120
+        && d.deliveryEstimate is string && d.deliveryEstimate.size() <= 160
+        && d.estimatedTotal is string && d.estimatedTotal.size() <= 160
+        && d.destinationDisplay is string && d.destinationDisplay.size() <= 220
+        && d.trackingToken is string && d.trackingToken.matches('^[0-9a-fA-F]{48}$')
+        && d.source in ['account_checkout','claimed_tracking']
+        && d.createdAt == request.time
+        && d.updatedAt == request.time;
+    }
+
+    function validCustomerOrderOwnership(uid, orderId) {
+      let d = request.resource.data;
+      return (
+          d.source == 'account_checkout'
+          && exists(orderPath(orderId))
+          && get(orderPath(orderId)).data.customerUid == uid
+          && get(orderPath(orderId)).data.trackingToken == d.trackingToken
+          && get(orderPath(orderId)).data.productName == d.productName
+          && get(orderPath(orderId)).data.quantity == d.quantity
+          && get(orderPath(orderId)).data.status == d.status
+        )
+        || (
+          d.source == 'claimed_tracking'
+          && exists(trackingPath(d.trackingToken))
+          && get(trackingPath(d.trackingToken)).data.orderId == orderId
+          && get(trackingPath(d.trackingToken)).data.productName == d.productName
+          && get(trackingPath(d.trackingToken)).data.quantity == d.quantity
+          && get(trackingPath(d.trackingToken)).data.status == d.status
+        );
+    }
+
+    // Storefront catalog is public-readable; only the authenticated owner can edit it.
+    match /products/{productKey} {
+      allow read: if true;
+      allow create, update, delete: if canOrdersWrite() && productKey in ['tender','green','bulk'];
+    }
+
+    match /orders/{orderId} {
+      // Guest checkout stays supported. A signed-in order may optionally carry its own customer UID.
+      allow create: if request.resource.data.orderId == orderId && validOrder();
+      allow read: if canOrdersRead();
+      allow update, delete: if canOrdersWrite();
+    }
+
+    match /inquiries/{inquiryId} {
+      allow create: if request.resource.data.inquiryId == inquiryId && validInquiry();
+      allow read: if canCustomersRead();
+      allow update, delete: if canCrmWrite();
+    }
+
+    // A 192-bit random token acts as the private capability URL. Public users may GET
+    // one exact token document, but may never LIST the collection.
+    match /publicTracking/{token} {
+      allow create: if validPublicTrackingCreate(token);
+      allow get: if token.matches('^[0-9a-fA-F]{48}$');
+      allow list: if false;
+      allow update, delete: if canDeliveryWrite();
+    }
+
+    // Optional customer profile. Each signed-in customer can access only their own UID document.
+    match /customers/{uid} {
+      // Customers can access only their own profile. The configured owner may list/read
+      // profiles for the private owner dashboard customer directory.
+      allow get: if isSelf(uid) || canCustomersRead();
+      allow list: if canCustomersRead();
+      allow create: if isSelf(uid) && validCustomerProfileCreate(uid);
+      allow update: if isSelf(uid) && validCustomerProfileUpdate(uid);
+      allow delete: if false;
+
+      match /addresses/{addressId} {
+        // Saved addresses remain private to the customer and owner; no cross-customer access.
+        allow get, list: if isSelf(uid) || canCustomersRead();
+        allow create: if isSelf(uid) && validCustomerAddressCreate();
+        allow update: if isSelf(uid) && validCustomerAddressUpdate();
+        allow delete: if isSelf(uid);
+      }
+    }
+
+    // Sanitized customer-facing order view. Customers never directly read the private /orders collection.
+    match /customerOrders/{uid}/orders/{orderId} {
+      allow get, list: if isSelf(uid) || canCustomersRead();
+      allow create: if canOrdersWrite()
+        || (isSelf(uid) && validCustomerOrderShape(uid, orderId) && validCustomerOrderOwnership(uid, orderId));
+      allow update, delete: if canOrdersWrite();
+    }
+
+    // Owner-only CRM metadata. Never exposed to customers.
+    match /customerAdmin/{personKey} {
+      allow get, list: if canCustomersRead();
+      allow create, update: if canCrmWrite();
+      allow delete: if isAdminManager();
+    }
+
+    // Append-only internal accountability trail for owner/admin actions.
+    match /adminAudit/{auditId} {
+      allow get, list: if isAdminManager();
+      allow create: if hasRole(['Owner','Admin','Manager','Operations','Content','Support','Sales']);
+      allow update, delete: if false;
+    }
+
+    // Team role documents: a signed-in team member may read only their own role.
+    match /adminRoles/{uid} {
+      allow get: if isSelf(uid) || isAdminManager();
+      allow list, create, update, delete: if isOwner();
+    }
+
+    // Private fulfilment metadata. Public tracking receives only the sanitized subset.
+    match /deliveryAdmin/{orderId} {
+      allow get, list: if canDeliveryRead();
+      allow create, update: if canDeliveryWrite();
+      allow delete: if isAdminManager();
+    }
+
+    // Internal content source of truth. Public stories are separate sanitized projections.
+    match /contentStories/{storyId} {
+      allow get, list, create, update: if canContent();
+      allow delete: if isAdminManager();
+    }
+
+    match /publicStories/{storyId} {
+      allow read: if true;
+      allow create, update: if canContent()
+        && exists(/databases/$(database)/documents/contentStories/$(storyId))
+        && get(/databases/$(database)/documents/contentStories/$(storyId)).data.status == 'live'
+        && (
+          !get(/databases/$(database)/documents/contentStories/$(storyId)).data.keys().hasAny(['sourceSubmissionId'])
+          || get(/databases/$(database)/documents/contentStories/$(storyId)).data.sourceSubmissionId == ''
+          || get(/databases/$(database)/documents/contentStories/$(storyId)).data.publicationConsent == true
+        );
+      allow delete: if canContent();
+    }
+
+    // Customer-submitted story data never becomes public automatically.
+    match /customerStorySubmissions/{submissionId} {
+      allow create: if request.auth != null
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.status == 'submitted'
+        && request.resource.data.title is string && request.resource.data.title.size() >= 3 && request.resource.data.title.size() <= 100
+        && request.resource.data.story is string && request.resource.data.story.size() >= 20 && request.resource.data.story.size() <= 1800
+        && request.resource.data.publicationConsent is bool
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+      allow get, list: if canContent() || (request.auth != null && resource.data.uid == request.auth.uid);
+      allow update: if canContent();
+      allow delete: if isAdminManager();
+    }
+
+    // Provider-neutral media registry; binary provider may change without changing logical IDs.
+    match /mediaAssets/{logicalId} {
+      allow get, list, create, update: if canContent()
+        && request.resource.data.logicalId == logicalId;
+      allow delete: if false;
+
+      // Version documents are immutable once created. This is the primary anti-data-loss guard.
+      match /versions/{versionId} {
+        allow get, list: if canContent();
+        allow create: if canContent()
+          && request.resource.data.logicalId == logicalId
+          && request.resource.data.provider in ['cloudinary','firebase']
+          && request.resource.data.sourceSha256 is string
+          && request.resource.data.sourceSha256.matches('^[0-9a-fA-F]{64}$');
+        allow update, delete: if false;
+      }
+    }
+
+    // Browser clients cannot fabricate security events. Trusted ingestion is external/gated.
+    match /securityEvents/{eventId} {
+      allow get, list: if isAdminManager();
+      allow create, update, delete: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,0 +1,23 @@
+/* V20 review-only correction layer. Preserves V42 live foundation and removes rejected harvest gimmicks. */
+#v20-story-film .v20-rain,#v20-story-film .v20-harvest-wall,#v20-story-film .v24-harvest-wall,#v20-story-film .v22-collection-bg,#v20-story-film .v22-focus-ring,#v20-story-film .v22-spotlight{display:none!important}
+#v20-story-film{height:380vh!important;background:#020801!important}
+#v20-story-film .v20-story-sticky{background:#020801!important}
+#v20-story-film .v20-bg-grove{opacity:0!important}
+.v20-origin-scenes{position:absolute;inset:0;z-index:4;overflow:hidden;background:#041004;pointer-events:none}
+.v20-origin-scene{position:absolute;inset:-2%;width:104%;height:104%;object-fit:cover;opacity:0;transform:scale(1.045);filter:saturate(.96) contrast(1.04) brightness(.62);transition:opacity 1.15s ease,transform 5s ease}
+.v20-origin-scene.is-active{opacity:1;transform:scale(1.015)}
+.v20-origin-scenes:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(2,8,1,.88),rgba(2,8,1,.42) 48%,rgba(2,8,1,.16) 72%,rgba(2,8,1,.34)),linear-gradient(0deg,rgba(2,8,1,.88),transparent 52%)}
+#v20-story-film .v20-atmosphere{z-index:5!important}
+#v20-story-film .v20-story-copy{z-index:18!important;max-width:min(680px,44vw)!important}
+#v20-story-film .v20-story-copy-grove{top:28%!important}
+#v20-story-film .v20-story-copy-cut{top:28%!important}
+#v20-story-film .v20-handoff-label{z-index:22!important;background:rgba(2,8,1,.38);padding:8px 12px;border-radius:999px;backdrop-filter:blur(8px)}
+#v20-story-film .v20-story-coconut{z-index:24!important}
+#v20-story-film .v20-knife{z-index:25!important}
+#v20-story-film .v20-water-fill{z-index:30!important}
+#v20-story-film .v20-water-message,#v20-story-film .v20-end-copy{z-index:31!important}
+.v20-origin-note{position:absolute;z-index:20;right:5vw;bottom:7vh;max-width:300px;padding:12px 14px;border:1px solid rgba(212,168,67,.18);background:rgba(2,8,1,.48);backdrop-filter:blur(12px);font:500 8px/1.6 Jost,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.62);opacity:var(--origin-note-alpha,0);transition:opacity .35s}
+/* Never allow legacy CSS coconut objects from experimental builds. */
+.v25-css-coconut,.wall-coconut,.v20-fall-coconut:not(img),.v20-wall-coconut:not(img){display:none!important}
+@media(max-width:980px){#v20-story-film{display:none!important}.v20-origin-scenes,.v20-origin-note{display:none!important}}
+@media(prefers-reduced-motion:reduce){.v20-origin-scene{transition:none!important;transform:none!important}}

@@ -1,0 +1,115 @@
+/* V31 error-closure pass: real opening push-in, no dead order-map space, lower cinematic placement,
+   stronger coconut silhouette variety, and clearly visible premium cut-water splash. */
+
+/* 1) Opening should feel like a camera moving into the scene, not a static poster. */
+#jungle-intro .ji-cinema-shot{transform-origin:50% 52%!important;will-change:transform,opacity}
+#jungle-intro .ji-cinema-shot.is-active{
+  animation:v31IntroCameraPush 5.2s cubic-bezier(.18,.72,.16,1) both!important;
+}
+@keyframes v31IntroCameraPush{
+  0%{transform:scale(1.00) translate3d(0,0,0);filter:saturate(.94) contrast(1.02) brightness(.54)}
+  55%{transform:scale(1.055) translate3d(-.25%,-.18%,0);filter:saturate(.98) contrast(1.035) brightness(.58)}
+  100%{transform:scale(1.095) translate3d(-.5%,-.35%,0);filter:saturate(1) contrast(1.04) brightness(.60)}
+}
+#jungle-intro .ji-title-wrap{
+  transform-origin:50% 50%;
+  animation:v31IntroTitlePush 1.9s .18s cubic-bezier(.18,.72,.16,1) both!important;
+}
+@keyframes v31IntroTitlePush{
+  from{transform:translate(-50%,-50%) scale(.925);filter:blur(2.4px)}
+  to{transform:translate(-50%,-50%) scale(1);filter:blur(0)}
+}
+#jungle-intro .ji-scroll-hint{animation:v31IntroHint 1s 1.75s ease both!important}
+@keyframes v31IntroHint{from{opacity:0;transform:translateY(8px)}to{opacity:.78;transform:none}}
+
+/* 2) Delivery location: use the empty desktop side for the map instead of leaving a black void. */
+@media(min-width:981px){
+  #ns-del-root{display:block!important;width:100%!important}
+  #ns-del-root>.ns-del-section:first-child{
+    display:grid!important;
+    grid-template-columns:minmax(0,.82fr) minmax(390px,1.18fr)!important;
+    grid-auto-rows:auto;
+    column-gap:clamp(24px,3vw,42px)!important;
+    row-gap:12px!important;
+    align-items:start!important;
+  }
+  #ns-del-root>.ns-del-section:first-child>:not(.ns-v21-address-map){grid-column:1!important}
+  #ns-del-root>.ns-del-section:first-child>.ns-v21-address-map{
+    grid-column:2!important;grid-row:1 / span 9!important;margin:0!important;align-self:stretch!important;
+    min-width:0!important;width:100%!important;
+  }
+  #ns-del-root>.ns-del-section:first-child>.ns-v21-address-map .ns-v21-map{height:clamp(360px,33vw,470px)!important}
+  #ns-del-root>.ns-del-section:first-child .ns-del-row{grid-template-columns:1fr!important;gap:10px!important}
+  #ns-del-root>.ns-del-section:first-child .ns-map-placeholder{display:none!important}
+}
+#order .order-card{max-width:1120px;margin-inline:auto}
+#order .ofields{align-items:start}
+#order .ofields>#ns-del-root{margin-top:4px!important;margin-bottom:2px!important}
+
+/* 3) Make the 100-coconut scene read as natural variation instead of one repeated round fruit. */
+.v21-real-rain img.v31-type-slender{--sx:.56!important;--sy:1.34!important;transform-origin:50% 12%!important}
+.v21-real-rain img.v31-type-pear{--sx:.68!important;--sy:1.24!important;transform-origin:50% 10%!important}
+.v21-real-rain img.v31-type-dwarf{--sx:1.28!important;--sy:.76!important;transform-origin:50% 36%!important}
+.v21-real-rain img.v31-type-oval{--sx:.76!important;--sy:1.12!important}
+.v21-real-rain img.v31-type-bulb{--sx:1.12!important;--sy:.98!important;transform-origin:50% 20%!important}
+.v21-real-rain img.v31-type-small{--sx:.66!important;--sy:.86!important}
+.v21-real-rain img.v31-hero-size{filter:saturate(1.05) brightness(.96) drop-shadow(0 34px 48px rgba(0,0,0,.58))!important}
+
+/* 4) Replace the barely-visible old droplet treatment with a short, screen-facing photographic-water illusion. */
+.v30-cut-droplets{display:none!important}
+.v31-splash-burst{
+  position:absolute;z-index:80;left:50%;top:54.4%;width:1px;height:1px;
+  pointer-events:none;perspective:760px;transform-style:preserve-3d;overflow:visible;
+}
+#hero-coconut>.v31-splash-burst{left:50%;top:17.8%}
+.v31-splash-burst i{
+  position:absolute;left:0;top:0;width:var(--size,9px);height:calc(var(--size,9px)*1.42);
+  border-radius:54% 46% 62% 38% / 62% 58% 42% 38%;
+  background:
+    radial-gradient(circle at 30% 19%,rgba(255,255,255,.98) 0 10%,rgba(255,255,255,.15) 21%,transparent 26%),
+    linear-gradient(155deg,rgba(242,255,253,.96),rgba(157,232,224,.72) 47%,rgba(73,159,157,.18));
+  border:1px solid rgba(231,255,252,.42);
+  box-shadow:inset -2px -4px 7px rgba(31,112,110,.13),0 0 10px rgba(183,249,239,.26);
+  opacity:0;transform:translate3d(0,0,0) scale(.22) rotate(var(--rot,0deg));
+  transform-origin:50% 50%;will-change:transform,opacity,filter;
+}
+.v31-splash-burst::before{
+  content:"";position:absolute;left:0;top:0;width:72px;height:24px;border-radius:50%;
+  border:1px solid rgba(213,255,249,.5);transform:translate(-50%,-50%) scale(.3);opacity:0;
+  box-shadow:0 0 22px rgba(148,236,226,.14);pointer-events:none;
+}
+.v31-splash-burst::after{
+  content:"";position:absolute;left:0;top:0;width:100px;height:100px;border-radius:50%;
+  background:radial-gradient(circle,rgba(225,255,250,.22),rgba(167,236,226,.08) 26%,transparent 64%);
+  transform:translate(-50%,-50%) scale(.3);filter:blur(4px);opacity:0;pointer-events:none;
+}
+.v31-splash-burst.is-splashing::before{animation:v31SplashRing .62s ease-out both}
+.v31-splash-burst.is-splashing::after{animation:v31SplashMist .78s ease-out both}
+.v31-splash-burst.is-splashing i{
+  animation:v31DropletForward var(--dur,.78s) cubic-bezier(.12,.66,.18,1) var(--delay,0s) both;
+}
+@keyframes v31DropletForward{
+  0%{opacity:0;transform:translate3d(0,0,0) scale(.18) rotate(var(--rot,0deg));filter:blur(.1px)}
+  12%{opacity:.98}
+  58%{opacity:.92;transform:translate3d(var(--dx),var(--dy),var(--dz)) scale(var(--zoom,1.8)) rotate(calc(var(--rot,0deg) + 18deg));filter:blur(.2px)}
+  100%{opacity:0;transform:translate3d(var(--dx2),var(--dy2),var(--dz2)) scale(var(--zoom2,2.5)) rotate(calc(var(--rot,0deg) + 34deg));filter:blur(1.2px)}
+}
+@keyframes v31SplashRing{0%{opacity:.72;transform:translate(-50%,-50%) scale(.25)}100%{opacity:0;transform:translate(-50%,-50%) scale(2.25)}}
+@keyframes v31SplashMist{0%{opacity:.5;transform:translate(-50%,-50%) scale(.25)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.75)}}
+
+/* Keep the effect premium on smaller hardware: fewer droplets, no heavy 3D/filter load. */
+@media(max-width:980px){
+  #jungle-intro .ji-cinema-shot.is-active{animation:v31IntroCameraPushMobile 3.15s cubic-bezier(.18,.72,.16,1) both!important}
+  @keyframes v31IntroCameraPushMobile{from{transform:scale(1.00)}to{transform:scale(1.045)}}
+  .v31-splash-burst{perspective:none}
+  .v31-splash-burst i:nth-child(n+9){display:none!important}
+  .v31-splash-burst.is-splashing i{animation-duration:.66s!important}
+}
+@media(max-width:600px){
+  .v31-splash-burst i:nth-child(n+6){display:none!important}
+  #order .order-card{padding-top:24px!important;padding-bottom:24px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  #jungle-intro .ji-cinema-shot.is-active,#jungle-intro .ji-title-wrap{animation:none!important}
+  .v31-splash-burst{display:none!important}
+}

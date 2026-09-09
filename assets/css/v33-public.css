@@ -1,0 +1,68 @@
+/* V33 — premium photographic harvest + corrected cinematic placement */
+
+/* The rain layer is now spatially controlled by V33 variables, so older review-pass
+   --y/--r updates cannot reintroduce the distorted translucent wall of fruit. */
+#v20-story-film .v21-real-rain.v33-premium-rain{
+  opacity:var(--v33-rain-alpha,0)!important;
+  perspective:1200px;
+  overflow:hidden;
+}
+#v20-story-film .v21-real-rain.v33-premium-rain img{
+  left:var(--v33-x)!important;
+  top:0!important;
+  width:var(--v33-w,110px)!important;
+  height:auto!important;
+  opacity:var(--v33-alpha,0)!important;
+  object-fit:contain!important;
+  transform:
+    translate3d(calc(-50% + var(--v33-sway,0px)),var(--v33-y,-28vh),0)
+    rotate(var(--v33-rot,0deg))
+    scale(var(--v33-scale,.92))
+    scaleX(var(--v33-sx,1))
+    scaleY(var(--v33-sy,1))!important;
+  transform-origin:50% 18%!important;
+  filter:saturate(1.02) contrast(1.035) brightness(.91) drop-shadow(0 20px 30px rgba(0,0,0,.50))!important;
+  mix-blend-mode:normal!important;
+  will-change:transform,opacity;
+  backface-visibility:hidden;
+}
+
+/* Natural silhouette variation only — no stretched balloon/capsule shapes. */
+#v20-story-film .v33-premium-rain img.v33-shape-natural{--v33-sx:1;--v33-sy:1}
+#v20-story-film .v33-premium-rain img.v33-shape-oval{--v33-sx:.96;--v33-sy:1.04}
+#v20-story-film .v33-premium-rain img.v33-shape-pear{--v33-sx:.94;--v33-sy:1.06;transform-origin:50% 12%!important}
+#v20-story-film .v33-premium-rain img.v33-shape-compact{--v33-sx:1.04;--v33-sy:.97;transform-origin:50% 28%!important}
+
+/* Restrained cultivar / maturity tone variation. */
+#v20-story-film .v33-premium-rain img.v33-tone-green{filter:saturate(1.05) contrast(1.04) brightness(.90) drop-shadow(0 20px 30px rgba(0,0,0,.50))!important}
+#v20-story-film .v33-premium-rain img.v33-tone-lime{filter:hue-rotate(-5deg) saturate(1.12) contrast(1.02) brightness(.97) drop-shadow(0 18px 29px rgba(0,0,0,.45))!important}
+#v20-story-film .v33-premium-rain img.v33-tone-gold{filter:sepia(.16) hue-rotate(-13deg) saturate(1.12) contrast(1.04) brightness(.94) drop-shadow(0 20px 31px rgba(0,0,0,.48))!important}
+#v20-story-film .v33-premium-rain img.v33-tone-deep{filter:saturate(.96) contrast(1.08) brightness(.76) drop-shadow(0 17px 27px rgba(0,0,0,.48))!important}
+#v20-story-film .v33-premium-rain img.v33-tone-pale{filter:saturate(.78) contrast(.99) brightness(1.01) drop-shadow(0 16px 26px rgba(0,0,0,.42))!important}
+
+#v20-story-film .v33-premium-rain img.v33-near{
+  z-index:18!important;
+  filter:saturate(1.04) contrast(1.045) brightness(.95) drop-shadow(0 30px 44px rgba(0,0,0,.58))!important;
+}
+#v20-story-film .v33-premium-rain img.v33-far{
+  z-index:9!important;
+  filter:blur(.28px) saturate(.88) contrast(1.01) brightness(.76) drop-shadow(0 12px 20px rgba(0,0,0,.33))!important;
+}
+
+/* Make the background read as the grove and the fruit as foreground photography,
+   rather than a semi-transparent collage. */
+#v20-story-film .v20-harvest-wall,
+#v20-story-film .v24-harvest-wall{filter:saturate(.92) contrast(1.02) brightness(.82)!important}
+
+@media(max-width:980px){
+  /* Customer experience first: fewer active objects and smaller foreground fruit on tablet/mobile. */
+  #v20-story-film .v33-premium-rain img:nth-child(n+49){display:none!important}
+  #v20-story-film .v33-premium-rain img{width:min(var(--v33-w,100px),135px)!important;filter:saturate(.98) brightness(.88) drop-shadow(0 15px 22px rgba(0,0,0,.42))!important}
+}
+@media(max-width:600px){
+  #v20-story-film .v33-premium-rain img:nth-child(n+29){display:none!important}
+  #v20-story-film .v33-premium-rain img{width:min(var(--v33-w,88px),108px)!important}
+}
+@media(prefers-reduced-motion:reduce){
+  #v20-story-film .v33-premium-rain{display:none!important}
+}

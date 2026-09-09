@@ -1,0 +1,59 @@
+/* V30 final pre-live fixes: spacing, intro, richer coconuts, cut droplets, responsive polish */
+:root{--v30-section-gap:clamp(52px,6vw,84px)}
+
+/* 1. Remove the remaining dead-space caused by injected delivery UI becoming one grid column. */
+#order{padding-top:clamp(72px,7vw,104px)!important;padding-bottom:clamp(72px,7vw,104px)!important}
+.order-inner{max-width:1120px!important}
+#ns-del-root{grid-column:1 / -1!important;width:100%!important;min-width:0!important}
+#ns-del-root .ns-del-section{width:100%!important}
+.ns-v21-address-map{width:100%!important;box-sizing:border-box!important}
+.ns-v21-map{width:100%!important;min-height:300px}
+@media(min-width:981px){.order-card{padding:clamp(36px,4.3vw,56px)!important}.ns-v21-map{height:360px!important}}
+
+/* No feature section should read as an accidental black void. */
+#price-list,#our-story,#people-of-nariyal,#how-to-order,#coconut-uses,#faq,#order,#contact{min-height:0!important}
+#price-list,#our-story,#people-of-nariyal,#how-to-order,#coconut-uses,#faq,#order,#contact{padding-top:var(--v30-section-gap)!important;padding-bottom:var(--v30-section-gap)!important}
+section:empty{display:none!important}
+
+/* 2. Intro is deliberately visible on capable screens until user intent / timeout completes it. */
+body:not(.v30-intro-done) #jungle-intro{visibility:visible}
+#jungle-intro .ji-title-wrap{max-width:min(980px,92vw)}
+#jungle-intro .ji-logo{font-size:clamp(72px,10vw,154px)!important;line-height:.82!important;letter-spacing:clamp(4px,.7vw,12px)!important}
+#jungle-intro .ji-tagline{margin-top:18px!important}
+#jungle-intro .ji-scroll-hint{opacity:.78!important}
+
+/* 3. Real-photo coconut variation: more scale, aspect and orientation variety. */
+.v21-real-rain img{--sy:1;--rx:0deg;--ry:0deg;transform:translate3d(-50%,var(--y,-20vh),var(--z,0px)) rotateX(var(--rx)) rotateY(var(--ry)) rotate(var(--r,0deg)) scale(var(--s,1)) scaleX(var(--sx,1)) scaleY(var(--sy,1))!important}
+.v21-real-rain img.v30-shape-tall{--sx:.72!important;--sy:1.18!important}
+.v21-real-rain img.v30-shape-pear{--sx:.82!important;--sy:1.13!important;transform-origin:50% 18%!important}
+.v21-real-rain img.v30-shape-wide{--sx:1.18!important;--sy:.88!important}
+.v21-real-rain img.v30-shape-oval{--sx:.88!important;--sy:1.06!important}
+.v21-real-rain img.v30-shape-small{--sx:.78!important;--sy:.82!important}
+.v21-real-rain img.v30-cluster{filter:saturate(1.02) contrast(1.02) drop-shadow(0 22px 32px rgba(0,0,0,.44))!important}
+.v21-real-rain img.v30-near{filter:saturate(1.1) brightness(.98) drop-shadow(0 30px 46px rgba(0,0,0,.56))!important}
+.v21-real-rain img.v30-far{filter:blur(.65px) saturate(.82) brightness(.74) drop-shadow(0 12px 20px rgba(0,0,0,.28))!important}
+
+/* 4. Small droplets release exactly when the photographic cap opens. */
+.v30-cut-droplets{position:absolute;z-index:22;left:50%;top:15%;width:1px;height:1px;pointer-events:none;opacity:var(--cut-droplet-alpha,0)}
+.v30-cut-droplets i{position:absolute;width:var(--d,7px);height:calc(var(--d,7px)*1.55);border-radius:55% 45% 58% 42%;background:linear-gradient(160deg,rgba(255,255,255,.98),rgba(163,244,235,.82) 45%,rgba(77,190,186,.22));box-shadow:0 0 10px rgba(163,244,235,.32);transform:translate3d(calc(var(--dx)*var(--cut-droplet-p,0)),calc(var(--dy)*var(--cut-droplet-p,0)),0) rotate(var(--dr));opacity:calc((1 - var(--cut-droplet-p,0))*var(--da,.9));will-change:transform,opacity}
+.v30-cut-droplets i:nth-child(2n){width:calc(var(--d,7px)*.72);height:calc(var(--d,7px)*1.25)}
+
+/* Page sequencing visibility is a public result; the controls themselves live only in Admin. */
+[data-v30-section-hidden="true"]{display:none!important}
+
+@media(max-width:980px){
+  #jungle-intro .ji-logo{font-size:clamp(48px,15vw,86px)!important}
+  #order{padding-left:18px!important;padding-right:18px!important}
+  .order-inner{max-width:760px!important}
+  #ns-del-root{grid-column:1!important}
+  .v21-real-rain img:nth-child(n+41){display:none!important}
+  .v21-real-rain img{--z:0px!important;--rx:0deg!important;--ry:0deg!important;filter:none!important}
+  .v30-cut-droplets i:nth-child(n+8){display:none!important}
+}
+@media(max-width:600px){
+  #price-list,#our-story,#people-of-nariyal,#how-to-order,#coconut-uses,#faq,#order,#contact{padding-top:46px!important;padding-bottom:46px!important}
+  .ns-v21-map{height:260px!important}
+  .v21-real-rain img:nth-child(n+25){display:none!important}
+  .v30-cut-droplets i:nth-child(n+5){display:none!important}
+}
+@media(prefers-reduced-motion:reduce){.v30-cut-droplets{display:none!important}}

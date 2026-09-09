@@ -1,0 +1,1280 @@
+/* NARIYAL SUTRA — V17 preserved cinematic layer
+   One final motion layer only. This file intentionally loads after the legacy inline CSS. */
+
+:root{
+  --v16-gold:#d4a843;
+  --v16-gold-light:#f1cf79;
+  --v16-ink:#020801;
+  --v16-green:#071605;
+}
+
+/* ---------- Safety: content never depends on animation JS ---------- */
+body:not(.v16-motion-ready) .r,
+body:not(.v16-motion-ready) .rl,
+body:not(.v16-motion-ready) .rr{
+  opacity:1!important;
+  transform:none!important;
+}
+
+/* ---------- 1. FILM-STYLE JUNGLE OPENING — original illustration preserved ---------- */
+#jungle-intro{
+  isolation:isolate!important;
+  background:#020a01!important;
+}
+#jungle-intro .ji-sky{z-index:0!important;display:block!important}
+#jungle-intro .ji-cinematic-wash{
+  position:absolute;inset:0;z-index:1;overflow:hidden;pointer-events:none;
+  background:#020a01;
+}
+#jungle-intro .ji-cinema-shot{
+  position:absolute;inset:-3%;width:106%;height:106%;object-fit:cover;
+  opacity:0;transform:scale(1.09) translate3d(0,0,0);
+  filter:saturate(.92) contrast(1.08) brightness(.58) sepia(.06);
+  transition:opacity 1.05s cubic-bezier(.35,0,.18,1),filter 1.05s ease;
+  will-change:opacity,transform;
+}
+#jungle-intro .ji-cinema-shot.is-active{
+  opacity:.34;
+  animation:v16IntroDepth 1.95s ease-out both;
+}
+@keyframes v16IntroDepth{
+  from{transform:scale(1.09) translate3d(0,0,0)}
+  to{transform:scale(1.035) translate3d(-.45%,.3%,0)}
+}
+#jungle-intro .ji-cinematic-wash::before{
+  content:'';position:absolute;inset:0;z-index:4;
+  background:
+    radial-gradient(circle at 50% 48%,rgba(5,26,4,.08) 0 20%,rgba(2,9,1,.50) 61%,rgba(2,8,1,.82) 100%),
+    linear-gradient(180deg,rgba(1,6,1,.34),rgba(4,19,3,.08) 44%,rgba(1,8,1,.60));
+}
+#jungle-intro .ji-cinematic-wash::after{
+  content:'';position:absolute;inset:-25%;z-index:5;
+  background:linear-gradient(112deg,transparent 36%,rgba(248,218,139,.12) 48%,transparent 60%);
+  transform:translateX(-72%);mix-blend-mode:screen;
+  animation:v16IntroSweep 5.2s .22s ease-in-out both;
+}
+@keyframes v16IntroSweep{0%{transform:translateX(-72%)}72%,100%{transform:translateX(72%)}}
+
+/* The original moon, stars, palms, mist and fireflies stay above the photography. */
+#jungle-intro #starCanvas{z-index:2!important;display:block!important}
+#jungle-intro .ji-moon{z-index:3!important;display:block!important}
+#jungle-intro .ji-mist{z-index:4!important;display:block!important}
+#jungle-intro .ji-layer4{z-index:5!important;display:block!important}
+#jungle-intro .ji-layer3{z-index:6!important;display:block!important}
+#jungle-intro .ji-layer2{z-index:7!important;display:block!important}
+#jungle-intro .ji-layer1{z-index:8!important;display:block!important}
+#jungle-intro #fireflies{z-index:9!important;display:block!important}
+#jungle-intro .ji-title-wrap{z-index:13!important}
+#jungle-intro #ji-fadeout{z-index:16!important}
+
+#jungle-intro .ji-letterbox{
+  position:absolute;left:0;right:0;height:clamp(10px,1.7vh,20px);z-index:12;
+  background:#010401;pointer-events:none;box-shadow:0 0 24px rgba(0,0,0,.45);
+}
+#jungle-intro .ji-letterbox.top{top:0}
+#jungle-intro .ji-letterbox.bottom{bottom:0}
+#jungle-intro .ji-film-status{
+  position:absolute;right:clamp(24px,4vw,68px);top:clamp(28px,5vh,58px);z-index:14;
+  display:flex;align-items:center;gap:12px;text-transform:uppercase;
+  font:600 9px/1.2 'Jost',sans-serif;letter-spacing:3.2px;color:rgba(255,255,255,.68);
+  pointer-events:none;
+}
+#jungle-intro .ji-film-status b{font-family:'Playfair Display',serif;font-size:14px;color:var(--v16-gold-light);font-weight:400;letter-spacing:0}
+#jungle-intro .ji-film-status i{display:block;width:42px;height:1px;background:linear-gradient(90deg,var(--v16-gold),transparent)}
+#jungle-intro .ji-title-wrap::before{
+  content:'';position:absolute;z-index:-1;left:50%;top:50%;width:min(820px,74vw);height:min(410px,52vh);
+  transform:translate(-50%,-50%);border-radius:50%;
+  background:radial-gradient(ellipse,rgba(1,8,1,.44),rgba(1,7,1,.18) 48%,transparent 72%);
+  filter:blur(9px);pointer-events:none;
+}
+#ji-skip{z-index:10010!important}
+
+/* ---------- 2. THREE-SCENE HERO — deterministic crossfade ---------- */
+.hero{isolation:isolate!important;overflow:hidden!important;background:#030b02!important}
+.hero-bg{z-index:0!important}
+.hero-visual{
+  position:absolute!important;inset:0!important;width:100%!important;height:100%!important;overflow:hidden!important;
+  opacity:1!important;z-index:1!important;background:#061004!important;
+}
+.hero-visual .hero-scene{
+  position:absolute!important;inset:-2.5%!important;width:105%!important;height:105%!important;
+  object-fit:cover!important;opacity:0!important;transform:scale(1.075);
+  filter:saturate(1.12) contrast(1.05) brightness(.88)!important;
+  transition:opacity 1.35s cubic-bezier(.33,0,.18,1)!important;
+  will-change:opacity,transform;
+}
+.hero-visual .hero-scene-1{object-position:58% 50%!important}
+.hero-visual .hero-scene-2{object-position:54% 50%!important}
+.hero-visual .hero-scene-3{object-position:55% 52%!important}
+.hero-visual .hero-scene.is-active{
+  opacity:1!important;
+  animation:v16HeroDepth 5.4s cubic-bezier(.16,.78,.22,1) both!important;
+}
+@keyframes v16HeroDepth{
+  from{transform:scale(1.075) translate3d(0,0,0)}
+  to{transform:scale(1.018) translate3d(-.45%,.18%,0)}
+}
+.hero-visual-fade{
+  position:absolute!important;inset:0!important;z-index:5!important;
+  background:
+    linear-gradient(90deg,rgba(2,8,1,.92) 0%,rgba(2,8,1,.82) 29%,rgba(2,8,1,.49) 51%,rgba(2,8,1,.14) 73%,rgba(2,8,1,.08) 100%),
+    linear-gradient(0deg,rgba(2,8,1,.76) 0%,transparent 42%),
+    radial-gradient(circle at 77% 38%,transparent 0 22%,rgba(1,6,1,.12) 58%,rgba(1,6,1,.26) 100%)!important;
+  pointer-events:none;
+}
+.hero-visual::after{
+  content:''!important;display:block!important;position:absolute!important;z-index:6!important;inset:-25%!important;
+  background:linear-gradient(112deg,transparent 36%,rgba(255,225,151,.14) 49%,transparent 61%)!important;
+  transform:translateX(-72%);pointer-events:none;mix-blend-mode:screen;
+  animation:v16HeroSweep 8.2s 1.25s ease-in-out infinite!important;
+}
+@keyframes v16HeroSweep{0%,42%{transform:translateX(-72%)}72%,100%{transform:translateX(72%)}}
+.hero-content{position:relative!important;z-index:10!important}
+.hero-price{z-index:12!important}
+.hero-scroll{z-index:13!important}
+.hero-film-status{
+  position:absolute;right:clamp(78px,8vw,142px);top:clamp(95px,13vh,138px);z-index:13;
+  display:flex;align-items:center;gap:13px;pointer-events:none;
+  font:500 8px/1 'Jost',sans-serif;letter-spacing:2.8px;text-transform:uppercase;color:rgba(255,255,255,.62);
+}
+.hero-film-status b{font-family:'Playfair Display',serif;color:var(--v16-gold-light);font-size:13px;font-weight:400;letter-spacing:0}
+.hero-film-status i{display:block;width:34px;height:1px;background:linear-gradient(90deg,var(--v16-gold),transparent)}
+.hero-scene-markers{
+  position:absolute;right:clamp(18px,2.3vw,38px);top:50%;transform:translateY(-50%);z-index:14;
+  display:grid;gap:10px;pointer-events:none;
+}
+.hero-scene-markers i{display:block;width:2px;height:28px;background:rgba(255,255,255,.18);position:relative;overflow:hidden}
+.hero-scene-markers i::after{content:'';position:absolute;inset:0;background:var(--v16-gold-light);transform:scaleY(0);transform-origin:top;transition:transform .35s ease}
+.hero-scene-markers i.is-active::after{transform:scaleY(1)}
+
+/* ---------- 3. FULL-SCREEN GROVE → CUT → WATER — never blank ---------- */
+.scroll-cinema-shell{background:#020801!important;isolation:isolate!important}
+.story-stage{height:155vh!important;background:#020801!important}
+.cut-scroll{height:220vh!important}
+.story-sticky{isolation:isolate!important;background:#020801!important}
+.grove-sticky{background:#041004!important}
+.grove-photo{
+  z-index:0!important;inset:0!important;
+  background:
+    linear-gradient(90deg,rgba(2,8,1,.73),rgba(2,8,1,.12) 58%,rgba(2,8,1,.30)),
+    linear-gradient(0deg,rgba(2,8,1,.88),transparent 48%),
+    url('../images/nariyal-coconut-grove.webp') center/cover no-repeat!important;
+  filter:saturate(1.13) contrast(1.04) brightness(.78)!important;
+}
+.grove-sticky::before{z-index:1!important;background:radial-gradient(circle at 66% 24%,rgba(205,238,148,.11),transparent 26%),linear-gradient(to bottom,rgba(0,0,0,.05),rgba(0,0,0,.48))!important}
+.grove-haze{z-index:2!important}.palm-field{z-index:3!important}.coconut-rain{z-index:6!important}
+.grove-story-copy{z-index:9!important}.grove-count{z-index:10!important}.story-scroll-cue{z-index:10!important}.grove-sticky::after{z-index:11!important}
+
+.cut-sticky{background:#031003!important}
+.cut-photo-v16{
+  position:absolute;inset:-2%;z-index:0;width:104%;height:104%;object-fit:cover;object-position:61% 50%;
+  filter:saturate(1.05) contrast(1.08) brightness(.43);transform:scale(1.035);pointer-events:none;
+}
+.cut-sticky::before{z-index:1!important;background:linear-gradient(90deg,rgba(2,8,1,.72),rgba(2,8,1,.31) 45%,rgba(2,8,1,.36)),radial-gradient(circle at 50% 43%,rgba(212,168,67,.07),transparent 38%)!important;opacity:1!important;mask-image:none!important}
+.cut-light{z-index:2!important}
+.cut-copy{z-index:7!important}.hero-coconut{z-index:8!important}.knife{z-index:10!important}.water-fill{z-index:12!important}.water-message{z-index:15!important}.cut-end-copy{z-index:16!important}.cut-sticky::after{z-index:18!important}
+.story-sticky h2{max-width:min(980px,86vw)}
+
+/* ---------- 4. HARVEST FILM — preserve the section, add real motion at native scale ---------- */
+#harvest-film{position:relative;overflow:hidden!important}
+#harvest-film .film-frame{isolation:isolate;overflow:hidden!important;background:#081305}
+#harvest-film .film-loop.film-poster-v16{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;
+  filter:saturate(1.05) contrast(1.04) brightness(.76);transform:scale(1.015);
+  animation:v16FilmPosterDepth 9s ease-in-out infinite alternate!important;
+}
+@keyframes v16FilmPosterDepth{from{transform:scale(1.015)}to{transform:scale(1.055) translate3d(-.8%,.4%,0)}}
+#harvest-film .film-frame::before{
+  content:'';position:absolute;inset:0;z-index:2;pointer-events:none;
+  background:linear-gradient(0deg,rgba(2,8,1,.75),transparent 52%),linear-gradient(90deg,rgba(2,8,1,.32),transparent 56%);
+}
+#harvest-film .film-motion-window{
+  position:absolute;z-index:5;right:clamp(18px,2.3vw,34px);top:clamp(18px,2.3vw,34px);
+  width:clamp(230px,34%,340px);aspect-ratio:16/10;overflow:hidden;
+  border:1px solid rgba(241,207,121,.34);background:#031003;
+  box-shadow:0 24px 70px rgba(0,0,0,.45),0 0 0 8px rgba(2,8,1,.28);
+  clip-path:polygon(0 0,91% 0,100% 14%,100% 100%,0 100%);
+}
+#harvest-film .film-motion-window img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(1.12) contrast(1.04) brightness(.92)}
+#harvest-film .film-motion-tag{
+  position:absolute;left:10px;bottom:9px;z-index:2;padding:6px 8px;background:rgba(2,8,1,.74);backdrop-filter:blur(8px);
+  font:600 7px/1 'Jost',sans-serif;letter-spacing:1.7px;text-transform:uppercase;color:rgba(255,255,255,.74);
+}
+#harvest-film .film-motion-tag b{color:var(--v16-gold-light);font-weight:600}
+#harvest-film .film-caption{z-index:6!important}
+#harvest-film .cinema-copy h2{max-width:620px}
+#harvest-film::after{
+  content:'';position:absolute;inset:-30%;pointer-events:none;z-index:0;
+  background:linear-gradient(112deg,transparent 42%,rgba(212,168,67,.06) 49%,transparent 57%);
+  animation:v16SectionSweep 12s ease-in-out infinite;
+}
+@keyframes v16SectionSweep{0%,55%{transform:translateX(-60%)}85%,100%{transform:translateX(60%)}}
+
+/* ---------- 5. Smooth reveals + product choreography ---------- */
+.r,.rl,.rr{
+  transition:opacity .82s cubic-bezier(.2,.72,.25,1),transform .82s cubic-bezier(.2,.72,.25,1)!important;
+}
+.r{transform:translateY(26px)}.rl{transform:translateX(-30px)}.rr{transform:translateX(30px)}
+.r.vis,.rl.vis,.rr.vis{opacity:1!important;transform:none!important}
+#collection .pc{transition:transform .55s cubic-bezier(.2,.8,.2,1),border-color .35s ease,box-shadow .55s ease,opacity .7s ease!important}
+#collection .pc.is-showcased{box-shadow:0 28px 90px rgba(0,0,0,.38),0 0 0 1px rgba(212,168,67,.18)!important}
+
+/* ---------- MOBILE: same story, much lighter motion and normal scrolling ---------- */
+@media(max-width:980px){
+  html{scroll-behavior:auto!important}
+  body{overflow-y:auto!important;height:auto!important}
+
+  /* Preserve the jungle identity on mobile; simplify expensive particles/parallax. */
+  body.ns-intro-mobile #jungle-intro{display:block!important;visibility:visible!important;opacity:1!important;background:#020a01!important;pointer-events:auto!important}
+  body.ns-intro-mobile #jungle-intro::before{display:none!important}
+  body.ns-intro-mobile #jungle-intro .ji-sky,
+  body.ns-intro-mobile #jungle-intro .ji-moon,
+  body.ns-intro-mobile #jungle-intro .ji-layer4,
+  body.ns-intro-mobile #jungle-intro .ji-layer3,
+  body.ns-intro-mobile #jungle-intro .ji-layer2,
+  body.ns-intro-mobile #jungle-intro .ji-layer1,
+  body.ns-intro-mobile #jungle-intro .ji-cinematic-wash{display:block!important}
+  body.ns-intro-mobile #jungle-intro #starCanvas,
+  body.ns-intro-mobile #jungle-intro #fireflies,
+  body.ns-intro-mobile #jungle-intro .ji-mist2,
+  body.ns-intro-mobile #jungle-intro .ji-mist3{display:none!important}
+  body.ns-intro-mobile #jungle-intro .ji-mist1{display:block!important;opacity:.55!important}
+  body.ns-intro-mobile #jungle-intro .ji-cinema-shot.is-active{opacity:.20!important;animation:none!important;transform:scale(1.035)!important}
+  body.ns-intro-mobile #jungle-intro .ji-title-wrap{left:50%!important;top:50%!important;bottom:auto!important;width:calc(100% - 34px)!important;transform:translate(-50%,-50%)!important;text-align:center!important}
+  body.ns-intro-mobile #jungle-intro .ji-title-wrap::before{width:96vw;height:46vh}
+  body.ns-intro-mobile #jungle-intro .ji-eyebrow{font-size:8px!important;letter-spacing:4px!important;margin-bottom:12px!important}
+  body.ns-intro-mobile #jungle-intro .ji-logo{font-size:clamp(48px,15vw,82px)!important;line-height:.88!important;letter-spacing:4px!important}
+  body.ns-intro-mobile #jungle-intro .ji-tagline{font-size:8px!important;letter-spacing:2.6px!important;margin-top:15px!important}
+  body.ns-intro-mobile #jungle-intro .ji-film-status{right:16px;top:20px;font-size:7px;letter-spacing:2px}
+  body.ns-intro-mobile #jungle-intro .ji-letterbox{height:9px}
+  #ji-skip{display:block!important;right:14px!important;bottom:14px!important}
+
+  .hero-visual .hero-scene{inset:0!important;width:100%!important;height:100%!important;transition:opacity 1s ease!important;transform:none!important;animation:none!important;filter:saturate(1.06) contrast(1.03) brightness(.79)!important}
+  .hero-visual .hero-scene-1{object-position:67% center!important}
+  .hero-visual .hero-scene-2{object-position:57% center!important}
+  .hero-visual .hero-scene-3{object-position:55% center!important}
+  .hero-visual::after{display:none!important;animation:none!important}
+  .hero-film-status,.hero-scene-markers{display:none!important}
+  .hero-visual-fade{background:linear-gradient(0deg,rgba(2,8,1,.94) 0%,rgba(2,8,1,.71) 43%,rgba(2,8,1,.32) 100%)!important}
+
+  .story-stage,.cut-scroll{height:auto!important;min-height:0!important}
+  .story-sticky{position:relative!important;top:auto!important;height:auto!important;min-height:74svh!important;padding:76px 18px!important;overflow:hidden!important}
+  .grove-photo{inset:0!important;transform:none!important;filter:saturate(1.08) contrast(1.04) brightness(.58)!important}
+  .cut-photo-v16{inset:0!important;width:100%!important;height:100%!important;transform:none!important;filter:saturate(1.02) contrast(1.06) brightness(.34)!important}
+  .grove-count,.story-scroll-cue,.story-skip,.coconut-rain,.palm-field,.knife,.water-stream,.water-fill,.splash-ring,.cut-end-copy{display:none!important}
+  .grove-story-copy,.cut-copy{position:relative!important;left:auto!important;right:auto!important;top:auto!important;transform:none!important;opacity:1!important;max-width:620px!important;margin:0 auto!important;text-align:center!important}
+  .hero-coconut{position:relative!important;left:auto!important;top:auto!important;width:210px!important;height:238px!important;transform:none!important;margin:38px auto 0!important;opacity:1!important}
+
+  #harvest-film .film-motion-window{width:42%;min-width:150px;right:12px;top:12px;box-shadow:0 14px 40px rgba(0,0,0,.42)}
+  #harvest-film .film-motion-tag{font-size:6px;letter-spacing:1.1px;padding:5px 6px}
+  #harvest-film .film-loop.film-poster-v16{animation:none!important;transform:none!important}
+  #harvest-film::after{display:none!important}
+
+  .r,.rl,.rr{transform:translateY(16px)!important;transition-duration:.56s!important}
+  .r.vis,.rl.vis,.rr.vis{transform:none!important}
+}
+
+@media(max-width:560px){
+  #harvest-film .film-motion-window{width:46%;min-width:132px}
+  #harvest-film .film-motion-tag{display:none}
+}
+
+/* ---------- Reduced motion: no gate, no autoplay, no scroll-linked transforms ---------- */
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto!important}
+  #jungle-intro,#ji-skip{display:none!important}
+  #main-site{opacity:1!important;pointer-events:auto!important}
+  .hero-visual .hero-scene{display:none!important;animation:none!important;transition:none!important;transform:none!important}
+  .hero-visual .hero-scene-1{display:block!important;opacity:1!important;filter:saturate(1.04) contrast(1.03) brightness(.84)!important}
+  .hero-visual::after,.hero-film-status,.hero-scene-markers{display:none!important}
+  .story-stage,.cut-scroll{height:auto!important}
+  .story-sticky{position:relative!important;height:auto!important;min-height:72vh!important;padding:80px 20px!important}
+  .knife,.water-fill,.water-stream,.splash-ring,.coconut-rain,.palm-field,.story-scroll-cue,.story-skip{display:none!important}
+  .grove-story-copy,.cut-copy,.cut-end-copy{position:relative!important;left:auto!important;right:auto!important;top:auto!important;transform:none!important;opacity:1!important;text-align:center!important;margin:0 auto!important}
+  .hero-coconut{position:relative!important;left:auto!important;top:auto!important;transform:none!important;margin:40px auto!important;opacity:1!important}
+  #harvest-film .film-motion-window{display:none!important}
+  #harvest-film .film-loop.film-poster-v16{animation:none!important;transform:none!important}
+  #harvest-film::after{display:none!important}
+  .r,.rl,.rr{opacity:1!important;transform:none!important;transition:none!important}
+  #collection .pc,.pc-img-wrap img,.sec-title em{animation:none!important;transition:none!important}
+}
+
+/* Mobile paint safety: cinematic sections are never deferred into blank placeholders. */
+@media(max-width:980px){
+  #grove-story,#cut-story,#harvest-film,#collection{content-visibility:visible!important;contain:none!important}
+}
+
+/* ═════════════════════════════════════════════════════
+   V17 PRESERVATION FIX — cleaner Harvest Film, dedicated motion fold,
+   and no black exit frame after the cut/water sequence.
+   ═════════════════════════════════════════════════════ */
+
+/* Never cover the final cut frame with a solid-black exit mask. */
+.cut-sticky::after{display:none!important;opacity:0!important}
+.story-stage{height:145vh!important}
+.cut-scroll{height:195vh!important}
+
+/* Harvest Film is now a clean editorial 3-scene crossfade. */
+#harvest-film .film-frame{position:relative!important}
+#harvest-film .harvest-film-scenes{position:absolute;inset:0;z-index:1;overflow:hidden;background:#071304}
+#harvest-film .harvest-scene{
+  position:absolute;inset:-2%;width:104%;height:104%;object-fit:cover;object-position:center;
+  opacity:0;transform:scale(1.055);filter:saturate(1.04) contrast(1.04) brightness(.76);
+  transition:opacity 1.25s cubic-bezier(.32,0,.2,1);will-change:opacity,transform;
+}
+#harvest-film .harvest-scene:nth-child(1){object-position:52% 52%}
+#harvest-film .harvest-scene:nth-child(2){object-position:50% 52%}
+#harvest-film .harvest-scene:nth-child(3){object-position:54% 50%}
+#harvest-film .harvest-scene.is-active{opacity:1;animation:v17HarvestDepth 6.2s cubic-bezier(.17,.76,.22,1) both}
+@keyframes v17HarvestDepth{from{transform:scale(1.055) translate3d(0,0,0)}to{transform:scale(1.012) translate3d(-.45%,.25%,0)}}
+#harvest-film .film-frame::before{z-index:3!important}
+#harvest-film .film-caption{z-index:6!important}
+
+/* Dedicated fold for the real coconut footage. */
+.motion-fold{
+  position:relative;isolation:isolate;overflow:hidden;min-height:82vh;
+  display:grid;align-items:center;padding:clamp(76px,9vw,138px) clamp(22px,6vw,86px);
+  background:#030b02;border-top:1px solid rgba(212,168,67,.11);border-bottom:1px solid rgba(212,168,67,.11);
+}
+.motion-fold-bg{position:absolute;inset:0;z-index:-3;overflow:hidden}
+.motion-fold-bg img{width:100%;height:100%;object-fit:cover;object-position:52% 50%;filter:saturate(.98) contrast(1.05) brightness(.31);transform:scale(1.04)}
+.motion-fold::before{content:'';position:absolute;inset:0;z-index:-2;background:linear-gradient(90deg,rgba(2,8,1,.92) 0%,rgba(2,8,1,.76) 42%,rgba(2,8,1,.46) 70%,rgba(2,8,1,.62) 100%),linear-gradient(0deg,rgba(2,8,1,.88),transparent 50%)}
+.motion-fold::after{content:'';position:absolute;inset:-30%;z-index:-1;pointer-events:none;background:linear-gradient(112deg,transparent 39%,rgba(245,209,126,.10) 49%,transparent 59%);transform:translateX(-68%);animation:v17MotionSweep 11s ease-in-out infinite}
+@keyframes v17MotionSweep{0%,55%{transform:translateX(-68%)}86%,100%{transform:translateX(68%)}}
+.motion-fold-inner{width:min(1280px,100%);margin:0 auto;display:grid;grid-template-columns:minmax(320px,.86fr) minmax(460px,1.14fr);gap:clamp(42px,7vw,100px);align-items:center}
+.motion-fold-copy{max-width:520px}
+.motion-fold-kicker{display:flex;align-items:center;gap:12px;margin-bottom:18px;font:600 9px/1.2 'Jost',sans-serif;letter-spacing:4px;text-transform:uppercase;color:var(--v16-gold-light)}
+.motion-fold-kicker span{display:block;width:42px;height:1px;background:linear-gradient(90deg,var(--v16-gold),transparent)}
+.motion-fold h2{font-family:'Playfair Display',serif;font-weight:400;font-size:clamp(48px,6vw,84px);line-height:.94;letter-spacing:-.045em;margin:0 0 24px;color:#fff}
+.motion-fold h2 em{font-weight:400;font-style:italic;color:var(--v16-gold)}
+.motion-fold-copy>p{font-size:14px;line-height:1.9;color:rgba(255,255,255,.55);max-width:480px}
+.motion-fold-facts{display:flex;flex-wrap:wrap;gap:10px;margin-top:30px}
+.motion-fold-facts span{padding:10px 12px;border:1px solid rgba(212,168,67,.15);background:rgba(3,12,2,.38);font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.48)}
+.motion-fold-facts b{font-family:'Playfair Display',serif;font-size:17px;font-weight:400;color:var(--v16-gold-light);margin-right:4px}
+.motion-player{position:relative;width:min(720px,100%);justify-self:end;aspect-ratio:16/10;overflow:hidden;background:#061004;border:1px solid rgba(241,207,121,.30);box-shadow:0 32px 100px rgba(0,0,0,.48);clip-path:polygon(0 0,95% 0,100% 8%,100% 100%,5% 100%,0 92%)}
+.motion-player::before{content:'';position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(0deg,rgba(2,8,1,.53),transparent 31%),radial-gradient(circle at 50% 45%,transparent 42%,rgba(2,8,1,.26) 100%)}
+.motion-player video{display:block;width:100%;height:100%;object-fit:cover;background:#eff0e8;filter:saturate(1.04) contrast(1.03) brightness(.96)}
+.motion-player-top,.motion-player-bottom{position:absolute;left:18px;right:18px;z-index:4;display:flex;align-items:center;justify-content:space-between;text-transform:uppercase;font:600 8px/1 'Jost',sans-serif;letter-spacing:2px;color:rgba(255,255,255,.68);pointer-events:none}
+.motion-player-top{top:17px}.motion-player-bottom{bottom:17px}
+.motion-player-top span:first-child{display:flex;align-items:center;gap:8px}.motion-player-top i{width:7px;height:7px;border-radius:50%;background:#80d65f;box-shadow:0 0 13px rgba(128,214,95,.8);animation:v17LivePulse 1.6s ease-in-out infinite}
+@keyframes v17LivePulse{50%{transform:scale(.72);opacity:.48}}
+.motion-player-bottom b{font-family:'Playfair Display',serif;font-size:19px;font-weight:400;color:var(--v16-gold-light);letter-spacing:0}
+
+@media(max-width:980px){
+  .story-stage,.cut-scroll{height:auto!important}
+  .motion-fold{min-height:0;padding:72px 18px}
+  .motion-fold-inner{grid-template-columns:1fr;gap:34px}
+  .motion-fold-copy{max-width:660px}
+  .motion-player{justify-self:stretch;width:100%;max-width:720px;margin:0 auto;clip-path:polygon(0 0,96% 0,100% 6%,100% 100%,4% 100%,0 94%)}
+  .motion-fold::after{display:none}
+  #harvest-film .harvest-scene{animation:none!important;transform:scale(1.01)!important;transition:opacity .9s ease!important}
+}
+@media(max-width:560px){
+  .motion-fold h2{font-size:clamp(44px,14vw,66px)}
+  .motion-fold-copy>p{font-size:13px}
+  .motion-player-top,.motion-player-bottom{left:12px;right:12px;font-size:6px;letter-spacing:1.3px}
+  .motion-player-top{top:11px}.motion-player-bottom{bottom:11px}
+  .motion-fold-facts{gap:7px}.motion-fold-facts span{font-size:7px;padding:8px 9px}
+}
+@media(prefers-reduced-motion:reduce){
+  #harvest-film .harvest-scene{display:none!important;animation:none!important;transition:none!important;transform:none!important}
+  #harvest-film .harvest-scene:first-child{display:block!important;opacity:1!important}
+  .motion-fold::after,.motion-player-top i{animation:none!important}
+  .motion-player video{display:none!important}
+  .motion-player{background:url('https://nariyal-sutra.netlify.app/assets/images/nariyal-product-collection.webp') center/cover no-repeat!important}
+  .motion-player::after{content:'Motion paused';position:absolute;left:18px;bottom:18px;z-index:5;font:600 8px/1 'Jost',sans-serif;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.7)}
+}
+
+/* ═════════════════════════════════════════════════════
+   V18 — HARVEST → ONE COCONUT → CUT → FULL WATER
+   A match-cut transition that preserves every V17 feature.
+   ═════════════════════════════════════════════════════ */
+@media(min-width:981px){
+  /* Give the grove enough runway for the coconut curtain and hero handoff. */
+  #grove-story.story-stage{height:172vh!important}
+  #cut-story.cut-scroll{height:210vh!important}
+
+  .grove-sticky::after{
+    background:linear-gradient(to bottom,rgba(2,8,1,.78),transparent 12%,transparent 78%,rgba(2,8,1,.70))!important;
+    opacity:calc(.58 + var(--grove-dim,0))!important;
+  }
+  .grove-handoff-coconut{
+    position:absolute;z-index:13;left:50%;top:50%;width:clamp(220px,28vw,430px);height:clamp(250px,32vw,490px);
+    transform:translate(-50%,-50%) translateY(var(--grove-handoff-y,13vh)) rotate(var(--grove-handoff-rot,-8deg)) scale(var(--grove-handoff-scale,.58));
+    opacity:var(--grove-handoff-alpha,0);filter:drop-shadow(0 42px 72px rgba(0,0,0,.54));will-change:transform,opacity;pointer-events:none;
+  }
+  .grove-handoff-coconut .coco-cap{transform:none!important;opacity:1!important}
+  .grove-handoff-coconut .coco-opening{display:none!important}
+  .grove-handoff-label{
+    position:absolute;z-index:14;left:50%;bottom:clamp(26px,5vh,54px);transform:translateX(-50%);
+    display:flex;align-items:center;gap:13px;white-space:nowrap;opacity:var(--grove-handoff-label,0);
+    font:600 8px/1 'Jost',sans-serif;letter-spacing:3.4px;text-transform:uppercase;color:rgba(255,255,255,.62);pointer-events:none;
+  }
+  .grove-handoff-label span{display:block;width:42px;height:1px;background:linear-gradient(90deg,transparent,var(--v16-gold-light))}
+
+  /* The first frame of Chapter 02 is the same coconut filling the viewport. */
+  .cut-photo-v16{opacity:var(--cut-photo-alpha,0)!important;transition:none!important}
+  .cut-sticky::before{opacity:var(--cut-photo-alpha,0)!important}
+  .cut-light{opacity:var(--cut-photo-alpha,0)!important}
+  .cut-copy{pointer-events:none}
+
+  /* When water arrives it becomes the frame, not a temporary overlay. */
+  .water-fill{bottom:-6%!important;left:-6%!important;right:-6%!important;box-shadow:0 -18px 80px rgba(151,246,232,.30)!important}
+  .water-message{z-index:15!important}
+  .cut-end-copy{z-index:16!important;color:#effffd;text-shadow:0 10px 38px rgba(0,53,67,.28)}
+}
+
+@media(max-width:980px){
+  .grove-handoff-coconut,.grove-handoff-label{display:none!important}
+}
+@media(prefers-reduced-motion:reduce){
+  .grove-handoff-coconut,.grove-handoff-label{display:none!important}
+}
+
+/* ═════════════════════════════════════════════════════
+   V19 — TRUE HARVEST WALL → SELECTED COCONUT MATCH CUT
+   Fixes the V18 flat-green zoom failure.
+   ═════════════════════════════════════════════════════ */
+@media(min-width:981px){
+  #grove-story.story-stage{height:225vh!important}
+  #cut-story.cut-scroll{height:210vh!important}
+  .harvest-wall{position:absolute;inset:0;z-index:7;overflow:hidden;pointer-events:none;transform:scale(var(--wall-zoom,1));filter:blur(var(--wall-blur,0px));transform-origin:50% 52%;will-change:transform,filter}
+  .harvest-wall::after{content:'';position:absolute;inset:0;background:rgba(2,8,1,var(--wall-dim,0));pointer-events:none}
+  .wall-coconut{position:absolute;left:var(--wall-x);top:var(--wall-y);width:clamp(180px,var(--wall-size),360px);aspect-ratio:.96/1;transform:translate(-50%,-50%) translateY(var(--wall-enter-y,48vh)) rotate(var(--wall-rot,0deg)) scale(var(--wall-scale,.48));opacity:var(--wall-opacity,0);border-radius:48% 52% 48% 52% / 45% 46% 54% 55%;background:radial-gradient(circle at 30% 23%,#c5eb7c 0 4%,#75b943 18%,#418528 47%,#235b17 72%,#11370d 100%);box-shadow:inset -24px -28px 46px rgba(0,0,0,.24),inset 18px 13px 28px rgba(255,255,255,.10),0 22px 50px rgba(0,0,0,.38);will-change:transform,opacity}
+  .wall-coconut::before{content:'';position:absolute;left:27%;top:-2%;width:46%;height:21%;border-radius:50% 50% 36% 36%;background:radial-gradient(circle at 48% 34%,#e8e4c9 0 18%,#bec79a 19% 35%,#638f38 38% 62%,#315f20 77%,#173c12 100%);box-shadow:inset 0 -8px 14px rgba(0,0,0,.14)}
+  .wall-coconut::after{content:'';position:absolute;left:20%;top:15%;width:20%;height:42%;border-radius:50%;background:linear-gradient(110deg,rgba(255,255,255,.16),transparent 72%);transform:rotate(16deg)}
+  .grove-handoff-coconut{width:clamp(250px,31vw,470px)!important;height:clamp(285px,35vw,535px)!important;z-index:15!important;filter:drop-shadow(0 48px 90px rgba(0,0,0,.62))!important}
+  .grove-handoff-coconut::after{content:'';position:absolute;left:4%;right:4%;bottom:-12%;height:14%;border-radius:50%;background:radial-gradient(ellipse,rgba(0,0,0,.62),transparent 70%);filter:blur(10px)}
+  .grove-handoff-label{z-index:16!important}
+  .grove-sticky::after{opacity:calc(.48 + var(--grove-dim,0))!important}
+  .cut-sticky{background:#031003!important}
+  .cut-photo-v16{opacity:var(--cut-photo-alpha,0)!important;filter:saturate(1.05) contrast(1.06) brightness(.38)!important}
+  .water-fill{background:linear-gradient(180deg,rgba(190,255,249,.92) 0%,rgba(91,220,217,.95) 9%,#2eabb3 30%,#14798a 61%,#07546c 100%)!important;box-shadow:0 -18px 90px rgba(167,255,247,.38)!important}
+  .water-glow{background:linear-gradient(100deg,transparent,rgba(237,255,253,.22),transparent)!important}
+}
+@media(max-width:980px){.harvest-wall{display:none!important}}
+@media(prefers-reduced-motion:reduce){.harvest-wall{display:none!important}}
+
+/* ═════════════════════════════════════════════════════
+   V20 — ONE COCONUT / ONE CONTINUOUS STORY
+   A single sticky viewport removes the two-section split.
+   The exact same coconut DOM object moves from harvest → cut → water.
+   ═════════════════════════════════════════════════════ */
+@media(min-width:981px){
+  #grove-story,#cut-story{display:none!important}
+  #v20-story-film{display:block;height:410vh;position:relative;background:#031003}
+  .v20-story-sticky{position:sticky;top:0;height:100vh;min-height:680px;overflow:hidden;background:#031003;isolation:isolate}
+  .v20-bg{position:absolute;inset:-3%;background-position:center;background-size:cover;will-change:opacity,transform;transform:scale(1.065)}
+  .v20-bg-grove{z-index:0;background-image:linear-gradient(90deg,rgba(1,8,1,.60),rgba(1,8,1,.20) 48%,rgba(1,8,1,.35)),url('../images/nariyal-coconut-grove.webp');opacity:var(--grove-bg-alpha,1);transform:scale(calc(1.065 + var(--p,0)*.035))}
+  .v20-bg-cut{z-index:1;background-image:linear-gradient(90deg,rgba(1,7,1,.64),rgba(1,7,1,.18) 48%,rgba(1,7,1,.30)),url('https://6a9bfce307bb9f014e510b7d--nariyal-sutra.netlify.app/assets/images/nariyal-premium-hero.webp');opacity:var(--cut-bg-alpha,0);transform:scale(calc(1.10 - var(--p,0)*.03));filter:saturate(1.03) contrast(1.05) brightness(.86)}
+  .v20-atmosphere{position:absolute;inset:0;z-index:2;pointer-events:none;opacity:var(--atmosphere,1);background:radial-gradient(circle at 64% 22%,rgba(213,184,96,.14),transparent 28%),linear-gradient(110deg,rgba(1,15,5,.15),transparent 48%,rgba(215,179,69,.05));mix-blend-mode:screen}
+  .v20-atmosphere::after{content:'';position:absolute;inset:-20%;background:linear-gradient(108deg,transparent 34%,rgba(241,215,138,.12) 48%,transparent 59%);transform:translateX(calc(-38% + var(--p,0)*72%)) skewX(-11deg);filter:blur(22px)}
+
+  .v20-rain,.v20-harvest-wall{position:absolute;inset:0;z-index:5;pointer-events:none;overflow:hidden}
+  .v20-fall-coconut{position:absolute;left:var(--x);top:0;width:var(--size);aspect-ratio:.94/1;border-radius:48% 52% 48% 52% / 45% 46% 54% 55%;background:radial-gradient(circle at 29% 23%,#c9ed82 0 4%,#76b943 18%,#438829 48%,#225c17 73%,#10370d 100%);box-shadow:inset -12px -14px 24px rgba(0,0,0,.22),inset 8px 7px 14px rgba(255,255,255,.09),0 14px 28px rgba(0,0,0,.34);transform:translate(-50%,var(--ty,-15vh)) translateX(var(--drift,0)) rotate(var(--rot,0deg)) scale(var(--scale,.9));opacity:var(--alpha,0)}
+  .v20-fall-coconut::before,.v20-wall-coconut::before{content:'';position:absolute;left:27%;top:-2%;width:46%;height:21%;border-radius:50% 50% 36% 36%;background:radial-gradient(circle at 48% 34%,#e7e3c9 0 18%,#bec79a 19% 35%,#638f38 38% 62%,#315f20 77%,#173c12 100%);box-shadow:inset 0 -7px 13px rgba(0,0,0,.13)}
+
+  .v20-harvest-wall{z-index:7;transform:scale(var(--wall-zoom,1));filter:blur(var(--wall-blur,0px));transform-origin:50% 52%}
+  .v20-harvest-wall::after{content:'';position:absolute;inset:0;background:rgba(1,7,1,var(--wall-dim,0));pointer-events:none}
+  .v20-wall-coconut{position:absolute;left:var(--x);top:var(--y);width:clamp(176px,var(--size),350px);aspect-ratio:.96/1;transform:translate(-50%,-50%) translateY(var(--enter,48vh)) rotate(var(--rot,0deg)) scale(var(--scale,.48));opacity:var(--alpha,0);border-radius:48% 52% 48% 52% / 45% 46% 54% 55%;background:radial-gradient(circle at 30% 23%,#c7ec7c 0 4%,#75b943 18%,#418528 47%,#235b17 72%,#11370d 100%);box-shadow:inset -24px -28px 46px rgba(0,0,0,.24),inset 18px 13px 28px rgba(255,255,255,.10),0 22px 50px rgba(0,0,0,.38)}
+  .v20-wall-coconut::after{content:'';position:absolute;left:20%;top:15%;width:20%;height:42%;border-radius:50%;background:linear-gradient(110deg,rgba(255,255,255,.16),transparent 72%);transform:rotate(16deg)}
+  .v20-wall-coconut.is-source{z-index:2}
+
+  .v20-story-copy{position:absolute;z-index:9;left:7.2vw;max-width:min(650px,48vw);pointer-events:none;text-shadow:0 8px 35px rgba(0,0,0,.44)}
+  .v20-story-copy .story-index{margin-bottom:24px}
+  .v20-story-copy h2{font-family:'Playfair Display',serif;font-weight:400;font-size:clamp(54px,6.7vw,106px);line-height:.86;letter-spacing:-.055em;color:#f7f1e3;margin:0}
+  .v20-story-copy h2 em{font-weight:400;color:#d6a83f}
+  .v20-story-copy p{margin:28px 0 0;color:rgba(244,244,235,.65);font-size:12px;letter-spacing:2.2px;text-transform:uppercase;line-height:1.75}
+  .v20-story-copy-grove{top:28%;opacity:var(--grove-copy,0);transform:translateY(var(--grove-copy-y,26px))}
+  .v20-story-copy-cut{top:30%;opacity:var(--cut-copy,0);transform:translateY(var(--cut-copy-y,24px))}
+
+  .v20-count{position:absolute;z-index:10;right:7vw;top:19%;display:flex;flex-direction:column;align-items:flex-end;opacity:var(--count-alpha,0);text-transform:uppercase;pointer-events:none}
+  .v20-count span{font-family:'Playfair Display',serif;font-size:clamp(72px,8vw,130px);line-height:.8;color:#e8c368;font-weight:400}
+  .v20-count small{margin-top:16px;font-size:9px;letter-spacing:5px;color:rgba(255,255,255,.48)}
+
+  .v20-story-coconut{position:absolute;z-index:14;left:50%;top:52%;width:clamp(270px,31vw,470px);height:clamp(310px,35.5vw,540px);transform:translate(-50%,-50%) translateY(var(--hero-y,8vh)) rotate(var(--hero-rot,-7deg)) scale(var(--hero-scale,.56));opacity:var(--hero-alpha,0);filter:drop-shadow(0 45px 72px rgba(0,0,0,.58));will-change:transform,opacity;pointer-events:none}
+  .v20-story-coconut .coco-cap{transform:translate3d(var(--cap-x,0px),var(--cap-y,0px),0) rotate(var(--cap-r,0deg));opacity:var(--cap-alpha,1)}
+  .v20-story-coconut .coco-opening{opacity:var(--opening,0)}
+  .v20-story-coconut .water-stream{transform:scaleY(var(--stream,0));opacity:var(--stream-opacity,0)}
+  .v20-story-coconut .splash-ring{transform:translate(-50%,-50%) scale(var(--splash,0));opacity:var(--splash-alpha,0)}
+  .v20-coconut-shadow{position:absolute;left:6%;right:6%;bottom:-8%;height:13%;border-radius:50%;background:radial-gradient(ellipse,rgba(0,0,0,.64),transparent 70%);filter:blur(10px)}
+
+  .v20-handoff-label{position:absolute;z-index:16;left:50%;bottom:9.5%;transform:translateX(-50%);display:flex;align-items:center;gap:13px;white-space:nowrap;opacity:var(--handoff-alpha,0);font-size:9px;font-weight:700;letter-spacing:5px;color:rgba(255,255,255,.66);text-transform:uppercase;text-shadow:0 5px 18px rgba(0,0,0,.65)}
+  .v20-handoff-label i{width:44px;height:1px;background:linear-gradient(90deg,transparent,#e3b34b)}
+
+  .v20-knife{z-index:18!important;opacity:var(--knife-alpha,0)!important;transform:translate3d(calc(-50% + var(--knife-x,-78vw)),calc(var(--knife-y,0)*1px),0) rotate(-9deg)!important}
+  .v20-water-fill{z-index:22!important;bottom:-6%!important;left:-6%!important;right:-6%!important;background:linear-gradient(180deg,rgba(190,255,249,.94) 0%,rgba(91,220,217,.97) 10%,#2eabb3 31%,#14798a 61%,#07546c 100%)!important;box-shadow:0 -18px 92px rgba(167,255,247,.38)!important}
+  .v20-water-message{z-index:24!important}
+  .v20-end-copy{position:absolute;z-index:25;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;opacity:var(--end-alpha,0);transform:translateY(var(--end-y,18px));pointer-events:none;color:#effffd;text-shadow:0 10px 38px rgba(0,53,67,.28)}
+  .v20-end-copy h2{margin:18px 0 0;font-family:'Playfair Display',serif;font-size:clamp(46px,6vw,88px);line-height:.92;font-weight:400;letter-spacing:-.045em}.v20-end-copy em{font-weight:400}
+  .v20-progress{position:absolute;z-index:30;left:0;top:0;width:100%;height:2px;background:rgba(255,255,255,.06)}
+  .v20-progress span{display:block;height:100%;width:var(--progress,0%);background:linear-gradient(90deg,#d6a83f,#f1d582)}
+}
+
+@media(max-width:980px){
+  #v20-story-film{display:none!important}
+}
+@media(prefers-reduced-motion:reduce){
+  #v20-story-film{display:none!important}
+}
+
+
+/* ═════════════════════════════════════════════════════
+   V21 PHOTOGRAPHIC ONE-COCONUT STORY
+   Premium correction: no illustrated/cartoon coconut, no copy collision.
+   ═════════════════════════════════════════════════════ */
+@media(min-width:981px){
+  #v20-story-film{height:390vh}
+  .v20-story-sticky{background:#031003}
+
+  .v20-bg-cut{
+    background-image:
+      linear-gradient(90deg,rgba(1,8,3,.86) 0%,rgba(2,12,6,.68) 38%,rgba(2,10,5,.48) 64%,rgba(1,7,3,.72) 100%),
+      url('../images/nariyal-coconut-grove.webp')!important;
+    background-position:center 48%!important;
+    transform:scale(calc(1.09 - var(--p,0)*.018))!important;
+    filter:saturate(.62) contrast(1.08) brightness(.48) blur(1.4px)!important;
+  }
+  .v21-cut-surface{
+    position:absolute;z-index:3;left:-4%;right:-4%;bottom:-5%;height:34%;
+    opacity:var(--cut-bg-alpha,0);pointer-events:none;
+    background:
+      radial-gradient(ellipse at 68% 15%,rgba(234,205,130,.10),transparent 34%),
+      linear-gradient(180deg,rgba(4,13,7,0) 0%,rgba(2,8,4,.64) 34%,rgba(1,5,3,.96) 100%);
+    box-shadow:inset 0 1px rgba(219,181,80,.05);
+  }
+
+  .v20-fall-coconut,
+  .v20-wall-coconut{
+    background:url('https://nariyal-sutra.netlify.app/assets/images/story-coconut-hero.png') center/contain no-repeat!important;
+    border-radius:0!important;
+    box-shadow:none!important;
+    filter:saturate(.90) brightness(.92) drop-shadow(0 18px 26px rgba(0,0,0,.38));
+  }
+  .v20-fall-coconut::before,
+  .v20-fall-coconut::after,
+  .v20-wall-coconut::before,
+  .v20-wall-coconut::after{display:none!important}
+  .v20-wall-coconut{aspect-ratio:450/620!important}
+  .v20-fall-coconut{aspect-ratio:450/620!important}
+
+  .v20-story-copy{left:6.6vw;max-width:42vw}
+  .v20-story-copy h2{font-size:clamp(52px,5.7vw,92px);line-height:.91;letter-spacing:-.045em}
+  .v20-story-copy-cut{
+    left:6.6vw!important;
+    top:28%!important;
+    max-width:min(560px,34vw)!important;
+  }
+  .v20-story-copy-cut h2{font-size:clamp(50px,5.1vw,82px)!important}
+  .v20-story-copy-cut p{max-width:520px;line-height:1.85}
+
+  .v20-story-coconut.v21-photo-coconut{
+    left:var(--hero-x,50%)!important;
+    top:53%!important;
+    width:clamp(250px,24vw,390px)!important;
+    height:auto!important;
+    aspect-ratio:450/620!important;
+    transform:translate(-50%,-50%) translateY(var(--hero-y,8vh))
+              rotate(var(--hero-rot,-5deg)) scale(var(--hero-scale,.58))!important;
+    filter:saturate(.94) contrast(1.035) brightness(.96) drop-shadow(0 38px 55px rgba(0,0,0,.52))!important;
+  }
+  .v21-photo-coconut>img{
+    position:absolute;inset:0;width:100%;height:100%;object-fit:contain;
+    display:block;user-select:none;-webkit-user-drag:none;
+  }
+  .v21-coco-full{opacity:calc(1 - var(--split-alpha,0));}
+  .v21-coco-body{
+    opacity:var(--split-alpha,0);
+    clip-path:inset(46% 0 0 0);
+  }
+  .v21-coco-cap{
+    opacity:var(--split-alpha,0);
+    clip-path:inset(0 0 54% 0);
+    transform-origin:50% 46%;
+    transform:translate3d(var(--cap-x,0px),var(--cap-y,0px),0) rotate(var(--cap-r,0deg));
+    will-change:transform;
+  }
+  .v21-coco-opening{
+    position:absolute;z-index:4;left:31%;top:43.1%;width:38%;height:8.5%;
+    border-radius:50%;
+    opacity:var(--opening,0);
+    transform:scaleY(.58);
+    background:
+      radial-gradient(ellipse at 50% 42%,#eaf8ee 0 28%,#c4dbc6 30% 42%,#5c745a 44% 56%,#172116 58% 71%,#060b07 73%);
+    box-shadow:0 1px 0 rgba(255,255,255,.18),0 8px 24px rgba(0,0,0,.28);
+  }
+  .v20-coconut-shadow{
+    left:13%!important;right:13%!important;bottom:0!important;height:7%!important;
+    opacity:calc(.36 + var(--cut-bg-alpha,0)*.34);
+  }
+
+  .v20-knife{
+    top:49.5%!important;
+    width:clamp(310px,40vw,620px)!important;
+  }
+  .v20-story-coconut .water-stream{
+    left:47%!important;top:46.2%!important;width:6%!important;height:128vh!important;
+  }
+  .v20-story-coconut .splash-ring{left:50%!important;top:46.4%!important}
+  .v20-handoff-label{bottom:7.2%!important}
+  .v20-count{right:6.5vw}
+}
+
+/* ═════════════════════════════════════════════════════
+   V22 — CINEMATIC SELECTION / HARVEST SPOTLIGHT
+   Real full-screen tableau + depth + selected coconut match-cut.
+   ═════════════════════════════════════════════════════ */
+@media(min-width:981px){
+  #v20-story-film{height:410vh!important}
+
+  .v22-collection-bg{
+    position:absolute;inset:-2.5%;z-index:4;pointer-events:none;
+    background-image:
+      linear-gradient(90deg,rgba(2,8,3,.34) 0%,rgba(2,8,3,.08) 38%,rgba(2,8,3,.03) 60%,rgba(2,8,3,.22) 100%),
+      url('https://nariyal-sutra.netlify.app/assets/images/nariyal-product-collection.webp');
+    background-size:cover;background-position:center 52%;
+    opacity:var(--collection-alpha,0);
+    transform:translateY(var(--collection-shift,0%)) scale(var(--collection-scale,1.095));
+    filter:saturate(.96) contrast(1.07) brightness(.89);
+    will-change:opacity,transform;
+  }
+  .v22-collection-bg::after{
+    content:'';position:absolute;inset:0;pointer-events:none;
+    background:
+      radial-gradient(circle at 44% 54%,transparent 0 15%,rgba(1,8,2,.08) 26%,rgba(1,7,2,.36) 68%,rgba(1,5,2,.62) 100%),
+      linear-gradient(180deg,rgba(2,8,3,.18),transparent 28%,transparent 70%,rgba(2,8,3,.42));
+  }
+
+  .v22-spotlight{
+    position:absolute;inset:0;z-index:10;pointer-events:none;opacity:var(--spot-alpha,0);
+    background:
+      radial-gradient(circle at 44% 55%,rgba(245,215,132,.22) 0 10%,rgba(224,182,76,.09) 18%,transparent 34%),
+      linear-gradient(112deg,transparent 24%,rgba(247,221,147,.11) 43%,transparent 57%);
+    mix-blend-mode:screen;
+    filter:blur(.2px);
+  }
+  .v22-spotlight::after{
+    content:'';position:absolute;inset:-18%;
+    background:linear-gradient(108deg,transparent 34%,rgba(255,226,145,.12) 48%,transparent 60%);
+    transform:translateX(var(--spot-sweep,-30%)) skewX(-12deg);
+    filter:blur(28px);
+  }
+
+  .v22-focus-ring{
+    position:absolute;z-index:12;left:44.2%;top:55.5%;
+    width:clamp(250px,22vw,390px);aspect-ratio:1;border-radius:50%;
+    transform:translate(-50%,-50%) scale(var(--focus-scale,.82));
+    opacity:var(--focus-alpha,0);pointer-events:none;
+    border:1px solid rgba(238,199,91,.62);
+    box-shadow:0 0 0 1px rgba(238,199,91,.08),0 0 80px rgba(213,168,67,.16),inset 0 0 70px rgba(233,194,89,.05);
+  }
+  .v22-focus-ring::before,.v22-focus-ring::after{
+    content:'';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);border-radius:50%;
+  }
+  .v22-focus-ring::before{width:78%;height:78%;border:1px solid rgba(255,255,255,.12)}
+  .v22-focus-ring::after{width:8px;height:8px;background:#e8bc52;box-shadow:0 0 24px rgba(239,204,109,.7)}
+  .v22-focus-ring span{
+    position:absolute;left:50%;bottom:-34px;transform:translateX(-50%);white-space:nowrap;
+    font:600 8px/1 'Jost',sans-serif;letter-spacing:3.6px;text-transform:uppercase;color:rgba(255,242,205,.72);
+    text-shadow:0 6px 24px rgba(0,0,0,.7);
+  }
+
+  .v20-rain{z-index:6!important}
+  .v20-harvest-wall{display:none!important}
+  .v20-fall-coconut.v22-depth-coconut{
+    background:url('https://nariyal-sutra.netlify.app/assets/images/story-coconut-hero.png') center/contain no-repeat!important;
+    aspect-ratio:440/620!important;border-radius:0!important;box-shadow:none!important;
+    filter:blur(var(--blur,0px)) brightness(var(--bright,1)) saturate(.94) drop-shadow(0 18px 26px rgba(0,0,0,.42))!important;
+    z-index:var(--z,5);
+  }
+
+  .v20-story-copy-grove{top:26%!important;max-width:min(660px,42vw)!important}
+  .v20-story-copy-grove h2{font-size:clamp(58px,6vw,98px)!important}
+  .v20-story-copy-grove p{max-width:500px}
+  .v20-story-copy-cut{top:27%!important;max-width:min(570px,35vw)!important}
+  .v20-story-copy-cut h2{font-size:clamp(48px,4.8vw,80px)!important}
+
+  .v20-count{top:17%!important;right:6.3vw!important}
+  .v20-count span{text-shadow:0 20px 55px rgba(0,0,0,.35)}
+
+  .v20-story-coconut.v21-photo-coconut{
+    width:clamp(270px,25vw,420px)!important;
+    filter:saturate(.98) contrast(1.04) brightness(1.01) drop-shadow(0 45px 66px rgba(0,0,0,.58))!important;
+  }
+  .v21-photo-coconut>img{object-fit:contain!important}
+  .v20-coconut-shadow{filter:blur(14px)!important;opacity:.62}
+
+  .v20-handoff-label{
+    bottom:7.7%!important;padding:8px 13px;border-radius:999px;
+    background:rgba(3,10,4,.34);backdrop-filter:blur(12px);
+  }
+
+  .v20-knife::after{
+    content:'';position:absolute;right:9%;top:44%;width:22%;height:2px;
+    background:linear-gradient(90deg,transparent,rgba(255,244,201,.95),transparent);
+    filter:blur(.5px);box-shadow:0 0 18px rgba(255,229,150,.38);
+  }
+  .v20-water-fill::after{
+    content:'';position:absolute;inset:0;pointer-events:none;opacity:.42;
+    background:
+      radial-gradient(circle at 22% 26%,rgba(255,255,255,.30) 0 1px,transparent 2px),
+      radial-gradient(circle at 72% 38%,rgba(255,255,255,.18) 0 1px,transparent 2px),
+      linear-gradient(116deg,transparent 28%,rgba(255,255,255,.12) 45%,transparent 61%);
+    background-size:140px 140px,190px 190px,100% 100%;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  .v22-collection-bg,.v22-focus-ring,.v22-spotlight{display:none!important}
+}
+
+/* ═════════════════════════════════════════════════════
+   V23 — QA-SAFE HARVEST DEPTH
+   Actual IMG elements only. No filtered PNG compositor cards.
+   ═════════════════════════════════════════════════════ */
+@media(min-width:981px){
+  .v20-fall-coconut.v22-depth-coconut{display:none!important}
+  img.v20-fall-coconut.v23-depth-coconut{
+    display:block!important;
+    height:auto!important;
+    aspect-ratio:auto!important;
+    background:none!important;
+    border:0!important;
+    border-radius:0!important;
+    box-shadow:none!important;
+    filter:none!important;
+    object-fit:contain!important;
+    object-position:center!important;
+    transform:translate(-50%,var(--ty,-15vh)) translateX(var(--drift,0)) rotate(var(--rot,0deg)) scale(var(--scale,.9))!important;
+    opacity:var(--alpha,0)!important;
+    will-change:transform,opacity;
+    backface-visibility:hidden;
+    -webkit-backface-visibility:hidden;
+    contain:layout style;
+  }
+  img.v20-fall-coconut.v23-depth-coconut::before,
+  img.v20-fall-coconut.v23-depth-coconut::after{content:none!important;display:none!important}
+
+  /* Keep the opening grove leg elegant: fewer fruit, more photographic breathing room. */
+  .v20-rain{overflow:hidden!important}
+  .v22-collection-bg{filter:saturate(.98) contrast(1.06) brightness(.92)!important}
+  .v22-spotlight{mix-blend-mode:screen!important}
+}
+
+/* V23 final safety lock: no floating transparent-object swarm in the premium harvest chapter. */
+@media(min-width:981px){
+  #v20-story-film .v20-rain{display:none!important}
+  #v20-story-film .v20-count{top:18%!important;right:6.3vw!important}
+  #v20-story-film .v20-count span{font-size:clamp(74px,8.2vw,132px)!important}
+  #v20-story-film .v20-count small{max-width:150px;line-height:1.6}
+  #v20-story-film .v22-collection-bg{
+    background-position:center 50%!important;
+    filter:saturate(1.01) contrast(1.065) brightness(.94)!important;
+  }
+  #v20-story-film .v22-focus-ring{box-shadow:0 0 0 1px rgba(238,199,91,.09),0 0 110px rgba(213,168,67,.18),inset 0 0 70px rgba(233,194,89,.05)!important}
+}
+
+/* ═════════════════════════════════════════════════════
+   V24 — HARVEST WALL → ONE COCONUT EMERGES
+   Raster harvest wall avoids transparent-layer compositor failures.
+   ═════════════════════════════════════════════════════ */
+@media(min-width:981px){
+  #v20-story-film{height:455vh!important}
+  #v20-story-film .v22-collection-bg{display:none!important}
+  #v20-story-film .v20-rain{display:none!important}
+
+  .v24-harvest-wall{
+    position:absolute;inset:-1.5%;z-index:7;pointer-events:none;
+    background:
+      linear-gradient(180deg,rgba(2,8,3,.10),rgba(2,8,3,.04) 55%,rgba(2,8,3,.17)),
+      url('../images/harvest-wall-organic.jpg') center/cover no-repeat;
+    opacity:var(--v24-wall-alpha,0);
+    transform:scale(var(--v24-wall-scale,1.08));
+    transform-origin:50% 55%;
+    will-change:opacity,transform;
+  }
+  .v24-harvest-wall::after{
+    content:'';position:absolute;inset:0;pointer-events:none;
+    background:
+      radial-gradient(circle at 50% 55%,transparent 0 14%,rgba(1,6,2,.04) 26%,rgba(1,6,2,.24) 65%,rgba(1,5,2,.46) 100%),
+      linear-gradient(90deg,rgba(2,8,3,.16),transparent 24% 76%,rgba(2,8,3,.16));
+  }
+
+  /* The ring is centered on the exact coconut that becomes the hero object. */
+  #v20-story-film .v22-focus-ring{left:50%!important;top:55%!important;width:clamp(250px,23vw,405px)!important}
+  #v20-story-film .v22-spotlight{
+    background:
+      radial-gradient(circle at 50% 55%,rgba(248,217,126,.24) 0 10%,rgba(226,180,68,.09) 20%,transparent 35%),
+      linear-gradient(112deg,transparent 26%,rgba(247,221,147,.10) 45%,transparent 60%)!important;
+  }
+
+  /* Match the selected wall coconut before it moves out of the harvest. */
+  #v20-story-film .v20-story-coconut.v21-photo-coconut{
+    width:clamp(360px,27.1vw,520px)!important;
+    left:var(--hero-x,50%)!important;
+    top:var(--hero-y,55vh)!important;
+    transform:translate(-50%,-50%) rotate(var(--hero-rot,-1.5deg)) scale(var(--hero-scale,1.03))!important;
+    opacity:var(--hero-alpha,0)!important;
+    z-index:15!important;
+  }
+  #v20-story-film .v20-story-copy-grove{z-index:18!important}
+  #v20-story-film .v20-story-copy-cut{z-index:18!important}
+  #v20-story-film .v20-handoff-label{z-index:19!important}
+  #v20-story-film .v20-count{z-index:19!important}
+}
+@media(max-width:980px){.v24-harvest-wall{display:none!important}}
+@media(prefers-reduced-motion:reduce){.v24-harvest-wall{display:none!important}}
+
+
+/* ═════════════════════════════════════════════════════
+   V25 — COCONUT RAIN STORY (locked choreography)
+   Palms → coconut rain → dense full-screen harvest → one survives → cut → water.
+   Uses plain IMG layers with opacity/transform only: no white-card filters.
+   ═════════════════════════════════════════════════════ */
+@media(min-width:981px){
+  #v20-story-film{height:500vh!important}
+  #v20-story-film .v24-harvest-wall,
+  #v20-story-film .v22-collection-bg{display:none!important}
+  #v20-story-film .v20-rain{
+    display:block!important;position:absolute!important;inset:0!important;z-index:12!important;
+    overflow:hidden!important;pointer-events:none!important;contain:layout paint;
+  }
+  #v20-story-film .v25-rain-coconut{
+    position:absolute!important;left:0;top:0;height:auto!important;max-width:none!important;
+    display:block!important;background:none!important;border:0!important;border-radius:0!important;
+    box-shadow:none!important;filter:none!important;mix-blend-mode:normal!important;
+    opacity:0;object-fit:contain!important;will-change:transform,opacity;
+    backface-visibility:hidden;-webkit-backface-visibility:hidden;transform-origin:center center;
+  }
+  #v20-story-film .v25-rain-coconut.is-source{z-index:3!important}
+  #v20-story-film .v20-story-copy-grove{z-index:16!important;max-width:min(650px,40vw)!important}
+  #v20-story-film .v20-story-copy-grove h2{font-size:clamp(55px,5.7vw,94px)!important}
+  #v20-story-film .v20-count{z-index:20!important;top:18%!important;right:6.2vw!important}
+  #v20-story-film .v22-focus-ring{z-index:19!important;left:60.585%!important;top:57.449%!important;width:clamp(240px,23.2vw,405px)!important}
+  #v20-story-film .v22-spotlight{
+    z-index:17!important;
+    background:radial-gradient(circle at 60.585% 57.449%,rgba(249,219,126,.26) 0 9%,rgba(226,180,68,.09) 18%,transparent 34%),linear-gradient(112deg,transparent 25%,rgba(247,221,147,.08) 45%,transparent 62%)!important;
+  }
+  #v20-story-film .v20-story-coconut.v21-photo-coconut{
+    width:clamp(320px,23.2vw,430px)!important;z-index:21!important;
+    left:var(--hero-x,60.585%)!important;top:var(--hero-y,57.449vh)!important;
+    transform:translate(-50%,-50%) rotate(var(--hero-rot,-1.2deg)) scale(var(--hero-scale,.98))!important;
+    opacity:var(--hero-alpha,0)!important;
+  }
+  #v20-story-film .v20-story-copy-cut{z-index:22!important;left:6.4vw!important;top:27%!important;max-width:min(560px,34vw)!important}
+  #v20-story-film .v20-story-copy-cut h2{font-size:clamp(48px,4.9vw,80px)!important}
+  #v20-story-film .v20-handoff-label{z-index:24!important}
+  #v20-story-film .v20-knife{z-index:25!important}
+  #v20-story-film .v20-water-fill{z-index:30!important}
+  #v20-story-film .v20-water-message{z-index:32!important}
+  #v20-story-film .v20-end-copy{z-index:33!important}
+}
+@media(max-width:980px){#v20-story-film .v25-rain-coconut{display:none!important}}
+@media(prefers-reduced-motion:reduce){#v20-story-film .v25-rain-coconut{display:none!important}}
+
+/* ═════════════════════════════════════════════════════
+   V26 — NATURAL COCONUT RAIN POLISH
+   Break the tiled look: varied photographic fruit, shorter stems, organic depth.
+   ═════════════════════════════════════════════════════ */
+@media(min-width:981px){
+  #v20-story-film{height:470vh!important}
+  #v20-story-film .v25-rain-coconut{
+    transform-origin:50% 50%!important;
+    image-rendering:auto!important;
+  }
+  #v20-story-film .v25-rain-coconut.depth-back{opacity:.78}
+  #v20-story-film .v25-rain-coconut.depth-front{z-index:4!important}
+  #v20-story-film .v25-rain-coconut.is-source{z-index:5!important}
+  #v20-story-film .v20-story-copy-grove{max-width:min(600px,38vw)!important}
+  #v20-story-film .v20-story-copy-grove h2{font-size:clamp(54px,5.35vw,88px)!important}
+  #v20-story-film .v22-focus-ring{left:58%!important;top:56%!important;width:clamp(220px,21vw,360px)!important}
+  #v20-story-film .v22-spotlight{
+    background:radial-gradient(circle at 58% 56%,rgba(249,219,126,.24) 0 8%,rgba(226,180,68,.08) 17%,transparent 32%),linear-gradient(112deg,transparent 25%,rgba(247,221,147,.075) 45%,transparent 62%)!important;
+  }
+  #v20-story-film .v20-story-coconut.v21-photo-coconut{
+    left:var(--hero-x,58%)!important;top:var(--hero-y,56vh)!important;
+    width:clamp(300px,21.5vw,400px)!important;
+  }
+}
+
+
+/* ═════════════════════════════════════════════════════
+   V27 — DENSE RAIN + VISIBLE POUR
+   Stronger full-screen coconut downpour and guaranteed water stream before water takeover.
+   ═════════════════════════════════════════════════════ */
+@media(min-width:981px){
+  #v20-story-film{height:505vh!important}
+  #v20-story-film .v20-rain{z-index:13!important}
+  #v20-story-film .v25-rain-coconut{image-rendering:auto!important;filter:none!important;box-shadow:none!important}
+  #v20-story-film .v25-rain-coconut.depth-front{z-index:5!important}
+  #v20-story-film .v25-rain-coconut.depth-mid{z-index:4!important}
+  #v20-story-film .v25-rain-coconut.depth-back{z-index:3!important}
+  #v20-story-film .v25-rain-coconut.is-source{z-index:6!important}
+  #v20-story-film .v20-story-coconut.v21-photo-coconut{z-index:22!important}
+  #v20-story-film .v20-story-coconut .water-stream{
+    display:block!important;
+    left:47.5%!important;top:45.6%!important;width:7.5%!important;height:132vh!important;
+    transform-origin:50% 0!important;
+    transform:scaleY(var(--stream-scale,0))!important;
+    opacity:var(--stream-alpha,0)!important;
+    background:linear-gradient(90deg,transparent 0%,rgba(193,255,249,.34) 15%,rgba(239,255,253,.98) 43%,rgba(151,239,230,.94) 62%,rgba(211,255,250,.42) 82%,transparent 100%)!important;
+    filter:drop-shadow(0 0 10px rgba(168,255,246,.62)) drop-shadow(0 0 22px rgba(80,211,207,.34))!important;
+    border-radius:55% 55% 22px 22px!important;
+    z-index:12!important;
+  }
+  #v20-story-film .v20-story-coconut .water-stream::before{
+    content:'';position:absolute;left:18%;right:18%;top:-5px;height:18px;border-radius:50%;
+    background:radial-gradient(ellipse at center,rgba(248,255,253,.98),rgba(128,232,222,.70) 52%,transparent 72%);
+    opacity:var(--stream-alpha,0);
+  }
+  #v20-story-film .v20-story-coconut .water-stream i{opacity:.82!important}
+  #v20-story-film .v20-water-fill{height:var(--water-height,0)!important;opacity:var(--water-alpha,0)!important}
+}
+
+
+/* ═════════════════════════════════════════════════════
+   V28 — PREMIUM PRODUCTION POLISH
+   Additive-only final layer: preserves the V27 cinematic choreography.
+   Improves hero legibility/image presence, product clarity and focus states.
+   ═════════════════════════════════════════════════════ */
+html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+
+@media(min-width:981px){
+  /* Keep the three-scene film dominant instead of letting the green wash flatten it. */
+  .hero-visual .hero-scene{
+    filter:saturate(1.08) contrast(1.045) brightness(.94)!important;
+  }
+  .hero-visual-fade{
+    background:
+      linear-gradient(90deg,rgba(2,8,1,.93) 0%,rgba(2,8,1,.78) 28%,rgba(2,8,1,.40) 51%,rgba(2,8,1,.10) 73%,rgba(2,8,1,.035) 100%),
+      linear-gradient(0deg,rgba(2,8,1,.66) 0%,transparent 42%),
+      radial-gradient(circle at 77% 38%,transparent 0 25%,rgba(1,6,1,.08) 60%,rgba(1,6,1,.20) 100%)!important;
+  }
+  .hero h1{text-shadow:0 20px 70px rgba(0,0,0,.44)}
+  .hero-sub{color:rgba(255,255,255,.64)!important;text-shadow:0 6px 28px rgba(0,0,0,.35)}
+  .hero-price{
+    background:rgba(4,12,3,.79)!important;
+    border-color:rgba(212,168,67,.42)!important;
+    box-shadow:0 24px 70px rgba(0,0,0,.34),0 0 44px rgba(212,168,67,.055);
+  }
+
+  /* Product photography reads cleanly before hover; hover still keeps V27 motion. */
+  #collection .pc-img-wrap img{filter:saturate(1.045) contrast(1.025) brightness(.98)}
+  #collection .pc:hover .pc-img-wrap img{filter:brightness(.84) saturate(1.20) contrast(1.04)!important}
+  #collection .pc.is-showcased .pc-img-wrap img{filter:brightness(.88) saturate(1.18) contrast(1.035)!important}
+  #collection .pc{border-color:rgba(212,168,67,.13)!important}
+  #collection .pc:hover,#collection .pc.is-showcased{border-color:rgba(212,168,67,.34)!important}
+}
+
+/* Stronger keyboard / touch clarity without changing the brand styling. */
+.pc-btn:focus-visible,.po-btn:focus-visible,.wa-btn:focus-visible,.btn-gold:focus-visible,.btn-outline:focus-visible,.topt:focus-visible,.pay-opt:focus-visible{
+  outline:2px solid var(--goldl)!important;outline-offset:4px!important;
+}
+
+@media(max-width:980px){
+  /* Mobile keeps the same film identity but exposes more photographic detail. */
+  .hero-visual .hero-scene{filter:saturate(1.045) contrast(1.025) brightness(.84)!important}
+  .hero-visual-fade{background:linear-gradient(0deg,rgba(2,8,1,.92) 0%,rgba(2,8,1,.65) 43%,rgba(2,8,1,.24) 100%)!important}
+  #collection .pc-img-wrap img{filter:saturate(1.03) contrast(1.02) brightness(.97)}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .hero-visual .hero-scene-1{filter:saturate(1.03) contrast(1.02) brightness(.90)!important}
+}
+
+/* ═════════════════════════════════════════════════════
+   FINAL — NATURAL PHOTOGRAPHIC CUT + POUR
+   Derived photographic body/cap assets keep the cut physical and remove
+   the synthetic ring / floating half / neon beam appearance.
+   ═════════════════════════════════════════════════════ */
+@media(min-width:981px){
+  #v20-story-film .v21-coco-full{
+    opacity:calc(1 - var(--split-alpha,0))!important;
+  }
+  #v20-story-film .v21-coco-body,
+  #v20-story-film .v21-coco-cap{
+    position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
+    object-fit:contain!important;user-select:none!important;-webkit-user-drag:none!important;
+  }
+  #v20-story-film .v21-coco-body{
+    opacity:var(--split-alpha,0)!important;z-index:5!important;
+    clip-path:none!important;filter:saturate(.98) contrast(1.02) brightness(1.01)!important;
+  }
+  #v20-story-film .v21-coco-cap{
+    opacity:var(--split-alpha,0)!important;z-index:8!important;clip-path:none!important;
+    transform-origin:50% 52.5%!important;
+    transform:translate3d(var(--cap-x,0px),var(--cap-y,0px),0) rotate(var(--cap-r,0deg))!important;
+    filter:saturate(.98) contrast(1.02) brightness(1.015) drop-shadow(0 12px 14px rgba(0,0,0,.34))!important;
+    will-change:transform,opacity;
+  }
+  #v20-story-film .v21-coco-opening{
+    z-index:7!important;left:30.5%!important;top:50.3%!important;width:39%!important;height:8.3%!important;
+    opacity:var(--opening,0)!important;transform:scaleY(.57)!important;border-radius:50%!important;
+    background:
+      radial-gradient(ellipse at 50% 48%,rgba(19,36,27,.96) 0 17%,rgba(80,111,88,.95) 18% 24%,#f5f0de 26% 41%,#ddd0a7 43% 56%,#aa8f55 58% 65%,rgba(78,62,31,.78) 67% 70%,transparent 72%)!important;
+    box-shadow:0 5px 12px rgba(0,0,0,.32),inset 0 1px rgba(255,255,255,.36)!important;
+    filter:none!important;overflow:hidden!important;
+  }
+  #v20-story-film .v21-coco-opening span{
+    position:absolute;left:29%;right:29%;top:34%;height:22%;border-radius:50%;
+    background:linear-gradient(90deg,transparent,rgba(235,250,244,.30),transparent);opacity:.55;
+  }
+
+  /* Restrained physical knife — no over-bright glint. */
+  #v20-story-film .v20-knife{top:51.0%!important;filter:drop-shadow(0 11px 15px rgba(0,0,0,.36))!important}
+  #v20-story-film .v20-knife::after{right:13%!important;top:44%!important;width:15%!important;height:1px!important;opacity:.35!important;box-shadow:none!important}
+
+  /* Natural coconut-water stream. No cyan glow, no portal ring. */
+  #v20-story-film .splash-ring{display:none!important}
+  #v20-story-film .v20-story-coconut .water-stream{
+    display:block!important;z-index:10!important;left:66.2%!important;top:53.7%!important;
+    width:clamp(7px,.72vw,11px)!important;height:78vh!important;
+    transform-origin:50% 0!important;
+    transform:translateX(-50%) rotate(-8deg) scaleY(var(--stream-scale,0))!important;
+    opacity:var(--stream-alpha,0)!important;
+    background:linear-gradient(90deg,rgba(255,255,255,0) 0%,rgba(244,252,249,.18) 17%,rgba(249,254,252,.73) 43%,rgba(226,244,239,.66) 62%,rgba(255,255,255,0) 100%)!important;
+    clip-path:polygon(35% 0,65% 0,78% 100%,23% 100%)!important;
+    border-radius:45% 48% 55% 52%!important;
+    filter:drop-shadow(0 1px 2px rgba(213,244,238,.13))!important;box-shadow:none!important;
+    will-change:transform,opacity;
+  }
+  #v20-story-film .v20-story-coconut .water-stream::before{
+    content:''!important;position:absolute!important;left:17%!important;right:17%!important;top:-2px!important;height:7px!important;
+    border-radius:50%!important;background:radial-gradient(ellipse at center,rgba(251,255,253,.86),rgba(208,236,229,.28) 55%,transparent 77%)!important;
+    opacity:var(--stream-alpha,0)!important;filter:none!important;
+  }
+  #v20-story-film .v20-story-coconut .water-stream::after{
+    content:''!important;position:absolute!important;left:36%!important;top:22%!important;width:3px!important;height:5px!important;border-radius:50%!important;
+    background:rgba(241,252,249,.68)!important;opacity:calc(var(--stream-alpha,0) * .7)!important;
+    box-shadow:4px 34px 0 -1px rgba(234,249,245,.48),-3px 72px 0 -1px rgba(226,246,241,.40),4px 118px 0 -1px rgba(235,250,246,.32)!important;
+  }
+  #v20-story-film .v20-story-coconut .water-stream i{
+    position:absolute!important;inset:0!important;
+    background:linear-gradient(180deg,rgba(255,255,255,.22),rgba(255,255,255,.06) 60%,transparent)!important;
+    opacity:.45!important;filter:none!important;animation:none!important;
+  }
+
+  /* Water takeover: pale at the leading edge, deeper only after it fills the frame. */
+  #v20-story-film .v20-water-fill{
+    height:var(--water-height,0)!important;opacity:var(--water-alpha,0)!important;
+    background:linear-gradient(180deg,rgba(225,249,244,.86) 0%,rgba(157,222,214,.88) 7%,rgba(85,174,176,.94) 25%,#286f7b 58%,#104957 100%)!important;
+    box-shadow:0 -9px 35px rgba(209,247,239,.16)!important;
+  }
+  #v20-story-film .v20-water-fill::before{
+    content:'';position:absolute;left:-3%;right:-3%;top:-8px;height:17px;border-radius:50%;
+    background:radial-gradient(ellipse at center,rgba(244,255,252,.58),rgba(183,231,223,.20) 55%,transparent 72%);
+    opacity:.72;filter:blur(1px);
+  }
+}
+
+@media(max-width:980px), (prefers-reduced-motion:reduce){
+  #v20-story-film .v21-coco-body,#v20-story-film .v21-coco-cap{display:none!important}
+}
+
+
+/* ═════════════════════════════════════════════════════
+   V30 FINAL PUBLISH — STUDIO CUT + NATURAL GRAVITY POUR
+   Final override only: preserve V27 choreography while removing the
+   floating/portal/laser look from the cutting beat.
+   ═════════════════════════════════════════════════════ */
+@media(min-width:981px){
+  /* Transition the harvest into a restrained studio-like cutting frame. */
+  #v20-story-film .v20-bg-cut{
+    background-image:
+      radial-gradient(circle at 71% 46%,rgba(191,157,70,.10),transparent 24%),
+      radial-gradient(circle at 67% 58%,rgba(73,120,56,.11),transparent 36%),
+      linear-gradient(108deg,#061006 0%,#0a1709 44%,#101c0d 72%,#071006 100%)!important;
+    background-position:center!important;
+    filter:none!important;
+    transform:none!important;
+  }
+  #v20-story-film .v21-cut-surface{
+    z-index:3!important;left:-3%!important;right:-3%!important;bottom:-4%!important;height:37%!important;
+    opacity:var(--cut-bg-alpha,0)!important;
+    background:
+      radial-gradient(ellipse at 70% 4%,rgba(217,183,98,.10),transparent 27%),
+      linear-gradient(180deg,rgba(10,20,10,0) 0%,rgba(8,16,8,.48) 22%,rgba(4,9,5,.94) 70%,#020603 100%)!important;
+    box-shadow:inset 0 1px rgba(225,194,111,.05)!important;
+  }
+  #v20-story-film .v20-atmosphere{
+    background:radial-gradient(circle at 70% 40%,rgba(218,187,102,.10),transparent 28%),linear-gradient(110deg,rgba(1,12,4,.10),transparent 48%,rgba(212,168,67,.035))!important;
+  }
+
+  /* The selected coconut sits on a believable visual plane instead of floating. */
+  #v20-story-film .v20-story-coconut.v21-photo-coconut{
+    top:var(--hero-y,56vh)!important;
+    filter:saturate(.98) contrast(1.035) brightness(1.01) drop-shadow(0 28px 36px rgba(0,0,0,.46))!important;
+  }
+  #v20-story-film .v20-coconut-shadow{
+    left:17%!important;right:17%!important;bottom:1.8%!important;height:5.5%!important;
+    background:radial-gradient(ellipse,rgba(0,0,0,.68),transparent 69%)!important;
+    filter:blur(8px)!important;opacity:.70!important;
+  }
+
+  /* A shallow cap lift: close to the fruit, slightly to the right, never floating high. */
+  #v20-story-film .v21-coco-cap{
+    transform-origin:50% 53%!important;
+    transform:translate3d(var(--cap-x,0px),var(--cap-y,0px),0) rotate(var(--cap-r,0deg))!important;
+    filter:saturate(.98) contrast(1.02) brightness(1.01) drop-shadow(0 8px 9px rgba(0,0,0,.30))!important;
+  }
+  #v20-story-film .v21-coco-opening{
+    left:30.9%!important;top:50.7%!important;width:38.2%!important;height:7.4%!important;
+    transform:scaleY(.48)!important;
+    background:
+      radial-gradient(ellipse at 50% 50%,#0b1710 0 20%,#263c2c 22% 28%,#f3eddc 30% 44%,#d6c79f 46% 58%,#98814f 60% 67%,rgba(63,48,24,.70) 69% 72%,transparent 74%)!important;
+    box-shadow:0 3px 8px rgba(0,0,0,.30),inset 0 1px rgba(255,255,255,.22)!important;
+  }
+  #v20-story-film .v21-coco-opening span{opacity:.28!important;height:17%!important;top:38%!important}
+
+  /* Keep the knife readable but restrained. */
+  #v20-story-film .v20-knife{top:49.6%!important;filter:drop-shadow(0 8px 12px rgba(0,0,0,.32))!important}
+  #v20-story-film .v20-knife::after{opacity:.20!important;box-shadow:none!important}
+
+  /* Water exits from the low rim while the coconut tilts; the child counter-rotates so gravity stays vertical. */
+  #v20-story-film .v20-story-coconut .water-stream{
+    left:55.2%!important;top:52.4%!important;width:clamp(5px,.54vw,8px)!important;height:68vh!important;
+    transform:translateX(-50%) rotate(var(--stream-counter,0deg)) scaleY(var(--stream-scale,0))!important;
+    background:linear-gradient(90deg,transparent 0%,rgba(246,252,250,.14) 18%,rgba(250,254,253,.68) 43%,rgba(226,241,237,.55) 64%,transparent 100%)!important;
+    clip-path:polygon(34% 0,66% 0,72% 100%,29% 100%)!important;
+    filter:drop-shadow(0 1px 1px rgba(226,247,242,.12))!important;
+    opacity:calc(var(--stream-alpha,0) * .88)!important;
+  }
+  #v20-story-film .v20-story-coconut .water-stream::before{
+    left:20%!important;right:20%!important;top:-1px!important;height:5px!important;
+    background:radial-gradient(ellipse at center,rgba(251,255,253,.76),rgba(211,235,229,.18) 56%,transparent 76%)!important;
+  }
+  #v20-story-film .v20-story-coconut .water-stream::after{
+    left:38%!important;top:18%!important;width:2px!important;height:4px!important;
+    background:rgba(244,252,250,.52)!important;
+    box-shadow:3px 44px 0 -1px rgba(237,249,246,.36),-2px 94px 0 -1px rgba(230,246,242,.28),3px 146px 0 -1px rgba(235,248,245,.22)!important;
+  }
+  #v20-story-film .v20-story-coconut .water-stream i{opacity:.26!important;background:linear-gradient(180deg,rgba(255,255,255,.18),transparent 72%)!important}
+
+  /* Calm, clear-water takeover instead of a bright cyan wall. */
+  #v20-story-film .v20-water-fill{
+    background:linear-gradient(180deg,rgba(229,247,243,.78) 0%,rgba(166,213,207,.82) 7%,rgba(102,172,173,.88) 26%,#3b7f86 58%,#1d5965 100%)!important;
+    box-shadow:0 -7px 26px rgba(215,243,237,.12)!important;
+  }
+  #v20-story-film .v20-water-fill::before{height:13px!important;opacity:.52!important;filter:blur(1.2px)!important}
+}
+
+/* ═════════════════════════════════════════════════════
+   V31 — COLLAPSIBLE ENQUIRY + FULL WATER TAKEOVER
+   Keeps the final site visually calm until the customer asks for a quote.
+   ═════════════════════════════════════════════════════ */
+#contact{padding:78px 64px!important;background:linear-gradient(180deg,rgba(5,13,3,.98),rgba(6,15,4,.99))!important}
+.enquiry-compact{width:min(1240px,100%);margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:40px;padding:34px 36px;border:1px solid rgba(212,168,67,.16);background:linear-gradient(135deg,rgba(212,168,67,.045),rgba(255,255,255,.012));box-shadow:0 24px 70px rgba(0,0,0,.18);position:relative;overflow:hidden}
+.enquiry-compact::after{content:'';position:absolute;right:-80px;top:-120px;width:330px;height:330px;border-radius:50%;background:radial-gradient(circle,rgba(212,168,67,.08),transparent 67%);pointer-events:none}
+.enquiry-compact-copy{position:relative;z-index:1;max-width:790px}.enquiry-compact .enquiry-kicker{margin-bottom:10px}.enquiry-compact h2{font-family:'Playfair Display',serif;font-size:clamp(32px,4vw,54px);font-weight:400;line-height:1;letter-spacing:-.03em;margin:0;color:#f8f2e4}.enquiry-compact p{max-width:720px;margin:13px 0 0;font-size:13px;line-height:1.75;color:rgba(255,255,255,.45)}
+.enquiry-mini-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}.enquiry-mini-tags span{padding:7px 10px;border:1px solid rgba(212,168,67,.13);font-size:7.5px;letter-spacing:1.8px;text-transform:uppercase;color:rgba(255,255,255,.44);background:rgba(4,12,3,.30)}
+.enquiry-open-btn{position:relative;z-index:2;min-width:250px;display:flex;align-items:center;justify-content:space-between;gap:22px;border:1px solid rgba(245,209,126,.48);background:linear-gradient(115deg,var(--gold),var(--goldl));color:#061004;padding:18px 20px 18px 22px;cursor:pointer;text-align:left;transition:transform .25s,box-shadow .25s;font-family:'Jost',sans-serif}.enquiry-open-btn:hover{transform:translateY(-2px);box-shadow:0 16px 44px rgba(212,168,67,.22)}.enquiry-open-btn span{display:grid;gap:3px}.enquiry-open-btn b{font-size:10px;letter-spacing:2.4px;text-transform:uppercase}.enquiry-open-btn small{font-size:9px;letter-spacing:.5px;opacity:.68}.enquiry-open-btn i{font:300 30px/1 'Jost',sans-serif;font-style:normal}
+.enquiry-panel{width:min(1240px,100%);margin:18px auto 0;padding:30px;border:1px solid rgba(212,168,67,.16);background:linear-gradient(145deg,rgba(11,26,7,.94),rgba(4,12,3,.98));box-shadow:0 32px 90px rgba(0,0,0,.30);animation:nsEnquiryReveal .38s cubic-bezier(.2,.75,.2,1) both}.enquiry-panel[hidden]{display:none!important}@keyframes nsEnquiryReveal{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:none}}
+.enquiry-panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:30px;margin-bottom:24px;padding-bottom:22px;border-bottom:1px solid rgba(212,168,67,.10)}.enquiry-panel-head h3{font-family:'Playfair Display',serif;font-size:clamp(30px,3.6vw,48px);font-weight:400;line-height:1;margin:0}.enquiry-panel-head p{font-size:11px;color:rgba(255,255,255,.40);line-height:1.65;margin:9px 0 0;max-width:580px}.enquiry-close-btn{border:1px solid rgba(212,168,67,.18);background:transparent;color:rgba(255,255,255,.55);padding:10px 13px;font:600 8px/1 'Jost',sans-serif;letter-spacing:1.8px;text-transform:uppercase;cursor:pointer}.enquiry-close-btn:hover{border-color:rgba(212,168,67,.5);color:#fff}
+.enquiry-panel .enquiry-layout{grid-template-columns:minmax(300px,.72fr) minmax(480px,1.28fr);gap:22px}.enquiry-panel .enquiry-type{padding:14px}.enquiry-panel .enquiry-type b{font-size:15px}.enquiry-panel .enquiry-type span{font-size:9px}.enquiry-panel .ci{padding:16px}.enquiry-panel .enquiry-expect,.enquiry-panel .business-identity{padding:16px}.enquiry-panel .enquiry-form{box-shadow:none;background:rgba(5,15,4,.66);padding:26px}
+
+@media(max-width:980px){#contact{padding:64px 24px!important}.enquiry-compact{grid-template-columns:1fr;padding:26px}.enquiry-open-btn{width:100%;min-width:0}.enquiry-panel{padding:22px}.enquiry-panel .enquiry-layout{grid-template-columns:1fr}}
+@media(max-width:620px){#contact{padding:54px 14px!important}.enquiry-compact{padding:22px 18px}.enquiry-compact h2{font-size:34px}.enquiry-panel{padding:18px 14px}.enquiry-panel-head{align-items:flex-start}.enquiry-panel .enquiry-form{padding:20px 14px}}
+
+@media(min-width:981px){
+  /* More believable opening: darker centre, fibrous irregular rim, no bright ring. */
+  #v20-story-film .v21-coco-opening{left:31.6%!important;top:51.0%!important;width:36.6%!important;height:6.8%!important;transform:scaleY(.44) rotate(-.7deg)!important;border-radius:47% 53% 49% 51% / 43% 47% 53% 57%!important;background:radial-gradient(ellipse at 52% 50%,#09130d 0 28%,#354838 30% 35%,#b5a77d 37% 43%,#d8caa3 45% 51%,#8a7245 53% 58%,rgba(65,48,25,.45) 59% 62%,transparent 64%)!important;box-shadow:0 3px 7px rgba(0,0,0,.34),inset 0 1px rgba(255,255,255,.13)!important}
+  #v20-story-film .v21-coco-opening span{display:none!important}
+  #v20-story-film .v21-cut-surface{height:43%!important;border-top:1px solid rgba(212,168,67,.06)!important;background:radial-gradient(ellipse at 66% 4%,rgba(219,184,94,.09),transparent 24%),linear-gradient(180deg,rgba(7,16,7,0) 0%,rgba(7,14,7,.35) 13%,rgba(4,9,5,.88) 56%,#020603 100%)!important}
+  #v20-story-film .v20-coconut-shadow{left:12%!important;right:12%!important;bottom:-1%!important;height:7%!important;opacity:.84!important;filter:blur(7px)!important}
+
+  /* Substantial but still natural stream: transparent core + two edge ribbons. */
+  #v20-story-film .v20-story-coconut .water-stream{left:54.8%!important;top:52.8%!important;width:clamp(14px,1.05vw,20px)!important;height:82vh!important;opacity:calc(var(--stream-alpha,0) * .96)!important;background:linear-gradient(90deg,transparent 0%,rgba(220,244,238,.18) 12%,rgba(247,253,251,.70) 29%,rgba(255,255,255,.88) 47%,rgba(232,247,243,.62) 66%,rgba(211,238,232,.16) 86%,transparent 100%)!important;clip-path:polygon(27% 0,72% 0,88% 100%,14% 100%)!important;filter:drop-shadow(0 2px 3px rgba(229,249,244,.16))!important}
+  #v20-story-film .v20-story-coconut .water-stream::before{left:10%!important;right:10%!important;top:-4px!important;height:12px!important;background:radial-gradient(ellipse at center,rgba(252,255,254,.90),rgba(204,235,228,.38) 48%,transparent 74%)!important}
+  #v20-story-film .v20-story-coconut .water-stream::after{left:10%!important;top:16%!important;width:80%!important;height:70%!important;border-radius:40% 55% 48% 60%!important;background:linear-gradient(90deg,rgba(255,255,255,.10),transparent 28%,rgba(255,255,255,.22) 47%,transparent 66%,rgba(255,255,255,.07))!important;box-shadow:none!important;opacity:calc(var(--stream-alpha,0) * .8)!important}
+  #v20-story-film .v20-story-coconut .water-stream i{opacity:.40!important;background:repeating-linear-gradient(180deg,rgba(255,255,255,.20) 0 7px,rgba(255,255,255,.02) 8px 18px,transparent 19px 31px)!important}
+
+  /* Full-screen takeover is now unmistakable and visually liquid. */
+  #v20-story-film .v20-water-fill{left:-8%!important;right:-8%!important;bottom:-9%!important;background:linear-gradient(180deg,rgba(235,250,247,.86) 0%,rgba(185,225,219,.90) 6%,rgba(111,183,183,.94) 23%,#4b8c91 52%,#235e68 78%,#123f4b 100%)!important;box-shadow:0 -12px 44px rgba(220,248,242,.22)!important;overflow:hidden!important}
+  #v20-story-film .v20-water-fill::before{left:-5%!important;right:-5%!important;top:-14px!important;height:30px!important;opacity:.82!important;background:radial-gradient(ellipse at 18% 65%,rgba(250,255,253,.74),transparent 18%),radial-gradient(ellipse at 46% 35%,rgba(244,255,252,.64),transparent 19%),radial-gradient(ellipse at 73% 62%,rgba(249,255,253,.70),transparent 20%),linear-gradient(180deg,rgba(245,255,252,.60),rgba(175,224,217,.22) 56%,transparent)!important;filter:blur(.7px)!important}
+  #v20-story-film .v20-water-fill::after{content:''!important;position:absolute!important;inset:0!important;background:radial-gradient(circle at 20% 24%,rgba(255,255,255,.13) 0 1.2px,transparent 1.7px),radial-gradient(circle at 68% 31%,rgba(255,255,255,.10) 0 1px,transparent 1.6px),linear-gradient(108deg,transparent 10%,rgba(255,255,255,.08) 28%,transparent 43%,rgba(255,255,255,.05) 64%,transparent 79%)!important;background-size:46px 46px,62px 62px,100% 100%!important;opacity:calc(var(--water-alpha,0) * .75)!important;animation:nsWaterDrift 5s linear infinite!important;pointer-events:none!important}
+  @keyframes nsWaterDrift{from{transform:translate3d(0,0,0)}to{transform:translate3d(22px,-16px,0)}}
+  #v20-story-film .water-wave{opacity:.34!important;filter:blur(1px)!important}.v20-water-message{letter-spacing:.18em!important;text-shadow:0 8px 28px rgba(14,65,76,.28)!important}
+}
+
+/* ═════════════════════════════════════════════════════
+   V32 — SMART COMMERCIAL ENQUIRY + LIQUID TAKEOVER
+   Guided buyer/supplier/trade brief, worldwide location assist,
+   and a visibly wider natural pour that becomes the frame.
+   ═════════════════════════════════════════════════════ */
+.enquiry-layout-v32{grid-template-columns:minmax(330px,.82fr) minmax(520px,1.18fr)!important;gap:24px!important}
+.enquiry-side-v32{align-content:start}
+.enquiry-visual{position:relative;min-height:360px;overflow:hidden;border:1px solid rgba(212,168,67,.18);background-position:center;background-size:cover;isolation:isolate;box-shadow:0 26px 70px rgba(0,0,0,.28)}
+.enquiry-visual::before{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(3,10,2,.12),rgba(3,10,2,.84) 78%,rgba(2,8,2,.96)),linear-gradient(90deg,rgba(3,10,2,.42),transparent 65%)}
+.enquiry-visual::after{content:'';position:absolute;inset:-20%;z-index:-1;background:linear-gradient(112deg,transparent 38%,rgba(244,211,119,.12) 49%,transparent 60%);transform:translateX(-58%);animation:v32EnquirySweep 9s ease-in-out infinite;mix-blend-mode:screen}
+@keyframes v32EnquirySweep{0%,55%{transform:translateX(-58%)}85%,100%{transform:translateX(58%)}}
+.enquiry-visual.role-buyer{background-image:url('https://6a9bfce307bb9f014e510b7d--nariyal-sutra.netlify.app/assets/images/nariyal-hospitality.webp')}.enquiry-visual.role-supplier{background-image:url('../images/nariyal-coconut-grove.webp')}.enquiry-visual.role-partner{background-image:url('https://6a9bfce307bb9f014e510b7d--nariyal-sutra.netlify.app/assets/images/nariyal-premium-hero.webp')}
+.enquiry-visual-content{position:absolute;left:24px;right:24px;bottom:24px}.enquiry-visual-kicker{font:600 8px/1.2 'Jost',sans-serif;letter-spacing:3.4px;text-transform:uppercase;color:var(--v16-gold-light);margin-bottom:12px}.enquiry-visual h4{font-family:'Playfair Display',serif;font-size:clamp(31px,3.1vw,48px);line-height:.95;font-weight:400;letter-spacing:-.035em;margin:0;color:#fff;max-width:520px}.enquiry-visual p{font-size:11px;line-height:1.75;color:rgba(255,255,255,.58);max-width:500px;margin:14px 0 0}.enquiry-visual-facts{display:flex;flex-wrap:wrap;gap:7px;margin-top:18px}.enquiry-visual-facts span{padding:7px 9px;border:1px solid rgba(245,209,126,.20);background:rgba(2,8,2,.42);backdrop-filter:blur(7px);font:600 7px/1 'Jost',sans-serif;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.60)}
+.enquiry-role-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.enquiry-role{min-height:108px;border:1px solid rgba(212,168,67,.13);background:rgba(255,255,255,.018);color:#fff;padding:14px;text-align:left;cursor:pointer;transition:.25s;display:grid;align-content:start;gap:6px}.enquiry-role:hover,.enquiry-role:focus-visible{outline:none;border-color:rgba(212,168,67,.44);transform:translateY(-2px)}.enquiry-role.is-active{border-color:rgba(245,209,126,.64);background:linear-gradient(145deg,rgba(212,168,67,.10),rgba(212,168,67,.025));box-shadow:inset 0 0 0 1px rgba(245,209,126,.08)}.enquiry-role>span{font-family:'Playfair Display',serif;font-size:13px;color:var(--v16-gold-light)}.enquiry-role b{font-family:'Playfair Display',serif;font-size:16px;font-weight:400}.enquiry-role small{font-size:8.5px;line-height:1.5;color:rgba(255,255,255,.38)}
+.enquiry-live-brief{border:1px solid rgba(212,168,67,.16);padding:18px 19px;background:linear-gradient(110deg,rgba(212,168,67,.055),rgba(255,255,255,.014));position:relative;overflow:hidden}.enquiry-live-brief::after{content:'';position:absolute;width:130px;height:130px;border-radius:50%;right:-58px;top:-64px;background:rgba(212,168,67,.055)}.enquiry-live-kicker{font-size:7px;letter-spacing:2.5px;text-transform:uppercase;color:rgba(245,209,126,.62);margin-bottom:7px}.enquiry-live-brief>b{font-family:'Playfair Display',serif;font-size:20px;font-weight:400;color:#fff}.enquiry-live-brief p{font-size:10px;line-height:1.65;color:rgba(255,255,255,.43);margin:7px 0 0}
+.enquiry-form-v32{padding:28px!important;background:linear-gradient(150deg,rgba(8,20,6,.92),rgba(4,12,3,.98))!important}.enquiry-step{display:flex;align-items:center;gap:12px;margin:26px 0 15px;padding-top:20px;border-top:1px solid rgba(212,168,67,.10)}.enquiry-step:first-of-type{margin-top:18px}.enquiry-step>span{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;border:1px solid rgba(245,209,126,.35);font-family:'Playfair Display',serif;color:var(--v16-gold-light);font-size:12px}.enquiry-step div{display:grid;gap:2px}.enquiry-step b{font-family:'Playfair Display',serif;font-size:19px;font-weight:400;color:#fff}.enquiry-step small{font-size:8.5px;letter-spacing:.6px;color:rgba(255,255,255,.34)}
+.qty-presets{display:flex;flex-wrap:wrap;gap:5px;margin-top:2px}.qty-presets button{border:1px solid rgba(212,168,67,.12);background:rgba(255,255,255,.025);color:rgba(255,255,255,.55);padding:5px 8px;font:600 8px/1 'Jost',sans-serif;cursor:pointer;transition:.2s}.qty-presets button:hover{border-color:rgba(212,168,67,.5);color:#fff;background:rgba(212,168,67,.06)}
+.postal-status{display:block;font-size:8.5px;line-height:1.45;color:rgba(255,255,255,.28);min-height:12px}.postal-status.is-ok{color:#9fda8c}.postal-status.is-warn{color:#d8bb72}
+.enquiry-form-v32 .ef select:disabled{opacity:.55;cursor:wait}.enquiry-form-v32 .enquiry-submit{min-height:54px;box-shadow:0 14px 38px rgba(212,168,67,.15)}
+
+@media(max-width:1100px){.enquiry-layout-v32{grid-template-columns:1fr!important}.enquiry-side-v32{grid-template-columns:1fr 1fr}.enquiry-visual{grid-column:1/-1}.enquiry-role-grid,.enquiry-live-brief,.enquiry-direct{grid-column:1/-1}}
+@media(max-width:700px){.enquiry-side-v32{display:grid;grid-template-columns:1fr}.enquiry-visual{min-height:320px}.enquiry-role-grid{grid-template-columns:1fr}.enquiry-form-v32{padding:20px 14px!important}.enquiry-step{margin-top:22px}.enquiry-form-v32 .enquiry-fields{grid-template-columns:1fr!important}.enquiry-form-v32 .ef.full{grid-column:auto!important}}
+
+@media(min-width:981px){
+  /* Hero coconut stays closer to centre during the cut, keeping copy + product balanced. */
+  #v20-story-film .v20-story-coconut.v21-photo-coconut{width:clamp(320px,22vw,410px)!important}
+  /* Minimal cap displacement: reads as a real slice, not a floating lid. */
+  #v20-story-film .v21-coco-cap{filter:saturate(.99) contrast(1.02) brightness(1.015) drop-shadow(0 5px 7px rgba(0,0,0,.24))!important}
+  /* A real gush: much wider, transparent, irregular and visibly tapering under gravity. */
+  #v20-story-film .v20-story-coconut .water-stream{
+    left:54.6%!important;top:52.9%!important;width:clamp(34px,2.55vw,52px)!important;height:76vh!important;
+    transform:translateX(-50%) rotate(var(--stream-counter,0deg)) scaleY(var(--stream-scale,0))!important;
+    opacity:var(--stream-alpha,0)!important;
+    background:linear-gradient(90deg,transparent 0%,rgba(211,239,232,.10) 8%,rgba(246,253,251,.54) 22%,rgba(255,255,255,.82) 43%,rgba(235,249,245,.67) 61%,rgba(210,238,232,.16) 86%,transparent 100%)!important;
+    clip-path:polygon(34% 0,66% 0,82% 22%,93% 53%,100% 100%,4% 100%,12% 54%,23% 21%)!important;
+    border-radius:45% 52% 55% 46%!important;filter:drop-shadow(0 2px 4px rgba(224,248,241,.16)) blur(.15px)!important;
+  }
+  #v20-story-film .v20-story-coconut .water-stream::before{left:9%!important;right:9%!important;top:-6px!important;height:18px!important;background:radial-gradient(ellipse at center,rgba(254,255,255,.94),rgba(205,237,230,.44) 50%,transparent 76%)!important;filter:blur(.2px)!important}
+  #v20-story-film .v20-story-coconut .water-stream::after{left:13%!important;top:8%!important;width:74%!important;height:83%!important;background:linear-gradient(93deg,rgba(255,255,255,.04),rgba(255,255,255,.34) 28%,transparent 43%,rgba(255,255,255,.19) 62%,transparent 79%)!important;border-radius:50%!important;opacity:calc(var(--stream-alpha,0) * .8)!important;box-shadow:none!important;animation:v32StreamWobble 1.05s ease-in-out infinite alternate!important}
+  @keyframes v32StreamWobble{from{transform:translateX(-2px) skewX(-1.2deg)}to{transform:translateX(2px) skewX(1.1deg)}}
+  #v20-story-film .v20-story-coconut .water-stream i{opacity:.48!important;background:repeating-linear-gradient(180deg,rgba(255,255,255,.22) 0 5px,rgba(255,255,255,.03) 6px 15px,transparent 16px 29px)!important;animation:streamFlow .68s linear infinite!important}
+
+  /* The rising water is the event: a strong crest enters early, then fills beyond the viewport. */
+  #v20-story-film .v20-water-fill{left:-10%!important;right:-10%!important;bottom:-12%!important;min-height:0!important;background:linear-gradient(180deg,rgba(237,251,248,.92) 0%,rgba(190,230,224,.94) 5%,rgba(121,194,192,.96) 18%,#5a9ca0 42%,#34747d 69%,#173f4c 100%)!important;box-shadow:0 -18px 70px rgba(221,250,244,.28)!important;transform:translateZ(0)}
+  #v20-story-film .v20-water-fill::before{left:-3%!important;right:-3%!important;top:-26px!important;height:54px!important;opacity:.94!important;background:radial-gradient(ellipse at 12% 65%,rgba(255,255,255,.82),transparent 17%),radial-gradient(ellipse at 34% 36%,rgba(249,255,253,.76),transparent 18%),radial-gradient(ellipse at 59% 66%,rgba(255,255,255,.78),transparent 17%),radial-gradient(ellipse at 82% 38%,rgba(250,255,253,.72),transparent 19%),linear-gradient(180deg,rgba(250,255,253,.78),rgba(174,225,217,.28) 55%,transparent)!important;filter:blur(.45px)!important;animation:v32Crest 1.5s ease-in-out infinite alternate!important}
+  @keyframes v32Crest{from{transform:translateX(-1.5%) scaleY(.92)}to{transform:translateX(1.5%) scaleY(1.08)}}
+  #v20-story-film .v20-water-fill::after{opacity:calc(var(--water-alpha,0) * .9)!important;background:radial-gradient(circle at 16% 26%,rgba(255,255,255,.18) 0 1.4px,transparent 1.9px),radial-gradient(circle at 63% 38%,rgba(255,255,255,.14) 0 1.1px,transparent 1.7px),radial-gradient(circle at 81% 18%,rgba(255,255,255,.11) 0 1px,transparent 1.6px),linear-gradient(111deg,transparent 6%,rgba(255,255,255,.10) 24%,transparent 40%,rgba(255,255,255,.065) 58%,transparent 78%)!important;background-size:44px 44px,59px 59px,71px 71px,100% 100%!important}
+}
+
+@media(prefers-reduced-motion:reduce){.enquiry-visual::after{animation:none!important}}
+.enquiry-help .geo-credit{color:rgba(245,209,126,.55);text-decoration:none;border-bottom:1px dotted rgba(245,209,126,.28)}.enquiry-help .geo-credit:hover{color:var(--v16-gold-light)}
+
+/* ═══ V34 — MOBILE CINEMATIC REEL ═══
+   Desktop keeps the full scroll film. Phones get a short, touch-native story instead of stripped placeholders. */
+.mobile-story-reel{display:none}
+@media(max-width:980px){
+  #grove-story,#cut-story{display:none!important}
+  .mobile-story-reel{display:block!important;position:relative;padding:72px 0 82px;background:#020801;border-top:1px solid rgba(212,168,67,.12);border-bottom:1px solid rgba(212,168,67,.12);overflow:hidden}
+  .msr-head{padding:0 20px 28px}.msr-kicker{color:var(--goldl);font-size:7px;letter-spacing:3.3px;text-transform:uppercase}.msr-head h2{font-family:'Playfair Display',serif;font-size:clamp(44px,13vw,66px);line-height:.92;font-weight:400;margin:14px 0 15px;letter-spacing:-.04em}.msr-head h2 em{color:var(--gold);font-weight:400}.msr-head p{max-width:580px;color:rgba(255,255,255,.54);font-size:12px;line-height:1.8;margin:0}
+  .msr-track{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:0 20px 14px;scrollbar-width:none;-webkit-overflow-scrolling:touch}.msr-track::-webkit-scrollbar{display:none}
+  .msr-card{position:relative;flex:0 0 min(84vw,420px);height:58svh;min-height:430px;max-height:580px;scroll-snap-align:center;overflow:hidden;border:1px solid rgba(212,168,67,.18);background:#061004;isolation:isolate}
+  .msr-card img,.msr-card video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-3;filter:saturate(1.02) contrast(1.04) brightness(.68)}
+  .msr-card::before{content:'';position:absolute;inset:0;z-index:-2;background:linear-gradient(0deg,rgba(2,8,1,.95) 0%,rgba(2,8,1,.42) 58%,rgba(2,8,1,.08) 100%)}
+  .msr-copy{position:absolute;left:20px;right:20px;bottom:22px}.msr-copy span{color:var(--goldl);font-size:7px;letter-spacing:2.7px;text-transform:uppercase}.msr-copy h3{font-family:'Playfair Display',serif;font-size:32px;line-height:1;font-weight:400;margin:10px 0}.msr-copy p{font-size:11px;line-height:1.65;color:rgba(255,255,255,.56);margin:0}
+  .msr-dots{display:flex;justify-content:center;gap:8px;margin-top:12px}.msr-dots i{width:28px;height:1px;background:rgba(255,255,255,.18)}.msr-dots i:first-child{background:var(--goldl)}
+}
+@media(prefers-reduced-motion:reduce){.mobile-story-reel video{display:none}.mobile-story-reel .msr-video-poster{display:block!important}}
+
+/* ═════════════════════════════════════════════════════
+   V35 — PROMISE STORY WORLDS
+   Five genuinely different destinations instead of anchor links to one page.
+   ═════════════════════════════════════════════════════ */
+.promise-story-note{margin-top:24px;max-width:520px;color:rgba(255,255,255,.46);font-size:9px;line-height:1.7;letter-spacing:.16em;text-transform:uppercase}
+.promise-portals{display:grid;grid-template-columns:1.2fr .8fr .8fr;grid-template-rows:290px 290px;gap:12px;margin-top:54px;perspective:1200px}.promise-portal{position:relative;isolation:isolate;overflow:hidden;border:1px solid rgba(212,168,67,.16);text-decoration:none;padding:24px;display:flex;flex-direction:column;justify-content:flex-end;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.2,.75,.2,1),border-color .35s,box-shadow .55s;background:#061004}.promise-portal:first-child{grid-row:1/3}.promise-portal:last-child{grid-column:2/4}.promise-portal img{position:absolute;z-index:-3;inset:-2%;width:104%;height:104%;object-fit:cover;filter:saturate(.92) contrast(1.06) brightness(.48);transform:scale(1.035);transition:transform .8s cubic-bezier(.2,.75,.2,1),filter .55s}.promise-portal:before{content:'';position:absolute;z-index:-2;inset:0;background:linear-gradient(0deg,rgba(2,8,1,.96),rgba(2,8,1,.22) 64%,rgba(2,8,1,.08)),linear-gradient(90deg,rgba(2,8,1,.28),transparent)}.promise-portal:after{content:'';position:absolute;z-index:-1;inset:-35%;background:linear-gradient(112deg,transparent 42%,rgba(241,207,121,.12) 49%,transparent 56%);transform:translateX(-70%);transition:transform .7s}.promise-portal:hover{transform:translateY(-6px) rotateX(1.2deg);border-color:rgba(241,207,121,.48);box-shadow:0 32px 90px rgba(0,0,0,.36)}.promise-portal:hover img{transform:scale(1.075);filter:saturate(1.06) contrast(1.05) brightness(.62)}.promise-portal:hover:after{transform:translateX(70%)}.promise-portal span{color:var(--goldl);font:600 7px/1 'Jost',sans-serif;letter-spacing:3px;text-transform:uppercase}.promise-portal h3{font-family:'Playfair Display',serif;font-weight:400;font-size:clamp(28px,2.7vw,44px);line-height:.95;margin:11px 0 8px;color:#f7f2e6}.promise-portal p{color:rgba(255,255,255,.55);font-size:10px;line-height:1.5;margin:0}.promise-portal b{margin-top:14px;color:#fff;font:600 7px/1 'Jost',sans-serif;letter-spacing:2px}.promise-portal.water:before{background:linear-gradient(0deg,rgba(2,16,15,.96),rgba(5,41,39,.18) 60%,rgba(2,10,9,.10))}.promise-portal.export:before{background:linear-gradient(0deg,rgba(2,11,15,.96),rgba(6,34,45,.18) 60%,rgba(2,8,1,.10))}.promise-portal.grove:before{background:linear-gradient(0deg,rgba(2,12,1,.96),rgba(25,65,11,.16) 60%,rgba(2,8,1,.08))}
+@media(max-width:980px){.promise-portals{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:10px;margin-right:-18px;padding-right:18px}.promise-portal,.promise-portal:first-child,.promise-portal:last-child{flex:0 0 min(82vw,390px);height:430px;grid-row:auto;grid-column:auto;scroll-snap-align:start}.promise-portal:hover{transform:none}.promise-portal h3{font-size:36px}}
+@media(max-width:560px){.promise-portals{margin-top:36px}.promise-portal{flex-basis:86vw;height:390px;padding:20px}.promise-portal h3{font-size:34px}}
+@media(prefers-reduced-motion:reduce){.promise-portal,.promise-portal img,.promise-portal:after{transition:none!important}.promise-portal:hover{transform:none}.promise-portal:hover img{transform:none}}
+
+
+/* V18 — self-contained harvest fruit fallback.
+   Avoid broken-image icons when historical rain PNGs are absent from a local package. */
+@media(min-width:981px){

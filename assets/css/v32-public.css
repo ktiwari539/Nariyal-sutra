@@ -1,0 +1,55 @@
+/* V32 sequence + intro typography correction */
+
+/* Keep intro photography cinematic WITHOUT zooming the image. */
+#jungle-intro .ji-cinema-shot,
+#jungle-intro .ji-cinema-shot.is-active{
+  transform:scale(1.025) translate3d(0,0,0)!important;
+  animation:none!important;
+  will-change:opacity,filter!important;
+  transition:opacity 1.25s ease,filter 1.6s ease!important;
+}
+#jungle-intro .ji-cinema-shot{filter:saturate(.94) contrast(1.035) brightness(.55)!important}
+#jungle-intro .ji-cinema-shot.is-active{filter:saturate(.99) contrast(1.05) brightness(.59)!important}
+
+/* The title container stays fixed. Motion belongs to the letters, not the background photo. */
+#jungle-intro .ji-title-wrap{animation:none!important;transform:translate(-50%,-50%)!important;filter:none!important}
+#jungle-intro .ji-logo{display:block!important;overflow:visible!important}
+#jungle-intro .v32-logo-line{display:block;white-space:nowrap;line-height:.82}
+#jungle-intro .v32-logo-letter{
+  display:inline-block;
+  opacity:0;
+  transform-origin:50% 58%;
+  transform:scale(.70) translateZ(0);
+  filter:blur(7px);
+  animation:v32LetterZoom .92s cubic-bezier(.16,.78,.18,1) both;
+  animation-delay:calc(.16s + (var(--letter-i) * 58ms));
+  will-change:transform,opacity,filter;
+}
+@keyframes v32LetterZoom{
+  0%{opacity:0;transform:scale(.70);filter:blur(7px)}
+  62%{opacity:1;transform:scale(1.045);filter:blur(.6px)}
+  100%{opacity:1;transform:scale(1);filter:blur(0)}
+}
+#jungle-intro .ji-eyebrow{animation:v32IntroFade .65s .08s ease both!important}
+#jungle-intro .ji-tagline{animation:v32IntroFade .7s .95s ease both!important}
+#jungle-intro .ji-scroll-hint{animation:v32IntroFade .7s 1.35s ease both!important}
+@keyframes v32IntroFade{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+
+/* V32 sequencing controls only whole top-level modules. These markers make accidental nesting obvious and harmless. */
+#main-site>[data-v32-section]{min-width:0;box-sizing:border-box}
+
+@media(max-width:980px){
+  #jungle-intro .ji-cinema-shot,#jungle-intro .ji-cinema-shot.is-active{transform:scale(1.01)!important}
+  #jungle-intro .v32-logo-letter{animation-duration:.72s;animation-delay:calc(.10s + (var(--letter-i) * 42ms))}
+}
+@media(prefers-reduced-motion:reduce){
+  #jungle-intro .v32-logo-letter{opacity:1!important;transform:none!important;filter:none!important;animation:none!important}
+  #jungle-intro .ji-eyebrow,#jungle-intro .ji-tagline,#jungle-intro .ji-scroll-hint{animation:none!important}
+}
+
+/* Legacy mobile intro used a pseudo-background zoom. V32 explicitly disables that: letters move, imagery does not. */
+@media(max-width:980px){
+  body.ns-intro-mobile #jungle-intro::before{animation:none!important;transform:none!important}
+  body.ns-intro-mobile #jungle-intro .ji-title-wrap{transform:none!important;animation:none!important}
+  body.ns-intro-mobile #jungle-intro .ji-logo{animation:none!important}
+}

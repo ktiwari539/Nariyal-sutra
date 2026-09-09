@@ -1,0 +1,12 @@
+/* V35 — faster premium source-to-cut cinematic.
+   The accepted visuals remain unchanged; only desktop scroll distance is reduced. */
+@media(min-width:981px){
+  #v20-story-film{height:260vh!important}
+}
+/* Do not add extra motion burden on smaller devices. */
+@media(max-width:980px){
+  #v20-story-film{height:auto!important;min-height:0!important}
+}
+@media(prefers-reduced-motion:reduce){
+  #v20-story-film{height:auto!important;min-height:0!important}
+}

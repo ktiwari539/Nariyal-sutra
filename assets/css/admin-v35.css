@@ -1,0 +1,8 @@
+/* V35 — action-state feedback so Admin controls never look decorative. */
+.ap-btn.is-active,.ap-icon-btn.is-active{box-shadow:inset 0 0 0 2px rgba(23,61,36,.28);background:#edf3e8!important}
+.ap-btn[aria-busy="true"]{opacity:.7;pointer-events:none}
+.ap-v35-empty{padding:18px;border:1px dashed rgba(23,61,36,.18);border-radius:14px;color:#6f786d;font-size:12px}
+.ap-v35-history{display:grid;gap:9px;max-height:420px;overflow:auto}
+.ap-v35-history>div{padding:10px 12px;border:1px solid rgba(23,61,36,.12);border-radius:12px;background:#fbfcf8}
+.ap-v35-history strong{display:block;font-size:12px;color:#173d24}.ap-v35-history span{display:block;margin-top:3px;font-size:10px;color:#6f786d}
+.ap-v35-note{margin-top:10px;padding:10px 12px;border-radius:12px;background:#f5f1df;color:#6b5a20;font-size:10px;line-height:1.5}

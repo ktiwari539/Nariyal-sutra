@@ -1,0 +1,18 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isSignedIn() { return request.auth != null; }
+    function isOwner() { return isSignedIn() && request.auth.uid == '9FjkrCMDstfVS1Ghu2LlA0skoAf2'; }
+    function isSelf(uid) { return isSignedIn() && request.auth.uid == uid; }
+
+    match /customer-profile-images/{uid}/{fileName} {
+      // Migration safety: existing V42 profile binaries are not deleted and remain privately readable.
+      // V42.1 intentionally blocks new customer Firebase Storage writes while profile upload is gated.
+      allow read: if isSelf(uid) || isOwner();
+      allow create, update, delete: if false;
+    }
+
+    // Admin media is stored through signed Cloudinary uploads for the test phase.
+    match /{allPaths=**} { allow read, write: if false; }
+  }
+}

@@ -1,0 +1,4 @@
+/* V36 — visible control feedback + runtime status. */
+.ap-btn.v36-pressed,.ap-icon-btn.v36-pressed{transform:translateY(1px);filter:brightness(.97)}
+.ap-v36-runtime-ok{position:fixed;right:18px;bottom:18px;z-index:120;padding:8px 10px;border-radius:999px;background:#173d24;color:white;font:600 10px/1 Inter,system-ui,sans-serif;box-shadow:0 10px 35px rgba(0,0,0,.18);opacity:0;pointer-events:none;transition:.2s}
+.ap-v36-runtime-ok.show{opacity:.94}
