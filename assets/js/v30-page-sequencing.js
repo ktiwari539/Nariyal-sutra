@@ -1,5 +1,18 @@
 (function(){
 'use strict';
+
+/* V42.1 stabilization bootstrap: every page that already loads V30 also gets the
+   stable-asset recovery layer. This keeps legacy deploy-specific media/script
+   references from becoming customer-visible failures while source cleanup is
+   completed page by page. */
+if(!window.__NS_V421_STABLE_ASSETS__ && !document.querySelector('script[data-ns-stable-assets]')){
+  const s=document.createElement('script');
+  s.src='/assets/js/v421-stable-assets.js';
+  s.defer=true;
+  s.dataset.nsStableAssets='1';
+  document.head.appendChild(s);
+}
+
 const Store=window.NSV421Store;
 function file(){let f=(location.pathname.split('/').pop()||'index.html').toLowerCase();return f||'index.html'}
 function eligible(){const main=document.querySelector('main');let a=main?[...main.children].filter(x=>x.tagName==='SECTION'):[];if(!a.length)a=[...document.body.children].filter(x=>x.tagName==='SECTION'&&!x.matches('#jungle-intro'));return a;}
