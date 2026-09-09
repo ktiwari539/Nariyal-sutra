@@ -20,6 +20,7 @@ function rel(p){return path.relative(ROOT,p).replaceAll(path.sep,'/');}
 function add(kind,file,msg){problems.push({kind,file:rel(file),msg});}
 function warn(kind,file,msg){warnings.push({kind,file:rel(file),msg});}
 function isExternal(v){return /^(?:https?:|mailto:|tel:|data:|blob:|javascript:|#|\/\/)/i.test(v);}
+function isDynamicTemplate(v){return /\$\{|<%|{{|}}/.test(v);}
 function cleanRef(v){return v.split('#')[0].split('?')[0];}
 
 const files=walk(ROOT);
@@ -36,7 +37,7 @@ for(const file of textFiles){
     const attr=/\b(?:src|href|poster)\s*=\s*["']([^"']+)["']/gi;
     for(const m of s.matchAll(attr)){
       const v=m[1].trim();
-      if(!v || isExternal(v)) continue;
+      if(!v || isExternal(v) || isDynamicTemplate(v)) continue;
       const c=cleanRef(v);
       if(!c || c==='/' || c.startsWith('/?')) continue;
       let target;
