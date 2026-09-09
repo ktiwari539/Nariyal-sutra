@@ -36,10 +36,9 @@ video.ns-video-failed{display:none!important}
   body.ns-intro-mobile #jungle-intro::before{
     background-image:
       linear-gradient(to top,rgba(2,9,2,.95),rgba(2,9,2,.25) 55%,rgba(2,9,2,.58)),
-      url('https://6a9bfce307bb9f014e510b7d--nariyal-sutra.netlify.app/assets/images/nariyal-premium-hero.webp'),
       url('/assets/images/nariyal-coconut-grove.webp')!important;
-    background-position:center,68% center,center!important;
-    background-size:cover,cover,cover!important;
+    background-position:center,center!important;
+    background-size:cover,cover!important;
     background-repeat:no-repeat!important;
   }
 }
