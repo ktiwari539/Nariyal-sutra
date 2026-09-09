@@ -46,9 +46,10 @@ jobs:
             except Exception: continue
             new=deploy.sub('https://nariyal-sutra.netlify.app',old)
             for before,after in aliases.items(): new=new.replace(before,after)
-            # The historical motion MP4 is absent from the recovered source. Remove only source tags
-            # for that file; video containers retain their real photographic poster/image fallback.
+            # The historical motion MP4 is absent from the recovered source. Remove its source tag
+            # or direct video src only; the real photographic poster/image fallback remains.
             new=re.sub(r'<source\b[^>]*nariyal-coconut-motion\.mp4[^>]*\/?>','',new,flags=re.I)
+            new=re.sub(r'\s+src=["\'][^"\']*nariyal-coconut-motion\.mp4[^"\']*["\']','',new,flags=re.I)
             if new!=old:
               p.write_text(new,encoding='utf-8');changed.append(str(p))
           print('Normalized files:',len(changed))
