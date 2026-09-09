@@ -1,0 +1,68 @@
+name: Stabilize V42.1 release
+
+on:
+  push:
+    branches:
+      - stabilize-v42-1-live-fixes-2026-09-09
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  normalize-and-audit:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Normalize stale deploy-specific URLs
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          root = Path('.')
+          text_ext = {'.html','.css','.js','.mjs','.json','.webmanifest','.txt','.md','.toml'}
+          special = {'_redirects','_headers'}
+          pattern = re.compile(r'https://[0-9a-f]{12,}--nariyal-sutra\.netlify\.app', re.I)
+          changed = []
+
+          for p in root.rglob('*'):
+            if not p.is_file() or '.git' in p.parts or 'node_modules' in p.parts:
+              continue
+            if p.suffix.lower() not in text_ext and p.name not in special:
+              continue
+            try:
+              old = p.read_text(encoding='utf-8')
+            except Exception:
+              continue
+            new = pattern.sub('https://nariyal-sutra.netlify.app', old)
+            if new != old:
+              p.write_text(new, encoding='utf-8')
+              changed.append(str(p))
+
+          print('Normalized files:', len(changed))
+          for p in changed:
+            print(' -', p)
+          PY
+
+      - name: Run pre-deploy audit
+        run: node scripts/predeploy-audit.mjs
+
+      - name: Commit normalized source
+        shell: bash
+        run: |
+          if git diff --quiet; then
+            echo 'No normalization changes required.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Normalize release asset URLs [skip ci]'
+          git push
