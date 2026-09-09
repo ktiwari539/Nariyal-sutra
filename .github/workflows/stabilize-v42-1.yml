@@ -19,36 +19,40 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Normalize stale deploy-specific URLs
+      - name: Normalize release source and known legacy media aliases
         shell: bash
         run: |
           python - <<'PY'
           from pathlib import Path
           import re
 
-          root = Path('.')
-          text_ext = {'.html','.css','.js','.mjs','.json','.webmanifest','.txt','.md','.toml'}
-          special = {'_redirects','_headers'}
-          pattern = re.compile(r'https://[0-9a-f]{12,}--nariyal-sutra\.netlify\.app', re.I)
-          changed = []
-
+          root=Path('.')
+          text_ext={'.html','.css','.js','.mjs','.json','.webmanifest','.txt','.md','.toml'}
+          special={'_redirects','_headers'}
+          deploy=re.compile(r'https://[0-9a-f]{12,}--nariyal-sutra\.netlify\.app',re.I)
+          aliases={
+            'assets/images/nariyal-sutra-hero.jpg':'assets/images/nariyal-premium-hero.webp',
+            'assets/images/intro-film-01.webp':'assets/images/nariyal-premium-hero.webp',
+            'assets/images/intro-film-02.webp':'assets/images/nariyal-product-collection.webp',
+            'assets/images/intro-film-03.webp':'assets/images/nariyal-hospitality.webp',
+            'assets/images/brand/sourcing-portrait.webp':'assets/images/nariyal-coconut-grove.webp',
+            'assets/images/coconut-farm.jpg':'assets/images/harvest-wall-organic.jpg',
+          }
+          changed=[]
           for p in root.rglob('*'):
-            if not p.is_file() or '.git' in p.parts or 'node_modules' in p.parts:
-              continue
-            if p.suffix.lower() not in text_ext and p.name not in special:
-              continue
-            try:
-              old = p.read_text(encoding='utf-8')
-            except Exception:
-              continue
-            new = pattern.sub('https://nariyal-sutra.netlify.app', old)
-            if new != old:
-              p.write_text(new, encoding='utf-8')
-              changed.append(str(p))
-
-          print('Normalized files:', len(changed))
-          for p in changed:
-            print(' -', p)
+            if not p.is_file() or '.git' in p.parts or 'node_modules' in p.parts: continue
+            if p.suffix.lower() not in text_ext and p.name not in special: continue
+            try: old=p.read_text(encoding='utf-8')
+            except Exception: continue
+            new=deploy.sub('https://nariyal-sutra.netlify.app',old)
+            for before,after in aliases.items(): new=new.replace(before,after)
+            # The historical motion MP4 is absent from the recovered source. Remove only source tags
+            # for that file; video containers retain their real photographic poster/image fallback.
+            new=re.sub(r'<source\b[^>]*nariyal-coconut-motion\.mp4[^>]*\/?>','',new,flags=re.I)
+            if new!=old:
+              p.write_text(new,encoding='utf-8');changed.append(str(p))
+          print('Normalized files:',len(changed))
+          for p in changed: print(' -',p)
           PY
 
       - name: Run pre-deploy audit
@@ -64,5 +68,5 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A
-          git commit -m 'Normalize release asset URLs [skip ci]'
+          git commit -m 'Normalize recovered release assets [skip ci]'
           git push
