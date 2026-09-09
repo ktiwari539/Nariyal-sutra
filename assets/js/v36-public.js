@@ -106,18 +106,47 @@
     root.querySelectorAll?.('video').forEach(installVideoFallback);
   }
 
+  /* The People rail must never pretend a generic grove fallback is a people
+     portrait. If no distinct approved homepage portraits are available, keep
+     the product-first teaser and hide the empty/repeated rail until Admin has
+     explicitly published suitable People media. */
+  function validatePeopleRail(){
+    const rail=document.getElementById('nsPeopleMarquee');
+    if(!rail)return;
+    const imgs=[...rail.querySelectorAll('img')].filter(img=>{
+      const s=getComputedStyle(img),r=img.getBoundingClientRect();
+      return s.display!=='none'&&s.visibility!=='hidden'&&r.width>2&&r.height>2;
+    });
+    if(!imgs.length)return;
+    const normalized=imgs.map(img=>{
+      try{return new URL(img.currentSrc||img.src,location.href).pathname;}catch(_){return img.currentSrc||img.src||'';}
+    }).filter(Boolean);
+    const distinct=new Set(normalized);
+    const genericOnly=normalized.length>1 && normalized.every(src=>src.endsWith('/assets/images/nariyal-coconut-grove.webp')||src.endsWith('/assets/images/harvest-wall-organic.jpg'));
+    if(genericOnly || (normalized.length>=4 && distinct.size===1)){
+      rail.hidden=true;
+      rail.style.setProperty('display','none','important');
+      rail.dataset.nsPeopleRailState='awaiting-approved-homepage-media';
+    }
+  }
+
   document.documentElement.classList.add('ns-runtime-stabilized');
   guardMedia();
 
   const mo=new MutationObserver(records=>{
+    let peopleChanged=false;
     for(const r of records){
       for(const n of r.addedNodes){
         if(n.nodeType!==1)continue;
         guardMedia(n);
+        if(n.closest?.('#nsPeopleMarquee')||n.querySelector?.('#nsPeopleMarquee,.ns-face-rows'))peopleChanged=true;
       }
     }
+    if(peopleChanged)setTimeout(validatePeopleRail,180);
   });
   mo.observe(document.documentElement,{childList:true,subtree:true});
+  setTimeout(validatePeopleRail,900);
+  setTimeout(validatePeopleRail,2600);
 
   function releaseMainSite(){
     if(innerWidth>980)return;
