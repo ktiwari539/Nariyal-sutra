@@ -1,0 +1,38 @@
+name: Build V42.1 Cinematic Package
+
+on:
+  push:
+    branches:
+      - fix/v42-1-cinematic-storefront-20260910
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout full repository
+        uses: actions/checkout@v4
+
+      - name: Build complete source package
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf .release
+          mkdir -p .release/site
+          rsync -a --exclude='.git' --exclude='.github' --exclude='.release' ./ .release/site/
+          cd .release/site
+          zip -r -9 ../NARIYAL_SUTRA_V42_1_FULL_SOURCE.zip .
+          cd ../..
+          echo "File count: $(find .release/site -type f | wc -l)"
+          echo "ZIP size: $(du -h .release/NARIYAL_SUTRA_V42_1_FULL_SOURCE.zip | cut -f1)"
+
+      - name: Upload complete source package
+        uses: actions/upload-artifact@v4
+        with:
+          name: NARIYAL_SUTRA_V42_1_FULL_SOURCE
+          path: .release/NARIYAL_SUTRA_V42_1_FULL_SOURCE.zip
+          if-no-files-found: error
+          retention-days: 7
