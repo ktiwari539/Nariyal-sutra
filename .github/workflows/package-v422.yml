@@ -1,0 +1,119 @@
+name: Package V42.2 cinematic fix
+
+on:
+  push:
+    branches:
+      - chatgpt/v421-cinematic-fix-20260910
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qa-package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: chatgpt/v421-cinematic-fix-20260910
+
+      - name: Prepare self-contained deploy folder
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf dist
+          mkdir dist
+          rsync -a --exclude='.git' --exclude='.github' ./ dist/
+          python3 - <<'PY'
+          from pathlib import Path
+          import base64
+          root=Path('dist')
+          pairs=[
+            ('assets/images/ns-harvest-cinematic.webp.b64','assets/images/ns-harvest-cinematic.webp'),
+            ('assets/images/ns-cut-cinematic.webp.b64','assets/images/ns-cut-cinematic.webp'),
+          ]
+          for src,dst in pairs:
+            s=root/src; d=root/dst
+            d.write_bytes(base64.b64decode(s.read_text().strip()))
+            s.unlink()
+          js=root/'assets/js/v20-review-fixes.js'
+          t=js.read_text()
+          t=t.replace("loadB64('assets/images/ns-harvest-cinematic.webp.b64',document.getElementById('ns-film42-harvest-img'),'assets/images/review/coastal-grove.png');","document.getElementById('ns-film42-harvest-img').src='assets/images/ns-harvest-cinematic.webp';")
+          t=t.replace("loadB64('assets/images/ns-cut-cinematic.webp.b64',document.getElementById('ns-film42-cut-img'),'assets/images/story-coconut-body-cut.png');","document.getElementById('ns-film42-cut-img').src='assets/images/ns-cut-cinematic.webp';")
+          js.write_text(t)
+          PY
+          test -s dist/assets/images/ns-harvest-cinematic.webp
+          test -s dist/assets/images/ns-cut-cinematic.webp
+          grep -q "#ns-film42" dist/assets/css/v20-review-fixes.css
+          grep -q "id='ns-film42'\|section.id='ns-film42'" dist/assets/js/v20-review-fixes.js
+          ! grep -q "ns-harvest-cinematic.webp.b64" dist/assets/js/v20-review-fixes.js
+          ! grep -q "ns-cut-cinematic.webp.b64" dist/assets/js/v20-review-fixes.js
+
+      - name: Browser QA desktop tablet mobile
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m http.server 4173 --directory dist >/tmp/ns-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID || true' EXIT
+          npm init -y >/dev/null 2>&1
+          npm install playwright@1.55.0 --no-save >/dev/null 2>&1
+          npx playwright install chromium >/dev/null 2>&1
+          cat > /tmp/ns-qa.mjs <<'JS'
+          import { chromium } from 'playwright';
+          const browser=await chromium.launch({headless:true});
+          const checks=[
+            ['desktop',1440,900],
+            ['tablet',1024,768],
+            ['mobile',390,844],
+          ];
+          for(const [name,width,height] of checks){
+            const page=await browser.newPage({viewport:{width,height}});
+            const errors=[];
+            page.on('pageerror',e=>errors.push(String(e)));
+            await page.goto('http://127.0.0.1:4173/',{waitUntil:'networkidle'});
+            await page.waitForSelector('#ns-film42',{state:'attached',timeout:15000});
+            const state=await page.evaluate(()=>({
+              films:document.querySelectorAll('#ns-film42').length,
+              scenes:document.querySelectorAll('#ns-film42 [data-ns-film42-scene]').length,
+              rejected:document.querySelectorAll('#v20-story-film,.mobile-story-reel,#grove-story,#cut-story,#live-coconut-motion').length,
+              harvestLoaded:(document.querySelector('#ns-film42-harvest-img')?.naturalWidth||0)>0,
+              cutLoaded:(document.querySelector('#ns-film42-cut-img')?.naturalWidth||0)>0,
+              bodyWidth:document.body.scrollWidth,
+              viewport:innerWidth
+            }));
+            if(state.films!==1||state.scenes!==2||state.rejected!==0||!state.harvestLoaded||!state.cutLoaded||state.bodyWidth>state.viewport+2){
+              throw new Error(name+' QA failed: '+JSON.stringify(state)+' errors='+JSON.stringify(errors));
+            }
+            await page.screenshot({path:`qa-${name}.png`,fullPage:false});
+            await page.close();
+          }
+          const admin=await browser.newPage({viewport:{width:1440,height:900}});
+          await admin.goto('http://127.0.0.1:4173/admin-preview.html',{waitUntil:'domcontentloaded'});
+          const adminText=(await admin.textContent('body'))||'';
+          if(!/Business Command Center|Delivery Hub|Media Library|Website|Content/i.test(adminText)) throw new Error('Accepted Admin OS smoke check failed');
+          await admin.screenshot({path:'qa-admin.png',fullPage:false});
+          await browser.close();
+          JS
+          node /tmp/ns-qa.mjs
+
+      - name: Create deploy ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          (cd dist && zip -qr ../NARIYAL_SUTRA_V42_2_CINEMATIC_FIX_2026-09-10.zip .)
+          unzip -t NARIYAL_SUTRA_V42_2_CINEMATIC_FIX_2026-09-10.zip >/dev/null
+          ls -lh NARIYAL_SUTRA_V42_2_CINEMATIC_FIX_2026-09-10.zip
+
+      - name: Upload deploy package and QA screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: nariyal-sutra-v42-2-cinematic-fix
+          path: |
+            NARIYAL_SUTRA_V42_2_CINEMATIC_FIX_2026-09-10.zip
+            qa-desktop.png
+            qa-tablet.png
+            qa-mobile.png
+            qa-admin.png
+          if-no-files-found: error
+          retention-days: 7
