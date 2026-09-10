@@ -59,7 +59,6 @@ jobs:
             new=deploy.sub('https://nariyal-sutra.netlify.app',old)
             for before,after in aliases.items(): new=new.replace(before,after)
             for pattern,after in remote_media_patterns: new=re.sub(pattern,after,new,flags=re.I)
-            # Candidate/local Admin must load the candidate/local module, never the old live asset.
             new=new.replace('https://nariyal-sutra.netlify.app/assets/js/v421-admin.js','/assets/js/v421-admin.js')
             new=re.sub(r'<source\b[^>]*nariyal-coconut-motion\.mp4[^>]*\/?>','',new,flags=re.I)
             new=re.sub(r'\s+src=["\'][^"\']*nariyal-coconut-motion\.mp4[^"\']*["\']','',new,flags=re.I)
@@ -114,7 +113,7 @@ jobs:
           npm install --no-save --no-package-lock playwright@1.55.0
           npx playwright install --with-deps chromium
 
-      - name: Run responsive browser QA
+      - name: Run full browser and functional QA
         shell: bash
         run: |
           python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/nariyal-http.log 2>&1 &
@@ -123,6 +122,7 @@ jobs:
           sleep 2
           node scripts/visual-qa.mjs
           node scripts/cinematic-qa.mjs
+          node scripts/admin-functional-qa.mjs
 
       - name: Upload QA screenshots and report
         if: always()
