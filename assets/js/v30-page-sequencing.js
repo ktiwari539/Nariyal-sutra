@@ -15,6 +15,16 @@ if(!window.__NS_V421_STABLE_ASSETS__ && !document.querySelector('script[data-ns-
 
 function file(){let f=(location.pathname.split('/').pop()||'index.html').toLowerCase();return f||'index.html'}
 
+/* Locked visual-story recovery. This restores the accepted V27 desktop harvest
+   choreography and corrects trade imagery without changing business/auth data. */
+if(!window.__NS_V421_VISUAL_RECOVERY__ && !document.querySelector('script[data-ns-visual-recovery]')){
+  const s=document.createElement('script');
+  s.src='/assets/js/v421-visual-recovery.js';
+  s.defer=true;
+  s.dataset.nsVisualRecovery='1';
+  document.head.appendChild(s);
+}
+
 /* Professional first-party acquisition attribution belongs only to the checkout
    storefront. It is deliberately loaded here rather than hard-coded into the
    large homepage so the capture layer remains isolated, testable and removable. */
