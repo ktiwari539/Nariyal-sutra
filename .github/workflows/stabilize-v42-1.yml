@@ -48,8 +48,6 @@ jobs:
             (r'https://images\.pexels\.com/photos/16559741/pexels-photo-16559741\.jpeg\?auto=compress(?:&|&amp;)cs=tinysrgb(?:&|&amp;)w=1600','assets/images/nariyal-coconut-grove.webp'),
             (r'https://images\.pexels\.com/photos/4395019/pexels-photo-4395019\.jpeg\?auto=compress(?:&|&amp;)cs=tinysrgb(?:&|&amp;)w=(?:900|1600|1800)','assets/images/freshness-coconut-splash.webp'),
             (r'https://images\.pexels\.com/photos/4802876/pexels-photo-4802876\.jpeg\?auto=compress(?:&|&amp;)cs=tinysrgb(?:&|&amp;)w=1600','assets/images/freshness-coconut-splash.webp'),
-            # Trade must never be normalized to a coconut/product photo. Keep a
-            # semantically correct local logistics fallback instead.
             (r'https://images\.pexels\.com/photos/30748600/pexels-photo-30748600\.jpeg\?auto=compress(?:&|&amp;)cs=tinysrgb(?:&|&amp;)w=(?:1200|1800)','assets/images/trade-logistics.svg'),
           ]
           changed=[]
@@ -66,9 +64,6 @@ jobs:
             if new!=old:
               p.write_text(new,encoding='utf-8');changed.append(str(p))
 
-          # Repair the earlier bad normalization where International Trade was
-          # pointed at bulk-coconut-pack.jpg. Scope the replacement so the real
-          # Bulk product imagery remains untouched elsewhere.
           for rel in ('about-nariyal-sutra.html','coconut-wholesale-export.html'):
             p=root/rel
             if not p.exists(): continue
@@ -125,6 +120,7 @@ jobs:
           trap 'kill $SERVER_PID || true' EXIT
           sleep 2
           node scripts/visual-qa.mjs
+          node scripts/cinematic-qa.mjs
 
       - name: Upload QA screenshots and report
         if: always()
