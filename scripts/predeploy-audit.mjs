@@ -5,7 +5,7 @@ import { spawnSync } from 'node:child_process';
 
 const ROOT=process.cwd();
 const TEXT_EXT=new Set(['.html','.css','.js','.mjs','.json','.webmanifest','.txt','.md','.toml']);
-const SKIP=new Set(['.git','node_modules']);
+const SKIP=new Set(['.git','node_modules','qa-artifacts']);
 const problems=[];
 const seen=new Set();
 const SELF_ORIGIN='https://nariyal-sutra.netlify.app';
@@ -43,6 +43,10 @@ function checkRef(file,v){
   const target=targetFor(file,v);
   if(target&&!fs.existsSync(target)) add('missing-asset',file,`${v} -> ${rel(target)}`);
 }
+function externalCustomerMedia(v){
+  if(!/^https?:/i.test(v)||dynamic(v))return false;
+  try{return new URL(v).origin!==new URL(SELF_ORIGIN).origin;}catch{return false;}
+}
 function sha256(file){return crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');}
 
 const files=walk(ROOT);
@@ -62,9 +66,15 @@ for(const file of textFiles){
     const tags=markup.match(/<(?:img|script|link|video|source|iframe)\b[^>]*>/gi)||[];
     for(const tag of tags){
       const attr=/\b(?:src|href|poster)\s*=\s*["']([^"']+)["']/gi;
-      for(const m of tag.matchAll(attr))checkRef(file,m[1]);
+      for(const m of tag.matchAll(attr)){
+        checkRef(file,m[1]);
+        if(/^<img\b/i.test(tag)&&externalCustomerMedia(m[1])) add('external-customer-image',file,m[1]);
+        if(/^<video\b/i.test(tag)&&/\bposter\s*=/i.test(tag)&&externalCustomerMedia(m[1])) add('external-customer-video-poster',file,m[1]);
+      }
       const srcset=/\bsrcset\s*=\s*["']([^"']+)["']/gi;
-      for(const m of tag.matchAll(srcset))for(const part of m[1].split(','))checkRef(file,part.trim().split(/\s+/)[0]);
+      for(const m of tag.matchAll(srcset))for(const part of m[1].split(',')){
+        const v=part.trim().split(/\s+/)[0];checkRef(file,v);if(/^<img\b/i.test(tag)&&externalCustomerMedia(v))add('external-customer-image',file,v);
+      }
     }
   }
   if(['.css','.html'].includes(path.extname(file).toLowerCase())){
@@ -86,7 +96,8 @@ const required=[
 'assets/js/story-pages.js','assets/js/v35-worlds.js','assets/js/v421-catalog.js','assets/js/v17-cinematic.js','assets/js/ns-smart-location.js','assets/js/v421-admin.js',
 'netlify/functions/send-email.js','netlify/functions/media-sign-upload.js','assets/images/nariyal-premium-hero.webp','assets/images/nariyal-hospitality.webp',
 'assets/images/nariyal-product-collection.webp','assets/images/green-round-coconut.jpg','assets/images/bulk-coconut-pack.jpg','assets/images/freshness-coconut-splash.webp',
-'assets/images/brand/coconut-premium.webp','assets/images/story-coconut-hero.png','assets/images/story-coconut-body-cut.png','assets/images/story-coconut-cap-cut.png'];
+'assets/images/brand/coconut-premium.webp','assets/images/story-coconut-hero.png','assets/images/story-coconut-body-cut.png','assets/images/story-coconut-cap-cut.png',
+'assets/images/review/coastal-grove.png','assets/images/review/backwater-grove.png'];
 for(const r of required)if(!fs.existsSync(path.join(ROOT,r)))add('missing-release-file',path.join(ROOT,r),'required release file is absent');
 
 const protectedAssets={
@@ -102,4 +113,4 @@ console.log('\nNariyal Sutra pre-deploy audit');
 console.log('Text files checked:',textFiles.length);
 console.log('JavaScript files syntax-checked:',jsFiles.length);
 if(problems.length){console.error(`\nFAILED: ${problems.length} release blocker(s)`);for(const p of problems)console.error(`FAIL [${p.kind}] ${p.file}: ${p.msg}`);process.exit(1);}
-console.log('\nPASS: stale deploy URLs, asset references, required media/runtimes, protected hashes, JS syntax and Netlify function redirects passed.');
+console.log('\nPASS: stale deploy URLs, local customer-facing images, asset references, required media/runtimes, protected hashes, JS syntax and Netlify function redirects passed.');
