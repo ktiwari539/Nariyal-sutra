@@ -59,6 +59,8 @@ jobs:
             new=deploy.sub('https://nariyal-sutra.netlify.app',old)
             for before,after in aliases.items(): new=new.replace(before,after)
             for pattern,after in remote_media_patterns: new=re.sub(pattern,after,new,flags=re.I)
+            # Candidate/local Admin must load the candidate/local module, never the old live asset.
+            new=new.replace('https://nariyal-sutra.netlify.app/assets/js/v421-admin.js','/assets/js/v421-admin.js')
             new=re.sub(r'<source\b[^>]*nariyal-coconut-motion\.mp4[^>]*\/?>','',new,flags=re.I)
             new=re.sub(r'\s+src=["\'][^"\']*nariyal-coconut-motion\.mp4[^"\']*["\']','',new,flags=re.I)
             if new!=old:
