@@ -26,6 +26,17 @@ if(file()==='index.html' && !window.NSAttribution && !document.querySelector('sc
   document.head.appendChild(s);
 }
 
+/* Customer account presentation is kept separate from customer-account.js so
+   Firebase/auth/order behavior remains untouched while the premium drawer UI
+   can evolve and be regression-tested independently. */
+if(file()==='index.html' && !window.__NS_V421_ACCOUNT_UI__ && !document.querySelector('script[data-ns-account-ui]')){
+  const s=document.createElement('script');
+  s.src='/assets/js/v421-account-ui.js';
+  s.defer=true;
+  s.dataset.nsAccountUi='1';
+  document.head.appendChild(s);
+}
+
 const Store=window.NSV421Store;
 function eligible(){const main=document.querySelector('main');let a=main?[...main.children].filter(x=>x.tagName==='SECTION'):[];if(!a.length)a=[...document.body.children].filter(x=>x.tagName==='SECTION'&&!x.matches('#jungle-intro'));return a;}
 function apply(){if(!Store)return;const f=file();if(f==='index.html')return;const secs=eligible();if(secs.length<2)return;secs.forEach((s,i)=>{if(!s.dataset.v30SeqKey)s.dataset.v30SeqKey='s'+String(i+1).padStart(2,'0')});const state=Store.load(),cfg=state.pageSequences&&state.pageSequences[f];if(!cfg)return;const by=new Map(secs.map(x=>[x.dataset.v30SeqKey,x]));const ordered=(cfg.order||[]).map(k=>by.get(k)).filter(Boolean);secs.forEach(x=>{if(!ordered.includes(x))ordered.push(x)});const parent=secs[0].parentNode,anchor=secs[secs.length-1].nextSibling;ordered.forEach(x=>parent.insertBefore(x,anchor));ordered.forEach(x=>{const k=x.dataset.v30SeqKey,hide=cfg.hidden&&cfg.hidden[k]===true;x.hidden=hide;x.dataset.v30SectionHidden=hide?'true':'false'});}
