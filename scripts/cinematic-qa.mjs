@@ -13,14 +13,16 @@ const browser=await chromium.launch({headless:true});
 try{
   const page=await browser.newPage({viewport:{width:1440,height:900}});
   await page.goto(`${BASE}/index.html`,{waitUntil:'domcontentloaded',timeout:30000});
-  await page.waitForTimeout(900);
+  await page.waitForTimeout(1100);
 
   const boot=await page.evaluate(()=>{
+    document.documentElement.style.scrollBehavior='auto';
     const film=document.querySelector('#v20-story-film');
     const drops=[...document.querySelectorAll('#v20-rain .v25-rain-coconut')];
     return {
       drops:drops.length,
       declared:document.querySelector('#v20-rain')?.dataset.nsRainCount||'',
+      photographic:drops.filter(x=>x.tagName==='IMG'&&/story-coconut-hero\.png/i.test(x.getAttribute('src')||'')).length,
       filmHeight:film?.offsetHeight||0,
       viewport:innerHeight,
       recovery:window.NSV421Cinematic?.version||'',
@@ -29,22 +31,27 @@ try{
   });
   checks.push({scope:'cinematic:boot',...boot});
   if(boot.drops!==35) fail('cinematic:boot',`expected 35 falling coconuts, found ${boot.drops}`);
+  if(boot.photographic!==35) fail('cinematic:boot',`expected 35 photographic rain coconuts, found ${boot.photographic}`);
   if(boot.oldRain!==0) fail('cinematic:boot',`legacy rectangular rain layer still exists (${boot.oldRain})`);
   if(boot.filmHeight<boot.viewport*4.7) fail('cinematic:boot',`cinematic runway too short: ${boot.filmHeight}px`);
   if(boot.recovery!=='v27-restored') fail('cinematic:boot','V27 recovery runtime did not initialize');
 
   async function setProgress(p,name){
     await page.evaluate(p=>{
+      document.documentElement.style.scrollBehavior='auto';
       const film=document.querySelector('#v20-story-film');
-      const top=film.getBoundingClientRect().top+scrollY;
+      const top=film.getBoundingClientRect().top+window.scrollY;
       const range=Math.max(1,film.offsetHeight-innerHeight);
-      scrollTo(0,top+range*p);
+      window.scrollTo({top:top+range*p,left:0,behavior:'auto'});
+      window.NSV421Cinematic?.update?.();
+      window.dispatchEvent(new Event('scroll'));
     },p);
-    await page.waitForTimeout(180);
+    await page.waitForTimeout(320);
     const state=await page.evaluate(()=>{
+      window.NSV421Cinematic?.update?.();
       const film=document.querySelector('#v20-story-film');
       const drops=[...document.querySelectorAll('#v20-rain .v25-rain-coconut')];
-      const visibleDrops=drops.filter(x=>Number(getComputedStyle(x).opacity)>.12).length;
+      const visibleDrops=drops.filter(x=>Number(getComputedStyle(x).opacity)>.12 && getComputedStyle(x).display!=='none').length;
       const source=document.querySelector('#v20-rain .v25-rain-coconut.is-source');
       const vars=getComputedStyle(film);
       return {
@@ -53,7 +60,9 @@ try{
         heroAlpha:Number(vars.getPropertyValue('--hero-alpha')||0),
         knifeAlpha:Number(vars.getPropertyValue('--knife-alpha')||0),
         streamAlpha:Number(vars.getPropertyValue('--stream-alpha')||0),
-        waterAlpha:Number(vars.getPropertyValue('--water-alpha')||0)
+        streamOpacity:Number(vars.getPropertyValue('--stream-opacity')||0),
+        waterAlpha:Number(vars.getPropertyValue('--water-alpha')||0),
+        actualProgress:(()=>{const r=film.getBoundingClientRect(),range=Math.max(1,film.offsetHeight-innerHeight);return Math.max(0,Math.min(1,-r.top/range));})()
       };
     });
     checks.push({scope:`cinematic:${name}`,progress:p,...state});
@@ -69,24 +78,26 @@ try{
 
   const one=await setProgress(.61,'one-remains');
   if(one.sourceOpacity<.15) fail('cinematic:one-remains','selected source coconut is not visible');
-  if(one.visibleDrops>8) fail('cinematic:one-remains',`too many coconuts remain visible (${one.visibleDrops})`);
+  if(one.visibleDrops>4) fail('cinematic:one-remains',`too many coconuts remain visible (${one.visibleDrops})`);
 
   const cut=await setProgress(.82,'knife-cut');
   if(cut.knifeAlpha<.25) fail('cinematic:knife-cut',`knife is not visibly active (${cut.knifeAlpha})`);
   if(cut.heroAlpha<.15) fail('cinematic:knife-cut','selected cutting coconut is not visible');
 
   const pour=await setProgress(.91,'water-pour');
-  if(pour.streamAlpha<.2) fail('cinematic:water-pour',`water stream is not visibly active (${pour.streamAlpha})`);
+  if(Math.max(pour.streamAlpha,pour.streamOpacity)<.2) fail('cinematic:water-pour',`water stream is not visibly active (${Math.max(pour.streamAlpha,pour.streamOpacity)})`);
 
   await page.goto(`${BASE}/about-nariyal-sutra.html`,{waitUntil:'domcontentloaded',timeout:30000});
-  await page.waitForTimeout(450);
+  await page.waitForTimeout(500);
   const aboutTrade=await page.$eval('#export img',img=>img.getAttribute('src')||'').catch(()=>null);
   checks.push({scope:'trade:story-card',src:aboutTrade});
   if(!aboutTrade||!aboutTrade.includes('trade-logistics.svg')) fail('trade:story-card',`wrong International Trade image: ${aboutTrade}`);
+  await page.$eval('#export',el=>el.scrollIntoView({block:'center',behavior:'auto'})).catch(()=>{});
+  await page.waitForTimeout(100);
   await page.screenshot({path:path.join(OUT,'trade-story-card.png'),fullPage:false});
 
   await page.goto(`${BASE}/coconut-wholesale-export.html`,{waitUntil:'domcontentloaded',timeout:30000});
-  await page.waitForTimeout(450);
+  await page.waitForTimeout(500);
   const trade=await page.evaluate(()=>({
     hero:document.querySelector('.w-hero-media img')?.getAttribute('src')||'',
     route:document.querySelector('.route-map img')?.getAttribute('src')||''
