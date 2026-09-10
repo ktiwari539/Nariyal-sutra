@@ -2,8 +2,7 @@ name: Package V42.2 cinematic fix
 
 on:
   push:
-    branches:
-      - chatgpt/v421-cinematic-fix-20260910
+    branches: [chatgpt/v421-cinematic-fix-20260910]
   workflow_dispatch:
 
 permissions:
@@ -21,35 +20,24 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          rm -rf dist
-          mkdir dist
+          rm -rf dist && mkdir dist
           rsync -a --exclude='.git' --exclude='.github' --exclude='.build' ./ dist/
-
-          # Harvest uses the existing high-resolution real coastal-grove photograph.
           cp dist/assets/images/review/coastal-grove.png dist/assets/images/ns-harvest-cinematic.png
-
-          # Cut uses a real free-to-use Pexels photograph, copied into the deploy package.
           CUT_URL='https://images.pexels.com/photos/25049373/pexels-photo-25049373.jpeg?auto=compress&cs=tinysrgb&w=1600'
           FALLBACK_URL='https://images.pexels.com/photos/5945742/pexels-photo-5945742.jpeg?auto=compress&cs=tinysrgb&w=1600'
-          curl -L --fail --retry 3 --connect-timeout 20 "$CUT_URL" -o dist/assets/images/ns-cut-cinematic.jpg \
-            || curl -L --fail --retry 3 --connect-timeout 20 "$FALLBACK_URL" -o dist/assets/images/ns-cut-cinematic.jpg
-          test -s dist/assets/images/ns-cut-cinematic.jpg
+          curl -L --fail --retry 3 --connect-timeout 20 "$CUT_URL" -o dist/assets/images/ns-cut-cinematic.jpg || curl -L --fail --retry 3 --connect-timeout 20 "$FALLBACK_URL" -o dist/assets/images/ns-cut-cinematic.jpg
           test "$(wc -c < dist/assets/images/ns-cut-cinematic.jpg)" -gt 50000
-
-          rm -f dist/assets/images/ns-harvest-cinematic.webp.b64 dist/assets/images/ns-cut-cinematic.webp.b64
-
+          find dist -type f \( -name '*.b64' -o -name '*.part' \) -delete
           cat > dist/THIRD_PARTY_MEDIA.md <<'EOF'
           # Third-party media used in V42.2 cinematic section
-          - Cut scene photograph: Pexels free stock photo, photo 25049373 (fallback 5945742), downloaded into the package during the verified build.
+          - Cut scene: Pexels photo 25049373; fallback 5945742.
           - Harvest scene: existing repository asset assets/images/review/coastal-grove.png.
           EOF
-
           python3 - <<'PY'
           from pathlib import Path
           import re
-          root=Path('dist')
-          idx=root/'index.html'
-          h=idx.read_text()
+          p=Path('dist/index.html')
+          h=p.read_text()
           old='https://6a9bfce307bb9f014e510b7d--nariyal-sutra.netlify.app/'
           h=h.replace(old,'/')
           h=h.replace('content="/assets/images/nariyal-sutra-hero.jpg" property="og:image"','content="https://nariyal-sutra.netlify.app/assets/images/nariyal-sutra-hero.jpg" property="og:image"')
@@ -57,20 +45,17 @@ jobs:
           h=h.replace('"logo": "/assets/images/nariyal-sutra-hero.jpg"','"logo": "https://nariyal-sutra.netlify.app/assets/images/nariyal-sutra-hero.jpg"')
           h=re.sub(r'<script[^>]+src=["\']/assets/js/ns-smart-location\.js["\'][^>]*></script>','',h,flags=re.I)
           h=re.sub(r'<source[^>]+src=["\']/assets/video/nariyal-coconut-motion\.mp4["\'][^>]*/?>','',h,flags=re.I)
-          idx.write_text(h)
-          if old in h: raise SystemExit('stale immutable Netlify deploy reference remains')
-          if 'ns-smart-location.js' in h: raise SystemExit('missing smart-location script reference remains')
-          if 'nariyal-coconut-motion.mp4' in h: raise SystemExit('missing motion video reference remains')
+          p.write_text(h)
+          assert old not in h
+          assert 'ns-smart-location.js' not in h
+          assert 'nariyal-coconut-motion.mp4' not in h
           PY
-
           grep -q "#ns-film42" dist/assets/css/v20-review-fixes.css
           grep -q "section.id='ns-film42'" dist/assets/js/v20-review-fixes.js
-          grep -q "ns-harvest-cinematic.png" dist/assets/js/v20-review-fixes.js || grep -q "review/coastal-grove.png" dist/assets/js/v20-review-fixes.js
+          grep -q "review/coastal-grove.png" dist/assets/js/v20-review-fixes.js
           grep -q "ns-cut-cinematic.jpg" dist/assets/js/v20-review-fixes.js
           grep -q '^/admin /admin-preview.html 200$' dist/_redirects
-          ! grep -R -q "6a9bfce307bb9f014e510b7d" dist/index.html
-          ! find dist -type f \( -name '*.b64' -o -name '*.part' \) -print -quit | grep -q .
-          test "$(find dist -type f | wc -l)" -gt 100
+          echo "Prepared $(find dist -type f | wc -l) files"
 
       - name: Browser QA Chromium and WebKit
         shell: bash
@@ -85,45 +70,31 @@ jobs:
           cat > /tmp/ns-qa.mjs <<'JS'
           import { chromium, webkit } from 'playwright';
           const engines=[['chromium',chromium],['webkit',webkit]];
-          const checks=[['desktop',1440,900],['tablet',1024,768],['mobile',390,844]];
+          const sizes=[['desktop',1440,900],['tablet',1024,768],['mobile',390,844]];
           for(const [engineName,engine] of engines){
             const browser=await engine.launch({headless:true});
-            for(const [name,width,height] of checks){
+            for(const [name,width,height] of sizes){
               const page=await browser.newPage({viewport:{width,height}});
-              const local404=[];
-              page.on('response',r=>{if(r.url().startsWith('http://127.0.0.1:4173/')&&r.status()===404)local404.push(r.url())});
               await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded',timeout:30000});
               await page.waitForSelector('#ns-film42',{state:'attached',timeout:15000});
               await page.locator('#ns-film42').scrollIntoViewIfNeeded();
-              await page.waitForTimeout(1200);
-              const state=await page.evaluate(()=>({
-                films:document.querySelectorAll('#ns-film42').length,
-                scenes:document.querySelectorAll('#ns-film42 [data-ns-film42-scene]').length,
-                rejected:document.querySelectorAll('#v20-story-film,.mobile-story-reel,#grove-story,#cut-story,#live-coconut-motion').length,
-                harvestLoaded:(document.querySelector('#ns-film42-harvest-img')?.naturalWidth||0)>0,
-                cutLoaded:(document.querySelector('#ns-film42-cut-img')?.naturalWidth||0)>0,
-                bodyWidth:document.documentElement.scrollWidth,
-                viewport:innerWidth
-              }));
-              if(state.films!==1||state.scenes!==2||state.rejected!==0||!state.harvestLoaded||!state.cutLoaded||state.bodyWidth>state.viewport+2){
-                throw new Error(engineName+' '+name+' QA failed: '+JSON.stringify(state)+' local404='+JSON.stringify(local404));
-              }
+              await page.waitForTimeout(1000);
+              const s=await page.evaluate(()=>({films:document.querySelectorAll('#ns-film42').length,scenes:document.querySelectorAll('#ns-film42 [data-ns-film42-scene]').length,rejected:document.querySelectorAll('#v20-story-film,.mobile-story-reel,#grove-story,#cut-story,#live-coconut-motion').length,harvest:(document.querySelector('#ns-film42-harvest-img')?.naturalWidth||0),cut:(document.querySelector('#ns-film42-cut-img')?.naturalWidth||0),scroll:document.documentElement.scrollWidth,view:innerWidth}));
+              if(s.films!==1||s.scenes!==2||s.rejected!==0||!s.harvest||!s.cut||s.scroll>s.view+2) throw new Error(engineName+' '+name+' '+JSON.stringify(s));
               await page.locator('[data-ns-film42-scene="harvest"]').scrollIntoViewIfNeeded();
-              await page.waitForTimeout(300);
-              await page.screenshot({path:`qa-${engineName}-${name}-harvest.png`,fullPage:false});
+              await page.screenshot({path:`qa-${engineName}-${name}-harvest.png`});
               await page.locator('[data-ns-film42-scene="cut"]').scrollIntoViewIfNeeded();
-              await page.waitForTimeout(300);
-              await page.screenshot({path:`qa-${engineName}-${name}-cut.png`,fullPage:false});
+              await page.screenshot({path:`qa-${engineName}-${name}-cut.png`});
               await page.close();
             }
             await browser.close();
           }
           const browser=await chromium.launch({headless:true});
           const admin=await browser.newPage({viewport:{width:1440,height:900}});
-          await admin.goto('http://127.0.0.1:4173/admin-preview.html',{waitUntil:'domcontentloaded',timeout:30000});
-          const adminText=(await admin.textContent('body'))||'';
-          if(!/Delivery Hub/i.test(adminText)||!/Media Library/i.test(adminText)||!/Schedule/i.test(adminText)) throw new Error('Accepted Admin OS smoke check failed');
-          await admin.screenshot({path:'qa-admin.png',fullPage:false});
+          await admin.goto('http://127.0.0.1:4173/admin-preview.html',{waitUntil:'domcontentloaded'});
+          const text=(await admin.textContent('body'))||'';
+          if(!/Delivery Hub/i.test(text)||!/Media Library/i.test(text)||!/Schedule/i.test(text)) throw new Error('Admin OS check failed');
+          await admin.screenshot({path:'qa-admin.png'});
           await browser.close();
           JS
           node /tmp/ns-qa.mjs
@@ -134,8 +105,9 @@ jobs:
           set -euo pipefail
           (cd dist && zip -qr ../NARIYAL_SUTRA_V42_2_CINEMATIC_FIX_2026-09-10.zip .)
           unzip -t NARIYAL_SUTRA_V42_2_CINEMATIC_FIX_2026-09-10.zip >/dev/null
-          test "$(unzip -Z1 NARIYAL_SUTRA_V42_2_CINEMATIC_FIX_2026-09-10.zip | wc -l)" -gt 100
-          ls -lh NARIYAL_SUTRA_V42_2_CINEMATIC_FIX_2026-09-10.zip
+          COUNT=$(unzip -Z1 NARIYAL_SUTRA_V42_2_CINEMATIC_FIX_2026-09-10.zip | wc -l)
+          echo "ZIP entries: $COUNT"
+          test "$COUNT" -gt 100
 
       - name: Upload deploy package and QA screenshots
         uses: actions/upload-artifact@v4
