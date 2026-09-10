@@ -25,6 +25,16 @@ async function mirrorProdAssets(page){
   else await route.fulfill({status:404,contentType:'text/plain',body:'QA mirror missing repository asset'});
  });
 }
+async function forceAllImages(page){
+ await page.evaluate(()=>{for(const img of document.images)img.loading='eager'});
+ const height=await page.evaluate(()=>Math.max(document.documentElement.scrollHeight,document.body.scrollHeight));
+ for(let y=0;y<height;y+=700){await page.evaluate(y=>scrollTo(0,y),y);await page.waitForTimeout(18)}
+ await page.evaluate(()=>scrollTo(0,0));
+ await page.evaluate(async()=>{
+  const imgs=[...document.images];
+  await Promise.all(imgs.map(i=>i.complete?Promise.resolve():new Promise(resolve=>{const done=()=>resolve();i.addEventListener('load',done,{once:true});i.addEventListener('error',done,{once:true});setTimeout(done,2500)})));
+ });
+}
 
 const browser=await chromium.launch({headless:true});
 try{
@@ -36,11 +46,9 @@ try{
   page.on('response',r=>{try{const u=new URL(r.url());if((u.origin===new URL(BASE).origin||u.origin===PROD)&&r.status()>=400)requestFailures.push(`${r.status()} ${r.url()}`)}catch{}});
   const res=await page.goto(`${BASE}/${file}?integrity=${Date.now()}`,{waitUntil:'domcontentloaded',timeout:30000});
   if(!res||res.status()>=400){fail(file,`page HTTP ${res?.status()||'no response'}`);await page.close();continue}
-  await page.waitForTimeout(file==='index.html'?2300:1300);
-  await page.evaluate(async()=>{
-    const imgs=[...document.images].filter(i=>{const s=getComputedStyle(i),r=i.getBoundingClientRect();return s.display!=='none'&&s.visibility!=='hidden'&&r.width>2&&r.height>2});
-    await Promise.all(imgs.map(i=>i.complete?Promise.resolve():new Promise(resolve=>{const done=()=>resolve();i.addEventListener('load',done,{once:true});i.addEventListener('error',done,{once:true});setTimeout(done,1800)})));
-  });
+  await page.waitForTimeout(file==='index.html'?1800:650);
+  await forceAllImages(page);
+  await page.waitForTimeout(250);
   const r=await page.evaluate(()=>{
    const shown=e=>{const c=getComputedStyle(e),b=e.getBoundingClientRect();return !e.hidden&&c.display!=='none'&&c.visibility!=='hidden'&&Number(c.opacity||1)>.02&&b.width>3&&b.height>3};
    const imgs=[...document.images].filter(shown).map(i=>({src:(i.currentSrc||i.src||'').split('?')[0],ok:i.complete&&i.naturalWidth>1,w:i.naturalWidth,h:i.naturalHeight,alt:i.alt||''}));
@@ -77,5 +85,5 @@ try{
 
 const report={generatedAt:new Date().toISOString(),failures,checks};
 fs.writeFileSync(path.join(OUT,'content-integrity-qa-report.json'),JSON.stringify(report,null,2));
-const summary=['# Storefront Content Integrity QA','',`Failures: ${failures.length}`,'',...(failures.length?failures.map(x=>`- **${x.scope}** — ${x.msg}`):['- None']),'','Checks: all real customer pages load; production-hosted repository assets are mirrored from the candidate; visible images decode; local links resolve; no large blank sections or horizontal overflow; direct-sourcing and grove imagery stays distinct; checkout attribution exists; broken legacy cinematic layers stay hidden.'].join('\n');
+const summary=['# Storefront Content Integrity QA','',`Failures: ${failures.length}`,'',...(failures.length?failures.map(x=>`- **${x.scope}** — ${x.msg}`):['- None']),'','Checks: all real customer pages load; lazy media is forced through the viewport before validation; production-hosted repository assets are mirrored from the candidate; visible images decode; local links resolve; no large blank sections or horizontal overflow; direct-sourcing and grove imagery stays distinct; checkout attribution exists; broken legacy cinematic layers stay hidden.'].join('\n');
 fs.writeFileSync(path.join(OUT,'content-integrity-qa-summary.md'),summary);console.log(summary);if(failures.length)process.exit(1);
