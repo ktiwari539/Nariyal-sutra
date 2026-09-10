@@ -6,6 +6,10 @@ on:
       - stabilize-v42-1-live-fixes-2026-09-09
   workflow_dispatch:
 
+concurrency:
+  group: stabilize-v42-1-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: write
 
@@ -66,6 +70,20 @@ jobs:
       - name: Run pre-deploy audit
         run: node scripts/predeploy-audit.mjs
 
+      - name: Commit normalized source
+        shell: bash
+        run: |
+          if git diff --quiet; then
+            echo 'No normalization changes required.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git reset qa-artifacts/ || true
+          git commit -m 'Normalize recovered release assets [skip ci]'
+          git push
+
       - name: Install isolated browser QA dependencies
         shell: bash
         run: |
@@ -89,17 +107,3 @@ jobs:
           path: qa-artifacts/
           if-no-files-found: warn
           retention-days: 7
-
-      - name: Commit normalized source
-        shell: bash
-        run: |
-          if git diff --quiet; then
-            echo 'No normalization changes required.'
-            exit 0
-          fi
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -A
-          git reset qa-artifacts/ || true
-          git commit -m 'Normalize recovered release assets [skip ci]'
-          git push
