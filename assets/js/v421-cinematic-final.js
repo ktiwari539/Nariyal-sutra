@@ -65,8 +65,10 @@ function build(){
  const rain=$('.v421-natural-rain',stage),splash=$('.v421-natural-splash',stage),items=[];
  const anchors=[[8,8],[18,11],[31,6],[45,10],[60,7],[73,12],[86,8],[96,10]];
  for(let i=0;i<COUNT;i++){
-  const wave=Math.floor(i/16),slot=i%16,anchor=anchors[(slot+wave*3)%anchors.length];
-  const el=document.createElement('span'),size=36+((i*17)%34),start=.035+wave*.043+(slot%8)*.0045+Math.floor(slot/8)*.009,dur=.115+((i%5)*.008);
+  /* Ten small waves instead of seven dense batches: roughly 10–25 fruits are
+     visible at a time, while the total harvest still reaches 100. */
+  const wave=Math.floor(i/10),slot=i%10,anchor=anchors[(slot+wave*3)%anchors.length];
+  const el=document.createElement('span'),size=36+((i*17)%34),start=.030+wave*.030+(slot%5)*.003+Math.floor(slot/5)*.007,dur=.078+((i%4)*.006);
   const x=anchor[0]+(((i*7)%9)-4),startY=anchor[1]+(((i*11)%8)-4),endY=76+((i*13)%42),drift=((i*19)%15)-7,rot=((i*23)%34)-17;
   el.className='v421-fall-coconut '+(i%4===0?'tall ':'')+(i%6===0?'depth-back':'depth-mid');el.style.setProperty('--w',size+'px');el.style.setProperty('--h',Math.round(size*(i%4===0?1.22:1.05))+'px');el.style.setProperty('--sat',String(.92+(i%5)*.055));el.style.setProperty('--bri',String(1.05+(i%4)*.045));
   el.innerHTML=`<img src="${FRUIT}" alt="" decoding="async">`;Object.assign(el.dataset,{start,dur,x,startY,endY,drift,rot});rain.appendChild(el);items.push(el);
@@ -82,7 +84,7 @@ function build(){
    const x=+el.dataset.x+Math.sin(t*Math.PI)*(+el.dataset.drift),y=+el.dataset.startY+(+el.dataset.endY-(+el.dataset.startY))*e+landing*7,rot=+el.dataset.rot+t*(50+(i%5)*14);
    el.style.opacity=a.toFixed(4);el.style.transform=`translate3d(${x.toFixed(2)}vw,${y.toFixed(2)}vh,0) translate(-50%,-50%) rotate(${rot.toFixed(1)}deg) scale(${(.72+e*.28).toFixed(3)})`;
   });
-  const rainProgress=clamp((p-.035)/.34);if(count&&p<.43)count.textContent=String(Math.min(100,Math.round(rainProgress*100))).padStart(2,'0');
+  const rainProgress=clamp((p-.030)/.34);if(count&&p<.43)count.textContent=String(Math.min(100,Math.round(rainProgress*100))).padStart(2,'0');
   const selIn=smooth((p-.38)/.035),selOut=1-smooth((p-.535)/.035),travel=smooth((p-.405)/.09);film.style.setProperty('--sel-a',(selIn*selOut).toFixed(4));film.style.setProperty('--sel-x',(51+travel*8).toFixed(2)+'%');film.style.setProperty('--sel-y',(49+travel*3).toFixed(2)+'%');film.style.setProperty('--sel-s',(.76+travel*.16).toFixed(3));film.style.setProperty('--sel-r',(-3+travel*2).toFixed(2)+'deg');
   const cut=smooth((p-.50)/.035)*(1-smooth((p-.92)/.035));film.style.setProperty('--cut-a',cut.toFixed(4));
   const hero=smooth((p-.50)/.025)*(1-smooth((p-.625)/.025)),body=smooth((p-.605)/.025)*(1-smooth((p-.725)/.025)),cap=smooth((p-.695)/.025)*(1-smooth((p-.805)/.025));film.style.setProperty('--hero-a',hero.toFixed(4));film.style.setProperty('--body-a',body.toFixed(4));film.style.setProperty('--cap-a',cap.toFixed(4));
@@ -91,8 +93,10 @@ function build(){
   const water=smooth((p-.79)/.04)*(1-smooth((p-.985)/.012));film.style.setProperty('--water-a',water.toFixed(4));
   window.__NS_V421_CINEMATIC_STATE={progress:p,visibleRain:visible,totalPassed:Math.min(100,Math.round(rainProgress*100)),selected:selIn*selOut,knife:ki,splash:sa,water};
  }
- function request(){if(!raf)raf=requestAnimationFrame(update)}addEventListener('scroll',request,{passive:true});addEventListener('resize',request,{passive:true});update();
- window.NSV421CinematicFinal={count:COUNT,update,version:'natural-waves-protected-cut'};if(/^(localhost|127\.0\.0\.1|\[::1\])$/i.test(location.hostname))window.NS_V421_BUILD='natural-waves-protected-cut-20260910';
+ function request(){if(!raf)raf=requestAnimationFrame(update)}
+ addEventListener('scroll',request,{passive:true});addEventListener('resize',request,{passive:true});update();
+ window.NSV421CinematicFinal={count:COUNT,update,version:'natural-waves-protected-cut'};
+ if(/^(localhost|127\.0\.0\.1|\[::1\])$/i.test(location.hostname))window.NS_V421_BUILD='natural-waves-protected-cut-20260910';
 }
 function init(){injectCss();setTimeout(build,650)}
 document.readyState==='loading'?document.addEventListener('DOMContentLoaded',init,{once:true}):init();
