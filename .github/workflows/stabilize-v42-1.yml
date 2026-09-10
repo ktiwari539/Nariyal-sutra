@@ -37,6 +37,15 @@ jobs:
             'assets/images/intro-film-03.webp':'assets/images/nariyal-hospitality.webp',
             'assets/images/brand/sourcing-portrait.webp':'assets/images/nariyal-coconut-grove.webp',
             'assets/images/coconut-farm.jpg':'assets/images/harvest-wall-organic.jpg',
+            'https://commons.wikimedia.org/wiki/Special:Redirect/file/Seashore_l_Madhavpur_Beach_l_Gujarat.jpg?width=1800':'assets/images/review/coastal-grove.png',
+            'https://images.pexels.com/photos/8967807/pexels-photo-8967807.jpeg?auto=compress&cs=tinysrgb&w=1800':'assets/images/review/backwater-grove.png',
+            'https://images.pexels.com/photos/16559741/pexels-photo-16559741.jpeg?auto=compress&cs=tinysrgb&w=1600':'assets/images/nariyal-coconut-grove.webp',
+            'https://images.pexels.com/photos/4395019/pexels-photo-4395019.jpeg?auto=compress&cs=tinysrgb&w=1800':'assets/images/freshness-coconut-splash.webp',
+            'https://images.pexels.com/photos/4395019/pexels-photo-4395019.jpeg?auto=compress&cs=tinysrgb&w=900':'assets/images/freshness-coconut-splash.webp',
+            'https://images.pexels.com/photos/4802876/pexels-photo-4802876.jpeg?auto=compress&cs=tinysrgb&w=1600':'assets/images/freshness-coconut-splash.webp',
+            'https://images.pexels.com/photos/30748600/pexels-photo-30748600.jpeg?auto=compress&cs=tinysrgb&w=1800':'assets/images/bulk-coconut-pack.jpg',
+            'https://images.pexels.com/photos/30748600/pexels-photo-30748600.jpeg?auto=compress&cs=tinysrgb&w=1200':'assets/images/bulk-coconut-pack.jpg',
+            'https://images.pexels.com/photos/4395019/pexels-photo-4395019.jpeg?auto=compress&cs=tinysrgb&w=1600':'assets/images/freshness-coconut-splash.webp',
           }
           changed=[]
           for p in root.rglob('*'):
