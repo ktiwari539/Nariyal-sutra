@@ -35,6 +35,16 @@ if(file()==='index.html' && !window.__NS_V421_CINEMATIC_FINAL__ && !document.que
   document.body.appendChild(s);
 }
 
+/* Keep the cinematic compact for customers. The full story still plays, but the
+   section does not force an excessively long scroll before the next content. */
+if(file()==='index.html' && !window.__NS_V421_CINEMATIC_COMPACT__ && !document.querySelector('script[data-ns-cinematic-compact]')){
+  const s=document.createElement('script');
+  s.src='/assets/js/v421-cinematic-compact.js';
+  s.defer=true;
+  s.dataset.nsCinematicCompact='1';
+  document.body.appendChild(s);
+}
+
 /* Professional first-party acquisition attribution belongs only to the checkout
    storefront. It is deliberately loaded here rather than hard-coded into the
    large homepage so the capture layer remains isolated, testable and removable. */
