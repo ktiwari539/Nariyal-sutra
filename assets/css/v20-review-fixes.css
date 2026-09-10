@@ -1,23 +1,41 @@
-/* V20 review-only correction layer. Preserves V42 live foundation and removes rejected harvest gimmicks. */
-#v20-story-film .v20-rain,#v20-story-film .v20-harvest-wall,#v20-story-film .v24-harvest-wall,#v20-story-film .v22-collection-bg,#v20-story-film .v22-focus-ring,#v20-story-film .v22-spotlight{display:none!important}
-#v20-story-film{height:380vh!important;background:#020801!important}
-#v20-story-film .v20-story-sticky{background:#020801!important}
-#v20-story-film .v20-bg-grove{opacity:0!important}
-.v20-origin-scenes{position:absolute;inset:0;z-index:4;overflow:hidden;background:#041004;pointer-events:none}
-.v20-origin-scene{position:absolute;inset:-2%;width:104%;height:104%;object-fit:cover;opacity:0;transform:scale(1.045);filter:saturate(.96) contrast(1.04) brightness(.62);transition:opacity 1.15s ease,transform 5s ease}
-.v20-origin-scene.is-active{opacity:1;transform:scale(1.015)}
-.v20-origin-scenes:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(2,8,1,.88),rgba(2,8,1,.42) 48%,rgba(2,8,1,.16) 72%,rgba(2,8,1,.34)),linear-gradient(0deg,rgba(2,8,1,.88),transparent 52%)}
-#v20-story-film .v20-atmosphere{z-index:5!important}
-#v20-story-film .v20-story-copy{z-index:18!important;max-width:min(680px,44vw)!important}
-#v20-story-film .v20-story-copy-grove{top:28%!important}
-#v20-story-film .v20-story-copy-cut{top:28%!important}
-#v20-story-film .v20-handoff-label{z-index:22!important;background:rgba(2,8,1,.38);padding:8px 12px;border-radius:999px;backdrop-filter:blur(8px)}
-#v20-story-film .v20-story-coconut{z-index:24!important}
-#v20-story-film .v20-knife{z-index:25!important}
-#v20-story-film .v20-water-fill{z-index:30!important}
-#v20-story-film .v20-water-message,#v20-story-film .v20-end-copy{z-index:31!important}
-.v20-origin-note{position:absolute;z-index:20;right:5vw;bottom:7vh;max-width:300px;padding:12px 14px;border:1px solid rgba(212,168,67,.18);background:rgba(2,8,1,.48);backdrop-filter:blur(12px);font:500 8px/1.6 Jost,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.62);opacity:var(--origin-note-alpha,0);transition:opacity .35s}
-/* Never allow legacy CSS coconut objects from experimental builds. */
-.v25-css-coconut,.wall-coconut,.v20-fall-coconut:not(img),.v20-wall-coconut:not(img){display:none!important}
-@media(max-width:980px){#v20-story-film{display:none!important}.v20-origin-scenes,.v20-origin-note{display:none!important}}
-@media(prefers-reduced-motion:reduce){.v20-origin-scene{transition:none!important;transform:none!important}}
+/* V42.1 cinematic storefront repair — authoritative replacement layer.
+   Keeps legacy markup available for older scripts, but removes it from layout/paint.
+   The visible experience is injected by assets/js/v20-review-fixes.js. */
+#scroll-cinema > #v20-story-film,
+#scroll-cinema > .mobile-story-reel,
+#scroll-cinema > #grove-story,
+#scroll-cinema > #cut-story,
+#scroll-cinema > .story-skip{display:none!important}
+#scroll-cinema{display:block!important;height:auto!important;min-height:0!important;background:#020801!important;overflow:hidden!important;contain:none!important;content-visibility:visible!important}
+.ns-film42{position:relative;background:#020801;color:#fff;overflow:hidden}
+.ns-film42 *{box-sizing:border-box}
+.ns-film42-scene{position:relative;overflow:hidden;border-top:1px solid rgba(212,168,67,.14);background:#031004}
+.ns-film42-harvest{min-height:94vh;display:flex;align-items:center}
+.ns-film42-media{position:absolute;inset:0;overflow:hidden}
+.ns-film42-media img{width:100%;height:100%;object-fit:cover;object-position:center;display:block;transform:scale(1.035);filter:saturate(.97) contrast(1.05) brightness(.72);animation:nsFilm42Drift 11s ease-in-out infinite alternate}
+.ns-film42-media:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(2,8,1,.9) 0,rgba(2,8,1,.66) 38%,rgba(2,8,1,.20) 70%,rgba(2,8,1,.28)),linear-gradient(0deg,rgba(2,8,1,.72),transparent 45%)}
+.ns-film42-copy{position:relative;z-index:3;width:min(720px,48vw);padding:clamp(72px,9vw,142px) clamp(24px,6vw,96px)}
+.ns-film42-kicker{font:600 10px/1.2 Jost,sans-serif;letter-spacing:.35em;text-transform:uppercase;color:#d4a843;margin-bottom:22px}
+.ns-film42 h2{font:400 clamp(48px,6.5vw,100px)/.94 'Playfair Display',serif;letter-spacing:-.035em;margin:0;color:#fff}
+.ns-film42 h2 em{display:block;color:#d4a843;font-weight:400}
+.ns-film42 p{max-width:650px;margin:28px 0 0;font:400 clamp(14px,1.1vw,18px)/1.8 Jost,sans-serif;color:rgba(255,255,255,.68)}
+.ns-film42-meta{display:inline-flex;margin-top:28px;padding:10px 13px;border:1px solid rgba(212,168,67,.24);background:rgba(2,8,1,.38);backdrop-filter:blur(8px);font:600 8px/1.5 Jost,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.67)}
+.ns-film42-cut{min-height:88vh;display:grid;grid-template-columns:minmax(330px,.78fr) minmax(0,1.22fr);align-items:stretch;background:radial-gradient(circle at 80% 20%,rgba(35,91,23,.2),transparent 34%),#020801}
+.ns-film42-cut .ns-film42-copy{width:auto;align-self:center;padding-right:clamp(32px,5vw,72px)}
+.ns-film42-cut-media{position:relative;min-height:720px;overflow:hidden;background:#071205}
+.ns-film42-cut-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;filter:saturate(.96) contrast(1.04) brightness(.82);transform:scale(1.015);animation:nsFilm42CutDrift 9s ease-in-out infinite alternate}
+.ns-film42-cut-media:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(2,8,1,.38),transparent 28%),linear-gradient(0deg,rgba(2,8,1,.32),transparent 38%)}
+.ns-film42-link{display:inline-flex;align-items:center;justify-content:center;margin-top:30px;min-height:48px;padding:0 22px;border:1px solid rgba(212,168,67,.4);color:#fff;text-decoration:none;font:700 9px/1 Jost,sans-serif;letter-spacing:.2em;text-transform:uppercase;transition:.2s ease}
+.ns-film42-link:hover{background:#d4a843;color:#071004}
+@keyframes nsFilm42Drift{from{transform:scale(1.035) translate3d(0,0,0)}to{transform:scale(1.075) translate3d(-1.1%,.6%,0)}}
+@keyframes nsFilm42CutDrift{from{transform:scale(1.015)}to{transform:scale(1.055) translate3d(-.6%,.3%,0)}}
+@media(max-width:1024px){
+ .ns-film42-harvest{min-height:76vh}.ns-film42-copy{width:min(680px,72vw);padding:84px 42px}.ns-film42 h2{font-size:clamp(46px,7.8vw,76px)}
+ .ns-film42-cut{grid-template-columns:1fr;min-height:0}.ns-film42-cut .ns-film42-copy{padding:72px 42px 42px}.ns-film42-cut-media{min-height:62vw;max-height:700px}.ns-film42-cut-media img{object-position:center 43%}
+}
+@media(max-width:700px){
+ .ns-film42-harvest{min-height:68vh;align-items:flex-end}.ns-film42-media img{animation:none;transform:scale(1.01);object-position:56% center}.ns-film42-media:after{background:linear-gradient(0deg,rgba(2,8,1,.94) 0,rgba(2,8,1,.55) 45%,rgba(2,8,1,.17) 80%),linear-gradient(90deg,rgba(2,8,1,.35),transparent 70%)}
+ .ns-film42-copy{width:100%;padding:58px 20px 42px}.ns-film42-kicker{font-size:8px;letter-spacing:.28em;margin-bottom:14px}.ns-film42 h2{font-size:clamp(38px,13vw,58px);line-height:.98}.ns-film42 p{font-size:13px;line-height:1.7;margin-top:18px}.ns-film42-meta{margin-top:18px;font-size:7px;letter-spacing:.12em}
+ .ns-film42-cut .ns-film42-copy{padding:58px 20px 32px}.ns-film42-cut-media{min-height:86vw;max-height:none}.ns-film42-cut-media img{animation:none;transform:none;object-position:center}.ns-film42-link{margin-top:22px;width:100%}
+}
+@media(prefers-reduced-motion:reduce){.ns-film42-media img,.ns-film42-cut-media img{animation:none!important;transform:none!important}}
