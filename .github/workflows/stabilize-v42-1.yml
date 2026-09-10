@@ -121,6 +121,7 @@ jobs:
           trap 'kill $SERVER_PID || true' EXIT
           sleep 2
           node scripts/visual-qa.mjs
+          node scripts/content-integrity-qa.mjs
           node scripts/cinematic-qa.mjs
           node scripts/admin-functional-qa.mjs
 
