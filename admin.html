@@ -3,167 +3,569 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
-<meta content="width=device-width,initial-scale=1" name="viewport"/>
-<meta content="noindex,nofollow" name="robots"/>
-<meta content="#173d24" name="theme-color"/>
-<title>Nariyal Sutra · Business Command Center V23</title>
+<meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
+<meta content="noindex,nofollow,noarchive" name="robots"/>
+<meta content="#071004" name="theme-color"/>
+<title>Owner Portal | Nariyal Sutra V42</title>
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Playfair+Display:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
-<link href="assets/css/admin-preview-v2.css" rel="stylesheet"/>
-<link crossorigin="" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet"/>
-<link href="assets/css/v10-admin.css" rel="stylesheet"/>
-<link href="assets/css/v12-admin.css" rel="stylesheet"/><link href="assets/css/admin-v21.css" rel="stylesheet"/><link href="assets/css/admin-v23.css" rel="stylesheet"/><link href="assets/css/admin-v25.css" rel="stylesheet"/><link href="assets/css/admin-v27.css" rel="stylesheet"/>
-<link href="assets/css/admin-v29.css" rel="stylesheet"/><link href="assets/css/admin-v30.css" rel="stylesheet"/><link href="assets/css/admin-v36.css" rel="stylesheet"/><link href="assets/css/admin-v37.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&amp;family=Jost:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}:root{--bg:#071004;--panel:#0d1b08;--panel2:#11250b;--gold:#d4a843;--gold2:#f5d17e;--cream:#fdf7e8;--muted:rgba(255,255,255,.48);--line:rgba(212,168,67,.15);--green:#4f9f35;--red:#ff7b7b;--amber:#ffd166}html{color-scheme:dark}body{font-family:Jost,sans-serif;background:radial-gradient(circle at 80% 0,#17380e 0,transparent 26%),radial-gradient(circle at 0 80%,rgba(212,168,67,.08),transparent 30%),var(--bg);color:var(--cream);min-height:100vh}button,input,select{font:inherit}.grain{position:fixed;inset:0;pointer-events:none;opacity:.12;mix-blend-mode:soft-light;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.22'/%3E%3C/svg%3E")}.hidden{display:none!important}.login{min-height:100vh;display:grid;place-items:center;padding:22px}.login-card{width:min(470px,100%);background:linear-gradient(145deg,rgba(17,37,11,.96),rgba(7,16,4,.98));border:1px solid var(--line);padding:clamp(28px,6vw,48px);box-shadow:0 50px 140px rgba(0,0,0,.55);position:relative;overflow:hidden}.login-card:after{content:'🥥';position:absolute;font-size:210px;right:-65px;bottom:-75px;opacity:.025;transform:rotate(-12deg)}.eyebrow{font-size:9px;letter-spacing:5px;text-transform:uppercase;color:var(--gold);margin-bottom:14px}.brand{font-family:'Playfair Display',serif;font-size:clamp(38px,8vw,56px);line-height:.95;margin-bottom:12px}.brand em{color:var(--gold);font-weight:500}.intro{font-size:13px;line-height:1.8;color:var(--muted);margin-bottom:28px}.field{display:grid;gap:7px;margin:14px 0}.field label{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(245,209,126,.72)}.field input{width:100%;border:1px solid var(--line);background:rgba(255,255,255,.035);color:#fff;padding:14px 15px;outline:none}.field input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(212,168,67,.08)}.primary,.ghost{border:0;cursor:pointer;padding:13px 17px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;transition:.2s}.primary{background:linear-gradient(90deg,var(--gold),var(--gold2));color:#071004}.primary:hover{transform:translateY(-2px)}.ghost{background:transparent;color:rgba(255,255,255,.72);border:1px solid var(--line)}.login .primary{width:100%;margin-top:8px}.message{font-size:12px;line-height:1.6;margin-top:14px;color:var(--red)}.setup{margin-top:20px;padding:14px;border:1px solid rgba(255,209,102,.25);background:rgba(255,209,102,.06);font-size:11px;line-height:1.6;color:rgba(255,255,255,.62)}
+.app{min-height:100vh}.topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:14px clamp(16px,4vw,42px);background:rgba(7,16,4,.86);backdrop-filter:blur(18px);border-bottom:1px solid var(--line)}.logo{font-family:'Playfair Display',serif;letter-spacing:3px;font-size:19px}.logo span{color:var(--gold)}.top-actions{display:flex;align-items:center;gap:10px}.owner-email{font-size:11px;color:var(--muted)}.shell{width:min(1480px,100%);margin:auto;padding:clamp(22px,4vw,48px)}.hero{display:flex;justify-content:space-between;align-items:flex-end;gap:30px;margin-bottom:30px}.hero h1{font-family:'Playfair Display',serif;font-size:clamp(34px,5vw,58px);font-weight:500;line-height:1}.hero h1 em{color:var(--gold);font-weight:500}.hero p{color:var(--muted);font-size:13px;margin-top:10px}.live{display:flex;align-items:center;gap:8px;color:#a9e695;font-size:10px;letter-spacing:2px;text-transform:uppercase}.dot{width:7px;height:7px;border-radius:50%;background:#6fd34f;box-shadow:0 0 0 5px rgba(111,211,79,.1)}.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}.kpi{background:linear-gradient(150deg,rgba(17,37,11,.8),rgba(8,18,5,.94));border:1px solid var(--line);padding:22px;min-height:132px;position:relative;overflow:hidden}.kpi:after{content:'';position:absolute;width:110px;height:110px;border-radius:50%;right:-50px;top:-55px;background:rgba(212,168,67,.06)}.k-label{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--muted)}.k-value{font-family:'Playfair Display',serif;font-size:36px;color:#fff;margin:12px 0 4px}.k-foot{font-size:11px;color:rgba(255,255,255,.32)}.panel{border:1px solid var(--line);background:rgba(10,23,6,.83);box-shadow:0 28px 80px rgba(0,0,0,.22)}.toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px;border-bottom:1px solid var(--line);flex-wrap:wrap}.filters{display:flex;gap:8px;flex-wrap:wrap;flex:1}.search,.select{border:1px solid var(--line);background:rgba(255,255,255,.03);color:#fff;padding:11px 12px;outline:none}.search{min-width:min(320px,100%);flex:1}.select{min-width:150px}.table-wrap{overflow:auto}.orders{width:100%;border-collapse:collapse;min-width:980px}.orders th{position:sticky;top:0;text-align:left;padding:12px 15px;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(245,209,126,.64);background:#0b1807;border-bottom:1px solid var(--line)}.orders td{padding:14px 15px;border-bottom:1px solid rgba(255,255,255,.045);font-size:12px;color:rgba(255,255,255,.66);vertical-align:middle}.orders tbody tr{cursor:pointer;transition:.15s}.orders tbody tr:hover{background:rgba(212,168,67,.045)}.order-id{color:#fff;font-weight:600}.money{font-family:'Playfair Display',serif;color:var(--gold2);font-size:16px}.status{display:inline-flex;align-items:center;border:1px solid currentColor;padding:4px 8px;font-size:9px;letter-spacing:1px;text-transform:uppercase}.s-pending{color:var(--amber)}.s-confirmed{color:#9ddfff}.s-dispatched{color:#c7a5ff}.s-preparing{color:#c7a5ff}.s-ready_for_dispatch{color:#b9ddff}.s-out_for_delivery{color:var(--gold2)}.s-arrived{color:#f0ce7a}.s-delivered{color:#98e77f}.s-cancelled{color:#ff8b8b}.empty{text-align:center;padding:55px 20px;color:var(--muted);font-size:13px}.mobile-orders{display:none}.drawer{position:fixed;z-index:60;inset:0;pointer-events:none}.drawer.open{pointer-events:auto}.drawer-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.62);opacity:0;transition:.25s}.drawer.open .drawer-backdrop{opacity:1}.drawer-card{position:absolute;right:0;top:0;bottom:0;width:min(520px,100%);background:#0b1807;border-left:1px solid var(--line);padding:26px;overflow:auto;transform:translateX(100%);transition:.3s}.drawer.open .drawer-card{transform:translateX(0)}.drawer-head{display:flex;justify-content:space-between;gap:18px;align-items:start;padding-bottom:20px;border-bottom:1px solid var(--line)}.drawer-head h2{font-family:'Playfair Display',serif;font-size:29px}.x{border:1px solid var(--line);background:transparent;color:#fff;width:38px;height:38px;cursor:pointer}.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0}.detail{border:1px solid rgba(255,255,255,.06);padding:13px;background:rgba(255,255,255,.02)}.detail.full{grid-column:1/-1}.detail small{display:block;color:var(--muted);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px}.detail strong,.detail div{font-size:13px;line-height:1.55;color:#fff;word-break:break-word}.status-actions{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.status-actions button{padding:11px 8px}.quick-links{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}.quick{border:1px solid var(--line);background:rgba(255,255,255,.025);padding:18px;text-decoration:none;color:#fff}.quick b{display:block;font-family:'Playfair Display',serif;font-size:18px;margin-bottom:5px}.quick span{font-size:11px;color:var(--muted)}
+@media(max-width:950px){.kpis{grid-template-columns:1fr 1fr}.hero{align-items:flex-start;flex-direction:column}.owner-email{display:none}.table-wrap{display:none}.mobile-orders{display:grid}.m-order{padding:16px;border-bottom:1px solid var(--line);display:grid;gap:10px;cursor:pointer}.m-top,.m-bottom{display:flex;justify-content:space-between;gap:12px;align-items:center}.m-name{font-size:13px;color:#fff;font-weight:600}.m-meta{font-size:11px;color:var(--muted)}.quick-links{grid-template-columns:1fr}}
+@media(max-width:560px){.shell{padding:18px 12px 36px}.topbar{padding:12px}.top-actions .ghost{padding:10px 11px;letter-spacing:1px}.kpis{grid-template-columns:1fr 1fr;gap:8px}.kpi{padding:16px;min-height:112px}.k-value{font-size:28px}.toolbar{padding:12px}.filters{display:grid;grid-template-columns:1fr;width:100%}.search,.select{min-width:0;width:100%}.toolbar>.ghost{width:100%}.drawer-card{padding:18px}.detail-grid{grid-template-columns:1fr}.detail.full{grid-column:auto}.status-actions{grid-template-columns:1fr 1fr}.hero{margin-bottom:20px}.hero h1{font-size:36px}}
+
+.catalog-head{display:flex;align-items:end;justify-content:space-between;gap:18px;margin:34px 0 14px}.catalog-head h2{font-family:'Playfair Display',serif;font-size:31px;font-weight:500}.catalog-head p{color:var(--muted);font-size:12px;margin-top:5px}.catalog-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.catalog-card{border:1px solid var(--line);background:linear-gradient(155deg,rgba(17,37,11,.78),rgba(8,18,5,.95));padding:18px;position:relative;overflow:hidden}.catalog-card:after{content:'🥥';position:absolute;font-size:90px;right:-26px;top:-28px;opacity:.025;pointer-events:none}.catalog-card h3{font-family:'Playfair Display',serif;font-size:22px;margin-bottom:3px}.catalog-key{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:15px}.catalog-fields{display:grid;grid-template-columns:1fr 1fr;gap:9px}.catalog-fields .full{grid-column:1/-1}.mini-field{display:grid;gap:5px}.mini-field label{font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(245,209,126,.6)}.mini-field input,.mini-field textarea,.mini-field select{width:100%;border:1px solid var(--line);background:rgba(255,255,255,.03);color:#fff;padding:9px 10px;outline:none;font:inherit;font-size:12px}.mini-field textarea{min-height:70px;resize:vertical}.catalog-actions{display:flex;gap:8px;margin-top:12px;align-items:center}.catalog-msg{font-size:10px;color:#9fe58c}.backend-note{margin-top:14px;padding:13px 15px;border:1px solid rgba(157,223,255,.18);background:rgba(157,223,255,.035);font-size:11px;line-height:1.65;color:rgba(255,255,255,.56)}
+@media(max-width:1000px){.catalog-grid{grid-template-columns:1fr}}@media(max-width:560px){.catalog-head{align-items:start;flex-direction:column}.catalog-head .ghost{width:100%}.catalog-fields{grid-template-columns:1fr}.catalog-fields .full{grid-column:auto}}
+
+
+.admin-alert{margin:0 0 16px;padding:13px 15px;border:1px solid rgba(255,209,102,.28);background:rgba(255,209,102,.055);font-size:11px;line-height:1.65;color:rgba(255,255,255,.7);display:none}.admin-alert.show{display:block}.admin-alert.error{border-color:rgba(255,123,123,.3);background:rgba(255,123,123,.055)}
+.catalog-head-actions{display:flex;gap:8px;flex-wrap:wrap}.stock-stepper{display:flex;gap:6px;margin-top:6px}.stock-stepper button{border:1px solid var(--line);background:rgba(255,255,255,.035);color:#fff;padding:6px 9px;cursor:pointer;font-size:10px}.stock-stepper button:hover{border-color:var(--gold);color:var(--gold2)}.save-all{background:linear-gradient(90deg,var(--gold),var(--gold2));color:#071004;border:0;padding:12px 16px;font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer}.catalog-card.is-saving{opacity:.72}.catalog-card.is-saved{box-shadow:0 0 0 1px rgba(111,211,79,.34),0 0 30px rgba(111,211,79,.05)}.email-audit{margin-top:14px;padding:12px;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.025);font-size:11px;line-height:1.6;color:var(--muted)}.email-audit strong{color:#fff}
+
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+
+/* V29 enquiries */
+.enquiries-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.enquiry-count{border:1px solid var(--line);padding:8px 11px;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold2);background:rgba(212,168,67,.035)}
+.inq-status-select{border:1px solid var(--line);background:#0b1807;color:#fff;padding:7px 8px;font-size:10px;outline:none}
+.inq-actions{display:flex;gap:6px;flex-wrap:wrap}
+.inq-action{display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line);padding:7px 9px;color:#fff;text-decoration:none;font-size:9px;letter-spacing:1px;text-transform:uppercase;background:rgba(255,255,255,.025)}
+.inq-action:hover{border-color:var(--gold);color:var(--gold2)}
+.mobile-inquiries{display:none}
+.m-inquiry{padding:16px;border-bottom:1px solid var(--line);display:grid;gap:10px}
+.m-inquiry-head,.m-inquiry-foot{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.m-inquiry-title{font-size:13px;color:#fff;font-weight:600}.m-inquiry-meta{font-size:11px;color:var(--muted);line-height:1.65}
+@media(max-width:950px){.enquiry-table-wrap{display:none}.mobile-inquiries{display:grid}}
+
+</style>
+<style id="v4-admin-polish">
+.catalog-card{position:relative;overflow:hidden;background:linear-gradient(145deg,rgba(255,255,255,.035),rgba(212,168,67,.025));box-shadow:0 22px 70px rgba(0,0,0,.18)}
+.catalog-card::before{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 80% 0%,rgba(212,168,67,.09),transparent 35%)}
+.catalog-card.is-saving{opacity:.72}.catalog-card.is-saved{box-shadow:0 0 0 1px rgba(156,232,131,.4),0 20px 60px rgba(0,0,0,.25)}
+.save-all{box-shadow:0 10px 28px rgba(212,168,67,.16)}
+.catalog-msg{font-weight:700;color:#9ce883}
+</style>
+<style id="v38-customer-directory">
+/* V38 customer intelligence — read-only owner view over profiles + order history. */
+.people-kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin:0 0 14px}.people-kpi{border:1px solid var(--line);background:linear-gradient(145deg,rgba(255,255,255,.025),rgba(212,168,67,.025));padding:16px;min-height:94px;position:relative;overflow:hidden}.people-kpi:after{content:'';position:absolute;width:70px;height:70px;border-radius:50%;right:-30px;top:-35px;background:rgba(212,168,67,.055)}.people-kpi small{display:block;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}.people-kpi b{display:block;font-family:'Playfair Display',serif;font-size:27px;font-weight:500;color:#fff;margin:8px 0 2px}.people-kpi span{font-size:9px;color:rgba(255,255,255,.34)}
+.people-health{margin:0;padding:12px 15px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;background:linear-gradient(90deg,rgba(111,211,79,.035),transparent)}.people-health strong{font-size:11px;color:#b8efa8}.people-health span{font-size:10px;color:var(--muted);line-height:1.6}.people-health.warn{background:rgba(255,209,102,.045)}.people-health.warn strong{color:var(--amber)}.people-health.error{background:rgba(255,123,123,.045)}.people-health.error strong{color:#ff9b9b}
+.people-table{min-width:1120px}.person-main{display:flex;align-items:center;gap:10px}.person-avatar{width:34px;height:34px;flex:0 0 34px;border-radius:50%;display:grid;place-items:center;border:1px solid rgba(212,168,67,.3);background:radial-gradient(circle at 30% 20%,rgba(245,209,126,.18),rgba(212,168,67,.035));font-family:'Playfair Display',serif;color:var(--gold2);font-size:13px}.person-name{color:#fff;font-weight:600}.person-sub{font-size:10px;color:var(--muted);margin-top:2px}.person-type{display:inline-flex;padding:4px 7px;border:1px solid currentColor;font-size:8px;letter-spacing:1.2px;text-transform:uppercase;white-space:nowrap}.pt-registered{color:#9fe58c}.pt-guest{color:#9ddfff}.pt-unresolved{color:#ff9b9b}.people-signals{display:flex;gap:4px;flex-wrap:wrap}.people-signal{font-size:8px;padding:3px 6px;border:1px solid rgba(255,255,255,.09);color:rgba(255,255,255,.55);background:rgba(255,255,255,.025);white-space:nowrap}.people-signal.hot{color:var(--gold2);border-color:rgba(212,168,67,.25)}.people-signal.risk{color:#ff9b9b;border-color:rgba(255,123,123,.25)}.people-mobile{display:none}.m-person{padding:16px;border-bottom:1px solid var(--line);display:grid;gap:10px;cursor:pointer}.m-person-head,.m-person-foot{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.m-person-contact{font-size:10px;color:var(--muted);line-height:1.65}.people-drawer-orders{display:grid;gap:8px;margin:12px 0 20px}.people-order-card{border:1px solid rgba(255,255,255,.065);padding:12px;background:rgba(255,255,255,.02);cursor:pointer}.people-order-card:hover{border-color:rgba(212,168,67,.3)}.people-order-card .row{display:flex;justify-content:space-between;gap:10px;align-items:center}.people-order-card b{font-size:11px;color:#fff}.people-order-card small{font-size:9px;color:var(--muted);line-height:1.5}.people-contact-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 18px}.people-contact-actions a{text-decoration:none;text-align:center}.people-note{font-size:10px;color:var(--muted);line-height:1.7;padding:11px 12px;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.02)}
+@media(max-width:1180px){.people-kpis{grid-template-columns:repeat(3,1fr)}}@media(max-width:950px){.people-table-wrap{display:none}.people-mobile{display:grid}}@media(max-width:560px){.people-kpis{grid-template-columns:1fr 1fr}.people-contact-actions{grid-template-columns:1fr}.people-kpi{padding:13px;min-height:86px}.people-kpi b{font-size:24px}}
+</style>
+<style id="v42-crm-payment-audit">
+.v42-filters{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));gap:8px;width:100%;padding:0 16px 16px}.v42-filters input,.v42-filters select{width:100%;border:1px solid var(--line);background:rgba(255,255,255,.03);color:#fff;padding:10px 11px;outline:none}.v42-filter-label{font-size:8px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);display:grid;gap:6px}.payment-box,.customer-admin-box{margin-top:18px;padding:14px;border:1px solid rgba(212,168,67,.15);background:rgba(212,168,67,.035)}.payment-box h3,.customer-admin-box h3{font:400 18px/1.2 'Playfair Display',serif;margin-bottom:10px}.payment-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.payment-grid label,.customer-admin-box label{display:grid;gap:5px;font-size:8px;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}.payment-grid input,.payment-grid select,.customer-admin-box input,.customer-admin-box textarea,.customer-admin-box select{width:100%;border:1px solid var(--line);background:#0b1807;color:#fff;padding:10px;outline:none}.customer-admin-box textarea{min-height:82px;resize:vertical}.audit-panel{margin-top:34px}.audit-list{display:grid}.audit-row{display:grid;grid-template-columns:150px 160px 1fr 180px;gap:12px;padding:12px 15px;border-bottom:1px solid rgba(255,255,255,.045);font-size:11px;color:var(--muted);align-items:center}.audit-row b{color:#fff}.audit-action{color:var(--gold2);text-transform:uppercase;font-size:9px;letter-spacing:1px}.person-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}.people-signal.pay{color:#ffd166;border-color:rgba(255,209,102,.25)}.v42-pill{display:inline-flex;padding:4px 7px;border:1px solid var(--line);font-size:8px;letter-spacing:1px;text-transform:uppercase;color:var(--gold2)}
+@media(max-width:1000px){.v42-filters{grid-template-columns:1fr 1fr}.audit-row{grid-template-columns:120px 1fr}.audit-row>*:nth-child(3),.audit-row>*:nth-child(4){grid-column:1/-1}}
+@media(max-width:560px){.v42-filters,.payment-grid{grid-template-columns:1fr}.audit-row{grid-template-columns:1fr}.audit-row>*{grid-column:auto!important}}
+</style>
+<link href="/assets/icons/favicon.svg" rel="icon" type="image/svg+xml"/>
+<link href="/assets/icons/favicon-48.png" rel="icon" sizes="48x48" type="image/png"/>
+<link href="/assets/icons/favicon-96.png" rel="icon" sizes="96x96" type="image/png"/>
+<link href="/assets/icons/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180"/>
+<link href="assets/css/v421-admin.css" rel="stylesheet"/>
 </head>
 <body>
-<div class="ap-app">
-<aside class="ap-sidebar" id="apSidebar">
-<div class="ap-brand"><div class="ap-mark">N</div><div class="ap-brand-copy"><strong>Nariyal Sutra</strong><span>Business Command Center</span></div></div>
-<div class="ap-env">LOCAL INTERACTIVE PREVIEW<br/>No Firebase, Cloudinary, email or production writes.</div>
-<nav class="ap-nav" id="apNav">
-<div class="ap-nav-title">Operate</div>
-<button class="is-active" data-view="overview" type="button"><span class="ico">⌂</span>Overview</button>
-<button data-view="orders" type="button"><span class="ico">▤</span>Orders <span class="pill">8</span></button>
-<button data-view="payments" type="button"><span class="ico">₹</span>Payments</button>
-<button data-view="products" type="button"><span class="ico">◈</span>Products &amp; Pricing</button>
-<div class="ap-nav-title">Fulfilment</div>
-<button data-view="inventory" type="button"><span class="ico">▦</span>Inventory <span class="pill" id="apLowStockPill">1</span></button>
-<button data-view="warehouses" type="button"><span class="ico">⌂</span>Warehouses / Nodes</button>
-<button data-view="delivery-services" type="button"><span class="ico">⇄</span>Delivery Services</button>
-<button data-view="delivery" type="button"><span class="ico">⌁</span>Delivery Hub <span class="pill">3</span></button>
-<div class="ap-nav-title">Customers</div>
-<button data-view="customers" type="button"><span class="ico">◎</span>Customer 360</button>
-<button data-view="segments" type="button"><span class="ico">◌</span>Segments</button>
-<button data-view="followups" type="button"><span class="ico">◷</span>Follow-ups</button>
-<button data-view="communication" type="button"><span class="ico">✉</span>Communication</button>
-<div class="ap-nav-title">Publish</div>
-<button data-view="content" type="button"><span class="ico">✦</span>Content Studio</button>
-<button data-view="pages" type="button"><span class="ico">▣</span>Pages &amp; Sections</button>
-<button data-view="stories" type="button"><span class="ico">◫</span>Stories</button>
-<button data-view="ambassadors" type="button"><span class="ico">♢</span>Ambassadors</button>
-<button data-view="submissions" type="button"><span class="ico">♡</span>Community Submissions <span class="pill" id="apSubmissionPill">0</span></button>
-<button data-view="media" type="button"><span class="ico">▧</span>Media Library</button>
-<button data-view="schedule" type="button"><span class="ico">▦</span>Schedule</button>
-<div class="ap-nav-title">Grow &amp; Control</div>
-<button data-view="seo" type="button"><span class="ico">↗</span>SEO</button>
-<button data-view="analytics" type="button"><span class="ico">▥</span>Analytics</button>
-<button data-view="reports" type="button"><span class="ico">⇩</span>Reports / Export</button>
-<button data-view="team" type="button"><span class="ico">◉</span>Team / Tasks</button>
-<button data-view="audit" type="button"><span class="ico">≡</span>Audit History</button>
-<button data-view="security" type="button"><span class="ico">◇</span>Security Center</button>
-<button data-view="settings" type="button"><span class="ico">⚙</span>Settings</button>
-</nav>
-<div class="ap-sidebar-foot"><div class="ap-user"><div class="ap-avatar v27-clickable" id="apUserAvatar" title="Upload / change my staff profile photo">KT</div><input accept="image/jpeg,image/png,image/webp" hidden="" id="apStaffPhotoPicker" type="file"/><div><strong id="apUserName">Preview User</strong><span id="apRoleFoot">Preview role · Owner</span></div></div></div>
-</aside>
-<main class="ap-main">
-<header class="ap-topbar">
-<button class="ap-icon-btn ap-mobile-menu" id="apMenuBtn" type="button">☰</button>
-<div class="ap-search"><input id="apGlobalSearch" placeholder="Search orders, customers, media, stories…"/></div>
-<div class="ap-top-actions"><button class="ap-icon-btn" id="apNotifications" title="Notifications" type="button">◌</button><button class="ap-icon-btn" id="apQuickCreate" title="Quick create" type="button">＋</button><select aria-label="Preview role" class="ap-role-select" id="apRole"><option>Owner</option><option>Admin</option><option>Manager</option><option>Operations</option><option>Content</option><option>Support</option><option>Sales</option></select><div class="ap-session-pill" hidden="" id="apSessionPill"><div class="ap-session-avatar" id="apSessionAvatar">KT</div><div><strong id="apSessionName">User</strong><span id="apSessionRole">Role</span></div></div></div>
-</header>
-<div class="ap-content">
-<div class="ap-role-note" id="apRoleNote"></div>
-<section class="ap-view is-active" data-view="overview">
-<div class="ap-page-head"><div><h1 id="apGreeting">Good morning.</h1><p>Orders, customers, publishing and delivery in one operating view.</p></div><div class="ap-head-actions"><button class="ap-btn" id="apExportSnapshot" type="button">Export config snapshot</button><button class="ap-btn primary" data-go="orders" type="button">Review orders</button></div></div>
-<div class="ap-kpis"><article class="ap-card ap-kpi"><div class="ap-kpi-top"><span class="ap-kpi-label">Orders today</span><span class="ap-kpi-ico">▤</span></div><strong>18</strong><small>↑ 12% vs yesterday</small></article><article class="ap-card ap-kpi"><div class="ap-kpi-top"><span class="ap-kpi-label">Revenue today</span><span class="ap-kpi-ico">₹</span></div><strong>₹12.4k</strong><small>7 paid · 6 COD · 5 awaiting</small></article><article class="ap-card ap-kpi"><div class="ap-kpi-top"><span class="ap-kpi-label">Active deliveries</span><span class="ap-kpi-ico">⌁</span></div><strong>6</strong><small>3 out for delivery</small></article><article class="ap-card ap-kpi"><div class="ap-kpi-top"><span class="ap-kpi-label">Content queue</span><span class="ap-kpi-ico">✦</span></div><strong>9</strong><small>2 waiting for approval</small></article></div>
-<div class="ap-card ap-panel ap-v12-health"><div class="ap-panel-head"><div><h2>Admin operating-system readiness</h2><span>Local workflow status vs production activation gates</span></div><button class="ap-btn" id="apV12HealthDetails" type="button">View details</button></div><div class="ap-v12-health-grid" id="apV12HealthGrid"></div></div>
-<div class="ap-grid-2"><article class="ap-card ap-panel"><div class="ap-panel-head"><div><h2>Orders — last 7 days</h2><span>Demo data for interaction review</span></div><button class="ap-btn" data-go="analytics" type="button">Full analytics</button></div><div class="ap-chart"><div class="ap-bar" data-label="Mon" style="height:42%"></div><div class="ap-bar" data-label="Tue" style="height:58%"></div><div class="ap-bar" data-label="Wed" style="height:50%"></div><div class="ap-bar" data-label="Thu" style="height:76%"></div><div class="ap-bar" data-label="Fri" style="height:68%"></div><div class="ap-bar" data-label="Sat" style="height:92%"></div><div class="ap-bar" data-label="Sun" style="height:81%"></div></div></article><article class="ap-card ap-panel"><div class="ap-panel-head"><h2>Needs attention</h2><span>5 items</span></div><div class="ap-list"><div class="ap-list-item"><span class="ap-list-dot"></span><div><strong>2 payments awaiting confirmation</strong><span>Review references before fulfilment.</span></div></div><div class="ap-list-item"><span class="ap-list-dot" style="background:#c4922f"></span><div><strong>3 follow-ups due today</strong><span>Sales/customer-success queue.</span></div></div><div class="ap-list-item"><span class="ap-list-dot" style="background:#4f7f9e"></span><div><strong>Story awaiting review</strong><span>Customer submission remains private.</span></div></div><div class="ap-list-item"><span class="ap-list-dot" style="background:#b65757"></span><div><strong>1 delivery ETA needs update</strong><span>Customer tracking projection is stale.</span></div></div></div></article></div>
+<div class="grain"></div>
+<section class="login" id="loginView">
+<form class="login-card" id="loginForm">
+<div class="eyebrow">Secure Owner Access</div>
+<div class="brand">Nariyal <em>Sutra</em></div>
+<p class="intro">Orders are protected by Firebase Authentication and Firestore Security Rules. Your password is never stored in this page.</p>
+<div class="field"><label for="email">Owner email</label><input autocomplete="username" id="email" required="" type="email"/></div>
+<div class="field"><label for="password">Password</label><input autocomplete="current-password" id="password" required="" type="password"/></div>
+<button class="primary" type="submit">Enter Dashboard</button>
+<div class="message" id="loginMessage" role="status"></div>
+<div class="setup hidden" id="setupNote"></div>
+</form>
 </section>
-<section class="ap-view" data-view="orders">
-<div class="ap-page-head"><div><h1>Orders</h1><p>Manage guest and account-linked orders without changing the public no-login checkout rule.</p></div><div class="ap-head-actions"><button class="ap-btn" id="apOrdersExport" type="button">Export filtered</button><button class="ap-btn primary" id="apAssistedOrder" type="button">＋ Create assisted order</button></div></div>
-<div class="ap-toolbar"><input class="ap-filter" id="apOrderSearch" placeholder="Search order / customer"/><select class="ap-filter" id="apOrderStatusFilter"><option>All statuses</option><option>Pending</option><option>Confirmed</option><option>Out for delivery</option><option>Delivered</option></select><select class="ap-filter" id="apOrderPaymentFilter"><option>All payment states</option><option>Awaiting</option><option>Paid</option><option>COD</option></select><button class="ap-btn" id="apOrderToday" type="button">Today</button><button class="ap-btn" id="apOrderWeek" type="button">This week</button></div>
-<div class="ap-split"><div class="ap-table-wrap"><table class="ap-table"><thead><tr><th>Order</th><th>Customer</th><th>Product</th><th>Qty</th><th>Payment</th><th>Delivery</th><th>Total</th></tr></thead><tbody id="apOrdersBody"></tbody></table></div><aside class="ap-card ap-sidecard" id="apOrderDetail"></aside></div>
+<div class="app hidden" id="appView">
+<header class="topbar"><div class="logo">NARIYAL <span>SUTRA</span> / OWNER</div><div class="top-actions"><span class="owner-email" id="ownerEmail"></span><a class="ghost" href="index.html">View site</a><button class="ghost" id="signOutBtn">Sign out</button></div></header>
+<main class="shell">
+<div class="hero"><div><div class="eyebrow">Operations Overview</div><h1>Order <em>command center.</em></h1><p>Realtime order visibility, customer lookup, status updates and export.</p></div><div class="live"><span class="dot"></span>Firestore live</div></div>
+<section aria-label="Key metrics" class="kpis">
+<article class="kpi"><div class="k-label">Total orders</div><div class="k-value" id="kOrders">0</div><div class="k-foot">All captured website requests</div></article>
+<article class="kpi"><div class="k-label">Pending</div><div class="k-value" id="kPending">0</div><div class="k-foot">Needs owner action</div></article>
+<article class="kpi"><div class="k-label">Order value</div><div class="k-value" id="kRevenue">₹0</div><div class="k-foot">Excludes cancelled requests</div></article>
+<article class="kpi"><div class="k-label">Order contacts</div><div class="k-value" id="kCustomers">0</div><div class="k-foot">Unique phone numbers in orders</div></article>
 </section>
-<section class="ap-view" data-view="payments"><div class="ap-page-head"><div><h1>Payments</h1><p>Operational metadata only. No card numbers, CVV, UPI PIN or banking passwords are stored.</p></div></div><div class="ap-kpis"><article class="ap-card ap-kpi"><span class="ap-kpi-label">Awaiting</span><strong>₹4.9k</strong></article><article class="ap-card ap-kpi"><span class="ap-kpi-label">Paid</span><strong>₹31.8k</strong></article><article class="ap-card ap-kpi"><span class="ap-kpi-label">COD</span><strong>₹8.2k</strong></article><article class="ap-card ap-kpi"><span class="ap-kpi-label">Refund pending</span><strong>₹0</strong></article></div><div class="ap-card ap-panel"><div class="ap-panel-head"><h2>Payment operations</h2><span>Demo safe metadata</span></div><div class="ap-table-wrap"><table class="ap-table"><thead><tr><th>Order</th><th>Customer</th><th>State</th><th>Method</th><th>Amount</th><th>Reference</th></tr></thead><tbody><tr><td class="mono">NS-1048</td><td>Aarav Mehta</td><td><span class="ap-status gold">Awaiting</span></td><td>UPI request</td><td>₹660</td><td>—</td></tr><tr><td class="mono">NS-1047</td><td>Riya Shah</td><td><span class="ap-status green">Paid</span></td><td>UPI</td><td>₹990</td><td>PAY-83A2</td></tr><tr><td class="mono">NS-1046</td><td>Guest · Jabalpur</td><td><span class="ap-status blue">COD</span></td><td>COD</td><td>₹550</td><td>—</td></tr></tbody></table></div></div></section>
-<section class="ap-view" data-view="products">
-<div class="ap-page-head"><div><h1>Products &amp; Pricing</h1><p>Edit storefront product names, retail/bulk starting prices, minimum quantities and visibility. Changes update this local storefront immediately.</p></div><div class="ap-head-actions"><button class="ap-btn" id="apProductAudit" type="button">Price history</button><button class="ap-btn primary" id="apProductAdd" type="button">＋ Add product</button></div></div>
-<div class="ap-card ap-panel"><div class="ap-panel-head"><h2>Storefront catalogue</h2><span>Admin-controlled local source of truth</span></div><div class="ap-table-wrap"><table class="ap-table"><thead><tr><th>SKU</th><th>Product</th><th>Retail</th><th>Bulk</th><th>Min qty</th><th>Price visible</th><th>Status</th><th></th></tr></thead><tbody id="apProductsBody"></tbody></table></div></div>
+<section class="panel">
+<div class="toolbar"><div class="filters"><input class="search" id="search" placeholder="Search order ID, name, phone, city…"/><select class="select" id="statusFilter"><option value="">All statuses</option><option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="preparing">Preparing</option><option value="ready_for_dispatch">Ready for dispatch</option><option value="out_for_delivery">Out for delivery</option><option value="arrived">Arrived</option><option value="delivered">Delivered</option><option value="cancelled">Cancelled</option></select><select class="select" id="orderPaymentFilter"><option value="">All payments</option><option value="awaiting">Awaiting</option><option value="cod">COD</option><option value="requested">Payment requested</option><option value="paid">Paid</option><option value="partial">Partially paid</option><option value="failed">Failed</option><option value="refund_pending">Refund pending</option><option value="refunded">Refunded</option><option value="untracked">Legacy / untracked</option></select></div><button class="ghost" id="exportBtn">Export filtered CSV</button></div>
+<div class="table-wrap"><table class="orders"><thead><tr><th>Order</th><th>Customer</th><th>Product</th><th>Qty</th><th>Total</th><th>Payment</th><th>Status</th><th>Date</th></tr></thead><tbody id="ordersBody"></tbody></table></div>
+<div class="mobile-orders" id="mobileOrders"></div>
+<div class="empty hidden" id="empty">No matching orders yet.</div>
 </section>
-<section class="ap-view" data-view="inventory">
-<div class="ap-page-head"><div><h1>Inventory</h1><p>Fresh stock by SKU and fulfilment node. Available = on-hand − reserved. No owned-warehouse claim is implied.</p></div><div class="ap-head-actions"><button class="ap-btn" id="apInventoryAudit" type="button">Stock history</button><button class="ap-btn primary" id="apInventoryAdjust" type="button">＋ Add SKU</button></div></div>
-<div class="ap-kpis" id="apInventoryKpis"></div>
-<div class="ap-card ap-panel"><div class="ap-panel-head"><h2>Current stock positions</h2><span>Local preview source of truth</span></div><div class="ap-table-wrap"><table class="ap-table"><thead><tr><th>SKU</th><th>Product</th><th>Fulfilment node</th><th>On hand</th><th>Reserved</th><th>Available</th><th>Incoming</th><th>Freshness</th><th>Status</th><th></th></tr></thead><tbody id="apInventoryBody"></tbody></table></div></div>
-</section>
-<section class="ap-view" data-view="warehouses">
-<div class="ap-page-head"><div><h1>Warehouses / Fulfilment Nodes</h1><p>Manage operational stock locations with ownership type shown explicitly. Partner-operated locations are never presented as Nariyal Sutra-owned.</p></div><button class="ap-btn primary" id="apAddWarehouse" type="button">＋ Add node</button></div>
-<div class="ap-grid-2" id="apWarehouseGrid"></div>
-</section>
-<section class="ap-view" data-view="delivery-services">
-<div class="ap-page-head"><div><h1>Delivery Services</h1><p>Serviceability, partner status and SLA management. Existing order-level delivery-charge logic is preserved.</p></div><button class="ap-btn primary" id="apAddDeliveryService" type="button">＋ Add delivery service</button></div>
-<div class="ap-card ap-panel"><div class="ap-table-wrap"><table class="ap-table"><thead><tr><th>Service</th><th>Type</th><th>Coverage</th><th>SLA</th><th>Pricing rule</th><th>Status</th><th></th></tr></thead><tbody id="apDeliveryServicesBody"></tbody></table></div></div>
-</section>
-<section class="ap-view" data-view="delivery">
-<div class="ap-page-head"><div><h1>Delivery Hub</h1><p>One operational truth. Admin updates become the sanitized customer tracking state.</p></div><div class="ap-head-actions"><button class="ap-btn primary" id="apSaveDelivery" type="button">Save &amp; sync</button><button class="ap-btn" id="apOpenCustomerTracking" type="button">Open customer live view</button></div></div>
-<div class="ap-grid-2"><article class="ap-card ap-panel"><div class="ap-panel-head"><h2>Delivery update</h2><span>NS-1042</span></div><form class="ap-form" id="apDeliveryForm"><div class="ap-row"><div class="ap-field"><label>Status</label><select name="status"><option>confirmed</option><option>preparing</option><option selected="">out_for_delivery</option><option>arrived</option><option>delivered</option></select></div><div class="ap-field"><label>ETA</label><input name="eta" value="Today · 4–6 PM"/></div></div><div class="ap-row"><div class="ap-field"><label>Delivery partner</label><input name="partner" value="Example Partner"/></div><div class="ap-field"><label>Vehicle/reference</label><input name="vehicle" value="MP20-NS-42"/></div></div><div class="ap-field"><label>Location label</label><input id="apDeliveryLocation" name="location" value="Near Civil Lines, Jabalpur"/></div><div class="ap-field"><label>Live map pin — click or drag</label>
-<div class="ap-map-tools"><input class="ap-filter" id="apDeliveryMapSearch" placeholder="Search area / address"/><button class="ap-btn" id="apDeliveryMapSearchBtn" type="button">Search</button><button class="ap-btn" id="apDeliveryUseCurrent" type="button">Use current location</button><select aria-label="Map style" class="ap-filter" id="apDeliveryMapStyle"><option value="street">Street</option><option value="satellite">Satellite</option><option value="terrain">Terrain</option></select><button class="ap-btn" id="apDeliveryOpenGoogle" type="button">Open in Google Maps ↗</button></div><div class="ap-help" style="margin:6px 0 10px">Search the address, then drag the coconut pin to the exact gate/building. The address label, latitude and longitude update together. Street, satellite and terrain are available; Google Maps opens externally unless a Google Maps Platform API key is deliberately configured.</div><div aria-label="Interactive delivery map" class="ap-real-map" id="apAdminDeliveryMap" role="application"></div><div class="ap-map-status" id="apAdminDeliveryMapStatus">Loading map…</div><div class="ap-map-coords" id="apAdminDeliveryCoords"></div><div class="ap-pin-confirm-row"><button class="ap-btn primary" id="apConfirmDeliveryPin" type="button">Use this exact pin</button><span id="apPinConfidence">Drag the pin for a more precise delivery point.</span></div></div>
-<div class="ap-row"><div class="ap-field"><label>Latitude</label><input id="apDeliveryLat" name="lat" step="0.000001" type="number"/></div>
-<div class="ap-field"><label>Longitude</label><input id="apDeliveryLng" name="lng" step="0.000001" type="number"/></div></div><div class="ap-field"><label>Customer-facing update</label><textarea name="update">Fresh coconuts are on the way.</textarea></div><div class="ap-field"><label>Private internal note</label><textarea name="internal">Call before reaching gate. This never appears in the public tracking projection.</textarea></div></form></article><article class="ap-card ap-panel"><div class="ap-panel-head"><h2>Customer tracking preview</h2><span>Sanitized</span></div><div class="ap-preview-track"><strong id="apTrackStatus">OUT FOR DELIVERY</strong><p id="apTrackUpdate" style="font-size:11px;line-height:1.55;color:#5f6b5d">Fresh coconuts are on the way.</p><div class="ap-detail-grid"><div class="ap-detail"><label>Partner</label><span id="apTrackPartner">Example Partner</span></div><div class="ap-detail"><label>ETA</label><span id="apTrackEta">Today · 4–6 PM</span></div><div class="ap-detail"><label>Location</label><span id="apTrackLocation">Near Civil Lines, Jabalpur</span></div><div class="ap-detail"><label>Internal note</label><span>Not exposed</span></div></div><div class="ap-track-state"><span>✓ Confirmed</span><span>✓ Preparing</span><span>● Out for delivery</span><span>Arrived</span><span>Delivered</span></div></div></article></div>
-</section>
-<section class="ap-view" data-view="customers"><div class="ap-page-head"><div><h1>Customer 360</h1><p>Registered customers, guest buyers and operational follow-up context in one profile. Customer profile pictures are private customer data and never enter the public Media Library.</p></div></div><div class="ap-grid-2"><article class="ap-card ap-panel"><div class="ap-panel-head"><div class="ap-customer-head"><div class="ap-avatar" id="apCustomerAvatar"><span>AM</span></div><div><h2>Aarav Mehta</h2><small>Private customer profile image</small></div></div><span class="ap-status green">Verified</span></div><div class="ap-head-actions ap-customer-photo-actions"><button class="ap-btn" id="apCustomerPhotoUpload" type="button">Upload / replace photo</button><button class="ap-btn danger" id="apCustomerPhotoRemove" type="button">Remove photo</button></div><div class="ap-detail-grid"><div class="ap-detail"><label>Mobile / WhatsApp</label><span>+91 98••• 4821</span></div><div class="ap-detail"><label>Email</label><span>aarav@example.com</span></div><div class="ap-detail"><label>Location</label><span>Jabalpur, MP</span></div><div class="ap-detail"><label>Customer since</label><span>22 Aug 2026</span></div><div class="ap-detail"><label>Total orders</label><span>7</span></div><div class="ap-detail"><label>Lifetime value</label><span>₹5,390</span></div><div class="ap-detail"><label>Preferred product</label><span>Tender Coconut</span></div><div class="ap-detail"><label>Preferred channel</label><span>WhatsApp</span></div></div><div class="ap-divider"></div><div class="ap-row"><div class="ap-field"><label>Assigned owner</label><select id="apCustomerOwner"><option>Krishna</option><option>Operations</option><option>Sales</option></select></div><div class="ap-field"><label>Next follow-up</label><input id="apCustomerFollowup" type="datetime-local" value="2026-09-08T11:30"/></div></div><div class="ap-field" style="margin-top:10px"><label>Private note</label><textarea id="apCustomerNote">Prefers afternoon delivery. Interested in recurring office order.</textarea></div><button class="ap-btn primary" id="apCustomerSave" type="button">Save customer profile</button><button class="ap-btn" id="apCustomerDelivery" type="button">Open current delivery</button></article><article class="ap-card ap-panel"><div class="ap-panel-head"><h2>Order history</h2><span>7 orders</span></div><div class="ap-list"><div class="ap-list-item"><span class="ap-list-dot"></span><div><strong>NS-1042 · 20 Tender Coconuts</strong><span>Out for delivery · ₹900</span></div></div><div class="ap-list-item"><span class="ap-list-dot"></span><div><strong>NS-1018 · 12 Green Round</strong><span>Delivered · ₹660</span></div></div><div class="ap-list-item"><span class="ap-list-dot"></span><div><strong>NS-0998 · 25 Tender Coconuts</strong><span>Delivered · ₹1,125</span></div></div></div></article></div></section>
-<section class="ap-view" data-view="followups"><div class="ap-page-head"><div><h1>Follow-ups</h1><p>Sales, support and customer-success actions with ownership and next-action tracking.</p></div><button class="ap-btn primary" id="apFollowupAdd" type="button">＋ Add follow-up</button></div><div class="ap-card ap-panel"><div class="ap-table-wrap"><table class="ap-table"><thead><tr><th>Due</th><th>Customer</th><th>Reason</th><th>Owner</th><th>Priority</th><th>Status</th></tr></thead><tbody><tr><td>Today 2:00 PM</td><td>Aarav Mehta</td><td>Recurring office order</td><td>Sales</td><td><span class="ap-status gold">High</span></td><td>Open</td></tr><tr><td>Today 4:30 PM</td><td>Guest · Virar</td><td>Delivery serviceability</td><td>Support</td><td><span class="ap-status gray">Normal</span></td><td>Open</td></tr><tr><td>Tomorrow</td><td>Blue Mango Café</td><td>Hospitality quote</td><td>Krishna</td><td><span class="ap-status blue">Opportunity</span></td><td>Open</td></tr></tbody></table></div></div></section>
-<section class="ap-view" data-view="segments">
-<div class="ap-page-head"><div><h1>Segments</h1><p>Build useful operating groups from customer behavior without exposing private CRM data publicly.</p></div><button class="ap-btn primary" id="apSegmentAdd" type="button">＋ Create segment</button></div>
-<div class="ap-grid-3" id="apSegmentGrid"></div>
-</section>
-<section class="ap-view" data-view="communication">
-<div class="ap-page-head"><div><h1>Communication</h1><p>Prepare WhatsApp, email and support follow-ups from approved customer/order context. External sends remain gated in this local review.</p></div><button class="ap-btn primary" id="apCommunicationNew" type="button">＋ New communication</button></div>
-<div class="ap-grid-2"><article class="ap-card ap-panel"><div class="ap-panel-head"><h2>Message queue</h2><span>Local preview</span></div><div class="ap-list" id="apCommunicationQueue"></div></article><article class="ap-card ap-panel"><div class="ap-panel-head"><h2>Channel posture</h2><span>Provider-safe</span></div><div class="ap-list"><div class="ap-list-item"><span class="ap-list-dot"></span><div><strong>WhatsApp</strong><span>Customer-initiated/support follow-up links only in local preview.</span></div></div><div class="ap-list-item"><span class="ap-list-dot"></span><div><strong>Email</strong><span>Draft/preview here; production send requires approved provider path.</span></div></div><div class="ap-list-item"><span class="ap-list-dot"></span><div><strong>Telegram</strong><span><a href="https://t.me/krishna31" rel="noopener" target="_blank">@krishna31</a> · direct customer contact link; customer usernames remain separate profile data.</span></div></div></div></article></div>
-</section>
-<section class="ap-view" data-view="content">
-<div class="ap-page-head"><div><h1>Content Studio</h1><p>Draft → validation → review → approval → schedule → live → rollback.</p></div><div class="ap-head-actions"><button class="ap-btn" id="apPreviewSite" type="button">Preview site</button><button class="ap-btn primary" id="apNewContent" type="button">＋ New content</button></div></div>
-<div class="ap-board" id="apContentBoard"></div>
-</section>
-<section class="ap-view" data-view="pages">
-<div class="ap-page-head"><div><h1>Pages &amp; Sections</h1><p>Control storefront placements, create brand-safe sections and reorder editorial zones without editing code.</p></div><div class="ap-head-actions"><button class="ap-btn" id="apPreviewHomepage" type="button">Preview homepage</button><button class="ap-btn primary" id="apPageSectionAdd" type="button">＋ Create section</button></div></div>
-<div class="ap-grid-2"><article class="ap-card ap-panel"><div class="ap-panel-head"><h2>Homepage image placements</h2><span>Front screen ≠ inside story</span></div><div id="apHomepagePlacements"></div></article><article class="ap-card ap-panel"><div class="ap-panel-head"><h2>Homepage section order</h2><span>Every storefront section can be repositioned from Admin</span></div><div id="apPageSectionList"></div></article></div>
-<div class="ap-card ap-panel" style="margin-top:16px"><div class="ap-panel-head"><h2>Custom editorial sections</h2><span>Approved design-system templates only</span></div><div class="ap-v12-page-filter"><label>Manage page <select id="apV12SectionPageFilter"><option value="all">All pages</option><option value="homepage">Homepage</option><option value="people">People of Nariyal Sutra</option><option value="hospitality">Hospitality &amp; Events</option><option value="sourcing">Sourcing</option><option value="fresh-tender-coconut">Fresh Tender Coconut</option><option value="green-coconut">Green Coconut</option><option value="bulk">Bulk Supply</option></select></label><span>Custom sections can move inside their selected page. Core homepage sequencing is managed in the section-order panel above.</span></div><div class="ap-grid-3" id="apCustomSectionGrid"></div></div>
-<div class="ap-card ap-panel" style="margin-top:16px"><div class="ap-panel-head"><h2>Moving People full-picture rail</h2><span>Visual style + homepage placement</span></div><div id="apPeopleSectionControls"></div></div>
-</section>
-<section class="ap-view" data-view="stories">
-<div class="ap-page-head"><div><h1>Stories &amp; Sequencing</h1><p>Control public story order, visibility and media assignment from one place. Duplicate-face guard validates before public preview.</p></div><div class="ap-head-actions"><button class="ap-btn" id="apValidateStories" type="button">Validate public stories</button><button class="ap-btn primary" id="apAddStory" type="button">＋ Create website section</button></div></div>
-<div class="ap-card ap-panel"><div class="ap-panel-head"><h2>Public story sequence</h2><span>Drag, move, show/hide, change media</span></div><div id="apStorySequence"></div></div>
-</section>
-<section class="ap-view" data-view="ambassadors"><div class="ap-page-head"><div><h1>Ambassadors</h1><p>Curated representatives only. A selected portrait is not an ambassador automatically. Only full-size, explicitly approved Ambassador assets can appear here.</p></div><div class="ap-head-actions"><button class="ap-btn" data-go="media" type="button">Open full 49-image library</button><button class="ap-btn primary" data-go="submissions" type="button">Review customer ambassador requests</button></div></div><div class="ap-kpis"><article class="ap-card ap-kpi"><span class="ap-kpi-label">Selected people references</span><strong>49</strong><small>Review references; not automatic public assets</small></article><article class="ap-card ap-kpi"><span class="ap-kpi-label">Public ambassadors</span><strong>0</strong><small>Nothing public until explicitly approved</small></article><article class="ap-card ap-kpi"><span class="ap-kpi-label">Near-duplicate policy</span><strong>Grouped</strong><small>Choose strongest variant before publish</small></article><article class="ap-card ap-kpi"><span class="ap-kpi-label">Homepage exposure</span><strong>0</strong><small>People remain one layer deeper</small></article></div><div class="ap-media-grid" id="apAmbassadorGrid"></div><div id="apPeopleStreams" style="margin-top:18px"></div></section>
-<section class="ap-view" data-view="submissions">
-<div class="ap-page-head"><div><h1>Community Submissions</h1><p>Customer photos and ambassador/promoter requests stay private until consent, moderation and an explicit placement decision. Approval makes the destination explicit and can queue email + WhatsApp publication notices.</p></div><div class="ap-head-actions"><button class="ap-btn" data-go="communication" type="button">Open notification queue</button><button class="ap-btn primary" data-go="pages" type="button">Manage website placements</button></div></div>
-<div class="ap-kpis" id="apSubmissionKpis"></div>
-<div class="ap-card ap-panel"><div class="ap-panel-head"><h2>Moderation queue</h2><span>Private → review → approve/reject → place → publish</span></div><div class="ap-submission-list" id="apSubmissionList"></div></div>
-</section>
-<section class="ap-view" data-view="media">
-<div class="ap-page-head"><div><h1>Media Library</h1><p>Stable logical IDs, immutable versions and provider-neutral metadata. Upload once, place in one website section, or create a new section directly from Media Library. Rejected/archived assets stay out of the default working set.</p><div class="ap-upload-assist"><strong>Smart Upload Assist</strong>New photos are automatically normalized to WebP, resized for web performance, lightly balanced, classified by orientation and given a suggested placement. The original is preserved and nothing publishes without Admin approval.</div></div><div class="ap-head-actions"><button class="ap-btn" id="apShowHistory" type="button">Rejected / Archived</button><button class="ap-btn primary" id="apUploadMedia" type="button">＋ Upload + place media</button></div></div>
-<div class="ap-toolbar"><input class="ap-filter" placeholder="Search G-ID / filename / tag"/><select class="ap-filter"><option>All categories</option><option>Ambassadors</option><option>Stories</option><option>Products</option><option>Events</option><option>Brand</option></select><select class="ap-filter"><option>Working set</option><option>Approved</option><option>Needs review</option><option>Needs enhancement</option><option>Rejected</option><option>Archived</option><option>All states</option></select></div>
-<div class="ap-media-grid" id="apMediaGrid"></div>
-</section>
-<section class="ap-view" data-view="schedule">
-<div class="ap-page-head"><div><h1>Schedule</h1><p>Choose the image, exact website section, start date/time and removal date/time. When the schedule ends, the section automatically returns to its normal default image.</p></div><button class="ap-btn primary" id="apScheduleNew" type="button">＋ Schedule content</button></div><div class="ap-schedule-summary" id="apScheduleSummary"></div>
-<div class="ap-card ap-panel"><div class="ap-panel-head"><h2 id="apCalendarTitle">September 2026</h2><div><button class="ap-btn" id="apCalendarPrev" type="button">‹</button> <button class="ap-btn" id="apCalendarToday" type="button">Today</button> <button class="ap-btn" id="apCalendarNext" type="button">›</button></div></div><div class="ap-calendar" id="apCalendar"></div></div>
-</section>
-<section class="ap-view" data-view="seo"><div class="ap-page-head"><div><h1>SEO</h1><p>Technical/content health for the coconut-water topic cluster. No ranking guarantees.</p></div><button class="ap-btn" id="apSeoExport" type="button">Export SEO audit</button></div><div class="ap-card ap-panel"><div class="ap-seo-row"><strong>Page</strong><strong>Score</strong><strong>Indexing</strong><strong>Health</strong></div><div class="ap-seo-row"><span>/coconut-water</span><span class="ap-score">96</span><span>Indexable</span><div class="ap-progress"><span style="width:96%"></span></div></div><div class="ap-seo-row"><span>/fresh-tender-coconut.html</span><span class="ap-score">93</span><span>Indexable</span><div class="ap-progress"><span style="width:93%"></span></div></div><div class="ap-seo-row"><span>/green-coconut.html</span><span class="ap-score">91</span><span>Indexable</span><div class="ap-progress"><span style="width:91%"></span></div></div><div class="ap-seo-row"><span>/people-of-nariyal-sutra.html</span><span class="ap-score">88</span><span>Indexable</span><div class="ap-progress"><span style="width:88%"></span></div></div></div></section>
-<section class="ap-view" data-view="analytics"><div class="ap-page-head"><div><h1>Analytics</h1><p>Business-facing preview: order trends, customer mix and conversion signals.</p></div></div><div class="ap-grid-3"><article class="ap-card ap-panel"><div class="ap-panel-head"><h2>Customer mix</h2></div><strong style="font:500 42px 'Playfair Display'">61%</strong><p style="font-size:10px;color:var(--muted)">Guest checkout remains the majority path.</p></article><article class="ap-card ap-panel"><div class="ap-panel-head"><h2>Repeat customers</h2></div><strong style="font:500 42px 'Playfair Display'">28%</strong><p style="font-size:10px;color:var(--muted)">Opportunity for reorder and recurring plans.</p></article><article class="ap-card ap-panel"><div class="ap-panel-head"><h2>Top intent</h2></div><strong style="font:500 30px 'Playfair Display'">Retail</strong><p style="font-size:10px;color:var(--muted)">Hospitality and bulk follow behind.</p></article></div></section>
-<section class="ap-view" data-view="reports"><div class="ap-page-head"><div><h1>Reports / Export</h1><p>Filtered operational exports with spreadsheet-formula protection in the production implementation.</p></div></div><div class="ap-grid-3"><article class="ap-card ap-panel"><h2 style="font-size:14px">Orders report</h2><p style="font-size:10px;color:var(--muted)">Date, product, location, status, payment metadata.</p><button class="ap-btn" id="apReportOrders" type="button">Download CSV</button></article><article class="ap-card ap-panel"><h2 style="font-size:14px">Customer report</h2><p style="font-size:10px;color:var(--muted)">Customer 360, order metrics and follow-up fields.</p><button class="ap-btn" id="apReportCustomers" type="button">Download CSV</button></article><article class="ap-card ap-panel"><h2 style="font-size:14px">Audit report</h2><p style="font-size:10px;color:var(--muted)">Actor, action, reason, affected record and timestamp.</p><button class="ap-btn" id="apReportAudit" type="button">Download CSV</button></article></div></section>
-<section class="ap-view" data-view="team"><div class="ap-page-head"><div><h1>Team &amp; Tasks</h1><p>Invite real staff roles safely. Passwords are never visible to Owner/Admin; staff set and reset their own passwords using expiring links.</p></div><div class="ap-head-actions"><button class="ap-btn" id="apV12AccessMatrix" type="button">Access matrix</button><button class="ap-btn" id="apV12AdminLogin" type="button">Open Admin login</button><button class="ap-btn" id="apStaffPhotoUpload" type="button">Profile photo</button><button class="ap-btn" id="apTaskAdd" type="button">＋ Assign task</button><button class="ap-btn primary" id="apTeamInvite" type="button">＋ Invite team member</button></div></div><div class="ap-grid-2"><article class="ap-card ap-panel"><div class="ap-panel-head"><h2>Team &amp; access</h2><span>Least privilege</span></div><div class="ap-table-wrap"><table class="ap-table"><thead><tr><th>Person</th><th>Login ID</th><th>Role</th><th>Status</th><th>Invite / security</th><th></th></tr></thead><tbody id="apTeamBody"></tbody></table></div></article><article class="ap-card ap-panel"><div class="ap-panel-head"><h2>Tasks</h2><span>Ownership and due dates</span></div><div class="ap-list" id="apTaskList"></div></article></div></section>
-<section class="ap-view" data-view="audit"><div class="ap-page-head"><div><h1>Audit History</h1><p>Append-only change history for operational and publishing actions.</p></div></div><div class="ap-card ap-panel"><div class="ap-list"><div class="ap-list-item"><span class="ap-list-dot"></span><div><strong>Delivery update · NS-1042</strong><span>Owner · changed ETA and customer update · 10:42 AM</span></div></div><div class="ap-list-item"><span class="ap-list-dot"></span><div><strong>Story approved · “Fresh serve at an event”</strong><span>Content · moved IN_REVIEW → APPROVED · 9:18 AM</span></div></div><div class="ap-list-item"><span class="ap-list-dot"></span><div><strong>Media version created · G011 v3</strong><span>Content · Cloudinary provider metadata recorded · Yesterday</span></div></div></div></div></section>
-<section class="ap-view" data-view="security"><div class="ap-page-head"><div><h1>Security Center</h1><p>Show only real controls and external gates—never fabricated attack telemetry.</p></div></div><div class="ap-security-grid"><article class="ap-card ap-security"><div class="ap-security-top"><h3>Firestore role enforcement</h3><span class="ap-gate ok">Implemented</span></div><p>Least-privilege rules remain the actual enforcement layer, not hidden buttons.</p></article><article class="ap-card ap-security"><div class="ap-security-top"><h3>Signed Cloudinary upload</h3><span class="ap-gate ok">Implemented</span></div><p>API secret stays server-side. Browser receives signed upload parameters only.</p></article><article class="ap-card ap-security"><div class="ap-security-top"><h3>Customer binary upload</h3><span class="ap-gate warn">Gated</span></div><p>Profile media remains disabled until the customer upload path is deliberately enabled.</p></article><article class="ap-card ap-security"><div class="ap-security-top"><h3>App Check / MFA / WAF</h3><span class="ap-gate warn">External gate</span></div><p>Not represented as active until provider-side configuration and enforcement are verified.</p></article></div></section>
-<section class="ap-view" data-view="settings">
-<div class="ap-page-head"><div><h1>Settings</h1><p>Operational settings for this local candidate. External provider gates remain clearly separated from editable application settings.</p></div><button class="ap-btn" id="apResetLocal" type="button">Reset local preview data</button></div>
-<div class="ap-grid-2">
-<article class="ap-card ap-panel"><div class="ap-panel-head"><h2>Publishing &amp; media safety</h2><span>Editable locally</span></div><div id="apSettingsControls"></div></article>
-<article class="ap-card ap-panel"><div class="ap-panel-head"><h2>External / provider gates</h2><span>Not editable here</span></div><div class="ap-list"><div class="ap-list-item"><span class="ap-list-dot"></span><div><strong>Google sign-in</strong><span>Configured for V42.1; production domain smoke test still required.</span></div></div><div class="ap-list-item"><span class="ap-list-dot"></span><div><strong>Cloudinary</strong><span>Provider selected; production credentials are intentionally absent from this local preview.</span></div></div><div class="ap-list-item"><span class="ap-list-dot" style="background:#c4922f"></span><div><strong>Phone OTP / Apple</strong><span>Gated / not configured.</span></div></div><div class="ap-list-item"><span class="ap-list-dot" style="background:#c4922f"></span><div><strong>App Check / MFA / WAF</strong><span>External production gates; never shown as active without provider verification.</span></div></div></div></article>
+<div class="catalog-head">
+<div><div class="eyebrow">Customer Intelligence</div><h2>Customers &amp; guest buyers</h2><p>Registered profiles, guest buyers and complete order history in one role-controlled private view. No customer can browse this directory.</p></div>
+<div class="enquiries-meta"><span class="enquiry-count" id="peopleCount">0 people</span><button class="ghost" id="exportPeopleBtn">Export customers</button></div>
 </div>
+<section aria-label="Customer metrics" class="people-kpis">
+<article class="people-kpi"><small>People</small><b id="pAll">0</b><span>Profiles + guest buyers</span></article>
+<article class="people-kpi"><small>Registered</small><b id="pRegistered">0</b><span>Customer profiles</span></article>
+<article class="people-kpi"><small>Guests</small><b id="pGuests">0</b><span>Ordered without profile</span></article>
+<article class="people-kpi"><small>Active</small><b id="pActive">0</b><span>Open fulfilment</span></article>
+<article class="people-kpi"><small>Repeat</small><b id="pRepeat">0</b><span>2+ orders</span></article>
+<article class="people-kpi"><small>High value</small><b id="pHighValue">0</b><span>₹5,000+ lifetime</span></article>
+<article class="people-kpi"><small>Payment follow-up</small><b id="pPaymentFollowup">0</b><span>Needs payment attention</span></article>
+<article class="people-kpi"><small>Follow-ups due</small><b id="pFollowupDue">0</b><span>Internal action due now</span></article>
+<article class="people-kpi"><small>Review</small><b id="pReview">0</b><span>Data needing attention</span></article>
 </section>
+<section aria-label="Customer directory" class="panel">
+<div class="toolbar"><div class="filters"><input class="search" id="peopleSearch" placeholder="Search name, email, phone, UID, order, city…"/><select class="select" id="peopleType"><option value="">All people</option><option value="registered">Registered profiles</option><option value="guest">Guest buyers</option><option value="unresolved">Account needs review</option></select><select class="select" id="peopleActivity"><option value="">All activity</option><option value="active">Active order</option><option value="repeat">Repeat buyer</option><option value="high_value">High value ₹5,000+</option><option value="payment_followup">Payment follow-up</option><option value="followup_due">Internal follow-up due</option><option value="no_orders">Profile · no orders</option><option value="review">Needs review</option></select><button class="ghost" id="clearPeopleFilters" type="button">Clear filters</button></div></div>
+<div class="v42-filters">
+<label class="v42-filter-label">Customer / first activity from<input id="peopleCreatedFrom" type="date"/></label>
+<label class="v42-filter-label">To<input id="peopleCreatedTo" type="date"/></label>
+<label class="v42-filter-label">Last order from<input id="peopleOrderFrom" type="date"/></label>
+<label class="v42-filter-label">To<input id="peopleOrderTo" type="date"/></label>
+<label class="v42-filter-label">Location<input id="peopleLocation" placeholder="City, state, PIN, country" type="text"/></label>
+<label class="v42-filter-label">Minimum lifetime value<input id="peopleMinLifetime" min="0" placeholder="₹0" step="100" type="number"/></label>
+<label class="v42-filter-label">Latest payment<select id="peoplePayment"><option value="">Any payment status</option><option value="awaiting">Awaiting</option><option value="cod">COD</option><option value="requested">Requested</option><option value="paid">Paid</option><option value="partial">Partial</option><option value="failed">Failed</option><option value="refund_pending">Refund pending</option><option value="refunded">Refunded</option><option value="untracked">Legacy / untracked</option></select></label>
+<label class="v42-filter-label">Preferred contact<select id="peopleChannel"><option value="">Any channel</option><option value="whatsapp">WhatsApp</option><option value="email">Email</option><option value="any">Any</option></select></label><label class="v42-filter-label">Verification<select id="peopleVerification"><option value="">Any verification</option><option value="email_verified">Email verified</option><option value="phone_verified">Phone verified</option><option value="contact_missing">Contact details incomplete</option></select></label>
+<label class="v42-filter-label">Assigned owner / team<input id="peopleOwner" placeholder="Name or email" type="text"/></label>
 </div>
+<div class="people-health" id="peopleHealth"><strong>Customer directory loading…</strong><span>Owner-only profile + order reconciliation.</span></div>
+<div class="table-wrap people-table-wrap"><table class="orders people-table"><thead><tr><th>Person</th><th>Type</th><th>Contact</th><th>Orders</th><th>Active</th><th>Lifetime</th><th>Last activity</th><th>Signals</th></tr></thead><tbody id="peopleBody"></tbody></table></div>
+<div class="people-mobile" id="peopleMobile"></div>
+<div class="empty hidden" id="peopleEmpty">No matching people.</div>
+</section>
+<div class="catalog-head">
+<div><div class="eyebrow">Sales Leads</div><h2>Enquiries &amp; custom quotes</h2><p>Bulk, event, hospitality, wholesale and export leads submitted through the website.</p></div>
+<div class="enquiries-meta"><span class="enquiry-count" id="inquiryCount">0 enquiries</span><button class="ghost" id="exportEnquiriesBtn">Export enquiries</button></div>
+</div>
+<section aria-label="Sales enquiries" class="panel">
+<div class="enquiry-table-wrap"><table class="orders"><thead><tr><th>Reference</th><th>Type</th><th>Contact</th><th>Qty</th><th>Destination</th><th>Required</th><th>Status</th><th>Actions</th><th>Date</th></tr></thead><tbody id="inquiriesBody"></tbody></table></div>
+<div class="mobile-inquiries" id="mobileInquiries"></div>
+<div class="empty hidden" id="inquiriesEmpty">No website enquiries yet.</div>
+</section>
+<div class="catalog-head audit-panel"><div><div class="eyebrow">Internal Accountability</div><h2>Admin audit trail</h2><p>Append-only record of status changes, payment updates, customer notes and exports.</p></div><div class="enquiries-meta"><span class="enquiry-count" id="auditCount">0 actions</span><button class="ghost" id="exportAuditBtn">Export audit</button></div></div>
+<section class="panel"><div class="audit-list" id="auditList"><div class="empty">Audit trail loading…</div></div></section>
+<div class="catalog-head"><div><div class="eyebrow">Live Storefront Control</div><h2>Products &amp; inventory</h2><p>Edit stock, price, minimum quantity and availability. Changes sync to the customer website in realtime.</p></div><div class="catalog-head-actions"><button class="ghost" id="seedCatalogBtn">Initialize defaults</button><button class="save-all" id="saveAllCatalogBtn">Save all inventory</button></div></div>
+<div class="admin-alert" id="catalogAlert"></div>
+<section aria-label="Product catalog" class="catalog-grid" id="catalogGrid"></section>
+<div class="backend-note">V42.1 Customer 360° is role-controlled and private and reconciles registered profiles with guest order history. Internal notes, payment operations and export actions are auditable. Email notifications still prefer the Netlify server function and automatically fall back to the EmailJS Browser SDK if the function is unavailable. New orders notify the owner, customer receipts/status updates use the submitted email, and enquiry leads are stored separately. Keep the EmailJS template Subject set to <code>{{email_subject}}</code>.</div>
+<section class="quick-links">
+<a class="quick" id="firebaseLink" rel="noopener" target="_blank"><b>Firebase Console ↗</b><span>Authentication, Firestore and project health.</span></a>
+<a class="quick" href="https://analytics.google.com/" rel="noopener" target="_blank"><b>Google Analytics ↗</b><span>Traffic, acquisition and conversion events.</span></a>
+</section>
 </main>
 </div>
-<div class="ap-toast" id="apToast"></div>
-<div class="ap-modal" id="apModal"><div class="ap-modal-card"><div class="ap-modal-head"><div><h2 id="apModalTitle">Action</h2><p id="apModalSub" style="font-size:10px;color:#6f786d"></p></div><button class="ap-close" id="apModalClose" type="button">×</button></div><div id="apModalBody"></div></div></div>
-<input accept="image/jpeg,image/png,image/webp" hidden="" id="apFilePicker" type="file"/>
-<input accept="image/jpeg,image/png,image/webp" hidden="" id="apNewMediaPicker" multiple="" type="file"/>
-<input accept="image/jpeg,image/png,image/webp" hidden="" id="apCustomerPhotoPicker" type="file"/>
-<script src="assets/js/v421-local-store.js"></script>
-<script src="assets/js/v421-media-db.js"></script>
-<script crossorigin="" src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="assets/js/admin-v21.js"></script>
-<script src="assets/js/admin-v29.js"></script>
-<script src="assets/js/admin-v30.js"></script><script src="assets/js/admin-v36.js"></script><script src="assets/js/admin-v37.js"></script></body>
-</html>
+<div aria-hidden="true" class="drawer" id="drawer"><div class="drawer-backdrop" data-close=""></div><aside class="drawer-card"><div class="drawer-head"><div><div class="eyebrow">Order detail</div><h2 id="dOrderId">Order</h2></div><button aria-label="Close" class="x" data-close="">×</button></div><div class="detail-grid" id="detailGrid"></div><div class="eyebrow">Update status</div><div class="status-actions" id="statusActions"></div><div class="payment-box"><h3>Payment operations</h3><div id="paymentOps"></div><p style="font-size:9px;color:var(--muted);line-height:1.6;margin-top:9px">Store only operational payment metadata. Never enter card numbers, CVV, UPI PINs, bank passwords or other payment credentials.</p></div><div class="email-audit" id="emailAudit"></div></aside></div>
+<div aria-hidden="true" class="drawer" id="peopleDrawer"><div class="drawer-backdrop" data-close-person=""></div><aside class="drawer-card"><div class="drawer-head"><div><div class="eyebrow">Customer 360°</div><div class="person-drawer-avatar" id="personDrawerAvatar">NS</div><h2 id="personDrawerName" style="margin-top:10px">Customer</h2><div id="personDrawerType" style="margin-top:8px"></div></div><button aria-label="Close customer detail" class="x" data-close-person="">×</button></div><div class="detail-grid" id="personDetailGrid"></div><div class="people-contact-actions" id="personContactActions"></div><div class="customer-admin-box"><h3>Internal accountability</h3><label>Assigned owner / team member<input id="personAdminOwner" maxlength="120" placeholder="Name or work email"/></label><label style="margin-top:9px">Follow-up due<input id="personAdminFollowup" type="datetime-local"/></label><label style="margin-top:9px">Next action<input id="personAdminNextAction" maxlength="240" placeholder="Call, verify payment, confirm delivery, send quote…"/></label><label style="margin-top:9px">Tags<input id="personAdminTags" maxlength="240" placeholder="repeat, vip, payment-followup"/></label><label style="margin-top:9px">Owner / team note<textarea id="personAdminNote" maxlength="1200" placeholder="Private internal note — never shown to customer"></textarea></label><label style="margin-top:9px">Internal status<select id="personAdminStatus"><option value="normal">Normal</option><option value="follow_up">Follow-up</option><option value="priority">Priority</option><option value="do_not_contact">Do not contact</option></select></label><div style="font-size:9px;color:var(--muted);margin-top:8px">Every save records who changed this customer record and when.</div><button class="ghost" id="savePersonAdmin" style="width:100%;margin-top:10px" type="button">Save internal record</button></div><div class="eyebrow" style="margin-top:18px">Order history</div><div class="people-drawer-orders" id="personOrders"></div><div class="people-note" id="personDataNote"></div></aside></div>
+<script src="firebase-config.js"></script>
+<script src="local-preview-safety.js"></script>
+<script src="admin-customer-directory.js"></script>
+<script src="emailjs-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script type="module">
+const SDK='12.18.0';
+const cfg=window.NS_FIREBASE_CONFIG||{};
+const adminCfg=window.NS_ADMIN_CONFIG||{};
+const loginView=document.getElementById('loginView'), appView=document.getElementById('appView');
+const msg=document.getElementById('loginMessage'), setup=document.getElementById('setupNote');
+let auth,db,authMod,fsMod,storage=null,storageMod=null,currentRole='',personPhotoUrl='',unsubscribe=null,catalogUnsub=null,inquiryUnsub=null,customerUnsub=null,customerAdminUnsub=null,auditUnsub=null,orders=[],peopleOrders=[],customerProfiles=[],people=[],inquiries=[],products={},customerAdminRecords={},auditRows=[],activeOrder=null,activePerson=null,currentUser=null,peopleHistoryComplete=false,peopleHistoryLoading=false,peopleHistoryError='',customerProfilesError='';
+const money=n=>'₹'+Number(n||0).toLocaleString('en-IN');
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+const fmtDate=v=>{try{const d=v?.toDate?v.toDate():new Date(v);return new Intl.DateTimeFormat('en-IN',{dateStyle:'medium',timeStyle:'short'}).format(d)}catch{return '—'}};
+const statusClass=s=>'s-'+String(s||'pending').replace(/[^a-z_]/g,'');
+const configured=Boolean(cfg.apiKey&&cfg.projectId&&cfg.appId&&cfg.authDomain);
+if(!configured){msg.textContent='Firebase is not configured yet. Open firebase-config.js and paste your Web App configuration.';setup.classList.remove('hidden');setup.innerHTML='Then enable Email/Password Authentication, create the owner user and deploy <b>firestore.rules</b>.';}
+else init();
+
+async function init(){
+  try{
+    const [appMod,aMod,fMod]=await Promise.all([
+      import(`https://www.gstatic.com/firebasejs/${SDK}/firebase-app.js`),
+      import(`https://www.gstatic.com/firebasejs/${SDK}/firebase-auth.js`),
+      import(`https://www.gstatic.com/firebasejs/${SDK}/firebase-firestore.js`)
+    ]);
+    authMod=aMod;fsMod=fMod;storageMod=null;const app=appMod.initializeApp(cfg);auth=aMod.getAuth(app);db=fMod.getFirestore(app);storage=null;
+    document.getElementById('email').value=adminCfg.ownerEmail||'';
+    document.getElementById('firebaseLink').href=`https://console.firebase.google.com/project/${encodeURIComponent(cfg.projectId)}/firestore`;
+    aMod.onAuthStateChanged(auth,onAuth);
+  }catch(e){msg.textContent='Firebase could not start: '+friendly(e);}
+}
+
+document.getElementById('loginForm').addEventListener('submit',async e=>{e.preventDefault();if(!auth)return;msg.textContent='';const email=document.getElementById('email').value.trim(),password=document.getElementById('password').value;try{await authMod.signInWithEmailAndPassword(auth,email,password)}catch(err){msg.textContent=friendly(err)}});
+document.getElementById('signOutBtn').addEventListener('click',()=>authMod.signOut(auth));
+function friendly(e){const code=e?.code||'';if(code.includes('invalid-credential'))return 'Email or password is incorrect.';if(code.includes('too-many-requests'))return 'Too many attempts. Try again later.';if(code.includes('permission-denied'))return 'Firestore denied this action. Publish the latest firestore.rules (it includes owner write access to /products) and confirm this login uses the configured owner UID.';return e?.message||'Something went wrong.'}
+
+async function resolveAdminRole(user){
+  if(!user)return '';
+  if(adminCfg.ownerUid&&user.uid===adminCfg.ownerUid)return 'Owner';
+  try{const snap=await fsMod.getDoc(fsMod.doc(db,'adminRoles',user.uid));const r=snap.exists()?String(snap.data().role||''):'';return ['Owner','Admin','Manager','Operations','Content','Support','Sales'].includes(r)?r:''}catch(_e){return ''}
+}
+function roleHas(list){return list.includes(currentRole)}
+async function onAuth(user){
+  if(unsubscribe){unsubscribe();unsubscribe=null}
+  if(catalogUnsub){catalogUnsub();catalogUnsub=null}
+  if(inquiryUnsub){inquiryUnsub();inquiryUnsub=null}
+  if(customerUnsub){customerUnsub();customerUnsub=null}
+  if(customerAdminUnsub){customerAdminUnsub();customerAdminUnsub=null}
+  if(auditUnsub){auditUnsub();auditUnsub=null}
+  currentUser=user||null;currentRole='';
+  if(!user){loginView.classList.remove('hidden');appView.classList.add('hidden');return}
+  document.getElementById('ownerEmail').textContent=user.email||user.uid;
+  currentRole=await resolveAdminRole(user);
+  if(!currentRole){msg.textContent='This account is authenticated but has no active Nariyal Sutra Admin role.';authMod.signOut(auth);return}
+  loginView.classList.add('hidden');appView.classList.remove('hidden');
+  const logo=document.querySelector('.topbar .logo');if(logo)logo.innerHTML='NARIYAL <span>SUTRA</span> / '+esc(currentRole.toUpperCase());
+  auditAction('admin_session_started','admin',user.uid,'Admin session authenticated',{actorRole:currentRole});
+  if(roleHas(['Owner','Admin','Manager','Operations','Support','Sales']))subscribeOrders();
+  if(roleHas(['Owner','Admin','Manager','Operations','Support','Sales']))subscribeCustomers();
+  if(roleHas(['Owner','Admin','Manager','Support','Sales']))subscribeCustomerAdmin();
+  if(roleHas(['Owner','Admin','Manager']))subscribeAudit();
+  if(roleHas(['Owner','Admin','Manager','Support','Sales']))subscribeInquiries();
+  if(roleHas(['Owner','Admin','Manager','Operations']))subscribeCatalog();
+}
+function subscribeOrders(){
+  const q=fsMod.query(fsMod.collection(db,'orders'),fsMod.orderBy('createdAt','desc'),fsMod.limit(500));
+  unsubscribe=fsMod.onSnapshot(q,snap=>{
+    orders=snap.docs.map(d=>({id:d.id,...d.data()}));
+    mergeLivePeopleOrders(orders);
+    render();
+    if(snap.size<500&&!peopleHistoryLoading){peopleHistoryComplete=true;peopleHistoryError='';}
+    renderPeople();
+    if(snap.size>=500&&!peopleHistoryComplete&&!peopleHistoryLoading)loadCompletePeopleOrderHistory();
+  },err=>{document.getElementById('empty').classList.remove('hidden');document.getElementById('empty').textContent=friendly(err);peopleHistoryError='Order history could not be loaded.';renderPeople()});
+}
+function mergeLivePeopleOrders(live){
+  const map=new Map((peopleOrders||[]).map(o=>[o.id,o]));(live||[]).forEach(o=>map.set(o.id,o));peopleOrders=Array.from(map.values());
+}
+async function loadCompletePeopleOrderHistory(){
+  if(peopleHistoryLoading)return;peopleHistoryLoading=true;peopleHistoryError='';renderPeople();
+  try{const snap=await fsMod.getDocs(fsMod.query(fsMod.collection(db,'orders'),fsMod.orderBy('createdAt','desc')));peopleOrders=snap.docs.map(d=>({id:d.id,...d.data()}));peopleHistoryComplete=true}
+  catch(e){peopleHistoryError='Complete historical reconciliation failed; showing the latest available orders.';mergeLivePeopleOrders(orders);console.warn('Customer directory full order scan failed:',e)}
+  finally{peopleHistoryLoading=false;renderPeople()}
+}
+function subscribeCustomers(){
+  customerUnsub=fsMod.onSnapshot(fsMod.collection(db,'customers'),snap=>{customerProfiles=snap.docs.map(d=>({id:d.id,...d.data()}));customerProfilesError='';renderPeople()},err=>{customerProfiles=[];customerProfilesError='Customer profiles are not readable by this owner session. Publish V38 Firestore rules.';console.warn('Customer profile directory failed:',err);renderPeople()});
+}
+function personDocId(key){try{return btoa(unescape(encodeURIComponent(String(key||'')))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'').slice(0,500)}catch(e){return String(key||'').replace(/[^A-Za-z0-9_-]/g,'_').slice(0,500)}}
+function subscribeCustomerAdmin(){
+  customerAdminUnsub=fsMod.onSnapshot(fsMod.collection(db,'customerAdmin'),snap=>{customerAdminRecords={};snap.docs.forEach(d=>{const x=d.data()||{};customerAdminRecords[x.personKey||d.id]={id:d.id,...x}});if(activePerson)populatePersonAdmin(activePerson);renderPeople()},err=>console.warn('Private customer admin metadata unavailable:',err));
+}
+function subscribeAudit(){
+  const q=fsMod.query(fsMod.collection(db,'adminAudit'),fsMod.orderBy('createdAt','desc'),fsMod.limit(100));
+  auditUnsub=fsMod.onSnapshot(q,snap=>{auditRows=snap.docs.map(d=>({id:d.id,...d.data()}));renderAudit()},err=>{console.warn('Audit trail unavailable:',err);document.getElementById('auditList').innerHTML='<div class="empty">Audit trail unavailable. Publish V42 Firestore rules.</div>'});
+}
+async function auditAction(action,targetType,targetId,summary,meta){
+  try{
+    if(!currentUser||!db||!fsMod)return;
+    const safeMeta=meta&&typeof meta==='object'?meta:{};
+    await fsMod.addDoc(fsMod.collection(db,'adminAudit'),{
+      action:String(action||'').slice(0,80),
+      targetType:String(targetType||'').slice(0,40),
+      targetId:String(targetId||'').slice(0,180),
+      details:{summary:String(summary||'').slice(0,500),...safeMeta},
+      actorUid:currentUser.uid||'',
+      actorEmail:currentUser.email||'',
+      actorRole:currentRole||'Unknown',
+      createdAt:fsMod.serverTimestamp()
+    });
+  }catch(e){console.warn('Audit write failed:',e)}
+}
+function renderAudit(){
+  const root=document.getElementById('auditList');if(!root)return;document.getElementById('auditCount').textContent=auditRows.length+' action'+(auditRows.length===1?'':'s');
+  root.innerHTML=auditRows.length?auditRows.map(r=>{const summary=(r.details&&r.details.summary)||r.summary||r.targetId||'';const actor=[r.actorEmail||r.actorUid||'admin',r.actorRole].filter(Boolean).join(' · ');return '<div class="audit-row"><div>'+esc(fmtDate(r.createdAt))+'</div><div class="audit-action">'+esc(r.action||'action')+'</div><div><b>'+esc(r.targetType||'record')+'</b> · '+esc(summary)+'</div><div>'+esc(actor)+'</div></div>'}).join(''):'<div class="empty">No admin actions recorded yet.</div>';
+}
+const search=document.getElementById('search'), filter=document.getElementById('statusFilter'),orderPaymentFilter=document.getElementById('orderPaymentFilter');search.addEventListener('input',render);filter.addEventListener('change',render);orderPaymentFilter.addEventListener('change',render);
+function paymentStatusOf(o){const s=String(o&&o.paymentStatus||'').toLowerCase();if(s)return s;return String(o&&o.paymentType||'').toLowerCase()==='cod'?'cod':'untracked'}
+function filtered(){const q=search.value.trim().toLowerCase(),s=filter.value,p=orderPaymentFilter.value;return orders.filter(o=>(!s||o.status===s)&&(!p||paymentStatusOf(o)===p)&&(!q||[o.orderId,o.customerName,o.phone,o.email,o.city,o.productName,o.paymentReference,o.paymentStatus].join(' ').toLowerCase().includes(q)))}
+function render(){
+  const list=filtered();document.getElementById('kOrders').textContent=orders.length;document.getElementById('kPending').textContent=orders.filter(o=>o.status==='pending').length;document.getElementById('kRevenue').textContent=money(orders.filter(o=>o.status!=='cancelled').reduce((a,o)=>a+Number(o.total||0),0));document.getElementById('kCustomers').textContent=new Set(orders.map(o=>o.phone).filter(Boolean)).size;
+  document.getElementById('empty').classList.toggle('hidden',list.length>0);document.getElementById('ordersBody').innerHTML=list.map(o=>`<tr data-id="${esc(o.id)}"><td><span class="order-id">${esc(o.orderId||o.id)}</span></td><td><b style="color:#fff">${esc(o.customerName)}</b><br><span style="color:var(--muted)">${esc(o.phone)}</span></td><td>${esc(o.productName)}</td><td>${esc(o.quantity)}</td><td class="money">${money(o.total)}</td><td>${esc(paymentStatusOf(o).replaceAll('_',' '))}<br><span style="color:var(--muted);font-size:10px">${esc(o.paymentType||'—')}</span></td><td><span class="status ${statusClass(o.status)}">${esc(String(o.status||'pending').replaceAll('_',' '))}</span></td><td>${esc(fmtDate(o.createdAt))}</td></tr>`).join('');
+  document.getElementById('mobileOrders').innerHTML=list.map(o=>`<article class="m-order" data-id="${esc(o.id)}"><div class="m-top"><div><div class="m-name">${esc(o.customerName)}</div><div class="m-meta">${esc(o.orderId||o.id)} · ${esc(o.city||'No city')}</div></div><span class="status ${statusClass(o.status)}">${esc(String(o.status||'pending').replaceAll('_',' '))}</span></div><div class="m-bottom"><span class="m-meta">${esc(o.productName)} × ${esc(o.quantity)}</span><span class="money">${money(o.total)}</span></div></article>`).join('');
+  document.querySelectorAll('[data-id]').forEach(el=>el.addEventListener('click',()=>openOrder(el.dataset.id)));
+}
+const peopleSearch=document.getElementById('peopleSearch'),peopleType=document.getElementById('peopleType'),peopleActivity=document.getElementById('peopleActivity');
+const peopleAdvanced=['peopleCreatedFrom','peopleCreatedTo','peopleOrderFrom','peopleOrderTo','peopleLocation','peopleMinLifetime','peoplePayment','peopleChannel','peopleVerification','peopleOwner'].map(id=>document.getElementById(id));
+[peopleSearch,peopleType,peopleActivity].concat(peopleAdvanced).forEach(el=>el&&el.addEventListener(el.tagName==='INPUT'?'input':'change',renderPeople));
+document.getElementById('clearPeopleFilters').addEventListener('click',()=>{[peopleSearch,peopleType,peopleActivity].concat(peopleAdvanced).forEach(el=>{if(el)el.value=''});renderPeople()});
+function peopleFilterOptions(){return {createdFrom:document.getElementById('peopleCreatedFrom').value,createdTo:document.getElementById('peopleCreatedTo').value,lastOrderFrom:document.getElementById('peopleOrderFrom').value,lastOrderTo:document.getElementById('peopleOrderTo').value,location:document.getElementById('peopleLocation').value,minLifetime:document.getElementById('peopleMinLifetime').value,paymentStatus:document.getElementById('peoplePayment').value,channel:document.getElementById('peopleChannel').value,verification:document.getElementById('peopleVerification').value,owner:document.getElementById('peopleOwner').value}}
+function personInitials(name,email){const v=String(name||email||'?').trim();const a=v.split(/\s+/).filter(Boolean);return ((a[0]||'?')[0]+(a.length>1?(a[a.length-1][0]||''):'')).toUpperCase().slice(0,2)}
+function personTypeClass(type){return type==='registered'?'pt-registered':(type==='unresolved'?'pt-unresolved':'pt-guest')}
+function personSignals(p){let sig=(p.signals||[]).slice();if(p.followUpDue)sig.unshift('Internal follow-up due');else if(p.assignedOwner)sig.unshift('Assigned: '+p.assignedOwner);return sig.slice(0,3).map(s=>{const risk=/multiple|duplicate|needs review|no customer profile/i.test(s),pay=/payment follow-up/i.test(s),hot=/repeat|active|guest-order history/i.test(s);return '<span class="people-signal '+(risk?'risk':(pay?'pay':(hot?'hot':'')))+'">'+esc(s)+'</span>'}).join('')||'<span class="people-signal">No flags</span>'}
+function renderPeople(){
+  const api=window.NS_ADMIN_CUSTOMERS;if(!api)return;
+  const built=api.buildDirectory(customerProfiles,peopleOrders.length?peopleOrders:orders);people=built.people;const st=built.stats;
+  const now=Date.now();people.forEach(p=>{const m=customerAdminRecords[p.key]||{};p.adminMeta=m;p.assignedOwner=m.assignedOwner||'';p.nextAction=m.nextAction||'';p.followUpAt=m.followUpAt||null;p.followUpDue=Boolean(m.followUpAt&&new Date(m.followUpAt).getTime()<=now&&m.status!=='normal'&&m.status!=='do_not_contact');p.searchText=(p.searchText||'')+' '+[p.assignedOwner,p.nextAction,Array.isArray(m.tags)?m.tags.join(' '):m.tags||''].join(' ').toLowerCase()});
+  let list=api.filterDirectory(people,peopleSearch?.value||'',peopleType?.value||'',peopleActivity?.value||'',peopleFilterOptions());const pf=peopleFilterOptions(),ownerQ=String(pf.owner||'').trim().toLowerCase();if(ownerQ)list=list.filter(p=>String(p.assignedOwner||'').toLowerCase().includes(ownerQ));if((peopleActivity?.value||'')==='followup_due')list=list.filter(p=>p.followUpDue);
+  document.getElementById('pAll').textContent=st.totalPeople;document.getElementById('pRegistered').textContent=st.registered;document.getElementById('pGuests').textContent=st.guests;document.getElementById('pActive').textContent=st.active;document.getElementById('pRepeat').textContent=st.repeat;document.getElementById('pHighValue').textContent=st.highValue;document.getElementById('pPaymentFollowup').textContent=st.paymentFollowUp;document.getElementById('pFollowupDue').textContent=people.filter(p=>p.followUpDue).length;document.getElementById('pReview').textContent=st.unresolved+st.contactCollisionCount+st.ambiguousGuestOrders+st.possibleGuestMatches;document.getElementById('peopleCount').textContent=st.totalPeople+' people';
+  const health=document.getElementById('peopleHealth');
+  const review=st.unresolved+st.contactCollisionCount+st.ambiguousGuestOrders+st.possibleGuestMatches;
+  const directoryError=customerProfilesError||peopleHistoryError;health.className='people-health'+(directoryError?' error':(review?' warn':''));
+  if(directoryError){health.innerHTML='<strong>Directory needs attention</strong><span>'+esc(directoryError)+'</span>'}
+  else if(peopleHistoryLoading){health.innerHTML='<strong>Reconciling complete order history…</strong><span>Live operations remain available while the owner directory finishes loading.</span>'}
+  else if(review){health.innerHTML='<strong>'+review+' data check'+(review===1?'':'s')+' flagged</strong><span>'+st.unresolved+' unresolved account link · '+st.contactCollisionCount+' profile contact collision · '+st.ambiguousGuestOrders+' ambiguous guest match · '+st.possibleGuestMatches+' possible one-field match. Nothing is auto-merged.</span>'}
+  else{health.innerHTML='<strong>Directory reconciled ✓</strong><span>'+st.registered+' registered · '+st.guests+' guest buyers · '+st.guestMatchedOrders+' historic guest order'+(st.guestMatchedOrders===1?'':'s')+' safely matched by unique contact.'+(peopleHistoryComplete?' Complete order history loaded.':'')+'</span>'}
+  const tbody=document.getElementById('peopleBody');tbody.innerHTML=list.map(p=>`<tr data-person-key="${esc(p.key)}"><td><div class="person-main"><div class="person-avatar">${p.photoURL?`<img src="${esc(p.photoURL)}" alt="">`:esc(personInitials(p.name,p.email))}</div><div><div class="person-name">${esc(p.name)}</div><div class="person-sub">${esc(p.uid?(p.uid.slice(0,10)+'…'):(p.email||p.phone||'Guest buyer'))}</div></div></div></td><td><span class="person-type ${personTypeClass(p.type)}">${esc(p.typeLabel)}</span></td><td>${p.email?esc(p.email):'—'}<br><span style="color:var(--muted)">${p.phone?esc(p.phone):'—'}</span></td><td>${p.orderCount}</td><td>${p.activeCount||'—'}</td><td class="money">${money(p.lifetimeValue)}</td><td>${esc(fmtDate(p.lastActivityAt))}</td><td><div class="people-signals">${personSignals(p)}</div></td></tr>`).join('');
+  document.getElementById('peopleMobile').innerHTML=list.map(p=>`<article class="m-person" data-person-key="${esc(p.key)}"><div class="m-person-head"><div class="person-main"><div class="person-avatar">${p.photoURL?`<img src="${esc(p.photoURL)}" alt="">`:esc(personInitials(p.name,p.email))}</div><div><div class="person-name">${esc(p.name)}</div><div class="m-person-contact">${esc(p.email||p.phone||'No contact')}</div></div></div><span class="person-type ${personTypeClass(p.type)}">${esc(p.typeLabel)}</span></div><div class="m-person-foot"><span class="m-person-contact">${p.orderCount} order${p.orderCount===1?'':'s'} · ${p.activeCount} active</span><span class="money">${money(p.lifetimeValue)}</span></div><div class="people-signals">${personSignals(p)}</div></article>`).join('');
+  document.getElementById('peopleEmpty').classList.toggle('hidden',list.length>0);document.querySelectorAll('[data-person-key]').forEach(el=>el.addEventListener('click',()=>openPerson(el.dataset.personKey)));
+}
+async function loadPersonAvatar(p){
+  const root=document.getElementById('personDrawerAvatar');if(!root)return;
+  if(personPhotoUrl){try{URL.revokeObjectURL(personPhotoUrl)}catch(_e){}personPhotoUrl=''}
+  root.innerHTML=esc(personInitials(p.name,p.email));
+  const profile=p.profile||{};
+  if(profile.photoPath&&storage&&storageMod){
+    try{const blob=await storageMod.getBlob(storageMod.ref(storage,profile.photoPath));if(!activePerson||activePerson.key!==p.key)return;personPhotoUrl=URL.createObjectURL(blob);root.innerHTML='<img src="'+esc(personPhotoUrl)+'" alt="'+esc((p.name||'Customer')+' profile photo')+'">';return}catch(e){console.warn('Private customer profile photo unavailable:',e)}
+  }
+  if(p.photoURL){root.innerHTML='<img src="'+esc(p.photoURL)+'" alt="'+esc((p.name||'Customer')+' profile photo')+'">'}
+}
+async function openPerson(key){
+  activePerson=people.find(p=>p.key===key);if(!activePerson)return;const p=activePerson,profile=p.profile||{};document.getElementById('personDrawerName').textContent=p.name||'Customer';document.getElementById('personDrawerType').innerHTML='<span class="person-type '+personTypeClass(p.type)+'">'+esc(p.typeLabel)+'</span>';loadPersonAvatar(p);
+  const location=[p.city,p.state,p.pin,p.country].filter(Boolean).join(', ')||'—';
+  const fields=[['Contact email',p.email||'—'],['Login email',p.loginEmail||'—'],['Email verified',p.emailVerified?'Yes':'No'],['Phone / WhatsApp',p.phone||'—'],['Phone verified',p.phoneVerified?'Yes':'No'],['Preferred contact',p.preferredChannel||'—'],['Location',location,'full'],['Orders',p.orderCount],['Active orders',p.activeCount],['Delivered',p.deliveredCount],['Cancelled',p.cancelledCount],['Lifetime order value',money(p.lifetimeValue)],['Average order',money(Math.round(p.averageOrderValue||0))],['Total quantity',p.totalQuantity+' pcs'],['First order',fmtDate(p.firstOrderAt)],['Last order',fmtDate(p.lastOrderAt)],['Profile created',fmtDate(p.profileCreatedAt)],['Last login',fmtDate(p.lastLoginAt)],['Latest payment',String(p.latestPaymentStatus||'—').replaceAll('_',' ')],['Payment follow-ups',p.paymentFollowUpCount||0],['Assigned owner / team',(customerAdminRecords[p.key]||{}).assignedOwner||'—'],['Follow-up due',fmtDate((customerAdminRecords[p.key]||{}).followUpAt)],['Next action',(customerAdminRecords[p.key]||{}).nextAction||'—','full'],['Account UID',p.uid||'Guest · no account','full'],['Preferred product',profile.preferredProduct||'—'],['Recurring preference',profile.recurringPreference||'—']];document.getElementById('personDetailGrid').innerHTML=fields.map(x=>'<div class="detail '+(x[2]||'')+'"><small>'+esc(x[0])+'</small><div>'+esc(x[1])+'</div></div>').join('');
+  const digits=String(p.phone||'').replace(/\D/g,''),wa=digits?('https://wa.me/'+(digits.length===10?'91'+digits:digits)):'',mail=p.email?('mailto:'+encodeURIComponent(p.email)):'',actions=[];if(wa)actions.push('<a class="ghost" target="_blank" rel="noopener" href="'+esc(wa)+'">WhatsApp</a>');if(mail)actions.push('<a class="ghost" href="'+esc(mail)+'">Email</a>');document.getElementById('personContactActions').innerHTML=actions.join('');
+  populatePersonAdmin(p);
+  document.getElementById('personOrders').innerHTML=p.orders.length?p.orders.slice(0,30).map(o=>'<div class="people-order-card" data-open-order="'+esc(o.id)+'"><div class="row"><b>'+esc(o.orderId||o.id)+'</b><span class="status '+statusClass(o.status)+'">'+esc(String(o.status||'pending').replaceAll('_',' '))+'</span></div><small>'+esc(o.productName||'Order')+' × '+esc(o.quantity||'—')+' · '+money(o.total)+' · '+esc(fmtDate(o.createdAt))+' · payment '+esc(paymentStatusOf(o).replaceAll('_',' '))+'</small></div>').join(''):'<div class="empty" style="padding:20px">No orders yet.</div>';
+  const notes=(p.signals||[]).concat(p.matchSignals||[]);document.getElementById('personDataNote').innerHTML='<b style="color:#fff">Owner data view</b><br>'+esc(notes.length?notes.join(' · '):'No reconciliation warnings. Customer records remain isolated by Firebase UID; guest history is matched only when contact identity is unique.');
+  document.querySelectorAll('[data-open-order]').forEach(el=>el.addEventListener('click',()=>{closePersonDrawer();openOrder(el.dataset.openOrder)}));
+  if(p.type==='registered'&&p.uid){try{const snap=await fsMod.getDocs(fsMod.collection(db,'customers',p.uid,'addresses'));if(activePerson&&activePerson.key===key&&snap.size){document.getElementById('personDataNote').innerHTML+='<br><br><b style="color:#fff">Saved addresses:</b> '+snap.size+' owner-visible address'+(snap.size===1?'':'es')+'.'}}catch(e){console.warn('Saved-address owner lookup failed:',e)}}
+  const d=document.getElementById('peopleDrawer');d.classList.add('open');d.setAttribute('aria-hidden','false');
+}
+function adminDateTimeValue(v){try{const d=v?.toDate?v.toDate():new Date(v);if(!Number.isFinite(d.getTime()))return '';const z=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate())+'T'+z(d.getHours())+':'+z(d.getMinutes())}catch{return ''}}
+function populatePersonAdmin(p){const m=customerAdminRecords[p.key]||{};const owner=document.getElementById('personAdminOwner'),follow=document.getElementById('personAdminFollowup'),next=document.getElementById('personAdminNextAction'),tags=document.getElementById('personAdminTags'),note=document.getElementById('personAdminNote'),status=document.getElementById('personAdminStatus');if(owner)owner.value=m.assignedOwner||'';if(follow)follow.value=adminDateTimeValue(m.followUpAt);if(next)next.value=m.nextAction||'';if(tags)tags.value=Array.isArray(m.tags)?m.tags.join(', '):(m.tags||'');if(note)note.value=m.note||'';if(status)status.value=m.status||'normal'}
+
+function closePersonDrawer(){const d=document.getElementById('peopleDrawer');d.classList.remove('open');d.setAttribute('aria-hidden','true');activePerson=null;if(personPhotoUrl){try{URL.revokeObjectURL(personPhotoUrl)}catch(_e){}personPhotoUrl=''} }
+document.querySelectorAll('[data-close-person]').forEach(x=>x.addEventListener('click',closePersonDrawer));document.addEventListener('keydown',e=>{if(e.key==='Escape')closePersonDrawer()});
+document.getElementById('savePersonAdmin').addEventListener('click',async()=>{if(!activePerson)return;const assignedOwner=document.getElementById('personAdminOwner').value.trim().slice(0,120),followRaw=document.getElementById('personAdminFollowup').value,nextAction=document.getElementById('personAdminNextAction').value.trim().slice(0,240),tags=document.getElementById('personAdminTags').value.split(',').map(x=>x.trim().slice(0,40)).filter(Boolean).slice(0,20),note=document.getElementById('personAdminNote').value.trim().slice(0,1200),status=document.getElementById('personAdminStatus').value||'normal',personKey=activePerson.key,docId=personDocId(personKey),followUpAt=followRaw?new Date(followRaw):null;if(followRaw&&!Number.isFinite(followUpAt.getTime())){alert('Please enter a valid follow-up date/time.');return}try{const payload={personKey,assignedOwner,nextAction,tags,note,status,followUpAt:followUpAt?fsMod.Timestamp.fromDate(followUpAt):null,updatedAt:fsMod.serverTimestamp(),updatedBy:currentUser?.uid||'',updatedByEmail:currentUser?.email||''};await fsMod.setDoc(fsMod.doc(db,'customerAdmin',docId),payload,{merge:true});customerAdminRecords[personKey]={...payload,followUpAt:followUpAt||null};await auditAction('customer_internal_updated','customer',personKey,'Updated internal customer accountability',{status,tags,assignedOwner,nextAction,followUpAt:followUpAt?followUpAt.toISOString():''});renderPeople();alert('Internal customer record saved and audited.')}catch(e){alert(friendly(e))}});
+
+function openOrder(id){
+  activeOrder=orders.find(o=>o.id===id);if(!activeOrder)return;
+  document.getElementById('dOrderId').textContent=activeOrder.orderId||id;
+  const destination=[activeOrder.city,activeOrder.state,activeOrder.country].filter(Boolean).join(', ')||'—';
+  const fields=[
+    ['Customer',activeOrder.customerName],['Phone',activeOrder.phone],['Email',activeOrder.email||'—'],
+    ['Destination',destination],['PIN / Postal',activeOrder.pin||'—'],['Product',activeOrder.productName],
+    ['Quantity',activeOrder.quantity],['Unit price',money(activeOrder.unitPrice)],['Total',money(activeOrder.total)],
+    ['Payment',activeOrder.paymentLabel||activeOrder.paymentType],['Delivery',activeOrder.deliveryLabel||activeOrder.deliveryMethod||'Pending confirmation'],
+    ['Delivery timing',activeOrder.deliveryEta||'Confirmed on WhatsApp'],['Created',fmtDate(activeOrder.createdAt)],
+    ['Address',activeOrder.address,'full'],['Landmark',activeOrder.landmark||'—','full'],['Notes',activeOrder.notes||'—','full'],
+    ['Tracking token',activeOrder.trackingToken||'Not available','full'],
+    ['Customer account',activeOrder.customerUid?'Linked · '+activeOrder.customerUid:'Guest / not linked','full']
+  ];
+  document.getElementById('detailGrid').innerHTML=fields.map(x=>`<div class="detail ${x[2]||''}"><small>${esc(x[0])}</small><div>${esc(x[1])}</div></div>`).join('');
+  const statuses=['pending','confirmed','preparing','ready_for_dispatch','out_for_delivery','arrived','delivered','cancelled'];
+  document.getElementById('statusActions').innerHTML=statuses.map(s=>`<button class="ghost" data-status="${s}" ${activeOrder.status===s?'disabled':''}>${s.replaceAll('_',' ')}</button>`).join('');
+  document.querySelectorAll('[data-status]').forEach(b=>b.addEventListener('click',()=>setStatus(b.dataset.status)));
+  const payment=document.getElementById('paymentOps');if(payment){const ps=paymentStatusOf(activeOrder),method=activeOrder.paymentMethod||activeOrder.paymentType||'',amount=activeOrder.paymentAmount==null?Number(activeOrder.total||0):Number(activeOrder.paymentAmount||0);payment.innerHTML='<div class="payment-grid"><label>Status<select id="payStatus"><option value="awaiting">Awaiting</option><option value="cod">COD</option><option value="requested">Payment requested</option><option value="paid">Paid</option><option value="partial">Partially paid</option><option value="failed">Failed</option><option value="refund_pending">Refund pending</option><option value="refunded">Refunded</option></select></label><label>Method<select id="payMethod"><option value="">Not set</option><option value="cod">COD</option><option value="upi">UPI</option><option value="card">Card</option><option value="bank_transfer">Bank transfer</option><option value="cash">Cash</option><option value="other">Other</option></select></label><label>Amount<input id="payAmount" type="number" min="0" step="0.01" value="'+esc(amount)+'"></label><label>Provider<input id="payProvider" maxlength="80" placeholder="Razorpay / bank / manual" value="'+esc(activeOrder.paymentProvider||'')+'"></label><label>Reference<input id="payReference" maxlength="120" placeholder="Transaction / payment reference" value="'+esc(activeOrder.paymentReference||'')+'"></label><label>Refund amount<input id="refundAmount" type="number" min="0" step="0.01" value="'+esc(Number(activeOrder.refundAmount||0))+'"></label></div><label style="display:grid;gap:5px;margin-top:9px;font-size:8px;letter-spacing:1px;text-transform:uppercase;color:var(--muted)">Internal payment note<textarea id="payNote" maxlength="500" style="min-height:70px;border:1px solid var(--line);background:#0b1807;color:#fff;padding:10px">'+esc(activeOrder.paymentNote||'')+'</textarea></label><button class="ghost" id="savePaymentOps" style="width:100%;margin-top:9px" type="button">Save payment details</button><div style="font-size:9px;color:var(--muted);margin-top:7px">Last payment update: '+esc(fmtDate(activeOrder.paymentUpdatedAt))+'</div>';document.getElementById('payStatus').value=ps;document.getElementById('payMethod').value=method;document.getElementById('savePaymentOps').addEventListener('click',savePaymentOps)}
+  const audit=document.getElementById('emailAudit');
+  if(audit){audit.innerHTML='<strong>Email notification</strong><br>'+(activeOrder.lastNotifiedStatus?('Last sent: '+esc(activeOrder.lastNotifiedStatus)+' · '+esc(fmtDate(activeOrder.lastNotificationAt))):'No status email recorded yet.')+(activeOrder.lastNotificationError?'<br><span style="color:#ff9b9b">Last error: '+esc(activeOrder.lastNotificationError)+'</span>':'');}
+  const d=document.getElementById('drawer');d.classList.add('open');d.setAttribute('aria-hidden','false');
+}
+
+async function savePaymentOps(){
+  if(!activeOrder)return;const status=document.getElementById('payStatus').value,method=document.getElementById('payMethod').value,amount=Number(document.getElementById('payAmount').value||0),provider=document.getElementById('payProvider').value.trim().slice(0,80),reference=document.getElementById('payReference').value.trim().slice(0,120),refund=Number(document.getElementById('refundAmount').value||0),note=document.getElementById('payNote').value.trim().slice(0,500);if(amount<0||refund<0){alert('Amounts cannot be negative.');return}try{const payload={paymentStatus:status,paymentMethod:method,paymentAmount:amount,paymentProvider:provider,paymentReference:reference,refundAmount:refund,paymentNote:note,paymentUpdatedAt:fsMod.serverTimestamp(),paymentUpdatedBy:currentUser?.uid||'',updatedAt:fsMod.serverTimestamp()};await fsMod.updateDoc(fsMod.doc(db,'orders',activeOrder.id),payload);await auditAction('payment_updated','order',activeOrder.orderId||activeOrder.id,'Payment '+status+' · '+money(amount),{method,provider,refundAmount:refund});Object.assign(activeOrder,payload);alert('Payment details saved.');closeDrawer()}catch(e){alert(friendly(e))}
+}
+
+async function syncPublicTracking(order,status){
+  if(!order||!order.trackingToken)return {skipped:true};
+  const subtotal=Number(order.quantity||0)*Number(order.unitPrice||0);
+  const destination=[order.city,order.state,order.country].filter(Boolean).join(', ');
+  const payload={
+    trackingToken:order.trackingToken,
+    orderId:order.orderId||order.id||'',
+    status:status,
+    productName:order.productName||'',
+    quantity:Number(order.quantity||0),
+    deliveryMethod:order.deliveryLabel||order.deliveryMethod||'Pending confirmation',
+    deliveryEstimate:order.deliveryEta||'Confirmed on WhatsApp',
+    estimatedTotal:'₹'+subtotal.toLocaleString('en-IN')+' + delivery (confirmed separately)',
+    destinationDisplay:destination||'India',
+    eta:order.deliveryEta||'Confirmed on WhatsApp',
+    updatedAt:fsMod.serverTimestamp()
+  };
+  if(['out_for_delivery','arrived'].includes(status) && order.deliveryOTP) payload.deliveryOTP=order.deliveryOTP;
+  if(['delivered','cancelled'].includes(status)) payload.deliveryOTP='';
+  await fsMod.setDoc(fsMod.doc(db,'publicTracking',order.trackingToken),payload,{merge:true});
+  return {skipped:false};
+}
+
+async function syncCustomerOrder(order,status){
+  if(!order||!order.customerUid)return {skipped:true};
+  const orderId=order.orderId||order.id||'';
+  if(!orderId)return {skipped:true};
+  const payload={
+    status:status,
+    deliveryMethod:order.deliveryLabel||order.deliveryMethod||'Pending confirmation',
+    deliveryEstimate:order.deliveryEta||'Confirmed on WhatsApp',
+    destinationDisplay:[order.city,order.state,order.country].filter(Boolean).join(', ')||'India',
+    updatedAt:fsMod.serverTimestamp()
+  };
+  await fsMod.setDoc(fsMod.doc(db,'customerOrders',String(order.customerUid),'orders',String(orderId)),payload,{merge:true});
+  return {skipped:false};
+}
+
+async function setStatus(status){
+  if(!activeOrder)return;
+  if(activeOrder.status===status){alert('This order is already '+status+'.');return;}
+  if(activeOrder.lastNotifiedStatus===status && status!=='pending'){if(!confirm('A '+status+' email is already recorded for this order. Update Firestore again without resending the same email?'))return;}
+  var statusNote='';
+  if(status==='cancelled'){
+    if(!confirm('Reject/cancel this order? The Firestore status will update first, then EmailJS will send the customer a cancellation email.'))return;
+    statusNote=(prompt('Optional cancellation reason for the customer email:','')||'').trim().slice(0,300);
+  }
+  var docRef=fsMod.doc(db,'orders',activeOrder.id);
+  var updatedOrder={...activeOrder,status,statusNote};
+  try{
+    await fsMod.updateDoc(docRef,{status,statusNote,updatedAt:fsMod.serverTimestamp(),statusChangedAt:fsMod.serverTimestamp(),statusUpdatedBy:currentUser?currentUser.uid:''});await auditAction('order_status_changed','order',activeOrder.orderId||activeOrder.id,'Order '+String(activeOrder.status||'pending')+' → '+status,{from:activeOrder.status||'pending',to:status});
+    try{await syncPublicTracking(updatedOrder,status)}catch(trackErr){console.warn('Tracking sync failed:',trackErr)}
+    try{await syncCustomerOrder(updatedOrder,status)}catch(accountErr){console.warn('Customer account order sync failed (non-critical):',accountErr)}
+    if(typeof window.NS_SEND_STATUS_EMAIL==='function'){
+      try{
+        var mail=await window.NS_SEND_STATUS_EMAIL(updatedOrder,status);
+        if(mail&&mail.skipped){
+          await fsMod.updateDoc(docRef,{lastNotifiedStatus:'',lastNotificationError:mail.reason||'Customer email missing',lastNotificationAt:fsMod.serverTimestamp()});
+          alert('Status updated. No customer email was sent because this order has no email address.');
+        }else{
+          await fsMod.updateDoc(docRef,{lastNotifiedStatus:status,lastNotificationError:'',lastNotificationAt:fsMod.serverTimestamp()});
+        }
+      }catch(mailErr){
+        try{await fsMod.updateDoc(docRef,{lastNotificationError:String(mailErr?.message||mailErr).slice(0,300),lastNotificationAt:fsMod.serverTimestamp()})}catch(_e){}
+        alert('Status updated in Firestore, but the customer email failed to send. You can retry after fixing EmailJS.\n\n'+friendly(mailErr));
+      }
+    }
+    closeDrawer();
+  }catch(e){alert(friendly(e))}
+}
+function closeDrawer(){const d=document.getElementById('drawer');d.classList.remove('open');d.setAttribute('aria-hidden','true');activeOrder=null}document.querySelectorAll('[data-close]').forEach(x=>x.addEventListener('click',closeDrawer));document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer()});
+
+function inquiryStatusOptions(current){
+  return ['new','contacted','quoted','closed'].map(s=>'<option value="'+s+'" '+(current===s?'selected':'')+'>'+s.replaceAll('_',' ')+'</option>').join('');
+}
+function enquiryWaUrl(i){
+  let digits=String(i.phone||'').replace(/\D/g,'');
+  if(digits.length===10)digits='91'+digits;
+  const text='Nariyal Sutra enquiry '+String(i.inquiryId||i.id||'')+' — '+String(i.inquiryTypeLabel||i.inquiryType||'');
+  return digits?'https://wa.me/'+digits+'?text='+encodeURIComponent(text):'';
+}
+function renderInquiries(){
+  const body=document.getElementById('inquiriesBody'),mobile=document.getElementById('mobileInquiries'),empty=document.getElementById('inquiriesEmpty'),count=document.getElementById('inquiryCount');
+  const list=inquiries||[];
+  const newCount=list.filter(i=>i.status==='new').length;
+  if(count)count.textContent=list.length+' enquiries · '+newCount+' new';
+  if(empty)empty.classList.toggle('hidden',list.length>0);
+  if(body)body.innerHTML=list.map(i=>{
+    const wa=enquiryWaUrl(i),mail=i.email?'mailto:'+encodeURIComponent(i.email)+'?subject='+encodeURIComponent('Nariyal Sutra enquiry '+(i.inquiryId||i.id)):'';
+    return `<tr>
+      <td><span class="order-id">${esc(i.inquiryId||i.id)}</span></td>
+      <td>${esc(i.inquiryTypeLabel||i.inquiryType||'—')}<br><span style="color:var(--muted)">${esc(String(i.role||'buyer').replaceAll('_',' '))} · ${esc(String(i.productPreference||'').replaceAll('_',' '))}${i.frequency?' · '+esc(String(i.frequency).replaceAll('_',' ')):''}${i.packaging?' · '+esc(String(i.packaging).replaceAll('_',' ')):''}${i.organization?'<br>'+esc(i.organization):''}</span></td>
+      <td><b style="color:#fff">${esc(i.name)}</b><br><span style="color:var(--muted)">${esc(i.phone)}${i.email?'<br>'+esc(i.email):''}</span></td>
+      <td>${esc(i.quantity||'—')}</td><td>${esc(i.destination||[i.city,i.state,i.country].filter(Boolean).join(', ')||'—')}${i.postalCode?'<br><span style="color:var(--muted)">'+esc(i.postalCode)+'</span>':''}</td><td>${esc(i.requiredDate||'—')}</td>
+      <td><select class="inq-status-select" data-inquiry-status="${esc(i.id)}">${inquiryStatusOptions(i.status||'new')}</select></td>
+      <td><div class="inq-actions">${wa?'<a class="inq-action" href="'+wa+'" target="_blank" rel="noopener">WhatsApp</a>':''}${mail?'<a class="inq-action" href="'+mail+'">Email</a>':''}</div></td>
+      <td>${esc(fmtDate(i.createdAt))}</td>
+    </tr>`;
+  }).join('');
+  if(mobile)mobile.innerHTML=list.map(i=>{
+    const wa=enquiryWaUrl(i);
+    return `<article class="m-inquiry"><div class="m-inquiry-head"><div><div class="m-inquiry-title">${esc(i.inquiryId||i.id)} · ${esc(i.inquiryTypeLabel||i.inquiryType||'')}</div><div class="m-inquiry-meta">${esc(i.name)} · ${esc(i.phone)}${i.quantity?' · '+esc(i.quantity)+' pcs':''}</div></div><select class="inq-status-select" data-inquiry-status="${esc(i.id)}">${inquiryStatusOptions(i.status||'new')}</select></div><div class="m-inquiry-meta">${esc(i.destination||[i.city,i.state,i.country].filter(Boolean).join(', ')||'—')}${i.postalCode?' · '+esc(i.postalCode):''}${i.requiredDate?' · required '+esc(i.requiredDate):''}<br>${esc(String(i.role||'buyer').replaceAll('_',' '))}${i.packaging?' · '+esc(String(i.packaging).replaceAll('_',' ')):''}<br>${esc(i.message||'')}</div><div class="m-inquiry-foot">${wa?'<a class="inq-action" href="'+wa+'" target="_blank" rel="noopener">WhatsApp</a>':'<span></span>'}<span class="m-inquiry-meta">${esc(fmtDate(i.createdAt))}</span></div></article>`;
+  }).join('');
+}
+function subscribeInquiries(){
+  const q=fsMod.query(fsMod.collection(db,'inquiries'),fsMod.orderBy('createdAt','desc'),fsMod.limit(200));
+  inquiryUnsub=fsMod.onSnapshot(q,snap=>{inquiries=snap.docs.map(d=>({id:d.id,...d.data()}));renderInquiries()},err=>{const e=document.getElementById('inquiriesEmpty');if(e){e.classList.remove('hidden');e.textContent=friendly(err)}});
+}
+document.addEventListener('change',async e=>{
+  const sel=e.target.closest&&e.target.closest('[data-inquiry-status]');
+  if(!sel||!fsMod||!db)return;
+  const id=sel.dataset.inquiryStatus,status=sel.value;
+  try{await fsMod.updateDoc(fsMod.doc(db,'inquiries',id),{status,updatedAt:fsMod.serverTimestamp(),updatedBy:currentUser?currentUser.uid:''});await auditAction('inquiry_status_updated','inquiry',id,'Enquiry status changed to '+status,{status})}
+  catch(err){alert(friendly(err))}
+});
+
+function subscribeCatalog(){
+  catalogUnsub=fsMod.onSnapshot(fsMod.collection(db,'products'),snap=>{
+    products={};snap.forEach(d=>products[d.id]={id:d.id,...d.data()});
+    const ae=document.activeElement;const editing=ae&&ae.closest&&ae.closest('#catalogGrid');
+    if(!editing)renderCatalog();
+    const a=document.getElementById('catalogAlert');if(!a.classList.contains('show')){a.className='admin-alert';a.textContent=''}
+  },err=>{const a=document.getElementById('catalogAlert');a.className='admin-alert show error';a.innerHTML='<b>Inventory access blocked.</b> '+esc(friendly(err))+' Open Firestore → Rules, publish the latest rules from this package, then refresh this page.';document.getElementById('catalogGrid').innerHTML='<div class="empty">Inventory controls are waiting for Firestore product permissions.</div>'});
+}
+function catalogDefaults(){return window.NS_DEFAULT_PRODUCTS||{};}
+function catalogItem(key){return products[key]||catalogDefaults()[key]||{};}
+function renderCatalog(){
+  const keys=['tender','green','bulk'];
+  document.getElementById('catalogGrid').innerHTML=keys.map(key=>{const p=catalogItem(key);return `<article class="catalog-card" data-catalog-key="${key}"><div class="catalog-key">${key}</div><h3>${esc(p.shortName||p.name||key)}</h3><div class="catalog-fields"><div class="mini-field"><label>Price ₹ / pc</label><input type="number" min="1" id="cat-price-${key}" value="${esc(p.price||0)}"></div><div class="mini-field"><label>Stock pieces</label><input type="number" min="0" id="cat-stock-${key}" value="${esc(p.stock??0)}"><div class="stock-stepper"><button type="button" data-stock-step="${key}:-10">−10</button><button type="button" data-stock-step="${key}:10">+10</button><button type="button" data-stock-step="${key}:50">+50</button></div></div><div class="mini-field"><label>Minimum qty</label><input type="number" min="1" id="cat-min-${key}" value="${esc(p.minQty||1)}"></div><div class="mini-field"><label>Availability</label><select id="cat-active-${key}"><option value="true" ${p.active!==false?'selected':''}>Active</option><option value="false" ${p.active===false?'selected':''}>Hidden / sold out</option></select></div><div class="mini-field full"><label>Customer description</label><textarea id="cat-desc-${key}">${esc(p.description||'')}</textarea></div></div><div class="catalog-actions"><button class="primary" data-save-product="${key}">Save this product</button><span class="catalog-msg" id="cat-msg-${key}"></span></div></article>`}).join('');
+  document.querySelectorAll('[data-save-product]').forEach(b=>b.addEventListener('click',()=>saveCatalogItem(b.dataset.saveProduct)));
+  document.querySelectorAll('[data-stock-step]').forEach(b=>b.addEventListener('click',()=>{const [key,delta]=b.dataset.stockStep.split(':');const input=document.getElementById('cat-stock-'+key);input.value=Math.max(0,Number(input.value||0)+Number(delta));}));
+}
+function announceCatalogRefresh(){
+  try{localStorage.setItem('ns_catalog_version',String(Date.now()))}catch(_e){}
+  try{const bc=new BroadcastChannel('ns-catalog');bc.postMessage({type:'refresh',at:Date.now()});bc.close()}catch(_e){}
+}
+async function verifyCatalogItem(key){
+  try{const snap=await fsMod.getDocFromServer(fsMod.doc(db,'products',key));if(snap.exists()){products[key]={id:key,...snap.data()};return products[key]}}catch(_e){}
+  return products[key];
+}
+async function saveCatalogItem(key){
+  const base=catalogItem(key),price=Math.round(Number(document.getElementById('cat-price-'+key).value)),stock=Math.max(0,Math.round(Number(document.getElementById('cat-stock-'+key).value))),minQty=Math.max(1,Math.round(Number(document.getElementById('cat-min-'+key).value))),active=document.getElementById('cat-active-'+key).value==='true',description=document.getElementById('cat-desc-'+key).value.trim();
+  if(!price||price<1){alert('Enter a valid price.');return}const msgEl=document.getElementById('cat-msg-'+key);msgEl.textContent='Saving…';
+  const card=document.querySelector('[data-catalog-key="'+key+'"]');if(card)card.classList.add('is-saving');try{await fsMod.setDoc(fsMod.doc(db,'products',key),{name:base.name||base.shortName||key,shortName:base.shortName||base.name||key,mode:base.mode||(key==='bulk'?'bulk':'single'),price,stock,minQty,active,description,updatedAt:fsMod.serverTimestamp(),updatedBy:currentUser?currentUser.uid:''},{merge:true});products[key]={...base,price,stock,minQty,active,description};await verifyCatalogItem(key);await auditAction('catalog_product_updated','product',key,'Product catalog updated',{price,stock,minQty,active});announceCatalogRefresh();msgEl.textContent='Live ₹'+Number(products[key]?.price||price)+' ✓';if(card){card.classList.remove('is-saving');card.classList.add('is-saved');setTimeout(()=>card.classList.remove('is-saved'),1800)}setTimeout(()=>msgEl.textContent='',2600);return true}catch(e){if(card)card.classList.remove('is-saving');msgEl.textContent='Failed';const a=document.getElementById('catalogAlert');a.className='admin-alert show error';a.innerHTML='<b>Could not save inventory.</b> '+esc(friendly(e))+' If this is permission-denied, publish the latest firestore.rules and refresh.';return false}
+}
+function readCatalogForm(key){
+  const base=catalogItem(key);
+  const price=Math.round(Number(document.getElementById('cat-price-'+key).value));
+  const stock=Math.max(0,Math.round(Number(document.getElementById('cat-stock-'+key).value)));
+  const minQty=Math.max(1,Math.round(Number(document.getElementById('cat-min-'+key).value)));
+  const active=document.getElementById('cat-active-'+key).value==='true';
+  const description=document.getElementById('cat-desc-'+key).value.trim();
+  if(!price||price<1) throw new Error('Enter a valid price for '+(base.shortName||base.name||key)+'.');
+  return {key,name:base.name||base.shortName||key,shortName:base.shortName||base.name||key,mode:base.mode||(key==='bulk'?'bulk':'single'),price,stock,minQty,active,description};
+}
+document.getElementById('saveAllCatalogBtn').addEventListener('click',async()=>{
+  const btn=document.getElementById('saveAllCatalogBtn');btn.disabled=true;btn.textContent='Saving all…';
+  try{
+    /* Read every edited field before writing anything. This prevents the realtime listener
+       from re-rendering after product #1 and wiping unsaved edits for products #2/#3. */
+    const rows=['tender','green','bulk'].map(readCatalogForm);
+    const batch=fsMod.writeBatch(db);
+    rows.forEach(row=>{
+      const {key,...data}=row;
+      batch.set(fsMod.doc(db,'products',key),{...data,updatedAt:fsMod.serverTimestamp(),updatedBy:currentUser?currentUser.uid:''},{merge:true});
+    });
+    await batch.commit();
+    rows.forEach(row=>{products[row.key]={...(products[row.key]||{}),...row};});
+    await Promise.all(rows.map(row=>verifyCatalogItem(row.key)));await auditAction('catalog_bulk_updated','catalog','products','All product catalog rows updated',{products:rows.map(r=>({key:r.key,price:r.price,stock:r.stock,minQty:r.minQty,active:r.active}))});announceCatalogRefresh();
+    btn.textContent='All live ✓';
+    const a=document.getElementById('catalogAlert');a.className='admin-alert show';a.innerHTML='<b>Catalog updated and verified from Firestore.</b> Tender ₹'+Number(products.tender?.price||0)+' · Green ₹'+Number(products.green?.price||0)+' · Bulk ₹'+Number(products.bulk?.price||0)+'. Any open storefront tab is being asked to refresh now.';
+    setTimeout(()=>{btn.textContent='Save all inventory';a.className='admin-alert';a.textContent=''},2400);
+  }catch(e){
+    btn.textContent='Save all inventory';
+    const a=document.getElementById('catalogAlert');a.className='admin-alert show error';a.innerHTML='<b>Could not save catalog.</b> '+esc(friendly(e));
+  }finally{btn.disabled=false;}
+});
+document.getElementById('seedCatalogBtn').addEventListener('click',async()=>{if(!confirm('Write the default catalog to Firestore? Existing live price/stock values will be replaced with the packaged defaults.'))return;const defs=catalogDefaults();try{for(const key of ['tender','green','bulk']){const p=defs[key];await fsMod.setDoc(fsMod.doc(db,'products',key),{...p,updatedAt:fsMod.serverTimestamp(),updatedBy:currentUser?currentUser.uid:''},{merge:true})}await auditAction('catalog_defaults_initialized','catalog','products','Packaged catalog defaults written to Firestore',{})}catch(e){alert(friendly(e))}});
+
+function safeCsvCell(value){
+  var s=String(value??'');
+  if(/^[\t\r\n ]*[=+\-@]/.test(s))s="'"+s;
+  return '"'+s.replace(/"/g,'""')+'"';
+}
+document.getElementById('exportPeopleBtn').addEventListener('click',()=>{
+  const api=window.NS_ADMIN_CUSTOMERS;if(!api)return;const list=api.filterDirectory(people,peopleSearch?.value||'',peopleType?.value||'',peopleActivity?.value||'',peopleFilterOptions());
+  const cols=['type','name','contactEmail','loginEmail','emailVerified','phone','phoneVerified','preferredContact','city','state','pin','country','uid','orderCount','activeCount','deliveredCount','cancelledCount','totalQuantity','lifetimeValue','averageOrderValue','firstOrderAt','lastOrderAt','profileCreatedAt','lastLoginAt','latestPaymentStatus','paymentFollowUpCount','assignedOwner','followUpAt','nextAction','internalStatus','tags','signals'];
+  const rows=list.map(p=>{const m=customerAdminRecords[p.key]||{};return {type:p.typeLabel,name:p.name,contactEmail:p.email,loginEmail:p.loginEmail||'',emailVerified:p.emailVerified?'yes':'no',phone:p.phone,phoneVerified:p.phoneVerified?'yes':'no',preferredContact:p.preferredChannel,city:p.city,state:p.state,pin:p.pin,country:p.country,uid:p.uid,orderCount:p.orderCount,activeCount:p.activeCount,deliveredCount:p.deliveredCount,cancelledCount:p.cancelledCount,totalQuantity:p.totalQuantity,lifetimeValue:p.lifetimeValue,averageOrderValue:Math.round(p.averageOrderValue||0),firstOrderAt:fmtDate(p.firstOrderAt),lastOrderAt:fmtDate(p.lastOrderAt),profileCreatedAt:fmtDate(p.profileCreatedAt),lastLoginAt:fmtDate(p.lastLoginAt),latestPaymentStatus:p.latestPaymentStatus,paymentFollowUpCount:p.paymentFollowUpCount,assignedOwner:m.assignedOwner||'',followUpAt:fmtDate(m.followUpAt),nextAction:m.nextAction||'',internalStatus:m.status||'normal',tags:Array.isArray(m.tags)?m.tags.join(' | '):(m.tags||''),signals:(p.signals||[]).join(' | ')}});
+  const csv='\uFEFF'+[cols.join(','),...rows.map(r=>cols.map(k=>safeCsvCell(r[k])).join(','))].join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));auditAction('customer_exported','export','customers','Exported filtered customer directory',{rows:list.length,filters:peopleFilterOptions()});a.download='nariyal-sutra-customer-directory-'+new Date().toISOString().slice(0,10)+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500);
+});
+
+document.getElementById('exportAuditBtn').addEventListener('click',()=>{
+  const cols=['date','action','targetType','targetId','summary','actorEmail','actorUid'];const rows=auditRows.map(r=>({date:fmtDate(r.createdAt),action:r.action||'',targetType:r.targetType||'',targetId:r.targetId||'',summary:r.summary||'',actorEmail:r.actorEmail||'',actorUid:r.actorUid||''}));const csv='\uFEFF'+[cols.join(','),...rows.map(r=>cols.map(k=>safeCsvCell(r[k])).join(','))].join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='nariyal-sutra-admin-audit-'+new Date().toISOString().slice(0,10)+'.csv';auditAction('audit_exported','export','adminAudit','Admin audit trail exported',{rows:rows.length});a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500);
+});
+
+document.getElementById('exportEnquiriesBtn').addEventListener('click',()=>{
+  const cols=['inquiryId','role','inquiryTypeLabel','productPreference','frequency','packaging','name','phone','email','organization','quantity','requiredDate','destination','country','state','city','postalCode','preferredContact','status','message'];
+  const csv='\uFEFF'+[cols.join(','),...inquiries.map(i=>cols.map(k=>safeCsvCell(i[k])).join(','))].join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+  a.download='nariyal-sutra-enquiries-'+new Date().toISOString().slice(0,10)+'.csv';auditAction('enquiries_exported','export','inquiries','Enquiries exported',{rows:inquiries.length});a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500);
+});
+document.getElementById('exportBtn').addEventListener('click',()=>{
+  const rows=filtered();
+  const cols=['orderId','customerName','phone','email','city','state','country','productName','quantity','unitPrice','total','paymentType','paymentStatus','paymentMethod','paymentAmount','paymentProvider','paymentReference','refundAmount','paymentUpdatedAt','status','address','notes','createdAt','updatedAt'];
+  const csv='\uFEFF'+[cols.join(','),...rows.map(o=>cols.map(k=>safeCsvCell(o[k])).join(','))].join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+  auditAction('orders_exported','export','orders','Exported filtered orders',{rows:rows.length,status:filter.value,payment:orderPaymentFilter.value});a.download='nariyal-sutra-orders-'+new Date().toISOString().slice(0,10)+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500);
+});
+</script>
+<script src="/assets/js/v421-admin.js" type="module"></script>
+</body></html>
