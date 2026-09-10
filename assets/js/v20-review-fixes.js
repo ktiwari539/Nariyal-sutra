@@ -1,32 +1,31 @@
 (function(){
 'use strict';
-const IMM='https://6a9bfce307bb9f014e510b7d--nariyal-sutra.netlify.app/';
-const FALLBACK=['assets/images/review/coastal-grove.png','assets/images/review/backwater-grove.png',IMM+'assets/images/nariyal-coconut-grove.webp'];
-function eligibleOriginMedia(){
-  const Store=window.NSV421Store;if(!Store)return [];
-  const s=Store.load();
-  return (s.media||[]).filter(m=>Store.eligibleForPublic(s,m)&&m.cat!=='People'&&['Homepage','Sourcing','Origin / Grove'].includes(m.placement)).slice(0,3);
+var SEL='#v20-story-film,.mobile-story-reel,#grove-story,#cut-story,#live-coconut-motion';
+function loadB64(path,img,fallback){
+  if(fallback)img.src=fallback;
+  fetch(path,{cache:'force-cache'}).then(function(r){if(!r.ok)throw new Error('asset');return r.text();}).then(function(t){t=t.trim();if(t)img.src='data:image/webp;base64,'+t;}).catch(function(){});
 }
-function safeImg(img,fallback){img.addEventListener('error',()=>{if(img.dataset.reviewFallback)return;img.dataset.reviewFallback='1';img.src=fallback;},{once:true});}
-function init(){
- document.querySelectorAll('#v20-story-film img,.hero-visual .hero-scene,#harvest-film img').forEach((img,i)=>{const src=img.getAttribute('src')||'';if(src.includes('6a9bfce')||src.startsWith('assets/images/'))safeImg(img,FALLBACK[i%2]);});
- const film=document.getElementById('v20-story-film');if(!film)return;
- const sticky=film.querySelector('.v20-story-sticky');if(!sticky)return;
- let scenes=film.querySelector('.v20-origin-scenes');if(!scenes){scenes=document.createElement('div');scenes.className='v20-origin-scenes';sticky.insertBefore(scenes,sticky.firstChild);}
- function renderScenes(){
-   const media=eligibleOriginMedia();const srcs=[0,1,2].map(i=>media[i]?.src||FALLBACK[i]);
-   scenes.innerHTML=srcs.map((src,i)=>`<img class="v20-origin-scene${i===0?' is-active':''}" src="${src}" alt="">`).join('');
-   [...scenes.querySelectorAll('img')].forEach((img,i)=>safeImg(img,FALLBACK[i]));
- }
- renderScenes();
- let note=film.querySelector('.v20-origin-note');if(!note){note=document.createElement('div');note.className='v20-origin-note';sticky.appendChild(note);}note.textContent='Coastal source · backwater · grove · selected coconut · fresh cut';
- const grove=film.querySelector('.v20-story-copy-grove');if(grove){const idx=grove.querySelector('.story-index'),h=grove.querySelector('h2'),p=grove.querySelector('p');if(idx)idx.textContent='CHAPTER 01 · THE ORIGIN';if(h)h.innerHTML='From the coast,<br><em>into the grove.</em>';if(p)p.textContent='Nariyal Sutra sources through farmer and supplier partners. The visual journey moves from growing-region context to one coconut selected for fresh preparation.'}
- const cut=film.querySelector('.v20-story-copy-cut p');if(cut)cut.textContent='One selected coconut carries the story forward into a clean cut and fresh pour.';
- const handoff=document.getElementById('v20-handoff-text');if(handoff)handoff.textContent='ONE SELECTED FOR THE CUT';
- function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
- let ticking=false;function update(){ticking=false;if(innerWidth<981)return;const r=film.getBoundingClientRect(),range=Math.max(1,film.offsetHeight-innerHeight),p=clamp(-r.top/range,0,1);const list=[...scenes.querySelectorAll('.v20-origin-scene')];const ix=p<.20?0:p<.42?1:2;list.forEach((x,i)=>x.classList.toggle('is-active',i===ix));film.style.setProperty('--origin-note-alpha',p<.62&&p>.03?'1':'0')}
- function req(){if(!ticking){ticking=true;requestAnimationFrame(update)}}addEventListener('scroll',req,{passive:true});addEventListener('resize',req);update();
- window.addEventListener('nsv421:change',renderScenes);
+function build(){
+  var anchor=document.querySelector(SEL);if(!anchor)return false;
+  var section=document.createElement('section');section.id='ns-film42';section.className='ns-film42';section.setAttribute('aria-label','From harvest to fresh cut coconut');
+  section.innerHTML='\
+<article class="ns-film42-scene ns-film42-harvest" data-ns-film42-scene="harvest">\
+  <div class="ns-film42-copy"><div class="ns-film42-kicker">CHAPTER 01 · THE HARVEST</div><h2>The grove lets go.<br><em>The harvest falls.</em></h2><p>Coconuts move through real grove depth, warm coastal light and natural perspective. One is selected from the harvest for the next moment.</p><div class="ns-film42-meta"><span>COASTAL SOURCE</span><i></i><span>NATURAL GROVE</span><i></i><span>ONE SELECTED</span></div></div>\
+  <figure class="ns-film42-visual"><img id="ns-film42-harvest-img" alt="Coconut harvest in a sunlit tropical grove" decoding="async"><figcaption>HARVEST · NATURAL DEPTH · ONE SELECTED</figcaption></figure>\
+</article>\
+<article class="ns-film42-scene ns-film42-cut" data-ns-film42-scene="cut">\
+  <figure class="ns-film42-visual"><img id="ns-film42-cut-img" alt="Fresh green coconut opened with a full-size blade and natural water splash" loading="lazy" decoding="async"><figcaption>SELECTED COCONUT · CLEAN CUT · FRESH WATER</figcaption></figure>\
+  <div class="ns-film42-copy"><div class="ns-film42-kicker">CHAPTER 02 · THE CUT</div><h2>One coconut.<br><em>One clean opening.</em></h2><p>The selected coconut moves into a properly scaled cut with the blade, shell and water splash in one photographic composition.</p><div class="ns-film42-meta"><span>SELECTED</span><i></i><span>FRESH CUT</span><i></i><span>NATURAL WATER</span></div></div>\
+</article>';
+  anchor.parentNode.insertBefore(section,anchor);
+  Array.prototype.slice.call(document.querySelectorAll(SEL)).forEach(function(n){if(n!==section&&n.parentNode)n.parentNode.removeChild(n);});
+  loadB64('assets/images/ns-harvest-cinematic.webp.b64',document.getElementById('ns-film42-harvest-img'),'assets/images/review/coastal-grove.png');
+  loadB64('assets/images/ns-cut-cinematic.webp.b64',document.getElementById('ns-film42-cut-img'),'assets/images/story-coconut-body-cut.png');
+  var scenes=Array.prototype.slice.call(section.querySelectorAll('[data-ns-film42-scene]'));
+  if(!('IntersectionObserver' in window)){scenes.forEach(function(x){x.classList.add('is-inview');});return true;}
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)e.target.classList.add('is-inview');});},{threshold:.16,rootMargin:'0px 0px -8% 0px'});
+  scenes.forEach(function(x){io.observe(x);});
+  return true;
 }
-document.readyState==='loading'?document.addEventListener('DOMContentLoaded',init):init();
+if(!build())document.addEventListener('DOMContentLoaded',build,{once:true});
 })();
