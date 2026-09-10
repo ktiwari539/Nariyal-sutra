@@ -1,5 +1,5 @@
 /* V42.2 authoritative cinematic harvest -> cut. Legacy harvest/grove/cut DOM is removed by v20-review-fixes.js. */
-.ns-film42{position:relative;overflow:hidden;background:#020802;color:#f7f1e2;border-top:1px solid rgba(212,168,67,.14);border-bottom:1px solid rgba(212,168,67,.14)}
+#ns-film42.ns-film42{position:relative;overflow:hidden;background:#020802;color:#f7f1e2;border-top:1px solid rgba(212,168,67,.14);border-bottom:1px solid rgba(212,168,67,.14)}
 .ns-film42-scene{position:relative;isolation:isolate;min-height:100svh;display:grid;grid-template-columns:minmax(300px,.82fr) minmax(0,1.18fr);gap:clamp(30px,5vw,82px);align-items:center;padding:clamp(92px,10vh,132px) clamp(24px,6vw,96px)}
 .ns-film42-scene+.ns-film42-scene{border-top:1px solid rgba(212,168,67,.12);background:radial-gradient(circle at 22% 48%,rgba(34,79,29,.22),transparent 36%),#020802}
 .ns-film42-copy{position:relative;z-index:3;max-width:620px}.ns-film42-kicker{margin-bottom:22px;font:600 9px/1.4 'Jost',sans-serif;letter-spacing:.34em;color:#d4a843;text-transform:uppercase}
