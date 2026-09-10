@@ -26,28 +26,48 @@ jobs:
           rsync -a --exclude='.git' --exclude='.github' ./ dist/
           python3 - <<'PY'
           from pathlib import Path
-          import base64
+          import base64,re
           root=Path('dist')
-          pairs=[
-            ('assets/images/ns-harvest-cinematic.webp.b64','assets/images/ns-harvest-cinematic.webp'),
-            ('assets/images/ns-cut-cinematic.webp.b64','assets/images/ns-cut-cinematic.webp'),
-          ]
-          for src,dst in pairs:
-            s=root/src; d=root/dst
-            d.write_bytes(base64.b64decode(s.read_text().strip()))
-            s.unlink()
+          source=Path('.build/v422')
+          def decode(parts,dest):
+              payload=''.join((source/p).read_text().strip() for p in parts)
+              data=base64.b64decode(payload, validate=True)
+              out=root/dest
+              out.parent.mkdir(parents=True,exist_ok=True)
+              out.write_bytes(data)
+              if len(data)<5000: raise SystemExit(f'{dest} unexpectedly small')
+          decode(['harvest-01.part','harvest-02.part','harvest-03.part'],'assets/images/ns-harvest-cinematic.avif')
+          decode(['cut-01.part','cut-02.part','cut-03.part'],'assets/images/ns-cut-cinematic.avif')
+          for p in [root/'assets/images/ns-harvest-cinematic.webp.b64',root/'assets/images/ns-cut-cinematic.webp.b64']:
+              p.unlink(missing_ok=True)
           js=root/'assets/js/v20-review-fixes.js'
           t=js.read_text()
-          t=t.replace("loadB64('assets/images/ns-harvest-cinematic.webp.b64',document.getElementById('ns-film42-harvest-img'),'assets/images/review/coastal-grove.png');","document.getElementById('ns-film42-harvest-img').src='assets/images/ns-harvest-cinematic.webp';")
-          t=t.replace("loadB64('assets/images/ns-cut-cinematic.webp.b64',document.getElementById('ns-film42-cut-img'),'assets/images/story-coconut-body-cut.png');","document.getElementById('ns-film42-cut-img').src='assets/images/ns-cut-cinematic.webp';")
+          t=t.replace("loadB64('assets/images/ns-harvest-cinematic.webp.b64',document.getElementById('ns-film42-harvest-img'),'assets/images/review/coastal-grove.png');","document.getElementById('ns-film42-harvest-img').src='/assets/images/ns-harvest-cinematic.avif';")
+          t=t.replace("loadB64('assets/images/ns-cut-cinematic.webp.b64',document.getElementById('ns-film42-cut-img'),'assets/images/story-coconut-body-cut.png');","document.getElementById('ns-film42-cut-img').src='/assets/images/ns-cut-cinematic.avif';")
           js.write_text(t)
+          idx=root/'index.html'
+          h=idx.read_text()
+          old='https://6a9bfce307bb9f014e510b7d--nariyal-sutra.netlify.app/'
+          h=h.replace(old,'/')
+          h=h.replace('content="/assets/images/nariyal-sutra-hero.jpg" property="og:image"','content="https://nariyal-sutra.netlify.app/assets/images/nariyal-sutra-hero.jpg" property="og:image"')
+          h=h.replace('content="/assets/images/nariyal-sutra-hero.jpg" name="twitter:image"','content="https://nariyal-sutra.netlify.app/assets/images/nariyal-sutra-hero.jpg" name="twitter:image"')
+          h=h.replace('"logo": "/assets/images/nariyal-sutra-hero.jpg"','"logo": "https://nariyal-sutra.netlify.app/assets/images/nariyal-sutra-hero.jpg"')
+          h=re.sub(r'<script[^>]+src=["\']/assets/js/ns-smart-location\.js["\'][^>]*></script>','',h,flags=re.I)
+          h=re.sub(r'<source[^>]+src=["\']/assets/video/nariyal-coconut-motion\.mp4["\'][^>]*/?>','',h,flags=re.I)
+          idx.write_text(h)
+          import shutil
+          shutil.rmtree(root/'.build',ignore_errors=True)
+          if old in h: raise SystemExit('stale immutable Netlify deploy reference remains')
+          if 'ns-smart-location.js' in h: raise SystemExit('missing smart-location script reference remains')
+          if 'nariyal-coconut-motion.mp4' in h: raise SystemExit('missing motion video reference remains')
           PY
-          test -s dist/assets/images/ns-harvest-cinematic.webp
-          test -s dist/assets/images/ns-cut-cinematic.webp
+          test -s dist/assets/images/ns-harvest-cinematic.avif
+          test -s dist/assets/images/ns-cut-cinematic.avif
           grep -q "#ns-film42" dist/assets/css/v20-review-fixes.css
-          grep -q "id='ns-film42'\|section.id='ns-film42'" dist/assets/js/v20-review-fixes.js
+          grep -q "section.id='ns-film42'" dist/assets/js/v20-review-fixes.js
           ! grep -q "ns-harvest-cinematic.webp.b64" dist/assets/js/v20-review-fixes.js
           ! grep -q "ns-cut-cinematic.webp.b64" dist/assets/js/v20-review-fixes.js
+          ! grep -R -q "6a9bfce307bb9f014e510b7d" dist/index.html
 
       - name: Browser QA desktop tablet mobile
         shell: bash
@@ -62,36 +82,35 @@ jobs:
           cat > /tmp/ns-qa.mjs <<'JS'
           import { chromium } from 'playwright';
           const browser=await chromium.launch({headless:true});
-          const checks=[
-            ['desktop',1440,900],
-            ['tablet',1024,768],
-            ['mobile',390,844],
-          ];
+          const checks=[['desktop',1440,900],['tablet',1024,768],['mobile',390,844]];
           for(const [name,width,height] of checks){
             const page=await browser.newPage({viewport:{width,height}});
-            const errors=[];
+            const errors=[], local404=[];
             page.on('pageerror',e=>errors.push(String(e)));
-            await page.goto('http://127.0.0.1:4173/',{waitUntil:'networkidle'});
+            page.on('response',r=>{if(r.url().startsWith('http://127.0.0.1:4173/')&&r.status()===404)local404.push(r.url())});
+            await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded',timeout:30000});
             await page.waitForSelector('#ns-film42',{state:'attached',timeout:15000});
+            await page.locator('#ns-film42').scrollIntoViewIfNeeded();
+            await page.waitForTimeout(1800);
             const state=await page.evaluate(()=>({
               films:document.querySelectorAll('#ns-film42').length,
               scenes:document.querySelectorAll('#ns-film42 [data-ns-film42-scene]').length,
               rejected:document.querySelectorAll('#v20-story-film,.mobile-story-reel,#grove-story,#cut-story,#live-coconut-motion').length,
               harvestLoaded:(document.querySelector('#ns-film42-harvest-img')?.naturalWidth||0)>0,
               cutLoaded:(document.querySelector('#ns-film42-cut-img')?.naturalWidth||0)>0,
-              bodyWidth:document.body.scrollWidth,
+              bodyWidth:document.documentElement.scrollWidth,
               viewport:innerWidth
             }));
             if(state.films!==1||state.scenes!==2||state.rejected!==0||!state.harvestLoaded||!state.cutLoaded||state.bodyWidth>state.viewport+2){
-              throw new Error(name+' QA failed: '+JSON.stringify(state)+' errors='+JSON.stringify(errors));
+              throw new Error(name+' QA failed: '+JSON.stringify(state)+' errors='+JSON.stringify(errors)+' local404='+JSON.stringify(local404));
             }
             await page.screenshot({path:`qa-${name}.png`,fullPage:false});
             await page.close();
           }
           const admin=await browser.newPage({viewport:{width:1440,height:900}});
-          await admin.goto('http://127.0.0.1:4173/admin-preview.html',{waitUntil:'domcontentloaded'});
+          await admin.goto('http://127.0.0.1:4173/admin-preview.html',{waitUntil:'domcontentloaded',timeout:30000});
           const adminText=(await admin.textContent('body'))||'';
-          if(!/Business Command Center|Delivery Hub|Media Library|Website|Content/i.test(adminText)) throw new Error('Accepted Admin OS smoke check failed');
+          if(!/Delivery Hub/i.test(adminText)||!/Media Library/i.test(adminText)) throw new Error('Accepted Admin OS smoke check failed');
           await admin.screenshot({path:'qa-admin.png',fullPage:false});
           await browser.close();
           JS
@@ -103,6 +122,7 @@ jobs:
           set -euo pipefail
           (cd dist && zip -qr ../NARIYAL_SUTRA_V42_2_CINEMATIC_FIX_2026-09-10.zip .)
           unzip -t NARIYAL_SUTRA_V42_2_CINEMATIC_FIX_2026-09-10.zip >/dev/null
+          test "$(unzip -Z1 NARIYAL_SUTRA_V42_2_CINEMATIC_FIX_2026-09-10.zip | wc -l)" -gt 100
           ls -lh NARIYAL_SUTRA_V42_2_CINEMATIC_FIX_2026-09-10.zip
 
       - name: Upload deploy package and QA screenshots
