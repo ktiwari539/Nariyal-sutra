@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">International container port logistics</title>
+  <desc id="desc">A restrained illustrated container port with cranes, cargo stacks, ship and water used only as a local fallback when the credited logistics photograph cannot load.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#13282c"/><stop offset=".58" stop-color="#223a38"/><stop offset="1" stop-color="#77765b"/></linearGradient>
+    <linearGradient id="water" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#172d2d"/><stop offset="1" stop-color="#061414"/></linearGradient>
+    <linearGradient id="glow" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#d6aa48" stop-opacity="0"/><stop offset=".55" stop-color="#f0cd74" stop-opacity=".5"/><stop offset="1" stop-color="#d6aa48" stop-opacity="0"/></linearGradient>
+    <filter id="soft"><feGaussianBlur stdDeviation="22"/></filter>
+    <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency=".7" numOctaves="2" seed="7" result="n"/><feColorMatrix in="n" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 .08 0"/><feBlend in="SourceGraphic" mode="soft-light"/></filter>
+  </defs>
+  <rect width="1600" height="900" fill="url(#sky)"/>
+  <ellipse cx="1140" cy="275" rx="320" ry="115" fill="#f3d67a" opacity=".11" filter="url(#soft)"/>
+  <rect y="610" width="1600" height="290" fill="url(#water)"/>
+  <rect x="0" y="606" width="1600" height="6" fill="#d7b25b" opacity=".35"/>
+
+  <!-- distant port skyline -->
+  <g fill="#0b1717" opacity=".92">
+    <rect x="0" y="480" width="305" height="130"/><rect x="338" y="505" width="170" height="105"/><rect x="535" y="465" width="260" height="145"/><rect x="830" y="492" width="190" height="118"/><rect x="1050" y="448" width="310" height="162"/><rect x="1385" y="486" width="215" height="124"/>
+  </g>
+
+  <!-- container stacks -->
+  <g stroke="#071010" stroke-width="5" filter="url(#grain)">
+    <g transform="translate(155 425)"><rect width="145" height="56" fill="#6f4838"/><rect x="148" width="145" height="56" fill="#4b6965"/><rect y="-59" width="145" height="56" fill="#8b6739"/><rect x="148" y="-59" width="145" height="56" fill="#655343"/></g>
+    <g transform="translate(525 440)"><rect width="150" height="58" fill="#4b6665"/><rect x="153" width="150" height="58" fill="#8a5b3f"/><rect y="-61" width="150" height="58" fill="#6e7646"/><rect x="153" y="-61" width="150" height="58" fill="#9a7441"/><rect x="76" y="-122" width="150" height="58" fill="#4d6260"/></g>
+    <g transform="translate(1120 430)"><rect width="148" height="58" fill="#795143"/><rect x="151" width="148" height="58" fill="#526d68"/><rect y="-61" width="148" height="58" fill="#937044"/><rect x="151" y="-61" width="148" height="58" fill="#536146"/></g>
+  </g>
+
+  <!-- gantry cranes -->
+  <g fill="none" stroke="#172423" stroke-width="18" stroke-linecap="square">
+    <path d="M310 520V185H625V520M310 260H625M415 260V400"/>
+    <path d="M920 520V155H1285V520M920 235H1285M1095 235V390"/>
+  </g>
+  <g fill="none" stroke="#d6aa48" stroke-width="4" opacity=".65"><path d="M310 185H625"/><path d="M920 155H1285"/></g>
+
+  <!-- ship -->
+  <g transform="translate(330 620)">
+    <path d="M0 80H860L805 176H118L42 138Z" fill="#081313" stroke="#2d4542" stroke-width="5"/>
+    <rect x="172" y="12" width="440" height="70" fill="#182928"/>
+    <rect x="628" y="30" width="95" height="52" fill="#c7ba8b" opacity=".72"/>
+    <rect x="646" y="-25" width="58" height="56" fill="#172626"/>
+    <g stroke="#091313" stroke-width="4"><rect x="188" y="25" width="102" height="48" fill="#7b5340"/><rect x="294" y="25" width="102" height="48" fill="#526d68"/><rect x="400" y="25" width="102" height="48" fill="#927041"/><rect x="506" y="25" width="102" height="48" fill="#58634a"/></g>
+  </g>
+
+  <!-- water reflections -->
+  <g opacity=".28" fill="url(#glow)"><rect x="155" y="680" width="310" height="3"/><rect x="890" y="734" width="450" height="3"/><rect x="500" y="820" width="530" height="3"/></g>
+  <path d="M0 780C210 750 350 824 555 785S915 744 1110 792s310 42 490 5" fill="none" stroke="#9aa08b" stroke-opacity=".13" stroke-width="4"/>
+
+  <!-- cinematic wash -->
+  <rect width="1600" height="900" fill="url(#grain)" opacity=".12"/>
+  <rect width="1600" height="900" fill="none" stroke="#d6aa48" stroke-opacity=".18" stroke-width="3"/>
+</svg>

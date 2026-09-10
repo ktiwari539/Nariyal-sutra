@@ -1,0 +1,135 @@
+name: Stabilize V42.1 release
+
+on:
+  push:
+    branches:
+      - stabilize-v42-1-live-fixes-2026-09-09
+  workflow_dispatch:
+
+concurrency:
+  group: stabilize-v42-1-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  normalize-and-audit:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Normalize release source and known legacy media aliases
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          root=Path('.')
+          text_ext={'.html','.css','.js','.mjs','.json','.webmanifest','.txt','.md','.toml'}
+          special={'_redirects','_headers'}
+          deploy=re.compile(r'https://[0-9a-f]{12,}--nariyal-sutra\.netlify\.app',re.I)
+          aliases={
+            'assets/images/nariyal-sutra-hero.jpg':'assets/images/nariyal-premium-hero.webp',
+            'assets/images/intro-film-01.webp':'assets/images/nariyal-premium-hero.webp',
+            'assets/images/intro-film-02.webp':'assets/images/nariyal-product-collection.webp',
+            'assets/images/intro-film-03.webp':'assets/images/nariyal-hospitality.webp',
+            'assets/images/brand/sourcing-portrait.webp':'assets/images/nariyal-coconut-grove.webp',
+            'assets/images/coconut-farm.jpg':'assets/images/harvest-wall-organic.jpg',
+            'https://commons.wikimedia.org/wiki/Special:Redirect/file/Seashore_l_Madhavpur_Beach_l_Gujarat.jpg?width=1800':'assets/images/review/coastal-grove.png',
+          }
+          remote_media_patterns=[
+            (r'https://images\.pexels\.com/photos/8967807/pexels-photo-8967807\.jpeg\?auto=compress(?:&|&amp;)cs=tinysrgb(?:&|&amp;)w=1800','assets/images/review/backwater-grove.png'),
+            (r'https://images\.pexels\.com/photos/16559741/pexels-photo-16559741\.jpeg\?auto=compress(?:&|&amp;)cs=tinysrgb(?:&|&amp;)w=1600','assets/images/nariyal-coconut-grove.webp'),
+            (r'https://images\.pexels\.com/photos/4395019/pexels-photo-4395019\.jpeg\?auto=compress(?:&|&amp;)cs=tinysrgb(?:&|&amp;)w=(?:900|1600|1800)','assets/images/freshness-coconut-splash.webp'),
+            (r'https://images\.pexels\.com/photos/4802876/pexels-photo-4802876\.jpeg\?auto=compress(?:&|&amp;)cs=tinysrgb(?:&|&amp;)w=1600','assets/images/freshness-coconut-splash.webp'),
+            (r'https://images\.pexels\.com/photos/30748600/pexels-photo-30748600\.jpeg\?auto=compress(?:&|&amp;)cs=tinysrgb(?:&|&amp;)w=(?:1200|1800)','assets/images/trade-logistics.svg'),
+          ]
+          changed=[]
+          for p in root.rglob('*'):
+            if not p.is_file() or '.git' in p.parts or 'node_modules' in p.parts: continue
+            if p.suffix.lower() not in text_ext and p.name not in special: continue
+            try: old=p.read_text(encoding='utf-8')
+            except Exception: continue
+            new=deploy.sub('https://nariyal-sutra.netlify.app',old)
+            for before,after in aliases.items(): new=new.replace(before,after)
+            for pattern,after in remote_media_patterns: new=re.sub(pattern,after,new,flags=re.I)
+            new=new.replace('https://nariyal-sutra.netlify.app/assets/js/v421-admin.js','/assets/js/v421-admin.js')
+            new=re.sub(r'<source\b[^>]*nariyal-coconut-motion\.mp4[^>]*\/?>','',new,flags=re.I)
+            new=re.sub(r'\s+src=["\'][^"\']*nariyal-coconut-motion\.mp4[^"\']*["\']','',new,flags=re.I)
+            if new!=old:
+              p.write_text(new,encoding='utf-8');changed.append(str(p))
+
+          for rel in ('about-nariyal-sutra.html','coconut-wholesale-export.html'):
+            p=root/rel
+            if not p.exists(): continue
+            old=p.read_text(encoding='utf-8')
+            new=old.replace('assets/images/bulk-coconut-pack.jpg','assets/images/trade-logistics.svg')
+            new=re.sub(r'Photo:\s*<a[^>]*30748600[^>]*>.*?</a>','Illustrative international logistics visual',new,flags=re.I|re.S)
+            new=re.sub(r'Logistics visual:\s*<a[^>]*30748600[^>]*>.*?</a>','Illustrative international logistics visual',new,flags=re.I|re.S)
+            if new!=old:
+              p.write_text(new,encoding='utf-8')
+              if str(p) not in changed: changed.append(str(p))
+
+          p=root/'index.html'
+          if p.exists():
+            old=p.read_text(encoding='utf-8')
+            new=re.sub(
+              r'(<a\b[^>]*class=["\'][^"\']*promise-portal[^"\']*export[^"\']*["\'][^>]*>[\s\S]{0,900}?<img\b[^>]*\bsrc=["\'])assets/images/bulk-coconut-pack\.jpg(["\'])',
+              r'\1assets/images/trade-logistics.svg\2',old,flags=re.I)
+            if new!=old:
+              p.write_text(new,encoding='utf-8')
+              if str(p) not in changed: changed.append(str(p))
+
+          print('Normalized files:',len(changed))
+          for p in changed: print(' -',p)
+          PY
+
+      - name: Run pre-deploy audit
+        run: node scripts/predeploy-audit.mjs
+
+      - name: Commit normalized source
+        shell: bash
+        run: |
+          if git diff --quiet; then
+            echo 'No normalization changes required.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git reset qa-artifacts/ || true
+          git commit -m 'Normalize recovered release assets [skip ci]'
+          git push
+
+      - name: Install isolated browser QA dependencies
+        shell: bash
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Run full browser and functional QA
+        shell: bash
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/nariyal-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID || true' EXIT
+          sleep 2
+          node scripts/visual-qa.mjs
+          node scripts/content-integrity-qa.mjs
+          node scripts/cinematic-qa.mjs
+          node scripts/admin-functional-qa.mjs
+
+      - name: Upload QA screenshots and report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nariyal-v42-1-qa
+          path: qa-artifacts/
+          if-no-files-found: warn
+          retention-days: 7
