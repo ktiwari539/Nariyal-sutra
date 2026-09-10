@@ -67,7 +67,7 @@ jobs:
           npm init -y >/dev/null 2>&1
           npm install playwright@1.55.0 --no-save >/dev/null 2>&1
           npx playwright install --with-deps chromium webkit >/dev/null 2>&1
-          cat > /tmp/ns-qa.mjs <<'JS'
+          cat > ns-qa.mjs <<'JS'
           import { chromium, webkit } from 'playwright';
           const engines=[['chromium',chromium],['webkit',webkit]];
           const sizes=[['desktop',1440,900],['tablet',1024,768],['mobile',390,844]];
@@ -97,7 +97,8 @@ jobs:
           await admin.screenshot({path:'qa-admin.png'});
           await browser.close();
           JS
-          node /tmp/ns-qa.mjs
+          node ./ns-qa.mjs
+          rm -f ns-qa.mjs
 
       - name: Create deploy ZIP
         shell: bash
