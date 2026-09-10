@@ -567,5 +567,5 @@ document.getElementById('exportBtn').addEventListener('click',()=>{
   auditAction('orders_exported','export','orders','Exported filtered orders',{rows:rows.length,status:filter.value,payment:orderPaymentFilter.value});a.download='nariyal-sutra-orders-'+new Date().toISOString().slice(0,10)+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500);
 });
 </script>
-<script src="https://nariyal-sutra.netlify.app/assets/js/v421-admin.js" type="module"></script>
+<script src="/assets/js/v421-admin.js" type="module"></script>
 </body></html>
