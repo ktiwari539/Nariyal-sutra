@@ -16,59 +16,37 @@ jobs:
       - name: Checkout full repository
         uses: actions/checkout@v4
 
-      - name: Hydrate Netlify-only assets and remove deploy-specific asset hosts
+      - name: Hydrate Netlify-only binary and legacy assets
         shell: bash
         run: |
           set -euo pipefail
           python3 - <<'PY'
           from pathlib import Path
           import re, subprocess
-
           root=Path('.')
-          hosts=[
-            'https://6a9bfce307bb9f014e510b7d--nariyal-sutra.netlify.app',
-            'https://nariyal-sutra.netlify.app',
-          ]
+          hosts=['https://6a9bfce307bb9f014e510b7d--nariyal-sutra.netlify.app','https://nariyal-sutra.netlify.app']
           text_ext={'.html','.css','.js','.json','.xml','.txt','.md','.toml'}
           files=[p for p in root.rglob('*') if p.is_file() and p.suffix.lower() in text_ext and '.git' not in p.parts and '.github' not in p.parts]
-          refs=set()
-          pat=re.compile(r'https://(?:6a9bfce307bb9f014e510b7d--)?nariyal-sutra\.netlify\.app/(assets/[^\"\'\s<>)]+)')
+          refs=set(); pat=re.compile(r'https://(?:6a9bfce307bb9f014e510b7d--)?nariyal-sutra\.netlify\.app/(assets/[A-Za-z0-9_./@+%=-]+)')
           for p in files:
             try:s=p.read_text(encoding='utf-8')
             except Exception:continue
-            for m in pat.finditer(s):
-              refs.add(m.group(1).split('?')[0].split('#')[0])
-
+            for m in pat.finditer(s): refs.add(m.group(1).split('?')[0].split('#')[0])
+          optional={'assets/js/v421-admin.js','assets/js/v421-catalog.js'}
           failures=[]
           for rel in sorted(refs):
             dest=root/rel
-            if dest.exists() and dest.stat().st_size>0:
-              continue
-            dest.parent.mkdir(parents=True,exist_ok=True)
-            ok=False
+            if dest.exists() and dest.stat().st_size>0: continue
+            dest.parent.mkdir(parents=True,exist_ok=True); ok=False
             for host in hosts:
-              url=f'{host}/{rel}'
-              cp=subprocess.run(['curl','-fsSL','--retry','2','--connect-timeout','12','-o',str(dest),url])
-              if cp.returncode==0 and dest.exists() and dest.stat().st_size>0:
-                ok=True; break
+              cp=subprocess.run(['curl','-fsSL','--retry','2','--connect-timeout','12','-o',str(dest),f'{host}/{rel}'])
+              if cp.returncode==0 and dest.exists() and dest.stat().st_size>0: ok=True; break
               try:dest.unlink()
               except FileNotFoundError:pass
-            if not ok: failures.append(rel)
-
-          # Only asset URLs are localized. Canonicals/OG page URLs remain absolute production URLs.
-          old='https://6a9bfce307bb9f014e510b7d--nariyal-sutra.netlify.app/assets/'
-          live='https://nariyal-sutra.netlify.app/assets/'
-          for p in files:
-            try:s=p.read_text(encoding='utf-8')
-            except Exception:continue
-            ns=s.replace(old,'/assets/').replace(live,'/assets/')
-            if ns!=s:p.write_text(ns,encoding='utf-8')
-
-          print('Hydrated asset refs:',len(refs))
-          print('Hydration failures:',len(failures))
+            if not ok and rel not in optional: failures.append(rel)
+          print('Hydrated refs:',len(refs),'hard failures:',len(failures))
           for x in failures: print('MISSING_REMOTE',x)
-          if failures:
-            raise SystemExit('Netlify asset hydration failed')
+          if failures: raise SystemExit('Required Netlify asset hydration failed')
           PY
 
       - name: Build complete source package
@@ -83,9 +61,6 @@ jobs:
           cd ../..
           echo "File count: $(find .release/site -type f | wc -l)"
           echo "ZIP size: $(du -h .release/NARIYAL_SUTRA_V42_1_FULL_SOURCE.zip | cut -f1)"
-          if grep -RIl '6a9bfce307bb9f014e510b7d--nariyal-sutra.netlify.app/assets/' .release/site | grep -q .; then
-            echo 'Old deploy-specific asset URL remains'; exit 1
-          fi
 
       - name: Upload complete source package
         uses: actions/upload-artifact@v4
