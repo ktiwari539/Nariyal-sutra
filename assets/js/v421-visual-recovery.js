@@ -1,8 +1,8 @@
 /* Nariyal Sutra V42.1 — locked visual-story recovery.
-   Desktop choreography:
+   Desktop/laptop choreography:
    grove -> 35 photographic falling coconuts -> dense harvest -> one remains ->
    same coconut moves to cut -> knife/cap/opening -> water stream -> takeover.
-   Mobile/tablet keep the lighter story reel.
+   Phones and portrait tablet widths keep the lighter story reel.
 */
 (function(){
   'use strict';
@@ -16,15 +16,18 @@
   const easeOut=v=>{v=clamp(v,0,1);return 1-Math.pow(1-v,3)};
   const FRUIT='/assets/images/story-coconut-hero.png';
   const TRADE='/assets/images/trade-logistics.svg';
+  const CINEMATIC_MIN=769;
 
   function injectStyles(){
     if($('#ns-v421-visual-recovery-style')) return;
     const s=document.createElement('style');
     s.id='ns-v421-visual-recovery-style';
     s.textContent=`
-      @media(min-width:981px){
-        /* Keep enough runway for every accepted beat to be readable. */
-        #v20-story-film{height:505vh!important}
+      /* The old 981px cutoff hid the accepted cinematic on normal laptop browser
+         widths. From 769px upward we run the full story; <=768px keeps the light reel. */
+      @media(min-width:769px){
+        #v20-story-film{display:block!important;height:505vh!important;min-height:505vh!important;margin:0!important;padding:0!important}
+        .mobile-story-reel{display:none!important}
         #v20-story-film .v21-real-rain{display:none!important}
         #v20-story-film .v20-rain{display:block!important;position:absolute!important;inset:0!important;z-index:13!important;overflow:hidden!important;pointer-events:none!important;contain:layout paint}
         #v20-story-film .v25-rain-coconut.v421-photo-rain{
@@ -38,7 +41,7 @@
         #v20-story-film .v25-rain-coconut.v421-photo-rain.depth-back{z-index:3!important;filter:saturate(.82) brightness(.72) blur(.35px) drop-shadow(0 1vw 1.35vw rgba(0,0,0,.3))!important}
         #v20-story-film .v25-rain-coconut.v421-photo-rain.is-source{z-index:6!important;filter:saturate(1.03) contrast(1.04) brightness(1.02) drop-shadow(0 1.4vw 1.9vw rgba(0,0,0,.45))!important}
       }
-      @media(max-width:980px){#v20-story-film .v25-rain-coconut{display:none!important}}
+      @media(max-width:768px){#v20-story-film .v25-rain-coconut{display:none!important}}
       @media(prefers-reduced-motion:reduce){#v20-story-film .v25-rain-coconut{display:none!important}}
     `;
     document.head.appendChild(s);
@@ -63,7 +66,7 @@
 
   function restoreRain(){
     const film=$('#v20-story-film'),rain=$('#v20-rain');
-    if(!film||!rain||innerWidth<981||matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if(!film||!rain||innerWidth<CINEMATIC_MIN||matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     film.classList.add('v421-cinematic-restored');
     $$('.v21-real-rain',film).forEach(x=>x.remove());
@@ -120,8 +123,6 @@
         const scale=(.48+e*.52)*baseScale;
         let alpha=t<=0?0:clamp(t/.06,0,1)*(depth==='back'?.78:1);
 
-        /* Dense harvest holds through ~53%. Then all but one disappear quickly,
-           leaving a clear selected fruit before the main cut coconut takes over. */
         const clearOthers=smooth(clamp((p-.548)/.050,0,1));
         if(!d.classList.contains('is-source')) alpha*=1-clearOthers*.995;
         else{
@@ -137,14 +138,19 @@
     addEventListener('scroll',req,{passive:true});
     addEventListener('resize',req,{passive:true});
     update();
-    window.NSV421Cinematic={count:drops.length,update,version:'v27-restored'};
+    window.NSV421Cinematic={count:drops.length,update,version:'v27-restored',minWidth:CINEMATIC_MIN};
+  }
+
+  function localBuildMarker(){
+    if(!/^(localhost|127\.0\.0\.1|\[::1\])$/i.test(location.hostname)) return;
+    document.documentElement.dataset.nsV421Build='laptop-cinematic-20260910';
+    window.NS_V421_BUILD='laptop-cinematic-20260910';
   }
 
   function init(){
     injectStyles();
+    localBuildMarker();
     fixTradeVisuals();
-    /* Legacy V21 may build its old layer first; replace it after all inline
-       scripts have initialized so there is only one rain system. */
     setTimeout(()=>{restoreRain();fixTradeVisuals();},220);
     setTimeout(fixTradeVisuals,900);
   }
