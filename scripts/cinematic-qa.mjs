@@ -14,7 +14,7 @@ try{
   async function auditCinematic(viewport,label){
     const page=await browser.newPage({viewport});
     await page.goto(`${BASE}/index.html?qa=${Date.now()}`,{waitUntil:'domcontentloaded',timeout:30000});
-    await page.waitForTimeout(1700);
+    await page.waitForTimeout(1800);
 
     const boot=await page.evaluate(()=>{
       document.documentElement.style.scrollBehavior='auto';
@@ -30,6 +30,7 @@ try{
         filmHeight:film?.offsetHeight||0,
         viewport:innerHeight,
         runtime:window.NSV421CinematicFinal?.version||'',
+        compact:window.NSV421CinematicCompact?.version||'',
         build:window.NS_V421_BUILD||'',
         oldRainVisible:[...document.querySelectorAll('.v21-real-rain,#v20-rain .v421-rain-item')].filter(visible).length,
         legacyHeroVisible:visible(document.querySelector('#v20-story-coconut')),
@@ -53,8 +54,9 @@ try{
     if(boot.droplets<10) fail(`cinematic:${label}:boot`,`final splash field is incomplete (${boot.droplets} droplets)`);
     if(!/freshness-coconut-splash\.webp/i.test(boot.waterFrame)) fail(`cinematic:${label}:boot`,`wrong water finish frame: ${boot.waterFrame}`);
     const ratio=boot.filmHeight/Math.max(1,boot.viewport);
-    if(ratio<2.75||ratio>3.25) fail(`cinematic:${label}:boot`,`cinematic runway should be ~300vh, got ${ratio.toFixed(2)}x viewport`);
+    if(ratio<2.20||ratio>2.50) fail(`cinematic:${label}:boot`,`customer cinematic runway should be compact (~235vh), got ${ratio.toFixed(2)}x viewport`);
     if(boot.runtime!=='100-rain-cut-water') fail(`cinematic:${label}:boot`,`final 100-coconut runtime did not initialize (${boot.runtime})`);
+    if(boot.compact!=='compact-235vh') fail(`cinematic:${label}:boot`,`compact cinematic runtime did not initialize (${boot.compact})`);
 
     async function setProgress(p,name){
       await page.evaluate(p=>{
@@ -66,9 +68,10 @@ try{
         window.NSV421CinematicFinal?.update?.();
         window.dispatchEvent(new Event('scroll'));
       },p);
-      await page.waitForTimeout(380);
+      await page.waitForTimeout(420);
       const state=await page.evaluate(()=>{
         window.NSV421CinematicFinal?.update?.();
+        window.dispatchEvent(new Event('scroll'));
         const film=document.querySelector('#v20-story-film');
         const items=[...document.querySelectorAll('.v421-final-coconut')];
         const visibleItems=items.filter(x=>Number(getComputedStyle(x).opacity)>.12 && getComputedStyle(x).display!=='none').length;
@@ -123,7 +126,10 @@ try{
     const fastSplash=await setProgress(.76,'fast-jump-splash');
     if(fastSplash.visibleDroplets<5) fail(`cinematic:${label}:fast-jump-splash`,`fast scroll skipped splash (${fastSplash.visibleDroplets} droplets)`);
 
-    const water=await setProgress(.88,'water-pour');
+    /* Compact runway: water payoff must be visible before the customer reaches
+       the very end of the section, especially at laptop viewport heights. */
+    const water=await setProgress(.80,'water-pour');
+    if(water.actualProgress<.74) fail(`cinematic:${label}:water-pour`,`page could not hold the water payoff checkpoint (${water.actualProgress.toFixed(2)})`);
     if(water.waterOpacity<.25) fail(`cinematic:${label}:water-pour`,`photographic water finish is not visibly active (${water.waterOpacity})`);
 
     await page.close();
@@ -172,7 +178,7 @@ try{
 
 const report={generatedAt:new Date().toISOString(),failures,checks};
 fs.writeFileSync(path.join(OUT,'cinematic-qa-report.json'),JSON.stringify(report,null,2));
-const summary=['# Cinematic + semantic image QA','',`Failures: ${failures.length}`,'',...(failures.length?failures.map(x=>`- **${x.scope}** — ${x.msg}`):['- None']),'','Screenshots include desktop + 1024px laptop 100-coconut rain, dense harvest, selected coconut, knife, visible splash, fast-jump splash, photographic water finish, International Trade, and Freshness sequence.'].join('\n');
+const summary=['# Cinematic + semantic image QA','',`Failures: ${failures.length}`,'',...(failures.length?failures.map(x=>`- **${x.scope}** — ${x.msg}`):['- None']),'','Screenshots include desktop + 1024px laptop compact 100-coconut rain, dense harvest, selected coconut, knife, visible splash, fast-jump splash, photographic water finish, International Trade, and Freshness sequence.'].join('\n');
 fs.writeFileSync(path.join(OUT,'cinematic-qa-summary.md'),summary);
 console.log(summary);
 if(failures.length)process.exit(1);
