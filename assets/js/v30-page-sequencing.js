@@ -15,14 +15,24 @@ if(!window.__NS_V421_STABLE_ASSETS__ && !document.querySelector('script[data-ns-
 
 function file(){let f=(location.pathname.split('/').pop()||'index.html').toLowerCase();return f||'index.html'}
 
-/* Locked visual-story recovery. This restores the accepted V27 desktop harvest
-   choreography and corrects trade imagery without changing business/auth data. */
+/* Base recovery removes known broken legacy composites and normalizes trade media. */
 if(!window.__NS_V421_VISUAL_RECOVERY__ && !document.querySelector('script[data-ns-visual-recovery]')){
   const s=document.createElement('script');
   s.src='/assets/js/v421-visual-recovery.js';
   s.defer=true;
   s.dataset.nsVisualRecovery='1';
   document.head.appendChild(s);
+}
+
+/* Final accepted homepage cinematic: 100-coconut rain -> one selected coconut ->
+   knife/open -> visible water/splash. Loaded after base recovery so it owns the
+   visible harvest stage and cannot be overwritten by the earlier recovery layer. */
+if(file()==='index.html' && !window.__NS_V421_CINEMATIC_FINAL__ && !document.querySelector('script[data-ns-cinematic-final]')){
+  const s=document.createElement('script');
+  s.src='/assets/js/v421-cinematic-final.js';
+  s.defer=true;
+  s.dataset.nsCinematicFinal='1';
+  document.body.appendChild(s);
 }
 
 /* Professional first-party acquisition attribution belongs only to the checkout
