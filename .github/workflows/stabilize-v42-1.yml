@@ -48,7 +48,9 @@ jobs:
             (r'https://images\.pexels\.com/photos/16559741/pexels-photo-16559741\.jpeg\?auto=compress(?:&|&amp;)cs=tinysrgb(?:&|&amp;)w=1600','assets/images/nariyal-coconut-grove.webp'),
             (r'https://images\.pexels\.com/photos/4395019/pexels-photo-4395019\.jpeg\?auto=compress(?:&|&amp;)cs=tinysrgb(?:&|&amp;)w=(?:900|1600|1800)','assets/images/freshness-coconut-splash.webp'),
             (r'https://images\.pexels\.com/photos/4802876/pexels-photo-4802876\.jpeg\?auto=compress(?:&|&amp;)cs=tinysrgb(?:&|&amp;)w=1600','assets/images/freshness-coconut-splash.webp'),
-            (r'https://images\.pexels\.com/photos/30748600/pexels-photo-30748600\.jpeg\?auto=compress(?:&|&amp;)cs=tinysrgb(?:&|&amp;)w=(?:1200|1800)','assets/images/bulk-coconut-pack.jpg'),
+            # Trade must never be normalized to a coconut/product photo. Keep a
+            # semantically correct local logistics fallback instead.
+            (r'https://images\.pexels\.com/photos/30748600/pexels-photo-30748600\.jpeg\?auto=compress(?:&|&amp;)cs=tinysrgb(?:&|&amp;)w=(?:1200|1800)','assets/images/trade-logistics.svg'),
           ]
           changed=[]
           for p in root.rglob('*'):
@@ -63,6 +65,31 @@ jobs:
             new=re.sub(r'\s+src=["\'][^"\']*nariyal-coconut-motion\.mp4[^"\']*["\']','',new,flags=re.I)
             if new!=old:
               p.write_text(new,encoding='utf-8');changed.append(str(p))
+
+          # Repair the earlier bad normalization where International Trade was
+          # pointed at bulk-coconut-pack.jpg. Scope the replacement so the real
+          # Bulk product imagery remains untouched elsewhere.
+          for rel in ('about-nariyal-sutra.html','coconut-wholesale-export.html'):
+            p=root/rel
+            if not p.exists(): continue
+            old=p.read_text(encoding='utf-8')
+            new=old.replace('assets/images/bulk-coconut-pack.jpg','assets/images/trade-logistics.svg')
+            new=re.sub(r'Photo:\s*<a[^>]*30748600[^>]*>.*?</a>','Illustrative international logistics visual',new,flags=re.I|re.S)
+            new=re.sub(r'Logistics visual:\s*<a[^>]*30748600[^>]*>.*?</a>','Illustrative international logistics visual',new,flags=re.I|re.S)
+            if new!=old:
+              p.write_text(new,encoding='utf-8')
+              if str(p) not in changed: changed.append(str(p))
+
+          p=root/'index.html'
+          if p.exists():
+            old=p.read_text(encoding='utf-8')
+            new=re.sub(
+              r'(<a\b[^>]*class=["\'][^"\']*promise-portal[^"\']*export[^"\']*["\'][^>]*>[\s\S]{0,900}?<img\b[^>]*\bsrc=["\'])assets/images/bulk-coconut-pack\.jpg(["\'])',
+              r'\1assets/images/trade-logistics.svg\2',old,flags=re.I)
+            if new!=old:
+              p.write_text(new,encoding='utf-8')
+              if str(p) not in changed: changed.append(str(p))
+
           print('Normalized files:',len(changed))
           for p in changed: print(' -',p)
           PY
