@@ -2,9 +2,7 @@
 'use strict';
 
 /* V42.1 stabilization bootstrap: every page that already loads V30 also gets the
-   stable-asset recovery layer. This keeps legacy deploy-specific media/script
-   references from becoming customer-visible failures while source cleanup is
-   completed page by page. */
+   stable-asset recovery layer. */
 if(!window.__NS_V421_STABLE_ASSETS__ && !document.querySelector('script[data-ns-stable-assets]')){
   const s=document.createElement('script');
   s.src='/assets/js/v421-stable-assets.js';
@@ -24,30 +22,12 @@ if(!window.__NS_V421_VISUAL_RECOVERY__ && !document.querySelector('script[data-n
   document.head.appendChild(s);
 }
 
-/* Final accepted homepage cinematic: 100-coconut rain -> one selected coconut ->
-   knife/open -> visible water/splash. Loaded after base recovery so it owns the
-   visible harvest stage and cannot be overwritten by the earlier recovery layer. */
-if(file()==='index.html' && !window.__NS_V421_CINEMATIC_FINAL__ && !document.querySelector('script[data-ns-cinematic-final]')){
-  const s=document.createElement('script');
-  s.src='/assets/js/v421-cinematic-final.js';
-  s.defer=true;
-  s.dataset.nsCinematicFinal='1';
-  document.body.appendChild(s);
-}
+/* IMPORTANT: do not load v421-cinematic-final.js or v421-cinematic-compact.js here.
+   The homepage now has one cinematic owner: v421-cinematic-professional.js, loaded
+   by v29-public.js. Keeping the retired loaders active caused multiple runtimes to
+   move/resize the same cinematic area and reset scroll progress during playback. */
 
-/* Keep the cinematic compact for customers. The full story still plays, but the
-   section does not force an excessively long scroll before the next content. */
-if(file()==='index.html' && !window.__NS_V421_CINEMATIC_COMPACT__ && !document.querySelector('script[data-ns-cinematic-compact]')){
-  const s=document.createElement('script');
-  s.src='/assets/js/v421-cinematic-compact.js';
-  s.defer=true;
-  s.dataset.nsCinematicCompact='1';
-  document.body.appendChild(s);
-}
-
-/* Professional first-party acquisition attribution belongs only to the checkout
-   storefront. It is deliberately loaded here rather than hard-coded into the
-   large homepage so the capture layer remains isolated, testable and removable. */
+/* Professional first-party acquisition attribution belongs only to the checkout storefront. */
 if(file()==='index.html' && !window.NSAttribution && !document.querySelector('script[data-ns-attribution]')){
   const s=document.createElement('script');
   s.src='/assets/js/v421-attribution.js';
@@ -56,9 +36,7 @@ if(file()==='index.html' && !window.NSAttribution && !document.querySelector('sc
   document.head.appendChild(s);
 }
 
-/* Customer account presentation is kept separate from customer-account.js so
-   Firebase/auth/order behavior remains untouched while the premium drawer UI
-   can evolve and be regression-tested independently. */
+/* Customer account presentation stays isolated from customer-account.js. */
 if(file()==='index.html' && !window.__NS_V421_ACCOUNT_UI__ && !document.querySelector('script[data-ns-account-ui]')){
   const s=document.createElement('script');
   s.src='/assets/js/v421-account-ui.js';
@@ -67,8 +45,7 @@ if(file()==='index.html' && !window.__NS_V421_ACCOUNT_UI__ && !document.querySel
   document.head.appendChild(s);
 }
 
-/* Explicit localhost-only My Account visual preview for automated/manual QA.
-   This never runs on production and never writes to Firebase. */
+/* Explicit localhost-only My Account visual preview for automated/manual QA. */
 if(file()==='index.html' && /^(localhost|127\.0\.0\.1|\[::1\])$/i.test(location.hostname) && new URLSearchParams(location.search).get('accountPreview')==='1' && !document.querySelector('script[data-ns-account-preview-stabilizer]')){
   const s=document.createElement('script');
   s.src='/assets/js/v421-account-preview-stabilizer.js';
