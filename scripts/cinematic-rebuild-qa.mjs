@@ -8,7 +8,7 @@ fs.mkdirSync('qa-artifacts',{recursive:true});
 await sleep(1200);
 
 const browser=await chromium.launch({headless:true});
-const context=await browser.newContext({viewport:{width:1440,height:900},serviceWorkers:'block'});
+const context=await browser.newContext({viewport:{width:1440,height:900},serviceWorkers:'block',reducedMotion:'no-preference'});
 const page=await context.newPage();
 const errors=[];
 page.on('pageerror',e=>errors.push(String(e)));
@@ -24,10 +24,10 @@ try {
   if(await film.count()!==1) throw new Error('film missing');
   if(await film.getAttribute('data-rebuilt')!=='1') throw new Error('rebuilt cinematic did not initialize');
 
-  const metrics=await film.evaluate(el=>({top:el.offsetTop,height:el.offsetHeight,viewport:innerHeight,display:getComputedStyle(el).display}));
-  const range=metrics.height-metrics.viewport;
+  const metrics=await film.evaluate(el=>{const cs=getComputedStyle(el),p=el.parentElement,pcs=p?getComputedStyle(p):null;return {top:el.offsetTop,height:el.offsetHeight,viewport:innerHeight,display:cs.display,cssHeight:cs.height,minHeight:cs.minHeight,maxHeight:cs.maxHeight,position:cs.position,parent:p?.id||p?.className||'',parentHeight:p?.offsetHeight||0,parentCssHeight:pcs?.height||'',reduced:matchMedia('(prefers-reduced-motion: reduce)').matches};});
+  const range=Math.max(1,metrics.height-metrics.viewport);
+  console.log('LAYOUT '+JSON.stringify(metrics));
   if(metrics.display==='none') throw new Error('cinematic film is hidden');
-  if(range<metrics.viewport*3) throw new Error(`cinematic scroll range too short: ${range}`);
 
   const points=[0,.10,.18,.26,.34,.42,.49,.56,.63,.70,.76,.82,.90,.96,1];
   const states=[];
@@ -50,24 +50,15 @@ try {
 
   await page.evaluate(({top,range})=>scrollTo(0,top+range*.90),{top:metrics.top,range});
   await page.waitForTimeout(240);
-  const waterCoverage=await page.evaluate(()=>{
-    const el=document.querySelector('#v20-story-film .v421-water');
-    if(!el)return null;
-    const r=el.getBoundingClientRect(),cs=getComputedStyle(el);
-    return {top:r.top,left:r.left,right:r.right,bottom:r.bottom,width:r.width,height:r.height,opacity:Number(cs.opacity),viewport:{w:innerWidth,h:innerHeight}};
-  });
-  if(!waterCoverage || waterCoverage.opacity<.8 || waterCoverage.width<waterCoverage.viewport.w*.98 || waterCoverage.height<waterCoverage.viewport.h*.98){
-    throw new Error(`water does not visually cover viewport: ${JSON.stringify(waterCoverage)}`);
-  }
+  const waterCoverage=await page.evaluate(()=>{const el=document.querySelector('#v20-story-film .v421-water');if(!el)return null;const r=el.getBoundingClientRect(),cs=getComputedStyle(el);return {top:r.top,left:r.left,right:r.right,bottom:r.bottom,width:r.width,height:r.height,opacity:Number(cs.opacity),viewport:{w:innerWidth,h:innerHeight}};});
+  if(!waterCoverage || waterCoverage.opacity<.8 || waterCoverage.width<waterCoverage.viewport.w*.98 || waterCoverage.height<waterCoverage.viewport.h*.98) throw new Error(`water does not visually cover viewport: ${JSON.stringify(waterCoverage)}`);
 
-  const rainVisual=await page.evaluate(()=>{
-    const nuts=[...document.querySelectorAll('#v20-story-film .v421-nut')];
-    return {count:nuts.length,visible:nuts.filter(n=>Number(getComputedStyle(n).opacity)>.15).length};
-  });
+  const rainVisual=await page.evaluate(()=>{const nuts=[...document.querySelectorAll('#v20-story-film .v421-nut')];return {count:nuts.length,maxVisible:nuts.filter(n=>Number(getComputedStyle(n).opacity)>.15).length};});
   if(rainVisual.count<80) throw new Error(`not enough desktop coconuts: ${JSON.stringify(rainVisual)}`);
 
-  if(errors.length) throw new Error('page errors: '+errors.join(' | '));
   console.log(JSON.stringify({checks,metrics,waterCoverage,rainVisual,states:states.map(s=>({sample:s.sample,progress:s.progress,rain:s.rain,hero:s.hero,knife:s.knife,splash:s.splash,water:s.water,count:s.count}))},null,2));
+  if(metrics.height<metrics.viewport*5.5) throw new Error(`cinematic runway compressed after stage capture: ${metrics.height}px`);
+  if(errors.length) throw new Error('page errors: '+errors.join(' | '));
   console.log('CINEMATIC REBUILD QA: PASS');
 } finally {
   await browser.close();
