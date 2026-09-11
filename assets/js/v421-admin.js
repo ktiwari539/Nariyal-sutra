@@ -1,6 +1,6 @@
 /* Nariyal Sutra V42.1 unified production Admin shell.
-   The production logic remains in admin.html. This layer provides one Admin
-   navigation, a complete website inventory and opt-in reporting modules. */
+   The production logic remains in the Firebase-backed owner portal. This layer
+   provides the Business Command Center presentation and unified navigation. */
 const READY='NS_V421_ADMIN_READY';
 if(!window[READY]){
   window[READY]=true;
@@ -19,6 +19,14 @@ if(!window[READY]){
   const SYSTEM_PAGES=[['Admin','admin.html','Single production Admin'],['Admin Login','admin-login.html','Authentication'],['Admin Set Password','admin-set-password.html','Authentication'],['Staff Sign In','staff-sign-in.html','Authentication']];
   const HOME_SECTIONS=['Product hero','Freshness / service ticker','Product collection','Source-to-cut cinematic','Brand moment','Harvest film','Freshness motion','Product benefits','Product quality / freshness','Pricing','Our Story / Why Us','How to Order','Coconut Uses','People teaser','Moving People rail','FAQ / Quick Answers','Order flow + delivery map','Enquiry / Contact'];
 
+  function loadBusinessSkin(){
+    if(document.querySelector('link[data-ns-admin-business-skin]'))return;
+    const l=document.createElement('link');
+    l.rel='stylesheet';
+    l.href='/assets/css/v421-admin-business.css?v=20260911-business-1';
+    l.dataset.nsAdminBusinessSkin='1';
+    document.head.appendChild(l);
+  }
   function styles(){
     if($('#nsUnifiedAdminStyles'))return;
     const s=document.createElement('style');s.id='nsUnifiedAdminStyles';s.textContent=`
@@ -36,7 +44,7 @@ if(!window[READY]){
     if($('#nsAdminWebsiteDirectory'))return;
     const shell=$('main.shell');if(!shell)return;
     const p=document.createElement('section');p.id='nsAdminWebsiteDirectory';p.className='ns-admin-directory';
-    p.innerHTML=`<div class="ns-admin-directory-head"><div><div class="eyebrow">Website & Content</div><h2>Pages & sections.</h2><p>Complete storefront inventory inside the production Admin. Customer-facing content remains controllable here while authentication, security and protected application logic stay code-controlled.</p></div><div class="ns-one-admin"><b>ONE ADMIN</b><br>admin.html is the production Admin.</div></div><div class="ns-admin-directory-grid"><div class="ns-admin-directory-col"><h3>Public website pages</h3><div class="ns-scroll"><table class="ns-page-table"><thead><tr><th>Page</th><th>File</th><th>Purpose</th><th></th></tr></thead><tbody>${PUBLIC_PAGES.map(([n,f,t])=>`<tr><td><strong>${n}</strong></td><td><code>${f}</code></td><td>${t}</td><td><a href="${f}" target="_blank" rel="noopener">Open ↗</a></td></tr>`).join('')}</tbody></table></div></div><div class="ns-admin-directory-col"><h3>Homepage sections</h3><div class="ns-home-list">${HOME_SECTIONS.map((n,i)=>`<div class="ns-home-row"><b>${String(i+1).padStart(2,'0')}</b><span>${n}</span></div>`).join('')}</div><h3 style="margin-top:18px">System / access pages</h3><div class="ns-system-list">${SYSTEM_PAGES.map(([n,f,t])=>`<div class="ns-system-row"><span><b>${n}</b> · ${t}</span><a href="${f}" target="_blank" rel="noopener">Open ↗</a></div>`).join('')}</div></div></div>`;
+    p.innerHTML=`<div class="ns-admin-directory-head"><div><div class="eyebrow">Website & Content</div><h2>Pages & sections.</h2><p>Complete storefront inventory inside the production Admin. Customer-facing content remains controllable here while authentication, security and protected application logic stay code-controlled.</p></div><div class="ns-one-admin"><b>BUSINESS COMMAND CENTER</b><br>Secure production Admin.</div></div><div class="ns-admin-directory-grid"><div class="ns-admin-directory-col"><h3>Public website pages</h3><div class="ns-scroll"><table class="ns-page-table"><thead><tr><th>Page</th><th>File</th><th>Purpose</th><th></th></tr></thead><tbody>${PUBLIC_PAGES.map(([n,f,t])=>`<tr><td><strong>${n}</strong></td><td><code>${f}</code></td><td>${t}</td><td><a href="${f}" target="_blank" rel="noopener">Open ↗</a></td></tr>`).join('')}</tbody></table></div></div><div class="ns-admin-directory-col"><h3>Homepage sections</h3><div class="ns-home-list">${HOME_SECTIONS.map((n,i)=>`<div class="ns-home-row"><b>${String(i+1).padStart(2,'0')}</b><span>${n}</span></div>`).join('')}</div><h3 style="margin-top:18px">System / access pages</h3><div class="ns-system-list">${SYSTEM_PAGES.map(([n,f,t])=>`<div class="ns-system-row"><span><b>${n}</b> · ${t}</span><a href="${f}" target="_blank" rel="noopener">Open ↗</a></div>`).join('')}</div></div></div>`;
     shell.appendChild(p);
   }
   function nav(){
@@ -49,7 +57,13 @@ if(!window[READY]){
   function loadModules(){
     if(!document.querySelector('script[data-ns-admin-attribution]')){const s=document.createElement('script');s.src='/assets/js/v421-admin-attribution.js';s.defer=true;s.dataset.nsAdminAttribution='1';document.head.appendChild(s);}
   }
-  function init(){styles();mark();directory();nav();loadModules();window.NSV421Admin={ready:true,version:'42.1-unified-admin',publicPages:PUBLIC_PAGES.map(x=>({name:x[0],file:x[1],type:x[2]})),homepageSections:[...HOME_SECTIONS],refresh:()=>{mark();directory();nav();}};window.dispatchEvent(new CustomEvent('ns:admin-ready',{detail:{version:'42.1-unified-admin'}}));}
+  function init(){
+    document.title='Nariyal Sutra · Business Command Center';
+    loadBusinessSkin();
+    styles();mark();directory();nav();loadModules();
+    window.NSV421Admin={ready:true,version:'42.1-business-command-center',publicPages:PUBLIC_PAGES.map(x=>({name:x[0],file:x[1],type:x[2]})),homepageSections:[...HOME_SECTIONS],refresh:()=>{mark();directory();nav();}};
+    window.dispatchEvent(new CustomEvent('ns:admin-ready',{detail:{version:'42.1-business-command-center'}}));
+  }
   document.readyState==='loading'?document.addEventListener('DOMContentLoaded',init,{once:true}):init();
 }
 export {};
