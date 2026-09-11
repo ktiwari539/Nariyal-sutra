@@ -1,0 +1,35 @@
+/* V42.1 professional cinematic finishing layer.
+   This belongs only to #v421-cinematic-film-pro and does not touch the rest of the storefront. */
+#v421-cinematic-film-pro .nspro-splash{
+  width:150vw!important;
+  height:118vh!important;
+  max-width:none!important;
+  object-fit:cover!important;
+  object-position:center 54%!important;
+  -webkit-mask-image:radial-gradient(ellipse 78% 68% at 50% 52%,#000 0 54%,rgba(0,0,0,.92) 64%,rgba(0,0,0,.48) 78%,transparent 100%)!important;
+  mask-image:radial-gradient(ellipse 78% 68% at 50% 52%,#000 0 54%,rgba(0,0,0,.92) 64%,rgba(0,0,0,.48) 78%,transparent 100%)!important;
+  mix-blend-mode:screen;
+}
+#v421-cinematic-film-pro .nspro-knife .blade{
+  background:linear-gradient(180deg,#fffefb 0%,#e5e8e6 18%,#a9b0ad 42%,#5f6965 51%,#f5f2eb 67%,#b9c0bd 83%,#757d79 100%)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.96),inset 0 -2px 0 rgba(26,31,29,.52),0 0 22px rgba(255,255,255,.08)!important;
+}
+#v421-cinematic-film-pro .nspro-knife .blade:after{
+  content:'';
+  position:absolute;
+  left:10%;right:12%;top:18%;height:2px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.96),transparent);
+  opacity:.76;
+}
+#v421-cinematic-film-pro .nspro-knife .handle{
+  background:linear-gradient(90deg,#8c5c33 0%,#3a2517 28%,#140d09 61%,#57351f 83%,#8b5a32 100%)!important;
+}
+@media(max-width:980px){
+  #v421-cinematic-film-pro .nspro-splash{
+    width:190vw!important;
+    height:112vh!important;
+    object-position:center 50%!important;
+    -webkit-mask-image:radial-gradient(ellipse 88% 66% at 50% 52%,#000 0 56%,rgba(0,0,0,.9) 66%,rgba(0,0,0,.42) 80%,transparent 100%)!important;
+    mask-image:radial-gradient(ellipse 88% 66% at 50% 52%,#000 0 56%,rgba(0,0,0,.9) 66%,rgba(0,0,0,.42) 80%,transparent 100%)!important;
+  }
+}
