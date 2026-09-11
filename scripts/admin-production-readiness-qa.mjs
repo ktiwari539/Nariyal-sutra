@@ -9,6 +9,11 @@ function staticGate(){
  must(admin.includes('admin-preview.html'),'Production /admin does not route to Business Command Center');
  must(bridge.includes("publicStories','site-config")&&bridge.includes("contentStories','admin-state"),'Production Admin remote configuration bridge is missing');
  must(bridge.includes('uploadMedia')&&bridge.includes('persistCatalog'),'Production Admin is missing durable media/catalog persistence');
+ const sourceCommit=bridge.indexOf('if(sourceWrites)await sourceBatch.commit()');
+ const publicPublish=bridge.indexOf("await fsMod.setDoc(fsMod.doc(db,'publicStories','site-config')");
+ const publicHashAdvance=bridge.indexOf('lastPublicHash=ph;',publicPublish);
+ must(sourceCommit>=0&&publicPublish>sourceCommit,'Production config must commit the private live source before the public projection');
+ must(publicHashAdvance>publicPublish,'Production config must advance the public save hash only after the public write succeeds');
  must(signer.includes('verifyFirebaseToken')&&signer.includes('adminRole')&&/authorization/i.test(signer),'Cloudinary signer is not protected by Firebase Admin authentication');
  must(v32.includes('#v421-cinematic-film-pro'),'Homepage Admin sequencing does not control the real professional cinematic');
  must(mediaDb.includes('admin-v38-production.js')&&mediaDb.includes('v421-production-bridge.js'),'Business Command Center production scripts are not loaded');
