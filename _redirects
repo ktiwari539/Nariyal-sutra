@@ -1,7 +1,7 @@
 /track /track.html 200
 /track/ /track.html 200
-/admin /admin-preview.html 302
-/admin/ /admin-preview.html 302
+/admin /admin-preview.html 200
+/admin/ /admin-preview.html 200
 /admin-preview /admin-preview.html 200
 /admin-preview/ /admin-preview.html 200
 /people /people-of-nariyal-sutra.html 200
