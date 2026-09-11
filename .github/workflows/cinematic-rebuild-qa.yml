@@ -12,8 +12,11 @@ jobs:
       - run: |
           npm install --no-save --no-package-lock playwright@1.55.0
           npx playwright install --with-deps chromium
-      - run: node scripts/cinematic-professional-qa.mjs
-      - name: Upload cinematic QA frames
+      - name: Cinematic and secure Admin entry QA
+        run: node scripts/cinematic-professional-qa.mjs
+      - name: Full release candidate QA
+        run: node scripts/release-candidate-qa.mjs
+      - name: Upload release QA evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
