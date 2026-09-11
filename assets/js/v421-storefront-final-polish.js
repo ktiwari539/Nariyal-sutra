@@ -11,6 +11,7 @@ const LOCAL_HARVEST=[
   '/assets/images/bulk-coconut-pack.jpg'
 ];
 const HARVEST_TARGETS=['homepage-harvest-1','homepage-harvest-2','homepage-harvest-3'];
+let cinePhaseRaf=0;
 
 function configuredMedia(target){
   if(!Store?.load||!Store?.mediaById)return '';
@@ -36,25 +37,38 @@ function installCinematicFinish(){
   const style=document.createElement('style');
   style.id='ns-v421-cinematic-finish';
   style.textContent=`
-    #v421-cinematic-film-pro .nspro-knife{width:min(46vw,620px)!important;height:104px!important;filter:drop-shadow(0 18px 24px rgba(0,0,0,.48))!important}
-    #v421-cinematic-film-pro .nspro-knife .blade{top:28px!important;width:74%!important;height:48px!important;border-radius:2px 48% 48% 2px!important;background:linear-gradient(180deg,#e8ebe8 0%,#afb7b3 25%,#5d6663 50%,#d7dbd7 73%,#737d78 100%)!important;box-shadow:inset 0 1px rgba(255,255,255,.62),inset 0 -1px rgba(17,23,21,.55)!important}
-    #v421-cinematic-film-pro .nspro-knife .handle{top:22px!important;width:31%!important;height:61px!important;border-radius:12px 28px 28px 12px!important;background:linear-gradient(90deg,#604329 0%,#24160f 48%,#0f0b08 68%,#51351f 100%)!important;box-shadow:inset 0 1px 2px rgba(255,255,255,.12),0 9px 17px rgba(0,0,0,.42)!important}
-    #v421-cinematic-film-pro .nspro-splash{width:min(78vw,1120px)!important;filter:saturate(.94) contrast(1.03) brightness(.82)!important}
+    #v421-cinematic-film-pro .nspro-knife{width:min(46vw,620px)!important;height:96px!important;filter:drop-shadow(0 18px 24px rgba(0,0,0,.48))!important}
+    #v421-cinematic-film-pro .nspro-knife .blade{top:29px!important;width:72%!important;height:38px!important;border-radius:1px 34% 34% 1px!important;clip-path:polygon(0 38%,88% 4%,100% 48%,89% 92%,0 62%)!important;background:linear-gradient(180deg,#858e89 0%,#e1e4df 20%,#a8afab 40%,#525a56 58%,#c8ccc7 73%,#303734 100%)!important;box-shadow:inset 0 1px rgba(255,255,255,.48),inset 0 -1px rgba(8,13,11,.65)!important}
+    #v421-cinematic-film-pro .nspro-knife .handle{top:20px!important;width:31%!important;height:57px!important;border-radius:10px 26px 26px 10px!important;background:linear-gradient(90deg,#604329 0%,#24160f 48%,#0f0b08 68%,#51351f 100%)!important;box-shadow:inset 0 1px 2px rgba(255,255,255,.12),0 9px 17px rgba(0,0,0,.42)!important}
+    #v421-cinematic-film-pro .nspro-splash{width:min(66vw,950px)!important;filter:saturate(.92) contrast(1.04) brightness(.76)!important}
+    #v421-cinematic-film-pro.ns-v421-splash-phase .nspro-main,
+    #v421-cinematic-film-pro.ns-v421-splash-phase .nspro-body,
+    #v421-cinematic-film-pro.ns-v421-splash-phase .nspro-cap,
+    #v421-cinematic-film-pro.ns-v421-splash-phase .nspro-focus-ring{opacity:0!important}
     #v421-cinematic-film-pro .nspro-water-photo{inset:-4%!important;width:108%!important;height:108%!important;object-position:center 54%!important;filter:saturate(1.03) contrast(1.12) brightness(.68)!important;mix-blend-mode:normal!important}
     #v421-cinematic-film-pro .nspro-water{inset:-8%!important;background:radial-gradient(circle at 48% 44%,rgba(218,250,244,.18) 0%,rgba(97,202,194,.25) 25%,rgba(19,112,126,.43) 52%,rgba(3,45,61,.66) 78%,rgba(1,18,29,.82) 100%),linear-gradient(180deg,rgba(0,40,48,.08),rgba(1,22,34,.38))!important}
     #v421-cinematic-film-pro .nspro-water:before,#v421-cinematic-film-pro .nspro-water:after{inset:-4%!important;background:radial-gradient(ellipse at 43% 47%,transparent 0 18%,rgba(255,255,255,.10) 19% 20%,transparent 21% 31%,rgba(255,255,255,.055) 32% 33%,transparent 34%)!important;mix-blend-mode:screen!important}
     #v421-cinematic-film-pro .nspro-water:after{opacity:.38!important}
     #v421-cinematic-film-pro .nspro-note{padding:7px 9px;background:rgba(1,18,20,.32);border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(8px)}
     @media(max-width:980px){
-      #v421-cinematic-film-pro .nspro-knife{width:min(76vw,430px)!important;height:76px!important}
-      #v421-cinematic-film-pro .nspro-knife .blade{top:21px!important;height:36px!important}
-      #v421-cinematic-film-pro .nspro-knife .handle{top:17px!important;height:47px!important}
-      #v421-cinematic-film-pro .nspro-splash{width:min(92vw,720px)!important;filter:saturate(.94) contrast(1.03) brightness(.80)!important}
+      #v421-cinematic-film-pro .nspro-knife{width:min(76vw,430px)!important;height:72px!important}
+      #v421-cinematic-film-pro .nspro-knife .blade{top:23px!important;height:29px!important}
+      #v421-cinematic-film-pro .nspro-knife .handle{top:17px!important;height:43px!important}
+      #v421-cinematic-film-pro .nspro-splash{width:min(86vw,600px)!important;filter:saturate(.92) contrast(1.04) brightness(.74)!important}
       #v421-cinematic-film-pro .nspro-water-photo{object-position:center 52%!important}
     }
   `;
   document.head.appendChild(style);
 }
+
+function syncCinematicPhase(){
+  cinePhaseRaf=0;
+  const film=document.getElementById('v421-cinematic-film-pro');
+  if(!film)return;
+  const p=Number(window.__NS_V421_PRO_CINE?.progress||0);
+  film.classList.toggle('ns-v421-splash-phase',p>=.645);
+}
+function requestCinematicPhase(){if(!cinePhaseRaf)cinePhaseRaf=requestAnimationFrame(syncCinematicPhase);}
 
 function diversifyHomepageMedia(){
   /* Product / cut chapters */
@@ -136,6 +150,7 @@ function addCinematicDepth(){
     nut.classList.toggle('ns-depth-far',d<.30);
     if(i%17===0)nut.classList.add('ns-cine-glint');
   });
+  requestCinematicPhase();
   return true;
 }
 
@@ -150,9 +165,11 @@ function init(){
     },120);
   }
   setTimeout(fixLegacyStoryMedia,700);
-  setTimeout(()=>{fixLegacyStoryMedia();addCinematicDepth();},1600);
-  window.addEventListener('nsv421:change',()=>setTimeout(fixLegacyStoryMedia,0));
-  window.addEventListener('nsv421:production-ready',()=>setTimeout(fixLegacyStoryMedia,0));
+  setTimeout(()=>{fixLegacyStoryMedia();addCinematicDepth();requestCinematicPhase();},1600);
+  window.addEventListener('scroll',requestCinematicPhase,{passive:true});
+  window.addEventListener('resize',requestCinematicPhase,{passive:true});
+  window.addEventListener('nsv421:change',()=>setTimeout(()=>{fixLegacyStoryMedia();requestCinematicPhase();},0));
+  window.addEventListener('nsv421:production-ready',()=>setTimeout(()=>{fixLegacyStoryMedia();requestCinematicPhase();},0));
 }
 
 document.readyState==='loading'?document.addEventListener('DOMContentLoaded',init,{once:true}):init();
