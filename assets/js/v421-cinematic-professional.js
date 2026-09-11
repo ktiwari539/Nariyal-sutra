@@ -12,8 +12,8 @@ function injectStyle(){
   s.id='v421-cinematic-pro-style';
   s.textContent=`
   #scroll-cinema,#v421-cinematic-film{display:none!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;overflow:hidden!important}
-  #${ID}{position:relative;height:575vh!important;min-height:575vh!important;background:#020802;isolation:isolate;overflow:visible}
-  #${ID} .nspro-stage{position:sticky;top:0;height:100svh;min-height:100svh;overflow:hidden;isolation:isolate;background:#031003}
+  #${ID}{position:relative;height:575vh!important;min-height:575vh!important;background:#020802;isolation:isolate;overflow:visible!important}
+  #${ID} .nspro-stage{position:absolute;left:0;right:0;top:0;width:100%;height:100vh;min-height:100vh;overflow:hidden;isolation:isolate;background:#031003;z-index:20}
   #${ID} .nspro-bg{position:absolute;inset:-3%;width:106%;height:106%;object-fit:cover;object-position:center 43%;z-index:0;filter:saturate(1.06) contrast(1.08) brightness(.71);transform:scale(var(--bg-scale,1.04)) translate3d(0,var(--bg-y,0),0);will-change:transform}
   #${ID} .nspro-grade{position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(1,7,1,.17),rgba(1,7,1,.05) 42%,rgba(1,7,1,.62)),linear-gradient(90deg,rgba(1,7,1,.60),rgba(1,7,1,.04) 54%,rgba(1,7,1,.28));pointer-events:none}
   #${ID} .nspro-rain{position:absolute;inset:0;z-index:4;overflow:hidden;pointer-events:none;perspective:1200px}
@@ -53,7 +53,7 @@ function injectStyle(){
   }
   @media(prefers-reduced-motion:reduce){
     #${ID}{height:auto!important;min-height:0!important}
-    #${ID} .nspro-stage{position:relative;height:92svh;min-height:92svh}
+    #${ID} .nspro-stage{position:relative!important;height:92vh;min-height:92vh}
     #${ID} .nspro-rain,#${ID} .nspro-knife,#${ID} .nspro-splash,#${ID} .nspro-water-photo,#${ID} .nspro-water{display:none!important}
   }`;
   document.head.appendChild(s);
@@ -72,12 +72,35 @@ function hideLegacy(){
     if(!el)return;
     el.hidden=true;
     el.setAttribute('aria-hidden','true');
-    el.style.setProperty('display','none','important');
-    el.style.setProperty('height','0','important');
-    el.style.setProperty('min-height','0','important');
-    el.style.setProperty('margin','0','important');
-    el.style.setProperty('padding','0','important');
+    ['display','height','min-height','margin','padding'].forEach(prop=>el.style.setProperty(prop,prop==='display'?'none':'0','important'));
   });
+}
+
+function setPinnedStage(stage,rect){
+  const active=rect.top<=0&&rect.bottom>=innerHeight;
+  if(active){
+    stage.style.setProperty('position','fixed','important');
+    stage.style.setProperty('top','0','important');
+    stage.style.setProperty('bottom','auto','important');
+    stage.style.setProperty('left','0','important');
+    stage.style.setProperty('right','0','important');
+    stage.style.setProperty('width','100vw','important');
+    stage.style.setProperty('height','100vh','important');
+    return 'fixed';
+  }
+  stage.style.setProperty('position','absolute','important');
+  stage.style.setProperty('left','0','important');
+  stage.style.setProperty('right','0','important');
+  stage.style.setProperty('width','100%','important');
+  stage.style.setProperty('height','100vh','important');
+  if(rect.top>0){
+    stage.style.setProperty('top','0','important');
+    stage.style.setProperty('bottom','auto','important');
+    return 'before';
+  }
+  stage.style.setProperty('top','auto','important');
+  stage.style.setProperty('bottom','0','important');
+  return 'after';
 }
 
 function build(){
@@ -123,12 +146,7 @@ function build(){
 
   const count=innerWidth<=980?66:116;
   const nuts=[];
-  const variants=[
-    {b:.82,s:.88,ratio:1},
-    {b:.92,s:1.02,ratio:.91},
-    {b:.76,s:.82,ratio:1.10},
-    {b:1.02,s:1.06,ratio:.96}
-  ];
+  const variants=[{b:.82,s:.88,r:1},{b:.92,s:1.02,r:.91},{b:.76,s:.82,r:1.10},{b:1.02,s:1.06,r:.96}];
 
   for(let i=0;i<count;i++){
     const d=document.createElement('div');
@@ -138,7 +156,7 @@ function build(){
     const x=3+((i*31.7+(i%9)*5.1)%94);
     const start=.014+(i/Math.max(1,count-1))*.38;
     const dur=.125+(i%6)*.008;
-    const w=((innerWidth<=980?28:36)+depth*(innerWidth<=980?66:96))*v.ratio;
+    const w=((innerWidth<=980?28:36)+depth*(innerWidth<=980?66:96))*v.r;
     const drift=((i*23)%88)-44;
     const rot=((i*47)%116)-58;
     Object.assign(d.dataset,{x:x.toFixed(2),depth:depth.toFixed(3),start:start.toFixed(4),dur:dur.toFixed(4),drift:String(drift),rot:String(rot)});
@@ -147,8 +165,7 @@ function build(){
     d.style.setProperty('--s',(v.s+depth*.12).toFixed(2));
     d.style.setProperty('--blur',((1-depth)*1.2).toFixed(2)+'px');
     d.innerHTML='<img src="/assets/images/story-coconut-hero.png" alt="">';
-    rain.appendChild(d);
-    nuts.push(d);
+    rain.appendChild(d);nuts.push(d);
   }
 
   let raf=0;
@@ -159,87 +176,51 @@ function build(){
     const rect=film.getBoundingClientRect();
     const range=Math.max(1,film.offsetHeight-innerHeight);
     const p=clamp(-rect.top/range);
+    const pin=setPinnedStage(stage,rect);
 
     let visible=0;
     nuts.forEach((n,i)=>{
-      const start=+n.dataset.start;
-      const dur=+n.dataset.dur;
-      const active=p>=start&&p<=start+dur;
+      const start=+n.dataset.start,dur=+n.dataset.dur,active=p>=start&&p<=start+dur;
       if(!active){n.style.opacity='0';return;}
-      const t=clamp((p-start)/dur);
-      const e=smooth(t);
-      const depth=+n.dataset.depth;
+      const t=clamp((p-start)/dur),e=smooth(t),depth=+n.dataset.depth;
       const x=+n.dataset.x+Math.sin((i+1)*.81+t*4.8)*(1.2+depth*2.9);
-      const y=-28+e*(150+depth*20);
-      const sway=(+n.dataset.drift)*Math.sin(t*Math.PI);
-      const rot=+n.dataset.rot+e*(145+depth*285);
-      const edge=Math.min(1,t/.11,(1-t)/.14);
-      const alpha=clamp(edge)*(0.72+depth*.27);
-      const scale=.72+depth*.52+e*.10;
-      const tiltX=((i%5)-2)*2.3;
-      const tiltY=((i%7)-3)*2.0;
+      const y=-28+e*(150+depth*20),sway=(+n.dataset.drift)*Math.sin(t*Math.PI),rot=+n.dataset.rot+e*(145+depth*285);
+      const edge=Math.min(1,t/.11,(1-t)/.14),alpha=clamp(edge)*(0.72+depth*.27),scale=.72+depth*.52+e*.10;
+      const tiltX=((i%5)-2)*2.3,tiltY=((i%7)-3)*2.0;
       n.style.opacity=alpha.toFixed(3);
       n.style.transform=`translate3d(calc(${x.toFixed(2)}vw + ${sway.toFixed(1)}px),${y.toFixed(2)}vh,0) translate(-50%,-50%) rotateX(${tiltX.toFixed(1)}deg) rotateY(${tiltY.toFixed(1)}deg) rotateZ(${rot.toFixed(1)}deg) scale(${scale.toFixed(3)})`;
       if(alpha>.15)visible++;
     });
 
-    const heroIn=smooth((p-.385)/.07);
-    const heroOut=1-smooth((p-.685)/.05);
-    const ha=heroIn*heroOut;
-    const cut=smooth((p-.575)/.045);
-    const heroScale=1.62-.57*heroIn+.08*smooth((p-.51)/.09);
-    hero.style.opacity=(ha*(1-cut)).toFixed(3);
-    hero.style.transform=`translate(-50%,-50%) scale(${heroScale.toFixed(3)}) rotate(${((1-heroIn)*-4).toFixed(1)}deg)`;
-    focus.style.opacity=(ha*.72).toFixed(3);
-    focus.style.transform=`translate(-50%,-50%) scale(${(.72+heroIn*.36).toFixed(3)})`;
-
-    body.style.opacity=(ha*cut).toFixed(3);
-    cap.style.opacity=(ha*cut).toFixed(3);
+    const heroIn=smooth((p-.385)/.07),heroOut=1-smooth((p-.685)/.05),ha=heroIn*heroOut,cut=smooth((p-.575)/.045),heroScale=1.62-.57*heroIn+.08*smooth((p-.51)/.09);
+    hero.style.opacity=(ha*(1-cut)).toFixed(3);hero.style.transform=`translate(-50%,-50%) scale(${heroScale.toFixed(3)}) rotate(${((1-heroIn)*-4).toFixed(1)}deg)`;
+    focus.style.opacity=(ha*.72).toFixed(3);focus.style.transform=`translate(-50%,-50%) scale(${(.72+heroIn*.36).toFixed(3)})`;
+    body.style.opacity=(ha*cut).toFixed(3);cap.style.opacity=(ha*cut).toFixed(3);
     body.style.transform=`translate(-50%,-50%) translateY(${(cut*14).toFixed(1)}px) scale(1.05)`;
     cap.style.transform=`translate(-50%,-50%) translate(${(cut*68).toFixed(1)}px,${(-cut*82).toFixed(1)}px) rotate(${(cut*26).toFixed(1)}deg) scale(1.05)`;
 
-    const knifeIn=smooth((p-.485)/.055);
-    const knifeOut=1-smooth((p-.66)/.045);
-    const ka=knifeIn*knifeOut;
-    const kt=smooth((p-.485)/.125);
-    knife.style.opacity=ka.toFixed(3);
-    knife.style.transform=`translate(${(21-kt*43).toFixed(2)}vw,-50%) rotate(${(-18+kt*9).toFixed(2)}deg)`;
+    const knifeIn=smooth((p-.485)/.055),knifeOut=1-smooth((p-.66)/.045),ka=knifeIn*knifeOut,kt=smooth((p-.485)/.125);
+    knife.style.opacity=ka.toFixed(3);knife.style.transform=`translate(${(21-kt*43).toFixed(2)}vw,-50%) rotate(${(-18+kt*9).toFixed(2)}deg)`;
 
-    const sa=smooth((p-.61)/.045)*(1-smooth((p-.845)/.06));
-    const ss=.50+smooth((p-.61)/.155)*1.62;
-    splash.style.opacity=sa.toFixed(3);
-    splash.style.transform=`translate(-50%,-50%) scale(${ss.toFixed(3)})`;
+    const sa=smooth((p-.61)/.045)*(1-smooth((p-.845)/.06)),ss=.50+smooth((p-.61)/.155)*1.62;
+    splash.style.opacity=sa.toFixed(3);splash.style.transform=`translate(-50%,-50%) scale(${ss.toFixed(3)})`;
 
     const wa=smooth((p-.72)/.055);
-    water.style.opacity=wa.toFixed(3);
-    water.style.transform=`scale(${(.58+wa*1.10).toFixed(3)})`;
-    waterPhoto.style.opacity=(wa*.70).toFixed(3);
-    waterPhoto.style.transform=`scale(${(.62+wa*.74).toFixed(3)})`;
+    water.style.opacity=wa.toFixed(3);water.style.transform=`scale(${(.58+wa*1.10).toFixed(3)})`;
+    waterPhoto.style.opacity=(wa*.70).toFixed(3);waterPhoto.style.transform=`scale(${(.62+wa*.74).toFixed(3)})`;
 
     const ca=1-smooth((p-.26)/.08);
-    copy.style.opacity=ca.toFixed(3);
-    copy.style.transform=`translateY(${(smooth((p-.20)/.12)*-36).toFixed(1)}px)`;
-    stage.style.setProperty('--bg-scale',(1.04+p*.06).toFixed(3));
-    stage.style.setProperty('--bg-y',(-p*1.8).toFixed(2)+'%');
+    copy.style.opacity=ca.toFixed(3);copy.style.transform=`translateY(${(smooth((p-.20)/.12)*-36).toFixed(1)}px)`;
+    stage.style.setProperty('--bg-scale',(1.04+p*.06).toFixed(3));stage.style.setProperty('--bg-y',(-p*1.8).toFixed(2)+'%');
 
-    window.__NS_V421_PRO_CINE={progress:p,rainVisible:visible,hero:ha,knife:ka,splash:sa,water:wa,count,ready};
+    window.__NS_V421_PRO_CINE={progress:p,rainVisible:visible,hero:ha,knife:ka,splash:sa,water:wa,count,ready,pin};
   }
 
   const request=()=>{if(!raf)raf=requestAnimationFrame(render)};
-  addEventListener('scroll',request,{passive:true});
-  addEventListener('resize',request,{passive:true});
+  addEventListener('scroll',request,{passive:true});addEventListener('resize',request,{passive:true});
 
-  /* Stabilize placement only before the film becomes test/user ready. Once ready,
-     no runtime is allowed to move the section while somebody is scrolling it. */
   [0,120,320,700,1100].forEach(ms=>setTimeout(()=>{hideLegacy();putAfterCollection(film);request();},ms));
-  setTimeout(()=>{
-    hideLegacy();
-    putAfterCollection(film);
-    ready=true;
-    film.dataset.ready='1';
-    request();
-  },1350);
-
+  setTimeout(()=>{hideLegacy();putAfterCollection(film);ready=true;film.dataset.ready='1';request();},1350);
   render();
 }
 
