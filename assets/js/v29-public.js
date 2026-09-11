@@ -16,11 +16,18 @@ function loadRebuiltCinematic(){
   if(window.__NS_V421_REAL_CINE_LOADER__)return;
   window.__NS_V421_REAL_CINE_LOADER__=true;
   const s=document.createElement('script');
-  s.src='assets/js/v421-cinematic-rebuild.js?v=20260911-real-sequence-2';
+  s.src='assets/js/v421-cinematic-rebuild.js?v=20260911-real-sequence-3';
   s.defer=true;
   s.dataset.cinematic='v421-rebuild';
+  s.onerror=()=>{window.__NS_V421_REAL_CINE_LOADER__=false;console.error('[NS] cinematic rebuild failed to load');};
   document.head.appendChild(s);
 }
-function init(){setTimeout(()=>{zoomWords();cleanDeadSpace();loadRebuiltCinematic();},140);}
-document.readyState==='loading'?document.addEventListener('DOMContentLoaded',init):init();
+function init(){
+  setTimeout(()=>{
+    loadRebuiltCinematic();
+    try{zoomWords();}catch(e){console.warn('[NS] zoomWords skipped',e);}
+    try{cleanDeadSpace();}catch(e){console.warn('[NS] cleanDeadSpace skipped',e);}
+  },80);
+}
+document.readyState==='loading'?document.addEventListener('DOMContentLoaded',init,{once:true}):init();
 })();
