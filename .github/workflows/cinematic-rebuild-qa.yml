@@ -18,6 +18,8 @@ jobs:
         run: node scripts/release-candidate-qa.mjs
       - name: Admin production readiness QA
         run: node scripts/admin-production-readiness-qa.mjs
+      - name: Media inventory and visual diversity QA
+        run: node scripts/media-integrity-qa.mjs
       - name: Upload release QA evidence
         if: always()
         uses: actions/upload-artifact@v4
