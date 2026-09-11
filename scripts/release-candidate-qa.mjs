@@ -14,19 +14,34 @@ const failures=[];
 const fail=(scope,msg)=>failures.push({scope,msg});
 
 function sourceContract(){
-  const redirects=fs.readFileSync(path.join(ROOT,'_redirects'),'utf8');
-  const admin=fs.readFileSync(path.join(ROOT,'admin-live-legacy.html'),'utf8');
-  const adminEntry=fs.readFileSync(path.join(ROOT,'admin.html'),'utf8');
-  const requiredRedirects=['/admin /admin-live-legacy.html 200','/admin/ /admin-live-legacy.html 200'];
-  for(const token of requiredRedirects)if(!redirects.includes(token))fail('source',`missing production Admin route: ${token}`);
-  if(!adminEntry.includes('admin-live-legacy.html')||!adminEntry.includes('admin-preview.html'))fail('source','admin.html is not routing local review and production Admin separately');
-  const wiring=[
-    'firebase-config.js','firebase-app.js','firebase-auth.js','firebase-firestore.js',
-    "collection(db,'orders')","collection(db,'customers')","collection(db,'inquiries')","collection(db,'products')",
-    "collection(db,'adminAudit')",'setDoc(','writeBatch(','onSnapshot(','/assets/js/v421-admin.js'
+  const read=p=>fs.readFileSync(path.join(ROOT,p),'utf8');
+  const redirects=read('_redirects');
+  const adminEntry=read('admin.html');
+  const adminPreview=read('admin-preview.html');
+  const mediaDb=read('assets/js/v421-media-db.js');
+  const bridge=read('assets/js/v421-production-bridge.js');
+  const v32=read('assets/js/v32-public.js');
+
+  const requiredRedirects=['/admin /admin.html 200','/admin/ /admin.html 200'];
+  for(const token of requiredRedirects)if(!redirects.includes(token))fail('source',`missing Business Command Center route: ${token}`);
+  if(/\/admin\/?\s+\/admin-live-legacy\.html\s+200/.test(redirects))fail('source','/admin still routes to rejected legacy Admin');
+  if(!adminEntry.includes('admin-preview.html')||adminEntry.includes('admin-live-legacy.html'))fail('source','admin.html is not a clean Business Command Center entry');
+  if(!adminPreview.includes('assets/js/v421-media-db.js'))fail('source','Business Command Center does not load the media/runtime bootstrap');
+  if(!mediaDb.includes('admin-v38-production.js')||!mediaDb.includes('v421-production-bridge.js'))fail('source','Business Command Center production scripts are not loaded');
+
+  const securityTokens=[
+    'admin-bcc-login.html',
+    'waitAuth()',
+    'adminRole(user)',
+    "['Owner','Admin','Manager','Operations','Content','Support','Sales']",
+    'nsProductionAdminGuard',
+    'uploadMedia',
+    'persistRemote'
   ];
-  for(const token of wiring)if(!admin.includes(token))fail('source',`production Admin wiring missing ${token}`);
-  if(/LOCAL INTERACTIVE PREVIEW|No Firebase, Cloudinary, email or production writes/i.test(admin))fail('source','production Admin contains local-preview-only marker');
+  for(const token of securityTokens)if(!bridge.includes(token))fail('source',`production Admin bridge missing ${token}`);
+  if(!bridge.includes("const LOCAL=/^(localhost|127\\.0\\.0\\.1|\\[::1\\])$/i"))fail('source','production bridge local/production boundary is missing');
+  if(!bridge.includes("const isAdmin=/admin-preview\\.html$/i"))fail('source','production bridge is not bound to the approved Business Command Center');
+  if(!v32.includes("cinematic:()=>$('#v421-cinematic-film-pro')"))fail('source','homepage sequencing does not target the professional cinematic first');
 }
 sourceContract();
 
@@ -107,52 +122,37 @@ try{
 
   const context=await browser.newContext({viewport:{width:1440,height:900},serviceWorkers:'block'});
 
-  /* Local/manual review must show the full Business Command Center discussed with the user. */
   const localAdmin=await context.newPage();
+  const adminErrors=[];localAdmin.on('pageerror',e=>adminErrors.push(String(e)));
   await localAdmin.goto(`${BASE}/admin.html`,{waitUntil:'domcontentloaded',timeout:30000});
   await localAdmin.waitForURL(/admin-preview\.html/,{timeout:10000});
   await localAdmin.waitForSelector('.ap-app',{state:'visible',timeout:10000});
+  await localAdmin.waitForFunction(()=>window.__NS_V421_ADMIN_V38__===true,null,{timeout:10000});
   const localState=await localAdmin.evaluate(()=>{
     const labels=[...document.querySelectorAll('#apNav button')].map(b=>b.textContent.replace(/\s+/g,' ').trim());
     const required=['Overview','Orders','Payments','Products & Pricing','Inventory','Warehouses / Nodes','Delivery Services','Delivery Hub','Customer 360','Media Library','Schedule','Team / Tasks'];
-    return {title:document.title,missing:required.filter(x=>!labels.some(v=>v.includes(x))),sidebar:!!document.querySelector('#apSidebar'),app:!!document.querySelector('.ap-app')};
+    return {
+      title:document.title,
+      missing:required.filter(x=>!labels.some(v=>v.includes(x))),
+      sidebar:!!document.querySelector('#apSidebar'),
+      app:!!document.querySelector('.ap-app'),
+      v38:window.__NS_V421_ADMIN_V38__===true,
+      imageTargets:!!document.querySelector('#apV38ImageTargets')
+    };
   });
-  if(!/Business Command Center/i.test(localState.title)||!localState.sidebar||!localState.app||localState.missing.length)fail('admin-local',`approved Business Command Center UI missing ${JSON.stringify(localState)}`);
+  if(!/Business Command Center/i.test(localState.title)||!localState.sidebar||!localState.app||!localState.v38||!localState.imageTargets||localState.missing.length)fail('admin-local',`approved Business Command Center UI missing ${JSON.stringify(localState)}`);
+  if(adminErrors.length)fail('admin-local',`runtime errors: ${adminErrors.join(' | ')}`);
   await localAdmin.screenshot({path:path.join(OUT,'admin-business-command-center-local.png'),fullPage:true});
   await localAdmin.close();
 
-  /* The actual production implementation remains protected and Firebase-backed. */
-  const prodAdmin=await context.newPage();
-  const adminErrors=[];prodAdmin.on('pageerror',e=>adminErrors.push(String(e)));
-  await prodAdmin.goto(`${BASE}/admin-live-legacy.html`,{waitUntil:'domcontentloaded',timeout:30000});
-  await prodAdmin.waitForSelector('#loginView',{state:'visible',timeout:10000});
-  await prodAdmin.waitForFunction(()=>window.NSV421Admin?.ready===true,null,{timeout:10000});
-  const adminState=await prodAdmin.evaluate(()=>{
-    const visible=e=>{if(!e)return false;const s=getComputedStyle(e),r=e.getBoundingClientRect();return !e.classList.contains('hidden')&&s.display!=='none'&&s.visibility!=='hidden'&&r.width>2&&r.height>2};
-    return {
-      title:document.title,
-      loginVisible:visible(document.getElementById('loginView')),
-      appHidden:!visible(document.getElementById('appView')),
-      emailType:document.getElementById('email')?.type,
-      passwordType:document.getElementById('password')?.type,
-      adminReady:window.NSV421Admin?.ready===true,
-      skin:!!document.querySelector('link[data-ns-admin-business-skin]'),
-      viewport:innerWidth,scrollWidth:Math.max(document.documentElement.scrollWidth,document.body.scrollWidth)
-    };
-  });
-  if(!/Business Command Center/i.test(adminState.title))fail('admin-production',`unexpected title ${adminState.title}`);
-  if(!adminState.loginVisible||!adminState.appHidden)fail('admin-production','secure unauthenticated boundary is incorrect');
-  if(adminState.emailType!=='email'||adminState.passwordType!=='password')fail('admin-production','credential inputs are not typed correctly');
-  if(!adminState.adminReady||!adminState.skin)fail('admin-production','production Admin enhancement did not initialize');
-  if(adminState.scrollWidth>adminState.viewport+6)fail('admin-production',`horizontal overflow ${adminState.scrollWidth}px > ${adminState.viewport}px`);
-  if(adminErrors.some(e=>!/storage|firebase|network/i.test(e)))fail('admin-production',`runtime errors: ${adminErrors.join(' | ')}`);
-  await prodAdmin.screenshot({path:path.join(OUT,'admin-secure-production-entry.png'),fullPage:true});
-  await prodAdmin.close();
-
-  for(const file of ['admin-login.html','admin-set-password.html','staff-sign-in.html']){
-    const p=await context.newPage();const res=await p.goto(`${BASE}/${file}${file==='admin-set-password.html'?'?token=qa-invalid':''}`,{waitUntil:'domcontentloaded',timeout:30000}).catch(()=>null);
+  for(const file of ['admin-bcc-login.html','admin-login.html','admin-set-password.html','staff-sign-in.html']){
+    const p=await context.newPage();
+    const suffix=file==='admin-set-password.html'?'?token=qa-invalid':'';
+    const res=await p.goto(`${BASE}/${file}${suffix}`,{waitUntil:'domcontentloaded',timeout:30000}).catch(()=>null);
     if(!res||res.status()>=400)fail(`auth:${file}`,`returned ${res?.status()||'no response'}`);
-    const text=(await p.locator('body').innerText().catch(()=>'' )).trim();if(text.length<20)fail(`auth:${file}`,'page is empty');await p.close();
+    const text=(await p.locator('body').innerText().catch(()=>'' )).trim();
+    if(text.length<20)fail(`auth:${file}`,'page is empty');
+    await p.close();
   }
   await context.close();
 } finally {
