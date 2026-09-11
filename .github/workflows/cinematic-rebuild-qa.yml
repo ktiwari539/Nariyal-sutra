@@ -1,0 +1,15 @@
+name: Cinematic rebuild QA
+on:
+  push:
+    branches: [fix/cinematic-real-sequence-20260911]
+  workflow_dispatch:
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: node scripts/predeploy-audit.mjs
+      - run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - run: node scripts/cinematic-rebuild-qa.mjs
