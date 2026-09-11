@@ -1,10 +1,10 @@
 /* V42.1 professional cinematic finishing layer.
    This belongs only to #v421-cinematic-film-pro and does not touch the rest of the storefront. */
 
-/* Shorter runway: keep every story beat, remove the long dead scroll between them. */
+/* Final tighter runway: preserve every beat while reducing rain-to-cut and water hold. */
 html body #v421-cinematic-film-pro{
-  height:430vh!important;
-  min-height:430vh!important;
+  height:380vh!important;
+  min-height:380vh!important;
 }
 #v421-cinematic-film-pro .nspro-stage{
   perspective:1050px;
@@ -99,8 +99,8 @@ html body #v421-cinematic-film-pro{
 
 @media(max-width:980px){
   html body #v421-cinematic-film-pro{
-    height:350vh!important;
-    min-height:350vh!important;
+    height:330vh!important;
+    min-height:330vh!important;
   }
   #v421-cinematic-film-pro .nspro-rain{perspective:720px!important}
   #v421-cinematic-film-pro .nspro-splash{
