@@ -1,11 +1,6 @@
-/* V42.1 compact cinematic runway.
-   Keeps the full 100-coconut -> one -> cut -> splash -> water story without
-   forcing customers through a long scroll section.
-
-   This layer deliberately applies the final runway with an inline !important
-   style after the other cinematic scripts have initialized, so script download
-   order cannot accidentally restore the old long 300/500vh runway.
-*/
+/* V42.1 legacy compact cinematic compatibility layer.
+   The rebuilt V42.1 cinematic owns its own long-form runway. This file must
+   never compress a rebuilt film back to the retired 235vh timeline. */
 (function(){
   'use strict';
   if(window.__NS_V421_CINEMATIC_COMPACT__)return;
@@ -19,17 +14,26 @@
 
   function applyRunway(){
     const el=film();
-    if(!el||innerWidth<769)return;
+    if(!el)return;
+
+    /* The new cinematic rebuild owns the runway. Explicitly restore its
+       intended height because older versions of this compatibility layer may
+       already have written a 235vh inline !important style before rebuild. */
+    if(el.dataset.rebuilt==='1'){
+      const height=innerWidth<=980?'480vh':'620vh';
+      el.style.setProperty('height',height,'important');
+      el.style.setProperty('min-height',height,'important');
+      return;
+    }
+
+    if(innerWidth<769)return;
     el.style.setProperty('height','235vh','important');
     el.style.setProperty('min-height','235vh','important');
   }
 
-  /* With the shorter runway the water finish needs to arrive before the film is
-     close to handing off to the next section. This keeps it visible on laptops
-     and prevents customers from needing extra scrolling just to see the payoff. */
   function applyCompactTimeline(){
     const el=film();
-    if(!el||innerWidth<769)return;
+    if(!el||innerWidth<769||el.dataset.rebuilt==='1')return;
     const p=progress(el);
     const waterIn=smooth((p-.745)/.035);
     const waterOut=1-smooth((p-.91)/.035);
@@ -42,11 +46,10 @@
 
   function init(){
     applyRunway();applyCompactTimeline();
-    /* Re-apply after dynamic cinematic scripts have had time to initialize. */
-    setTimeout(update,700);setTimeout(update,1400);
+    setTimeout(update,180);setTimeout(update,700);setTimeout(update,1400);
     addEventListener('scroll',request,{passive:true});
     addEventListener('resize',request,{passive:true});
-    window.NSV421CinematicCompact={heightVh:235,waterStart:.745,version:'compact-235vh'};
+    window.NSV421CinematicCompact={legacyHeightVh:235,rebuildDesktopVh:620,rebuildTouchVh:480,version:'rebuild-aware'};
   }
 
   document.readyState==='loading'?document.addEventListener('DOMContentLoaded',init,{once:true}):init();
