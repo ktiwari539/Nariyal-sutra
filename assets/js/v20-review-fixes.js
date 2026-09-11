@@ -79,7 +79,11 @@ function build(){
     });
   }
   function request(){if(!raf)raf=requestAnimationFrame(update);}
-  addEventListener('scroll',request,{passive:true}); addEventListener('resize',request,{passive:true}); update();
+  addEventListener('scroll',request,{passive:true});
+  document.addEventListener('scroll',request,{passive:true});
+  addEventListener('resize',request,{passive:true});
+  if(window.visualViewport)window.visualViewport.addEventListener('resize',request,{passive:true});
+  update();
   return true;
 }
 if(!build())document.addEventListener('DOMContentLoaded',build,{once:true});
