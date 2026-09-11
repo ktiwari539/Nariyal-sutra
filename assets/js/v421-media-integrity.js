@@ -4,8 +4,10 @@ if(window.__NS_V421_MEDIA_INTEGRITY__)return;
 window.__NS_V421_MEDIA_INTEGRITY__=true;
 const file=(location.pathname.split('/').pop()||'index.html').toLowerCase()||'index.html';
 const $=(s,r=document)=>r.querySelector(s);
+const GENERIC_FALLBACKS=['/assets/images/nariyal-coconut-grove.webp','/assets/images/harvest-wall-organic.jpg'];
 
 function local(src){return src.startsWith('/')?src:'/'+src;}
+function pathOf(src){try{return new URL(src,location.href).pathname;}catch(_){return src||'';}}
 function setImg(selector,src,alt){
  const img=$(selector);if(!img)return false;
  img.src=local(src);img.removeAttribute('srcset');img.removeAttribute('onerror');
@@ -21,17 +23,56 @@ function replaceEmptyVideo(selector,src,alt){
  img.src=local(src);img.alt=alt||'Nariyal Sutra product story';img.loading='eager';img.decoding='async';img.dataset.nsIntegrity='1';
  video.replaceWith(img);return true;
 }
+function pageFallback(img){
+ const product=img.closest?.('[data-product-card]')?.dataset.productCard;
+ if(product==='tender')return '/assets/images/nariyal-product-collection.webp';
+ if(product==='green')return '/assets/images/green-round-coconut.jpg';
+ if(product==='bulk')return '/assets/images/bulk-coconut-pack.jpg';
+ if(img.closest?.('#people-of-nariyal,.people-page,#nsPeopleMarquee,.v25-people-worlds'))return '';
+ if(img.closest?.('.trade-buy'))return '/assets/images/generated/hospitality.webp';
+ if(img.closest?.('.trade-supply'))return '/assets/images/generated/supplier.webp';
+ if(img.closest?.('.promise-portal.farm'))return '/assets/images/generated/direct-sourcing.webp';
+ if(img.closest?.('#cut-story,.water-window,.cw-image-panel'))return '/assets/images/freshness-coconut-splash.webp';
+ const map={
+  'supplier-partnership.html':'/assets/images/generated/supplier.webp',
+  'direct-farm.html':'/assets/images/generated/direct-sourcing.webp',
+  'freshness-first.html':'/assets/images/freshness-coconut-splash.webp',
+  'fresh-tender-coconut.html':'/assets/images/nariyal-product-collection.webp',
+  'coconut-events-hospitality.html':'/assets/images/generated/hospitality.webp',
+  'green-coconut.html':'/assets/images/green-round-coconut.jpg',
+  'bulk-coconut-supply.html':'/assets/images/bulk-coconut-pack.jpg',
+  'gujarat-coast.html':'/assets/images/review/coastal-grove.png',
+  'south-india-groves.html':'/assets/images/review/backwater-grove.png',
+  'coconut-water.html':'/assets/images/brand/coconut-premium.webp'
+ };
+ return map[file]||'/assets/images/nariyal-premium-hero.webp';
+}
+function retireGenericRepaints(){
+ document.querySelectorAll('img[data-ns-original-src]').forEach(img=>{
+   const current=pathOf(img.currentSrc||img.getAttribute('src')||'');
+   const original=pathOf(img.dataset.nsOriginalSrc||'');
+   if(!GENERIC_FALLBACKS.includes(current)||GENERIC_FALLBACKS.includes(original))return;
+   const replacement=pageFallback(img);
+   if(replacement&&replacement!==current){img.src=replacement;img.removeAttribute('srcset');img.dataset.nsIntegrityRecovery='context';}
+   else if(!replacement){const card=img.closest('.ns-face-card,.v25-story-person,.story-card');if(card)card.remove();else img.style.setProperty('display','none','important');}
+ });
+}
 function markFailures(){
  document.querySelectorAll('img').forEach(img=>{
    if(img.dataset.nsIntegrityGuard==='1')return;img.dataset.nsIntegrityGuard='1';
    img.addEventListener('error',()=>{
+     const replacement=pageFallback(img),current=pathOf(img.currentSrc||img.getAttribute('src')||'');
+     if(replacement&&pathOf(replacement)!==current&&img.dataset.nsIntegrityRecovery!=='final'){
+       img.dataset.nsIntegrityRecovery='final';img.src=replacement;img.removeAttribute('srcset');return;
+     }
      img.classList.add('ns-media-unavailable');
+     const card=img.closest('.ns-face-card,.v25-story-person');if(card){card.remove();return;}
      const host=img.closest('figure,.w-hero-media,.sp-video,.water-window,.supplier-photo,.brand-portrait,.farm-media,.story-card,.cw-image-panel')||img.parentElement;
      if(host){host.classList.add('ns-media-unavailable-host');host.dataset.nsMissingMedia=img.getAttribute('src')||'';}
-     /* Never repaint an unrelated failed image with the same generic grove. */
      img.style.setProperty('display','none','important');
    });
  });
+ retireGenericRepaints();
 }
 function installStyle(){
  if($('#nsMediaIntegrityStyle'))return;
@@ -39,7 +80,7 @@ function installStyle(){
  .ns-integrity-still{display:block;width:100%;height:100%;object-fit:cover;object-position:center}
  .sp-video>.ns-integrity-still,.water-window>.ns-integrity-still{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
  .sp-video,.water-window{position:relative;overflow:hidden;background:#071107}
- .ns-media-unavailable-host{background:radial-gradient(circle at 70% 20%,rgba(212,168,67,.10),transparent 36%),linear-gradient(145deg,#0a1708,#030902)!important;min-height:220px}
+ .ns-media-unavailable-host{position:relative;background:radial-gradient(circle at 70% 20%,rgba(212,168,67,.10),transparent 36%),linear-gradient(145deg,#0a1708,#030902)!important;min-height:220px}
  .ns-media-unavailable-host:after{content:'Nariyal Sutra · visual unavailable';position:absolute;left:20px;bottom:18px;color:rgba(245,209,126,.58);font:600 8px/1.4 Jost,sans-serif;letter-spacing:2.2px;text-transform:uppercase}
  `;document.head.appendChild(s);
 }
@@ -67,9 +108,9 @@ function applyPageVisuals(){
     setImg('.cw-image-panel img','assets/images/nariyal-product-collection.webp','Fresh green coconuts prepared for serving');
     break;
  }
- markFailures();
+ markFailures();retireGenericRepaints();
  document.documentElement.dataset.nsMediaIntegrity='ready';
 }
-function init(){applyPageVisuals();setTimeout(applyPageVisuals,500);setTimeout(markFailures,1500);}
+function init(){applyPageVisuals();setTimeout(applyPageVisuals,500);setTimeout(()=>{markFailures();retireGenericRepaints();},1500);setTimeout(retireGenericRepaints,2800);}
 document.readyState==='loading'?document.addEventListener('DOMContentLoaded',init,{once:true}):init();
 })();
