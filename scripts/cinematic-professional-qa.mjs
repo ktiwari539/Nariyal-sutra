@@ -62,12 +62,24 @@ async function storefront(viewport,label){
 }
 
 async function admin(){
- const context=await browser.newContext({viewport:{width:1440,height:900},serviceWorkers:'block'});const page=await context.newPage();
- await page.goto('http://127.0.0.1:4173/admin.html',{waitUntil:'domcontentloaded',timeout:30000});await page.waitForURL(/admin-preview\.html/,{timeout:10000});await page.waitForSelector('.ap-app',{state:'visible',timeout:10000});
- if(!/Business Command Center/i.test(await page.title()))throw new Error('admin.html did not reach Business Command Center');
- const labels=await page.locator('.ap-nav button').allTextContents();
- for(const required of ['Products & Pricing','Inventory','Warehouses / Nodes','Delivery Services','Delivery Hub'])if(!labels.some(x=>x.includes(required)))throw new Error(`Admin missing ${required}`);
- await page.screenshot({path:'qa-artifacts/admin-business-command-center.png',fullPage:false});await context.close();
+ const context=await browser.newContext({viewport:{width:1440,height:900},serviceWorkers:'block'});
+ const page=await context.newPage();
+ await page.goto('http://127.0.0.1:4173/admin.html',{waitUntil:'domcontentloaded',timeout:30000});
+ await page.waitForURL(/admin-live-legacy\.html/,{timeout:10000});
+ await page.waitForSelector('#loginView',{state:'visible',timeout:10000});
+ await page.waitForFunction(()=>window.NSV421Admin?.ready===true,null,{timeout:10000});
+ if(!/Business Command Center/i.test(await page.title()))throw new Error(`Production Admin title is wrong: ${await page.title()}`);
+ const state=await page.evaluate(()=>({
+   loginVisible:!!document.querySelector('#loginView')&&getComputedStyle(document.querySelector('#loginView')).display!=='none',
+   emailType:document.querySelector('#email')?.type,
+   passwordType:document.querySelector('#password')?.type,
+   appHidden:document.querySelector('#appView')?.classList.contains('hidden')===true,
+   unifiedReady:window.NSV421Admin?.ready===true,
+   skinLoaded:!!document.querySelector('link[data-ns-admin-business-skin]')
+ }));
+ if(!state.loginVisible||state.emailType!=='email'||state.passwordType!=='password'||!state.appHidden||!state.unifiedReady||!state.skinLoaded)throw new Error(`Secure Business Command Center entry invalid ${JSON.stringify(state)}`);
+ await page.screenshot({path:'qa-artifacts/admin-business-command-center.png',fullPage:false});
+ await context.close();
 }
 
 try{await storefront({width:1440,height:900},'desktop');await storefront({width:390,height:844},'mobile');await admin();console.log('PROFESSIONAL WEBSITE QA: PASS');}finally{await browser.close();server.kill();}
