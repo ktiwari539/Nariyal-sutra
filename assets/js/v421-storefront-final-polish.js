@@ -28,9 +28,9 @@ function diversifyHomepageMedia(){
   /* Main story image: product-led, not another grove landscape. */
   setImg('.story-visual .sv-img','/assets/images/brand/coconut-premium.webp','Premium fresh green coconut prepared for drinking');
 
-  /* Commercial routes must read as two different stories at first glance. */
-  setImg('.trade-route.trade-buy img','/assets/images/bulk-coconut-pack.jpg','Fresh coconuts prepared for bulk, events and hospitality');
-  setImg('.trade-route.trade-supply img','/assets/images/nariyal-coconut-grove.webp','Coconut grove for farm and supplier partnerships');
+  /* User-approved generated campaign visuals: each commercial story gets its own scene. */
+  setImg('.trade-route.trade-buy img','/assets/images/generated/hospitality.webp','Fresh coconuts prepared for bulk, events and hospitality');
+  setImg('.trade-route.trade-supply img','/assets/images/generated/supplier.webp','Coconut farm and supplier partnership story');
 
   /* People story gets an actual people/editorial image, not another coconut-grove still. */
   setImg('#people-of-nariyal .ns-people-visual img','/assets/images/ambassadors/G001.webp','Nariyal Sutra community and people story');
@@ -38,7 +38,7 @@ function diversifyHomepageMedia(){
   /* Five-story portals: coast / canopy / hands each get a different visual language. */
   setImg('.promise-portal.coast img','/assets/images/review/coastal-grove.png','Gujarat coastal coconut sourcing story');
   setImg('.promise-portal.grove img','/assets/images/review/backwater-grove.png','South India coconut backwater and canopy story');
-  setImg('.promise-portal.farm img','/assets/images/harvest-wall-organic.jpg','Direct coconut sourcing and harvest story');
+  setImg('.promise-portal.farm img','/assets/images/generated/direct-sourcing.webp','Direct coconut sourcing and harvest story');
 
   /* Brand moment and grove chapter intentionally use separate photographs. */
   const brand=document.querySelector('.brand-moment-bg');
