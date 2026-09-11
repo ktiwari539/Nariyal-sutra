@@ -5,10 +5,14 @@
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <meta name="robots" content="noindex,nofollow,noarchive"/>
 <title>Nariyal Sutra · Business Command Center</title>
-<meta http-equiv="refresh" content="0; url=admin-live-legacy.html"/>
 <script>
 (function(){
-  var target='admin-live-legacy.html'+(location.search||'')+(location.hash||'');
+  var local=/^(localhost|127\.0\.0\.1|\[::1\])$/i.test(location.hostname);
+  /* Local/manual QA must show the rich Business Command Center that was approved.
+     Production remains on the Firebase-backed operational Admin until the same
+     interface is fully bridged to the live data/actions. */
+  var page=local?'admin-preview.html':'admin-live-legacy.html';
+  var target=page+(location.search||'')+(location.hash||'');
   location.replace(target);
 })();
 </script>
@@ -16,5 +20,5 @@
 html,body{margin:0;min-height:100%;background:#071004;color:#f4ecd8;font-family:system-ui,sans-serif}body{display:grid;place-items:center;min-height:100vh}.msg{font-size:13px;letter-spacing:.08em;opacity:.72}
 </style>
 </head>
-<body><div class="msg">Opening Nariyal Sutra Business Command Center…</div></body>
+<body><div class="msg">Opening Nariyal Sutra Business Command Center…</div><noscript><a href="admin-preview.html">Open Business Command Center</a></noscript></body>
 </html>
