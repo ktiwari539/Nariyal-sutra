@@ -44,14 +44,25 @@ try{
     if(!response||response.status()>=400){fail(vp.label,`storefront returned ${response?.status()||'no response'}`);await context.close();continue;}
     await page.evaluate(()=>{try{window.skipIntro?.()}catch{} const i=document.getElementById('jungle-intro');if(i)i.classList.add('ji-done');document.documentElement.style.scrollBehavior='auto';});
     await page.waitForSelector('#v421-cinematic-film-pro[data-ready="1"]',{timeout:20000});
-    await page.waitForTimeout(600);
+    await page.waitForTimeout(900);
     const first=await page.evaluate(()=>{
       const visible=e=>{if(!e)return false;const s=getComputedStyle(e),r=e.getBoundingClientRect();return s.display!=='none'&&s.visibility!=='hidden'&&Number.parseFloat(s.opacity||'1')>.01&&r.width>2&&r.height>2};
+      const pathOf=sel=>{const i=document.querySelector(sel);return i?new URL(i.currentSrc||i.src,location.href).pathname:''};
       const legacy=['scroll-cinema','v421-cinematic-film'].map(id=>document.getElementById(id)).filter(Boolean);
       const productImgs=[...document.querySelectorAll('[data-product-card] img,.pc-img-wrap img')];
       const motion=document.getElementById('live-motion');
       const harvest=document.querySelector('#harvest-film .harvest-scene');
       const cine=document.getElementById('v421-cinematic-film-pro');
+      const storyMedia=[
+        pathOf('[data-product-card="tender"] .pc-img-wrap img'),
+        pathOf('.story-visual .sv-img'),
+        pathOf('.trade-route.trade-buy img'),
+        pathOf('.trade-route.trade-supply img'),
+        pathOf('#people-of-nariyal .ns-people-visual img'),
+        pathOf('.promise-portal.coast img'),
+        pathOf('.promise-portal.grove img'),
+        pathOf('.promise-portal.farm img')
+      ].filter(Boolean);
       return {
         main:visible(document.getElementById('main-site')||document.querySelector('main')),
         hero:visible(document.querySelector('.hero')),
@@ -61,6 +72,9 @@ try{
         retiredMotionHidden:!motion||motion.hidden||getComputedStyle(motion).display==='none',
         harvestSrc:harvest?.getAttribute('src')||'',
         depthCount:document.querySelectorAll('#v421-cinematic-film-pro .nspro-nut[style*="--ns-depth-z"]').length,
+        mediaDiversityReady:document.documentElement.dataset.nsMediaDiversity==='ready',
+        storyMedia,
+        storyMediaUnique:[...new Set(storyMedia)],
         viewport:innerWidth,
         viewportH:innerHeight,
         scrollWidth:Math.max(document.documentElement.scrollWidth,document.body.scrollWidth),
@@ -78,6 +92,8 @@ try{
     if(first.cineRunway>first.viewportH*4.5)fail(vp.label,`cinematic runway is still excessively long: ${first.cineRunway}px`);
     if(first.scrollWidth>first.viewport+6)fail(vp.label,`horizontal overflow ${first.scrollWidth}px > ${first.viewport}px`);
     if(first.productCount>=3&&first.productSrcs.length<3)fail(vp.label,`product imagery is repeating: ${JSON.stringify(first.productSrcs)}`);
+    if(!first.mediaDiversityReady)fail(vp.label,'storefront media-diversity pass did not initialize');
+    if(first.storyMedia.length>=8&&first.storyMediaUnique.length!==first.storyMedia.length)fail(vp.label,`story imagery is repeating: ${JSON.stringify(first.storyMedia)}`);
 
     const height=await page.evaluate(()=>document.documentElement.scrollHeight);
     for(let y=0;y<height;y+=Math.max(620,Math.floor(vp.height*.75))){await page.evaluate(y=>scrollTo(0,y),y);await page.waitForTimeout(35);}
