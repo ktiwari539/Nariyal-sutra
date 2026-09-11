@@ -18,8 +18,6 @@ function migrateState(){
  if(s.v32HomepageSequenceSchema!==1){
   const hasCompleteTopLevel=DEFAULTS.every(d=>old.has(d.id));
   if(hasCompleteTopLevel){
-   /* A complete Admin order is already authoritative. Never reset it just because
-      this browser has not yet written the V32 schema marker. */
    s.sections=normalizeKnownSections(s.sections);
    try{Store.audit?.(s,'V32 homepage sequence adopted','Preserved complete Admin-managed top-level order.');}catch(e){}
   }else{
@@ -33,8 +31,22 @@ function migrateState(){
 }
 let applying=false;
 function applySequence(){if(!Store||!isHome()||applying)return;const main=$('#main-site'),footer=$('#main-site > footer');if(!main||!footer)return;const s=migrateState();if(!s||!Array.isArray(s.sections))return;applying=true;try{[...s.sections].sort((a,b)=>(+a.order||999)-(+b.order||999)).forEach(sec=>{const node=MAP[sec.id]?.();if(!node)return;node.hidden=sec.visible===false;node.dataset.v32Section=sec.id;if(sec.visible!==false)main.insertBefore(node,footer);});}finally{applying=false;}}
-function watchDynamicModules(){if(!isHome()||!document.body)return;const mo=new MutationObserver(muts=>{for(const m of muts){for(const n of m.addedNodes){if(n.nodeType===1&&(n.id==='v421-cinematic-film-pro'||n.querySelector?.('#v421-cinematic-film-pro'))){setTimeout(applySequence,0);return;}}}});mo.observe(document.body,{childList:true,subtree:true});setTimeout(()=>mo.disconnect(),12000);}
+function settleAfterCinematicReady(film){
+ if(!film)return;
+ const settle=()=>[0,120,480,1100].forEach(ms=>setTimeout(applySequence,ms));
+ if(film.dataset.ready==='1')settle();
+ const readyObserver=new MutationObserver(()=>{if(film.dataset.ready==='1'){settle();readyObserver.disconnect();}});
+ readyObserver.observe(film,{attributes:true,attributeFilter:['data-ready']});
+ setTimeout(()=>readyObserver.disconnect(),12000);
+}
+function watchDynamicModules(){
+ if(!isHome()||!document.body)return;
+ const existing=document.getElementById('v421-cinematic-film-pro');
+ if(existing){settleAfterCinematicReady(existing);return;}
+ const mo=new MutationObserver(muts=>{for(const m of muts){for(const n of m.addedNodes){const film=n.nodeType===1&&(n.id==='v421-cinematic-film-pro'?n:n.querySelector?.('#v421-cinematic-film-pro'));if(film){mo.disconnect();[0,250,800,1600].forEach(ms=>setTimeout(applySequence,ms));settleAfterCinematicReady(film);return;}}}});
+ mo.observe(document.body,{childList:true,subtree:true});setTimeout(()=>mo.disconnect(),12000);
+}
 function prepareIntroLetters(){const logo=$('#jungle-intro .ji-logo');if(!logo||logo.dataset.v32Letters==='1')return;logo.dataset.v32Letters='1';logo.setAttribute('aria-label','Nariyal Sutra');const words=['NARIYAL','SUTRA'];let index=0;logo.innerHTML=words.map((word,wi)=>`<span class="v32-logo-line">${[...word].map((ch,ci)=>{const cls=(ci===0?(wi===0?' ji-logo-n':' ji-logo-s'):'');return `<span class="v32-logo-letter${cls}" style="--letter-i:${index++}">${ch}</span>`;}).join('')}</span>`).join('');}
-function init(){prepareIntroLetters();migrateState();watchDynamicModules();[80,360,900,1800,3200].forEach(ms=>setTimeout(applySequence,ms));window.addEventListener('nsv421:change',()=>setTimeout(applySequence,25));window.addEventListener('nsv421:production-ready',()=>setTimeout(applySequence,25));}
+function init(){prepareIntroLetters();migrateState();watchDynamicModules();[80,360,900,1800,3200,5000].forEach(ms=>setTimeout(applySequence,ms));window.addEventListener('nsv421:change',()=>setTimeout(applySequence,25));window.addEventListener('nsv421:production-ready',()=>setTimeout(applySequence,25));}
 document.readyState==='loading'?document.addEventListener('DOMContentLoaded',init):init();
 })();
