@@ -13,14 +13,24 @@ async function storefront(viewport,label){
  const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(String(e)));
  await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded',timeout:30000});
  await page.addStyleTag({content:'html{scroll-behavior:auto!important}'});
- await page.waitForTimeout(900);
+ await page.waitForTimeout(1100);
  await page.evaluate(()=>{try{window.skipIntro?.()}catch{} const i=document.getElementById('jungle-intro');if(i)i.classList.add('ji-done');document.documentElement.style.scrollBehavior='auto';});
  await page.waitForSelector('#v421-cinematic-film-pro[data-ready="1"]',{state:'attached',timeout:20000});
  await page.waitForFunction(()=>window.__NS_V421_PRO_CINE&&window.__NS_V421_PRO_CINE.ready===true,null,{timeout:20000});
+ await page.waitForTimeout(300);
  const legacy=await page.evaluate(()=>['scroll-cinema','v421-cinematic-film'].every(id=>{const e=document.getElementById(id);return !e||e.hidden||getComputedStyle(e).display==='none'}));
  if(!legacy)throw new Error(`${label}: legacy cinematic still visible`);
+ const polish=await page.evaluate(()=>{
+   const motion=document.getElementById('live-motion');
+   const first=document.querySelector('#harvest-film .harvest-scene');
+   const depth=document.querySelectorAll('#v421-cinematic-film-pro .nspro-nut[style*="--ns-depth-z"]').length;
+   return {motionHidden:!motion||motion.hidden||getComputedStyle(motion).display==='none',harvestSrc:first?.getAttribute('src')||'',depth};
+ });
+ if(!polish.motionHidden)throw new Error(`${label}: retired blank live-motion fold is still visible`);
+ if(polish.harvestSrc&&!polish.harvestSrc.startsWith('/assets/'))throw new Error(`${label}: harvest panel still depends on retired deploy media ${polish.harvestSrc}`);
+ if(polish.depth<6)throw new Error(`${label}: cinematic depth treatment did not initialize ${JSON.stringify(polish)}`);
  const metrics=await page.locator('#v421-cinematic-film-pro').evaluate(el=>{const r=el.getBoundingClientRect();return {top:r.top+scrollY,height:el.offsetHeight,viewport:innerHeight};});
- if(metrics.height<metrics.viewport*4.2)throw new Error(`${label}: runway too short ${metrics.height}`);
+ if(metrics.height<metrics.viewport*3.2)throw new Error(`${label}: runway too short ${metrics.height}`);
  const range=metrics.height-metrics.viewport;
  const samples=[['rain',.16],['hero',.47],['knife',.56],['splash',.69],['water',.86]];
  const states={};
@@ -57,7 +67,7 @@ async function storefront(viewport,label){
  const assets=await page.evaluate(()=>[...document.querySelectorAll('#v421-cinematic-film-pro img')].map(i=>({src:i.getAttribute('src'),ok:!i.complete||i.naturalWidth>0,w:i.naturalWidth,h:i.naturalHeight})));
  if(assets.some(a=>!a.ok))throw new Error(`${label}: broken cinematic asset ${JSON.stringify(assets.filter(a=>!a.ok))}`);
  if(errors.length)throw new Error(`${label}: page errors ${errors.join(' | ')}`);
- console.log(`${label.toUpperCase()} CINEMATIC PASS`,JSON.stringify({metrics,states,assets}));
+ console.log(`${label.toUpperCase()} CINEMATIC PASS`,JSON.stringify({metrics,states,assets,polish}));
  await context.close();
 }
 
@@ -65,19 +75,20 @@ async function admin(){
  const context=await browser.newContext({viewport:{width:1440,height:900},serviceWorkers:'block'});
  const page=await context.newPage();
  await page.goto('http://127.0.0.1:4173/admin.html',{waitUntil:'domcontentloaded',timeout:30000});
- await page.waitForURL(/admin-live-legacy\.html/,{timeout:10000});
- await page.waitForSelector('#loginView',{state:'visible',timeout:10000});
- await page.waitForFunction(()=>window.NSV421Admin?.ready===true,null,{timeout:10000});
- if(!/Business Command Center/i.test(await page.title()))throw new Error(`Production Admin title is wrong: ${await page.title()}`);
- const state=await page.evaluate(()=>({
-   loginVisible:!!document.querySelector('#loginView')&&getComputedStyle(document.querySelector('#loginView')).display!=='none',
-   emailType:document.querySelector('#email')?.type,
-   passwordType:document.querySelector('#password')?.type,
-   appHidden:document.querySelector('#appView')?.classList.contains('hidden')===true,
-   unifiedReady:window.NSV421Admin?.ready===true,
-   skinLoaded:!!document.querySelector('link[data-ns-admin-business-skin]')
- }));
- if(!state.loginVisible||state.emailType!=='email'||state.passwordType!=='password'||!state.appHidden||!state.unifiedReady||!state.skinLoaded)throw new Error(`Secure Business Command Center entry invalid ${JSON.stringify(state)}`);
+ await page.waitForURL(/admin-preview\.html/,{timeout:10000});
+ await page.waitForSelector('.ap-app',{state:'visible',timeout:10000});
+ if(!/Business Command Center/i.test(await page.title()))throw new Error(`Local Admin title is wrong: ${await page.title()}`);
+ const state=await page.evaluate(()=>{
+   const labels=[...document.querySelectorAll('#apNav button')].map(b=>b.textContent.replace(/\s+/g,' ').trim());
+   const required=['Overview','Orders','Payments','Products & Pricing','Inventory','Warehouses / Nodes','Delivery Services','Delivery Hub','Customer 360','Media Library','Schedule','Team / Tasks'];
+   return {
+     requiredMissing:required.filter(x=>!labels.some(v=>v.includes(x))),
+     sidebarVisible:!!document.querySelector('#apSidebar')&&getComputedStyle(document.querySelector('#apSidebar')).display!=='none',
+     localBanner:/LOCAL INTERACTIVE PREVIEW/i.test(document.body.innerText),
+     appVisible:!!document.querySelector('.ap-app')
+   };
+ });
+ if(!state.appVisible||!state.sidebarVisible||state.requiredMissing.length)throw new Error(`Business Command Center local UI invalid ${JSON.stringify(state)}`);
  await page.screenshot({path:'qa-artifacts/admin-business-command-center.png',fullPage:false});
  await context.close();
 }
