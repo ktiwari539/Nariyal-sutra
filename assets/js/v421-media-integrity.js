@@ -101,7 +101,11 @@ function applyPageVisuals(){
   case 'fresh-tender-coconut.html':
     replaceEmptyVideo('.sp-video video','assets/images/freshness-coconut-splash.webp','Fresh tender coconut cut and water study');
     break;
+  case 'green-coconut.html':
+    replaceEmptyVideo('.sp-video video','assets/images/green-round-coconut.jpg','Green coconut product study');
+    break;
   case 'coconut-events-hospitality.html':
+    setImg('.sp-scenes .sp-scene:nth-child(3)','assets/images/bulk-coconut-pack.jpg','Event-scale coconut presentation');
     replaceEmptyVideo('.sp-video video','assets/images/generated/hospitality.webp','Fresh coconut hospitality and event presentation');
     break;
   case 'coconut-water.html':
