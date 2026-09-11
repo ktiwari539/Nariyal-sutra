@@ -13,8 +13,15 @@ function cleanDeadSpace(){document.querySelectorAll('section').forEach(sec=>{if(
 function loadProfessionalCinematic(){
   if(window.__NS_V421_PRO_CINE_LOADER__)return;
   window.__NS_V421_PRO_CINE_LOADER__=true;
+  if(!document.querySelector('link[data-cinematic-pro-style]')){
+    const l=document.createElement('link');
+    l.rel='stylesheet';
+    l.href='assets/css/v421-cinematic-professional.css?v=20260911-professional-3';
+    l.dataset.cinematicProStyle='1';
+    document.head.appendChild(l);
+  }
   const s=document.createElement('script');
-  s.src='assets/js/v421-cinematic-professional.js?v=20260911-professional-2';
+  s.src='assets/js/v421-cinematic-professional.js?v=20260911-professional-3';
   s.defer=true;
   s.dataset.cinematic='v421-professional';
   s.onerror=()=>{window.__NS_V421_PRO_CINE_LOADER__=false;console.error('[NS] professional cinematic failed to load');};
