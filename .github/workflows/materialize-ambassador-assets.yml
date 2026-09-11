@@ -5,7 +5,7 @@ on:
     branches:
       - fix/cinematic-real-sequence-20260911
     paths:
-      - 'assets/images/ambassadors/campaign/ambassador-assets-bundle.zip.base64.txt'
+      - 'assets/images/ambassadors/campaign/ambassador-assets-bundle.part*.txt'
       - '.github/workflows/materialize-ambassador-assets.yml'
   workflow_dispatch:
 
@@ -24,14 +24,19 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          payload='assets/images/ambassadors/campaign/ambassador-assets-bundle.zip.base64.txt'
-          if [ ! -f "$payload" ]; then
-            echo 'Payload already materialized; nothing to do.'
+          shopt -s nullglob
+          parts=(assets/images/ambassadors/campaign/ambassador-assets-bundle.part*.txt)
+          if [ ${#parts[@]} -eq 0 ]; then
+            echo 'Chunk payload already materialized; nothing to do.'
             exit 0
           fi
-          base64 --decode "$payload" > /tmp/ambassador-assets.zip
+          cat "${parts[@]}" > /tmp/ambassador-assets.b64
+          base64 --decode /tmp/ambassador-assets.b64 > /tmp/ambassador-assets.zip
+          unzip -t /tmp/ambassador-assets.zip
           unzip -o /tmp/ambassador-assets.zip -d assets/images/ambassadors/campaign
-          rm -f "$payload" assets/images/ambassadors/campaign/AMB101-portrait.webp.base64.txt
+          rm -f "${parts[@]}" \
+            assets/images/ambassadors/campaign/ambassador-assets-bundle.zip.base64.txt \
+            assets/images/ambassadors/campaign/AMB101-portrait.webp.base64.txt
           test -f assets/images/ambassadors/campaign/AMB101-portrait.webp
           test -f assets/images/ambassadors/campaign/AMB102-portrait.webp
           test -f assets/images/ambassadors/campaign/AMB201-portrait-blue.webp
