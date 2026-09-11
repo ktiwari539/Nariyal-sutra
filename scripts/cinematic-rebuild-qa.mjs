@@ -1,0 +1,31 @@
+import { chromium } from 'playwright';
+import { spawn } from 'node:child_process';
+const server=spawn('python3',['-m','http.server','4173','--bind','127.0.0.1'],{stdio:'ignore'});
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+await sleep(1200);
+const browser=await chromium.launch({headless:true});
+const page=await browser.newPage({viewport:{width:1440,height:900}});
+const errors=[];
+page.on('pageerror',e=>errors.push(String(e)));
+await page.goto('http://127.0.0.1:4173/',{waitUntil:'networkidle'});
+await page.waitForTimeout(1000);
+const film=page.locator('#v421-story-film');
+if(await film.count()!==1) throw new Error('film missing');
+const rebuilt=await film.getAttribute('data-rebuilt');
+if(rebuilt!=='1') throw new Error('rebuilt cinematic did not initialize');
+const metrics=await film.evaluate(el=>({top:el.offsetTop,height:el.offsetHeight,viewport:innerHeight}));
+const range=metrics.height-metrics.viewport;
+const states=[];
+for(const p of [0,.12,.24,.36,.46,.54,.60,.66,.72,.78,.86,.94,1]){
+ await page.evaluate(({top,range,p})=>scrollTo(0,top+range*p),{top:metrics.top,range,p});
+ await page.waitForTimeout(120);
+ states.push(await page.evaluate(()=>window.__NS_V421_CINEMATIC_REBUILD||{}));
+}
+const max=k=>Math.max(...states.map(s=>Number(s[k]||0)));
+const checks={rain:max('rain')>=.8,hero:max('hero')>.45,knife:max('knife')>.55,splash:max('splash')>.55,water:max('water')>.9};
+for(const [k,v] of Object.entries(checks)) if(!v) throw new Error(`${k} stage not reached`);
+const blank=await page.evaluate(()=>{const el=document.querySelector('#v421-story-film .v421-cine-stage');const r=el.getBoundingClientRect();return r.height<innerHeight*.9});
+if(blank) throw new Error('cinematic stage collapsed');
+if(errors.length) throw new Error('page errors: '+errors.join(' | '));
+console.log(JSON.stringify({checks,states:states.map(s=>({progress:s.progress,rain:s.rain,hero:s.hero,knife:s.knife,splash:s.splash,water:s.water}))},null,2));
+await browser.close();server.kill();
