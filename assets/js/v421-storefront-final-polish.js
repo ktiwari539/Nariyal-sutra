@@ -3,50 +3,60 @@
 if(window.__NS_V421_STOREFRONT_FINAL_POLISH__)return;
 window.__NS_V421_STOREFRONT_FINAL_POLISH__=true;
 
-/* Each visible story block gets its own visual job. Keep the accepted hero intact,
-   then deliberately avoid recycling those same frames through the rest of home. */
+/* One visual job per visible story block. The accepted hero/cinematic stay intact;
+   everything below deliberately avoids recycling the same grove frame. */
 const LOCAL_HARVEST=[
   '/assets/images/brand/coconut-premium.webp',
   '/assets/images/green-round-coconut.jpg',
   '/assets/images/bulk-coconut-pack.jpg'
 ];
 
-function setImg(selector,src){
+function setImg(selector,src,alt){
   const img=document.querySelector(selector);
   if(!img)return;
   if(img.getAttribute('src')!==src)img.setAttribute('src',src);
   img.removeAttribute('srcset');
   img.removeAttribute('onerror');
+  if(alt)img.setAttribute('alt',alt);
 }
 
 function diversifyHomepageMedia(){
-  /* Cut chapter: use the water/cut visual instead of repeating the hero frame. */
-  setImg('#cut-story .cut-photo-v16','/assets/images/freshness-coconut-splash.webp');
+  /* Product / cut chapters */
+  setImg('#cut-story .cut-photo-v16','/assets/images/freshness-coconut-splash.webp','Fresh coconut water splash after a clean cut');
+  setImg('[data-product-card="tender"] .pc-img-wrap img','/assets/images/nariyal-product-collection.webp','Fresh tender coconut collection');
 
-  /* Tender product card: product-led image, distinct from the main hero. */
-  setImg('[data-product-card="tender"] .pc-img-wrap img','/assets/images/nariyal-product-collection.webp');
+  /* Main story image: product-led, not another grove landscape. */
+  setImg('.story-visual .sv-img','/assets/images/brand/coconut-premium.webp','Premium fresh green coconut prepared for drinking');
 
-  /* Story visual: sourcing/coastal context rather than another copy of the grove hero. */
-  setImg('.story-visual .sv-img','/assets/images/review/coastal-grove.png');
+  /* Commercial routes must read as two different stories at first glance. */
+  setImg('.trade-route.trade-buy img','/assets/images/bulk-coconut-pack.jpg','Fresh coconuts prepared for bulk, events and hospitality');
+  setImg('.trade-route.trade-supply img','/assets/images/nariyal-coconut-grove.webp','Coconut grove for farm and supplier partnerships');
+
+  /* People story gets an actual people/editorial image, not another coconut-grove still. */
+  setImg('#people-of-nariyal .ns-people-visual img','/assets/images/ambassadors/G001.webp','Nariyal Sutra community and people story');
+
+  /* Five-story portals: coast / canopy / hands each get a different visual language. */
+  setImg('.promise-portal.coast img','/assets/images/review/coastal-grove.png','Gujarat coastal coconut sourcing story');
+  setImg('.promise-portal.grove img','/assets/images/review/backwater-grove.png','South India coconut backwater and canopy story');
+  setImg('.promise-portal.farm img','/assets/images/harvest-wall-organic.jpg','Direct coconut sourcing and harvest story');
 
   /* Brand moment and grove chapter intentionally use separate photographs. */
   const brand=document.querySelector('.brand-moment-bg');
   if(brand){
-    brand.style.setProperty('background-image',"linear-gradient(90deg,rgba(2,9,2,.90) 0%,rgba(2,9,2,.40) 48%,rgba(2,9,2,.72) 100%),url('/assets/images/harvest-wall-organic.jpg')",'important');
-    brand.dataset.nsMedia='harvest-wall';
+    brand.style.setProperty('background-image',"linear-gradient(90deg,rgba(2,9,2,.90) 0%,rgba(2,9,2,.40) 48%,rgba(2,9,2,.72) 100%),url('/assets/images/review/coastal-grove.png')",'important');
+    brand.dataset.nsMedia='coastal-grove';
   }
   const grove=document.querySelector('.grove-photo');
   if(grove){
     grove.style.setProperty('background-image',"linear-gradient(to top,rgba(2,8,1,.96) 0%,rgba(2,8,1,.08) 55%,rgba(2,8,1,.30) 100%),linear-gradient(95deg,rgba(3,12,2,.48),rgba(3,12,2,.05) 60%,rgba(3,12,2,.34)),url('/assets/images/review/backwater-grove.png')",'important');
     grove.dataset.nsMedia='backwater-grove';
   }
+
   document.documentElement.dataset.nsMediaDiversity='ready';
 }
 
 function fixLegacyStoryMedia(){
-  /* The old 72-frame/video fold depends on a retired deploy URL and duplicates
-     the new cinematic. Remove it from the customer journey instead of showing
-     a white/empty player. */
+  /* The retired 72-frame/video fold duplicates the new cinematic and could render blank. */
   const motion=document.getElementById('live-motion');
   if(motion){
     motion.hidden=true;
@@ -56,7 +66,7 @@ function fixLegacyStoryMedia(){
     motion.querySelectorAll('video').forEach(v=>{try{v.pause();v.removeAttribute('src');v.querySelectorAll('source').forEach(s=>s.removeAttribute('src'));v.load();}catch(_e){}});
   }
 
-  /* Harvest film now shows three genuinely different fresh-format images. */
+  /* Harvest film: three genuinely different fresh-format images. */
   const harvest=document.getElementById('harvest-film');
   if(harvest){
     harvest.querySelectorAll('.harvest-scene').forEach((img,i)=>{
