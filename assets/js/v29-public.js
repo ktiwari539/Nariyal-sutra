@@ -12,6 +12,15 @@ function zoomWords(){
   nodes.forEach(x=>io.observe(x));
 }
 function cleanDeadSpace(){document.querySelectorAll('section').forEach(sec=>{if(sec.hidden)return;const meaningful=sec.querySelector('img,video,form,article,h1,h2,h3,p,button,a,input,textarea,select');if(!meaningful&&!sec.id)sec.style.display='none';});}
-function init(){setTimeout(()=>{zoomWords();cleanDeadSpace();},140);}
+function loadRebuiltCinematic(){
+  if(window.__NS_V421_REAL_CINE_LOADER__)return;
+  window.__NS_V421_REAL_CINE_LOADER__=true;
+  const s=document.createElement('script');
+  s.src='assets/js/v421-cinematic-rebuild.js?v=20260911-real-sequence-2';
+  s.defer=true;
+  s.dataset.cinematic='v421-rebuild';
+  document.head.appendChild(s);
+}
+function init(){setTimeout(()=>{zoomWords();cleanDeadSpace();loadRebuiltCinematic();},140);}
 document.readyState==='loading'?document.addEventListener('DOMContentLoaded',init):init();
 })();
