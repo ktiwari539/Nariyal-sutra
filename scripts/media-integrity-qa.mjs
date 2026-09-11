@@ -30,7 +30,6 @@ async function shot(page,name,full=true){await page.screenshot({path:path.join(O
 try{
  const context=await browser.newContext({viewport:{width:1440,height:900},serviceWorkers:'block'});
 
- // Admin: approved campaign records must exist in state and be visibly discoverable in both Media and Ambassadors.
  const admin=await openPage(context,'/admin-preview.html','Admin');
  await admin.waitForFunction(()=>window.__NSV21_ADMIN_BOUND===true&&window.__NS_V421_ADMIN_V38__===true,null,{timeout:12000});
  const campaignState=await admin.evaluate(()=>{
@@ -49,7 +48,6 @@ try{
  for(const id of ['AMB101-P','AMB102-P','AMB201-P'])must(ambassadorIds.includes(id),`${id} is missing from Admin Ambassadors view`);
  await shot(admin,'admin-ambassadors.png');await admin.close();
 
- // Homepage rolling people rail: campaign images must actually render, not merely exist in state.
  const home=await openPage(context,'/','Homepage');
  await home.evaluate(()=>{try{window.skipIntro?.()}catch{}document.getElementById('jungle-intro')?.classList.add('ji-done');});
  await home.waitForSelector('#nsPeopleMarquee .ns-face-card',{timeout:12000});await home.waitForTimeout(900);
@@ -63,7 +61,6 @@ try{
  must(reel.first.includes('AMB101-P')&&reel.first.includes('AMB201-P'),`Approved campaign images are not early in rolling section: ${JSON.stringify(reel.first)}`);
  await shot(home,'homepage-people-reel.png',false);await assertNoBroken(home,'Homepage');await home.close();
 
- // People page must visibly contain all three approved campaign images and use one as the hero/editorial source.
  const people=await openPage(context,'/people-of-nariyal-sutra.html','People page');
  await people.waitForSelector('#v25PeopleStreams [data-stream="ambassadors"]',{timeout:10000});
  const peopleState=await people.evaluate(()=>{
@@ -75,11 +72,11 @@ try{
  must(/AMB(101|102|201)-portrait/.test(peopleState.hero),`People hero is not using approved campaign media: ${peopleState.hero}`);
  await shot(people,'people-approved-campaign.png');await assertNoBroken(people,'People page');await people.close();
 
- // Pages that previously showed repeated/blank imagery now require distinct, visible media.
  const cases=[
   {url:'/supplier-partnership.html',label:'Supplier',check:()=>({a:document.querySelector('.w-hero-media img')?.getAttribute('src')||'',b:document.querySelector('.supplier-photo img')?.getAttribute('src')||'',ok:[document.querySelector('.w-hero-media img'),document.querySelector('.supplier-photo img')].every(i=>i&&i.complete&&i.naturalWidth>0)})},
   {url:'/direct-farm.html',label:'Direct sourcing',check:()=>({a:document.querySelector('.w-hero-media img')?.getAttribute('src')||'',b:document.querySelector('.brand-portrait img')?.getAttribute('src')||'',ok:[document.querySelector('.w-hero-media img'),document.querySelector('.brand-portrait img')].every(i=>i&&i.complete&&i.naturalWidth>0)})},
-  {url:'/coconut-water.html',label:'Coconut water',check:()=>({a:document.querySelector('.cw-visual img')?.getAttribute('src')||'',b:document.querySelector('.cw-image-panel img')?.getAttribute('src')||'',ok:[document.querySelector('.cw-visual img'),document.querySelector('.cw-image-panel img')].every(i=>i&&i.complete&&i.naturalWidth>0)})}
+  {url:'/coconut-water.html',label:'Coconut water',check:()=>({a:document.querySelector('.cw-visual img')?.getAttribute('src')||'',b:document.querySelector('.cw-image-panel img')?.getAttribute('src')||'',ok:[document.querySelector('.cw-visual img'),document.querySelector('.cw-image-panel img')].every(i=>i&&i.complete&&i.naturalWidth>0)})},
+  {url:'/coconut-events-hospitality.html',label:'Hospitality hero',check:()=>{const a=document.querySelector('.sp-scenes .sp-scene:nth-child(1)'),b=document.querySelector('.sp-scenes .sp-scene:nth-child(3)');return {a:a?.getAttribute('src')||'',b:b?.getAttribute('src')||'',ok:[a,b].every(i=>i&&i.complete&&i.naturalWidth>0)}}
  ];
  for(const c of cases){
    const p=await openPage(context,c.url,c.label);await p.waitForFunction(()=>document.documentElement.dataset.nsMediaIntegrity==='ready',null,{timeout:10000});await p.waitForTimeout(450);
@@ -90,6 +87,7 @@ try{
  const stillCases=[
   {url:'/freshness-first.html',label:'Freshness',host:'.water-window',old:'.water-window video'},
   {url:'/fresh-tender-coconut.html',label:'Fresh tender',host:'.sp-video',old:'.sp-video video'},
+  {url:'/green-coconut.html',label:'Green coconut',host:'.sp-video',old:'.sp-video video'},
   {url:'/coconut-events-hospitality.html',label:'Hospitality',host:'.sp-video',old:'.sp-video video'}
  ];
  for(const c of stillCases){
