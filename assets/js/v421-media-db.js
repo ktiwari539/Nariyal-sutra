@@ -18,13 +18,17 @@ function seedApprovedAmbassadors(){
  const s=Store.load();s.media=Array.isArray(s.media)?s.media:[];
  s.media=s.media.filter(m=>!['AMB101-POST','AMB102-POST','AMB201-POST'].includes(m.id));
  for(const m of items){const i=s.media.findIndex(x=>x.id===m.id);if(i>=0)s.media[i]=Object.assign({},s.media[i],m);else s.media.push(m);}
- s.faceMarquee=s.faceMarquee||{};const current=Array.isArray(s.faceMarquee.selectedIds)?s.faceMarquee.selectedIds:[];
- const featured=['AMB101-P','AMB201-P'];s.faceMarquee.selectedIds=[...featured,...current.filter(id=>!featured.includes(id))];
+ s.faceMarquee=s.faceMarquee||{};const current=Array.isArray(s.faceMarquee.selectedIds)?s.faceMarquee.selectedIds:[];const featured=['AMB101-P','AMB201-P'];s.faceMarquee.selectedIds=[...featured,...current.filter(id=>!featured.includes(id))];
  s.peopleStreams=s.peopleStreams||{};s.peopleStreams.ambassadors=s.peopleStreams.ambassadors||{enabled:true,title:'Brand Ambassadors',subtitle:'Approved ambassador portraits.',speed:48,direction:'ltr',selectedIds:[],placement:'people-page'};
- const ambassadors=Array.isArray(s.peopleStreams.ambassadors.selectedIds)?s.peopleStreams.ambassadors.selectedIds:[];
- const approved=['AMB101-P','AMB102-P','AMB201-P'];s.peopleStreams.ambassadors.selectedIds=[...approved,...ambassadors.filter(id=>!approved.includes(id))];
+ const ambassadors=Array.isArray(s.peopleStreams.ambassadors.selectedIds)?s.peopleStreams.ambassadors.selectedIds:[];const approved=['AMB101-P','AMB102-P','AMB201-P'];s.peopleStreams.ambassadors.selectedIds=[...approved,...ambassadors.filter(id=>!approved.includes(id))];
  Store.audit?.(s,'Approved ambassadors surfaced in Admin and rotating reel','AMB101 / AMB102 / AMB201');Store.save(s);localStorage.setItem(MIG,'1');
 }
 seedApprovedAmbassadors();
 window.NSV421MediaDB={put,get,delete:del,hydrate};
+function loadOnce(src,attr){if(document.querySelector(`script[${attr}]`))return;const s=document.createElement('script');s.src=src;s.defer=true;s.setAttribute(attr,'1');document.head.appendChild(s);}
+const isAdmin=/admin-preview\.html$/i.test(location.pathname),local=/^(localhost|127\.0\.0\.1|\[::1\])$/i.test(location.hostname);
+if(isAdmin){
+ if(!local&&!window.__NS_V421_PRODUCTION_BRIDGE__)loadOnce('/assets/js/v421-production-bridge.js','data-ns-production-bridge');
+ loadOnce('/assets/js/admin-v38-production.js','data-ns-admin-v38');
+}
 })();
