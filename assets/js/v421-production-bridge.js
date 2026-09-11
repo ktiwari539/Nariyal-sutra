@@ -17,6 +17,7 @@ let remoteReady=false,loadingRemote=false,pendingState=null,saveTimer=null,lastP
 let resolveReady;const ready=new Promise(r=>resolveReady=r);
 const clone=v=>JSON.parse(JSON.stringify(v));
 const safeHash=v=>{try{return JSON.stringify(v)}catch(e){return String(Date.now())}};
+const configHash=v=>{try{const x=clone(v);delete x.updatedAt;return safeHash(x);}catch(e){return safeHash(v)}};
 function configSlice(s,keys){const o={schemaVersion:s.schemaVersion||Store.SCHEMA,updatedAt:new Date().toISOString()};for(const k of keys)if(s[k]!==undefined)o[k]=clone(s[k]);return o;}
 function mergeIntoLocal(parts){
  const s=originalLoad();
@@ -61,15 +62,23 @@ function publicPayload(s){return {...configSlice(s,PUBLIC_KEYS),status:'live',ty
 function privatePayload(s){return {...configSlice(s,PRIVATE_KEYS),status:'draft',type:'admin-state'};}
 async function persistRemote(s){
  if(!isAdmin||!remoteReady||!user||!['Owner','Admin','Manager','Content'].includes(role))return;
- const pub=publicPayload(s),priv=privatePayload(s),ph=safeHash(pub),qh=safeHash(priv);
- const batch=fsMod.writeBatch(db);let writes=0;
- if(ph!==lastPublicHash){
-  batch.set(fsMod.doc(db,'contentStories','site-config'),pub,{merge:true});
-  batch.set(fsMod.doc(db,'publicStories','site-config'),pub,{merge:true});
-  lastPublicHash=ph;writes+=2;
+ const pub=publicPayload(s),priv=privatePayload(s),ph=configHash(pub),qh=configHash(priv);
+ const publicChanged=ph!==lastPublicHash,privateChanged=qh!==lastPrivateHash;
+ if(!publicChanged&&!privateChanged)return;
+
+ // Firestore publicStories rules validate the already-committed live source document.
+ // Commit private source(s) first; publish the sanitized public projection only after that succeeds.
+ // Hashes advance only after successful writes so a failure remains retryable.
+ const sourceBatch=fsMod.writeBatch(db);let sourceWrites=0;
+ if(publicChanged){sourceBatch.set(fsMod.doc(db,'contentStories','site-config'),pub,{merge:true});sourceWrites++;}
+ if(privateChanged){sourceBatch.set(fsMod.doc(db,'contentStories','admin-state'),priv,{merge:true});sourceWrites++;}
+ if(sourceWrites)await sourceBatch.commit();
+ if(privateChanged)lastPrivateHash=qh;
+
+ if(publicChanged){
+  await fsMod.setDoc(fsMod.doc(db,'publicStories','site-config'),pub,{merge:true});
+  lastPublicHash=ph;
  }
- if(qh!==lastPrivateHash){batch.set(fsMod.doc(db,'contentStories','admin-state'),priv,{merge:true});lastPrivateHash=qh;writes++;}
- if(writes)await batch.commit();
 }
 async function persistCatalog(s){
  if(!isAdmin||!remoteReady||!user||!['Owner','Admin','Manager','Operations'].includes(role))return;
@@ -91,7 +100,7 @@ async function syncOperationalData(){
  if(changed){originalSave(s);lastCatalogHash=safeHash((s.products||[]).map(p=>{const sku=String(p.sku||'').toUpperCase(),key=sku==='TENDER'?'tender':sku==='GREEN'?'green':sku==='BULK'?'bulk':'';const inv=(s.inventory||[]).find(x=>String(x.sku||'').toUpperCase()===sku)||{};return key?{key,name:p.name||key,price:Math.max(0,Math.round(Number(key==='bulk'?(p.bulk||p.retail):(p.retail||p.bulk))||0)),minQty:Math.max(1,Math.round(Number(p.moq)||1)),stock:Math.max(0,Math.round(Number(inv.onHand)||0)),active:String(p.state||'Active').toLowerCase()!=='inactive'}:null}).filter(Boolean));}
 }
 function watchPublic(){
- const ref=fsMod.doc(db,'publicStories','site-config');const unsub=fsMod.onSnapshot(ref,snap=>{if(!snap.exists())return;const data=snap.data();lastPublicHash=safeHash(data);mergeIntoLocal([data]);},e=>console.warn('[Nariyal Sutra public config watch]',e));unsubs.push(unsub);
+ const ref=fsMod.doc(db,'publicStories','site-config');const unsub=fsMod.onSnapshot(ref,snap=>{if(!snap.exists())return;const data=snap.data();lastPublicHash=configHash(data);mergeIntoLocal([data]);},e=>console.warn('[Nariyal Sutra public config watch]',e));unsubs.push(unsub);
 }
 async function initAdmin(){
  overlay('Authenticating secure Business Command Center…');
@@ -106,7 +115,7 @@ async function initAdmin(){
  if(pub||priv)mergeIntoLocal([pub,priv]);
  await syncOperationalData();
  setEnvironmentLabel();lockRole();remoteReady=true;watchPublic();
- const current=originalLoad();lastPublicHash=safeHash(publicPayload(current));lastPrivateHash=safeHash(privatePayload(current));
+ const current=originalLoad();lastPublicHash=pub?configHash(pub):'';lastPrivateHash=priv?configHash(priv):'';
  clearOverlay();resolveReady({mode:'admin',role,user});window.dispatchEvent(new CustomEvent('nsv421:production-ready',{detail:{role}}));
 }
 async function initPublic(){
