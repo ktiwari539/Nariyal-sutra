@@ -6,10 +6,6 @@ on:
       - fix/final-v42-1-reconciled-20260911
   workflow_dispatch:
 
-concurrency:
-  group: final-v42-1-${{ github.ref }}
-  cancel-in-progress: true
-
 permissions:
   contents: read
 
@@ -19,17 +15,14 @@ jobs:
     steps:
       - name: Checkout reconciled branch
         uses: actions/checkout@v4
-
       - name: Run static pre-deploy audit
         run: node scripts/predeploy-audit.mjs
-
       - name: Install browser QA dependencies
         shell: bash
         run: |
           npm install --no-save --no-package-lock playwright@1.55.0
           npx playwright install --with-deps chromium
-
-      - name: Run complete browser and functional QA
+      - name: Run browser and user-experience QA
         shell: bash
         run: |
           python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/nariyal-http.log 2>&1 &
@@ -39,9 +32,7 @@ jobs:
           node scripts/final-release-regression-qa.mjs
           node scripts/visual-qa.mjs
           node scripts/content-integrity-qa.mjs
-          node scripts/cinematic-qa.mjs
-          node scripts/admin-functional-qa.mjs
-
+          node scripts/user-experience-qa.mjs
       - name: Upload final QA evidence
         if: always()
         uses: actions/upload-artifact@v4

@@ -1,9 +1,9 @@
 /track /track.html 200
 /track/ /track.html 200
-/admin /admin.html 200
-/admin/ /admin.html 200
-/admin-preview /admin.html 200
-/admin-preview/ /admin.html 200
+/admin /admin-preview.html 302
+/admin/ /admin-preview.html 302
+/admin-preview /admin-preview.html 200
+/admin-preview/ /admin-preview.html 200
 /people /people-of-nariyal-sutra.html 200
 /people/ /people-of-nariyal-sutra.html 200
 /coconut-water /coconut-water.html 200
