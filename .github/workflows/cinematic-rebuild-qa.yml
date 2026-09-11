@@ -9,6 +9,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: node scripts/predeploy-audit.mjs
+      - name: Campaign image binary signatures
+        run: node scripts/campaign-asset-diagnostics.mjs
       - run: |
           npm install --no-save --no-package-lock playwright@1.55.0
           npx playwright install --with-deps chromium
