@@ -35,10 +35,21 @@ try{
  must(await admin.locator('[data-sec-down="cinematic"]').count()===1,'Cinematic move control is missing in Admin');
  must(await admin.locator('[data-sec-vis="cinematic"]').count()===1,'Cinematic visibility control is missing in Admin');
  await admin.locator('[data-sec-down="cinematic"]').click();
+ const savedOrder=await admin.evaluate(()=>[...(window.NSV421Store.load().sections||[])].sort((a,b)=>(+a.order||999)-(+b.order||999)).map(x=>({id:x.id,order:x.order,visible:x.visible!==false})));
+ console.log('ADMIN SAVED ORDER AFTER CINEMATIC DOWN',JSON.stringify(savedOrder));
  await home.goto('http://127.0.0.1:4175/',{waitUntil:'domcontentloaded',timeout:30000});
  await home.waitForTimeout(900);await home.evaluate(()=>{try{window.skipIntro?.()}catch{} document.getElementById('jungle-intro')?.classList.add('ji-done')});
- await home.waitForSelector('#v421-cinematic-film-pro[data-ready="1"]',{timeout:20000});await home.waitForTimeout(1200);
- let order=await home.evaluate(()=>[...document.querySelectorAll('#main-site > [data-v32-section]')].map(x=>x.dataset.v32Section));
+ await home.waitForSelector('#v421-cinematic-film-pro[data-ready="1"]',{timeout:20000});await home.waitForTimeout(1800);
+ const orderDebug=await home.evaluate(()=>{
+  const storeOrder=[...(window.NSV421Store?.load()?.sections||[])].sort((a,b)=>(+a.order||999)-(+b.order||999)).map(x=>({id:x.id,order:x.order,visible:x.visible!==false}));
+  const top=[...document.querySelectorAll('#main-site > *')].map((x,i)=>({i,id:x.id||'',cls:typeof x.className==='string'?x.className:'',v32:x.dataset?.v32Section||'',hidden:!!x.hidden}));
+  const film=document.getElementById('v421-cinematic-film-pro');
+  const info=film?{parentId:film.parentElement?.id||'',parentClass:film.parentElement?.className||'',prevId:film.previousElementSibling?.id||'',prevClass:film.previousElementSibling?.className||'',prevV32:film.previousElementSibling?.dataset?.v32Section||'',nextId:film.nextElementSibling?.id||'',nextClass:film.nextElementSibling?.className||'',nextV32:film.nextElementSibling?.dataset?.v32Section||'',ready:film.dataset.ready||'',v32:film.dataset.v32Section||'',hidden:!!film.hidden}:null;
+  return {storeOrder,top,film:info};
+ });
+ console.log('CINEMATIC ORDER DEBUG',JSON.stringify(orderDebug));
+ await home.screenshot({path:'qa-artifacts/cinematic-order-debug.png',fullPage:false});
+ let order=orderDebug.top.filter(x=>x.v32).map(x=>x.v32);
  must(order.indexOf('cinematic')>order.indexOf('brand-moment'),'Admin cinematic move did not change the real storefront module order');
  await admin.locator('[data-sec-vis="cinematic"]').click();await home.reload({waitUntil:'domcontentloaded'});await home.waitForTimeout(1500);
  const cineHidden=await home.evaluate(()=>{const e=document.getElementById('v421-cinematic-film-pro');return !!e&&(e.hidden||getComputedStyle(e).display==='none')});
