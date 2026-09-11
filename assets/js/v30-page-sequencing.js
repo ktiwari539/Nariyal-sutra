@@ -2,6 +2,7 @@
 'use strict';
 function loadOnce(src,attr){if(document.querySelector(`script[${attr}]`))return;const s=document.createElement('script');s.src=src;s.defer=true;s.setAttribute(attr,'1');document.head.appendChild(s);}
 if(!window.__NS_V421_STABLE_ASSETS__)loadOnce('/assets/js/v421-stable-assets.js','data-ns-stable-assets');
+if(!window.__NS_V421_MEDIA_INTEGRITY__)loadOnce('/assets/js/v421-media-integrity.js','data-ns-media-integrity');
 function file(){let f=(location.pathname.split('/').pop()||'index.html').toLowerCase();return f||'index.html'}
 if(!window.__NS_V421_VISUAL_RECOVERY__)loadOnce('/assets/js/v421-visual-recovery.js','data-ns-visual-recovery');
 if(!window.__NS_V421_CONTENT_CONTROLS__)loadOnce('/assets/js/v421-content-controls.js','data-ns-content-controls');
