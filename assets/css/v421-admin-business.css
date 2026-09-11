@@ -1,0 +1,112 @@
+/* Nariyal Sutra V42.1 — production Business Command Center skin.
+   Applies only to the authenticated production app in admin-live-legacy.html. */
+#appView.app{
+  --admin-ink:#1f2d22;
+  --admin-muted:#6b766b;
+  --admin-line:#dfe4d9;
+  --admin-surface:#fffdfa;
+  --admin-soft:#f4f1e8;
+  --admin-green:#17472c;
+  --admin-gold:#c99b36;
+  min-height:100vh;
+  background:linear-gradient(180deg,#f7f3e9 0%,#f2eee4 100%);
+  color:var(--admin-ink);
+}
+#appView .topbar{
+  background:rgba(255,253,248,.96)!important;
+  color:var(--admin-ink)!important;
+  border-bottom:1px solid var(--admin-line)!important;
+  box-shadow:0 6px 24px rgba(33,52,36,.06);
+}
+#appView .logo{color:var(--admin-green)!important;font-weight:700}
+#appView .logo span{color:var(--admin-gold)!important}
+#appView .owner-email,#appView .hero p,#appView .k-label,#appView .k-foot{color:var(--admin-muted)!important}
+#appView .shell{width:min(1540px,100%);padding-top:30px}
+#appView .hero h1{color:var(--admin-green)!important;letter-spacing:-.03em}
+#appView .hero h1 em{color:var(--admin-gold)!important}
+#appView .live{color:#38784e!important}
+#appView .kpis{gap:14px}
+#appView .kpi{
+  background:var(--admin-surface)!important;
+  border:1px solid var(--admin-line)!important;
+  border-radius:16px;
+  box-shadow:0 10px 28px rgba(38,55,41,.055);
+}
+#appView .kpi:after{background:rgba(201,155,54,.08)!important}
+#appView .k-value{color:var(--admin-green)!important}
+#appView .panel,#appView .ns-admin-directory{
+  background:var(--admin-surface)!important;
+  border:1px solid var(--admin-line)!important;
+  border-radius:16px;
+  box-shadow:0 12px 36px rgba(38,55,41,.055)!important;
+  overflow:hidden;
+}
+#appView .toolbar,#appView .ns-admin-directory-head{border-color:var(--admin-line)!important;background:#fffefa}
+#appView .search,#appView .select,#appView input,#appView textarea,#appView select{
+  background:#fff!important;
+  color:var(--admin-ink)!important;
+  border-color:#d9dfd4!important;
+  border-radius:9px;
+}
+#appView .orders th{
+  background:#eef2e9!important;
+  color:#536256!important;
+  border-color:var(--admin-line)!important;
+}
+#appView .orders td{color:#4e5a50!important;border-color:#e8ece5!important}
+#appView .orders td b,#appView .order-id,#appView .person-name,#appView .m-name{color:var(--admin-ink)!important}
+#appView .orders tbody tr:hover{background:#f5f7f1!important}
+#appView .money{color:#9a6e13!important}
+#appView .catalog-head h2,#appView .catalog-card h3,#appView .ns-admin-directory h2,#appView .ns-admin-directory h3{color:var(--admin-green)!important}
+#appView .catalog-card{
+  background:#fff!important;
+  border:1px solid var(--admin-line)!important;
+  border-radius:14px;
+  color:var(--admin-ink)!important;
+}
+#appView .catalog-key,#appView .eyebrow{color:#a87917!important}
+#appView .mini-field label{color:#6a776c!important}
+#appView .backend-note,#appView .people-health,#appView .admin-alert{color:#566157!important;background:#f7f7f2!important;border-color:#dfe4da!important}
+#appView .quick,#appView .detail,#appView .people-order-card,#appView .m-order,#appView .m-person,#appView .m-inquiry{
+  background:#fff!important;
+  color:var(--admin-ink)!important;
+  border-color:var(--admin-line)!important;
+}
+#appView .quick b,#appView .detail strong,#appView .detail div{color:var(--admin-ink)!important}
+#appView .ghost{
+  color:var(--admin-green)!important;
+  border-color:#cad5c9!important;
+  background:#fff!important;
+  border-radius:9px;
+}
+#appView .primary,#appView .save-all{
+  background:linear-gradient(90deg,#1c5133,#2f6b48)!important;
+  color:#fff!important;
+  border-radius:9px;
+}
+#appView .ns-unified-nav{
+  top:57px!important;
+  background:rgba(246,243,235,.97)!important;
+  border-color:var(--admin-line)!important;
+  box-shadow:0 5px 18px rgba(38,55,41,.045);
+}
+#appView .ns-unified-nav button{
+  background:#fff!important;
+  color:#526155!important;
+  border-color:#d9dfd4!important;
+  border-radius:999px;
+}
+#appView .ns-unified-nav button:hover{color:var(--admin-green)!important;border-color:#9bb49f!important;background:#f1f6ef!important}
+#appView .ns-page-table th,#appView .ns-page-table td{border-color:#e8ece5!important;color:#4f5b51!important}
+#appView .ns-page-table th{color:#6e796f!important}
+#appView .ns-page-table a,#appView .ns-system-row a{color:#805a0d!important}
+#appView .ns-home-row,#appView .ns-system-row{background:#fff;border-color:#e2e7df!important;border-radius:8px}
+#appView .ns-home-row span,#appView .ns-system-row{color:#506055!important}
+#appView .drawer-card{background:#fffefa!important;color:var(--admin-ink)!important;border-color:var(--admin-line)!important}
+#appView .drawer-backdrop{background:rgba(18,31,22,.46)!important}
+#appView .x{color:var(--admin-green)!important;border-color:#ccd6cc!important;background:#fff!important}
+@media(max-width:700px){
+  #appView .shell{padding:18px 12px 34px}
+  #appView .topbar{padding:11px 12px!important}
+  #appView .kpi,#appView .panel,#appView .catalog-card,#appView .ns-admin-directory{border-radius:12px}
+}
