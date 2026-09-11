@@ -10,7 +10,10 @@
   addEventListener('DOMContentLoaded',()=>document.body.appendChild(bar),{once:true});
   const blocked=()=>alert('Local preview only — this live/production action is intentionally disabled. Local Admin and demo-profile workflows remain available.');
   function safeLocalContext(el){
-    if(/admin-(preview|login|set-password)\.html$/.test(location.pathname)) return true;
+    /* Consolidated admin.html is the one Admin now. Permit its local UI/auth form
+       to function for testing while this script still blocks external provider,
+       WhatsApp/mail and production-facing actions elsewhere. */
+    if(/(?:^|\/)(?:admin|admin-login|admin-set-password|staff-sign-in)\.html$/i.test(location.pathname)) return true;
     if(el&&el.closest&&el.closest('[data-local-demo="1"]')) return true;
     if(el&&el.getAttribute&&String(el.getAttribute('data-nsacct-action')||'').startsWith('local-')) return true;
     return false;

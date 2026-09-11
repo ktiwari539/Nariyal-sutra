@@ -1,0 +1,40 @@
+name: Final V42.1 user-experience QA
+
+on:
+  push:
+    branches:
+      - fix/final-v42-1-reconciled-20260911
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout corrected branch
+        uses: actions/checkout@v4
+      - name: Run static source audit
+        run: node scripts/predeploy-audit.mjs
+      - name: Install browser QA dependencies
+        shell: bash
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Test the experience requested by the owner
+        shell: bash
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/nariyal-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID || true' EXIT
+          sleep 2
+          node scripts/user-experience-qa.mjs
+      - name: Upload screenshots and QA result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nariyal-v42-1-user-experience-qa
+          path: qa-artifacts/
+          if-no-files-found: warn
+          retention-days: 7
