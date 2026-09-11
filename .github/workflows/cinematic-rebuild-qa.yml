@@ -14,6 +14,8 @@ jobs:
       - run: |
           npm install --no-save --no-package-lock playwright@1.55.0
           npx playwright install --with-deps chromium
+      - name: Capture supplied media recovery candidates
+        run: node scripts/media-recovery-contact-sheet.mjs
       - name: Cinematic and secure Admin entry QA
         run: node scripts/cinematic-professional-qa.mjs
       - name: Full release candidate QA
