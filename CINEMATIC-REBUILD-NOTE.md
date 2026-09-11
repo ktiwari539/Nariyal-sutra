@@ -1,0 +1,1 @@
+Cinematic rebuild branch marker. Do not deploy directly; local/manual review required after automated QA.
