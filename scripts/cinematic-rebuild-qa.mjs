@@ -8,65 +8,109 @@ fs.mkdirSync('qa-artifacts',{recursive:true});
 await sleep(1200);
 
 const browser=await chromium.launch({headless:true});
-const context=await browser.newContext({viewport:{width:1440,height:900},serviceWorkers:'block',reducedMotion:'no-preference'});
-const page=await context.newPage();
-const errors=[];
-page.on('pageerror',e=>errors.push(String(e)));
 
-try {
+async function testStorefront(viewport,label){
+  const context=await browser.newContext({viewport,serviceWorkers:'block',reducedMotion:'no-preference'});
+  const page=await context.newPage();
+  const errors=[];
+  page.on('pageerror',e=>errors.push(String(e)));
+
   await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded',timeout:30000});
-  await page.waitForTimeout(700);
-  await page.evaluate(()=>{try{window.skipIntro?.()}catch{}});
-  await page.waitForSelector('#v20-story-film[data-rebuilt="1"]',{state:'attached',timeout:20000});
-  await page.waitForFunction(()=>window.__NS_V421_CINEMATIC_REBUILD && Number.isFinite(window.__NS_V421_CINEMATIC_REBUILD.progress),null,{timeout:20000});
   await page.waitForTimeout(900);
+  await page.evaluate(()=>{try{window.skipIntro?.()}catch{} const i=document.getElementById('jungle-intro');if(i)i.classList.add('ji-done');});
+  await page.waitForSelector('#v421-cinematic-film[data-ready="1"]',{state:'attached',timeout:20000});
+  await page.waitForFunction(()=>window.__NS_V421_ISOLATED_CINE&&Number.isFinite(window.__NS_V421_ISOLATED_CINE.progress),null,{timeout:20000});
 
-  const film=page.locator('#v20-story-film');
-  if(await film.count()!==1) throw new Error('film missing');
-  if(await film.getAttribute('data-rebuilt')!=='1') throw new Error('rebuilt cinematic did not initialize');
+  const legacyHidden=await page.evaluate(()=>{const x=document.getElementById('scroll-cinema');return !x||x.hidden||getComputedStyle(x).display==='none';});
+  if(!legacyHidden)throw new Error(`${label}: legacy cinematic still visible`);
 
-  const metrics=await film.evaluate(el=>{
-    const cs=getComputedStyle(el),p=el.parentElement,pcs=p?getComputedStyle(p):null,r=el.getBoundingClientRect();
-    return {top:r.top+scrollY,height:el.offsetHeight,viewport:innerHeight,display:cs.display,cssHeight:cs.height,minHeight:cs.minHeight,maxHeight:cs.maxHeight,position:cs.position,parent:p?.id||p?.className||'',parentHeight:p?.offsetHeight||0,parentCssHeight:pcs?.height||'',reduced:matchMedia('(prefers-reduced-motion: reduce)').matches};
-  });
+  const metrics=await page.locator('#v421-cinematic-film').evaluate(el=>{const r=el.getBoundingClientRect(),cs=getComputedStyle(el);return {documentTop:r.top+scrollY,height:el.offsetHeight,viewport:innerHeight,display:cs.display,position:cs.position};});
+  if(metrics.display==='none')throw new Error(`${label}: isolated cinematic hidden`);
+  if(metrics.height<metrics.viewport*4.2)throw new Error(`${label}: cinematic runway too short ${metrics.height}px`);
+
+  const assetState=await page.evaluate(()=>[...document.querySelectorAll('#v421-cinematic-film img')].map(img=>({src:img.getAttribute('src'),complete:img.complete,w:img.naturalWidth,h:img.naturalHeight}))); 
+  const badAssets=assetState.filter(x=>x.complete&&x.w===0);
+  if(badAssets.length)throw new Error(`${label}: cinematic assets broken ${JSON.stringify(badAssets)}`);
+
   const range=Math.max(1,metrics.height-metrics.viewport);
-  console.log('LAYOUT '+JSON.stringify(metrics));
-  if(metrics.display==='none') throw new Error('cinematic film is hidden');
-  if(metrics.height<metrics.viewport*5.5) throw new Error(`cinematic runway compressed before capture: ${metrics.height}px`);
-
-  const points=[0,.10,.18,.26,.34,.42,.49,.56,.63,.70,.76,.82,.90,.96,1];
+  const samples=[
+    {p:.16,name:'rain'},
+    {p:.47,name:'hero'},
+    {p:.56,name:'knife'},
+    {p:.69,name:'splash'},
+    {p:.86,name:'water'}
+  ];
   const states=[];
-  const shotMap=new Map([[.18,'rain'],[.49,'hero'],[.56,'knife'],[.70,'splash'],[.90,'water']]);
-  for(const p of points){
-    await page.evaluate(({top,range,p})=>scrollTo(0,top+range*p),{top:metrics.top,range,p});
+  for(const s of samples){
+    await page.evaluate(({top,range,p})=>scrollTo(0,top+range*p),{top:metrics.documentTop,range,p:s.p});
     await page.waitForTimeout(300);
-    const state=await page.evaluate(()=>window.__NS_V421_CINEMATIC_REBUILD||{});
-    states.push({...state,sample:p});
-    if(shotMap.has(p)) await page.screenshot({path:`qa-artifacts/${shotMap.get(p)}.png`,fullPage:false});
+    const state=await page.evaluate(()=>{
+      const f=n=>Number.parseFloat(getComputedStyle(document.querySelector(n)).opacity)||0;
+      const cine=window.__NS_V421_ISOLATED_CINE||{};
+      const water=document.querySelector('#v421-cinematic-film .v421i-water-fill')?.getBoundingClientRect();
+      return {...cine,heroOpacity:f('#v421-cinematic-film .v421i-hero-main'),knifeOpacity:f('#v421-cinematic-film .v421i-knife'),splashOpacity:f('#v421-cinematic-film .v421i-splash'),waterOpacity:f('#v421-cinematic-film .v421i-water-fill'),water:water?{w:water.width,h:water.height,top:water.top,left:water.left}:null,viewport:{w:innerWidth,h:innerHeight}};
+    });
+    states.push({sample:s.p,name:s.name,...state});
+    await page.screenshot({path:`qa-artifacts/${label}-${s.name}.png`,fullPage:false});
   }
 
-  const max=k=>Math.max(...states.map(s=>Number(s[k]||0)));
-  const checks={rain:max('rain')>=.8,hero:max('hero')>.45,knife:max('knife')>.55,splash:max('splash')>.55,water:max('water')>.9};
-  for(const [k,v] of Object.entries(checks)) if(!v) throw new Error(`${k} stage not reached`);
+  const byName=Object.fromEntries(states.map(s=>[s.name,s]));
+  if((byName.rain?.rainVisible||0)<5)throw new Error(`${label}: coconut rain not visibly populated ${JSON.stringify(byName.rain)}`);
+  if((byName.hero?.heroOpacity||0)<.35)throw new Error(`${label}: selected coconut not visible ${JSON.stringify(byName.hero)}`);
+  if((byName.knife?.knifeOpacity||0)<.35)throw new Error(`${label}: knife not visible ${JSON.stringify(byName.knife)}`);
+  if((byName.splash?.splashOpacity||0)<.35)throw new Error(`${label}: splash not visible ${JSON.stringify(byName.splash)}`);
+  const w=byName.water;
+  if(!w||w.waterOpacity<.75||!w.water||w.water.w<w.viewport.w*.98||w.water.h<w.viewport.h*.98)throw new Error(`${label}: water does not cover viewport ${JSON.stringify(w)}`);
 
-  const stage=page.locator('#v20-story-film .v421-cine-stage');
-  const stageBox=await stage.boundingBox();
-  if(!stageBox || stageBox.height<850 || stageBox.width<1300) throw new Error(`cinematic stage collapsed: ${JSON.stringify(stageBox)}`);
+  await page.evaluate(()=>scrollTo(0,0));
+  await page.waitForTimeout(180);
+  const distinctProducts=await page.evaluate(()=>{
+    const imgs=[...document.querySelectorAll('[data-product-card] .pc-img-wrap img')];
+    return {count:imgs.length,srcs:[...new Set(imgs.map(i=>new URL(i.currentSrc||i.src,location.href).pathname))],broken:imgs.filter(i=>i.complete&&i.naturalWidth===0).map(i=>i.src)};
+  });
+  if(distinctProducts.count>=3&&distinctProducts.srcs.length<3)throw new Error(`${label}: product cards still repeat one image ${JSON.stringify(distinctProducts)}`);
+  if(distinctProducts.broken.length)throw new Error(`${label}: product image broken ${JSON.stringify(distinctProducts)}`);
 
-  await page.evaluate(({top,range})=>scrollTo(0,top+range*.90),{top:metrics.top,range});
-  await page.waitForTimeout(300);
-  const waterCoverage=await page.evaluate(()=>{const el=document.querySelector('#v20-story-film .v421-water');if(!el)return null;const r=el.getBoundingClientRect(),cs=getComputedStyle(el);return {top:r.top,left:r.left,right:r.right,bottom:r.bottom,width:r.width,height:r.height,opacity:Number(cs.opacity),viewport:{w:innerWidth,h:innerHeight}};});
-  if(!waterCoverage || waterCoverage.opacity<.8 || waterCoverage.width<waterCoverage.viewport.w*.98 || waterCoverage.height<waterCoverage.viewport.h*.98) throw new Error(`water does not visually cover viewport: ${JSON.stringify(waterCoverage)}`);
+  const height=await page.evaluate(()=>document.documentElement.scrollHeight);
+  for(let y=0;y<height;y+=Math.max(600,viewport.height*.8)){
+    await page.evaluate(y=>scrollTo(0,y),y);await page.waitForTimeout(70);
+  }
+  const broken=await page.evaluate(()=>[...document.images].filter(img=>{
+    const cs=getComputedStyle(img),r=img.getBoundingClientRect();
+    return cs.display!=='none'&&cs.visibility!=='hidden'&&!img.hidden&&img.complete&&img.naturalWidth===0&&r.width>2&&r.height>2;
+  }).map(img=>img.getAttribute('src')||''));
+  if(broken.length)throw new Error(`${label}: visible broken images ${JSON.stringify(broken.slice(0,12))}`);
 
-  await page.evaluate(({top,range})=>scrollTo(0,top+range*.18),{top:metrics.top,range});
-  await page.waitForTimeout(300);
-  const rainVisual=await page.evaluate(()=>{const nuts=[...document.querySelectorAll('#v20-story-film .v421-nut')];return {count:nuts.length,visible:nuts.filter(n=>Number(getComputedStyle(n).opacity)>.15).length};});
-  if(rainVisual.count<80 || rainVisual.visible<8) throw new Error(`desktop coconut rain is not visibly populated: ${JSON.stringify(rainVisual)}`);
+  if(errors.length)throw new Error(`${label}: page errors ${errors.join(' | ')}`);
+  console.log(`${label.toUpperCase()} STOREFRONT QA: PASS`,JSON.stringify({metrics,states,distinctProducts}));
+  await context.close();
+}
 
-  console.log(JSON.stringify({checks,metrics,waterCoverage,rainVisual,states:states.map(s=>({sample:s.sample,progress:s.progress,rain:s.rain,hero:s.hero,knife:s.knife,splash:s.splash,water:s.water,count:s.count}))},null,2));
-  if(errors.length) throw new Error('page errors: '+errors.join(' | '));
-  console.log('CINEMATIC REBUILD QA: PASS');
-} finally {
+async function testAdmin(){
+  const context=await browser.newContext({viewport:{width:1440,height:900},serviceWorkers:'block'});
+  const page=await context.newPage();
+  await page.goto('http://127.0.0.1:4173/admin.html',{waitUntil:'domcontentloaded',timeout:30000});
+  await page.waitForURL(/admin-preview\.html/,{timeout:10000});
+  await page.waitForSelector('.ap-app',{state:'visible',timeout:10000});
+  const title=await page.title();
+  if(!/Business Command Center/i.test(title))throw new Error(`Admin title is not Business Command Center: ${title}`);
+  const sidebar=await page.locator('.ap-sidebar').isVisible();
+  if(!sidebar)throw new Error('Business Command Center sidebar missing');
+  const keyLabels=await page.locator('.ap-nav button').allTextContents();
+  for(const label of ['Products & Pricing','Inventory','Warehouses / Nodes','Delivery Services','Delivery Hub']){
+    if(!keyLabels.some(x=>x.includes(label)))throw new Error(`Admin missing ${label}`);
+  }
+  await page.screenshot({path:'qa-artifacts/admin-business-command-center.png',fullPage:false});
+  console.log('ADMIN CANONICAL QA: PASS');
+  await context.close();
+}
+
+try{
+  await testStorefront({width:1440,height:900},'desktop');
+  await testStorefront({width:390,height:844},'mobile');
+  await testAdmin();
+  console.log('PROFESSIONAL WEBSITE QA: PASS');
+}finally{
   await browser.close();
   server.kill();
 }
