@@ -7,8 +7,6 @@
     film.dataset.desktopRunway='360vh';
   }
 
-  const SAFE_IMAGE='/assets/images/nariyal-coconut-grove.webp';
-  const SAFE_IMAGE_ALT='/assets/images/harvest-wall-organic.jpg';
   const DEPLOY_HOST_RE=/^[a-f0-9]{20,}--nariyal-sutra\.netlify\.app$/i;
 
   function isDeployScoped(url){
@@ -37,13 +35,18 @@
       }).join(', ');
       img.setAttribute('srcset',rewritten);
     }
-    let stage=0;
+    let retriedLocal=false;
     const recover=()=>{
       const current=img.currentSrc||img.getAttribute('src')||'';
-      if(stage===0 && isDeployScoped(current)){stage=1;const local=sameOriginCandidate(current);if(local&&local!==current){img.src=local;return;}}
-      if(stage<=1){stage=2;if(current!==SAFE_IMAGE){img.src=SAFE_IMAGE;return;}}
-      if(stage===2){stage=3;if(current!==SAFE_IMAGE_ALT){img.src=SAFE_IMAGE_ALT;return;}}
-      img.classList.add('ns-media-failed');img.removeAttribute('src');
+      if(!retriedLocal && isDeployScoped(current)){
+        retriedLocal=true;
+        const local=sameOriginCandidate(current);
+        if(local&&local!==current){img.src=local;return;}
+      }
+      /* Do not repaint unrelated failures with a generic grove. The media-integrity
+         runtime owns contextual recovery; if none exists this asset stays failed. */
+      img.classList.add('ns-media-failed');
+      img.dataset.nsMediaFailure='unrecovered';
     };
     img.addEventListener('error',recover);
     if(img.complete && img.naturalWidth===0)setTimeout(recover,0);
@@ -53,14 +56,11 @@
     video.dataset.nsMediaGuard='1';normalizeMediaUrl(video,'poster');
     video.querySelectorAll('source').forEach(s=>normalizeMediaUrl(s,'src'));
     const fallback=()=>{
-      video.classList.add('ns-video-failed');video.pause?.();video.hidden=true;
-      const card=video.closest('.msr-card,.film-frame,.sp-video,.water-window,.motion-fold-media,.motion-fold-stage')||video.parentElement;
-      if(card){
-        card.classList.add('ns-video-fallback-active');
-        card.style.setProperty('background-image',"linear-gradient(145deg,rgba(3,12,2,.12),rgba(2,8,1,.45)),url('/assets/images/freshness-coconut-splash.webp')",'important');
-        card.style.setProperty('background-size','cover','important');
-        card.style.setProperty('background-position','center','important');
-      }
+      /* No universal coconut-water poster. Page-specific media integrity owns
+         product/story recovery so one broken motion asset cannot repaint every page. */
+      video.classList.add('ns-video-failed');
+      video.dataset.nsMediaFailure='unrecovered';
+      try{video.pause?.();}catch(_){ }
     };
     video.addEventListener('error',fallback,{once:true});
     video.querySelectorAll('source').forEach(s=>s.addEventListener('error',fallback,{once:true}));
@@ -74,10 +74,8 @@
     const rail=document.getElementById('nsPeopleMarquee');if(!rail)return;
     const imgs=[...rail.querySelectorAll('img')].filter(img=>{const s=getComputedStyle(img),r=img.getBoundingClientRect();return s.display!=='none'&&s.visibility!=='hidden'&&r.width>2&&r.height>2;});
     if(!imgs.length)return;
-    const normalized=imgs.map(img=>{try{return new URL(img.currentSrc||img.src,location.href).pathname;}catch(_){return img.currentSrc||img.src||'';}}).filter(Boolean);
-    const distinct=new Set(normalized);
-    const genericOnly=normalized.length>1&&normalized.every(src=>src.endsWith('/assets/images/nariyal-coconut-grove.webp')||src.endsWith('/assets/images/harvest-wall-organic.jpg'));
-    if(genericOnly||(normalized.length>=4&&distinct.size===1)){rail.hidden=true;rail.style.setProperty('display','none','important');rail.dataset.nsPeopleRailState='awaiting-approved-homepage-media';}
+    const healthy=imgs.filter(img=>img.complete&&img.naturalWidth>0);
+    if(!healthy.length){rail.dataset.nsPeopleRailState='awaiting-approved-homepage-media';}
   }
 
   function installExperienceCorrections(){
@@ -85,7 +83,6 @@
     const style=document.createElement('style');
     style.id='ns-v421-user-corrections';
     style.textContent=`
-      /* Branded photographic opening: keep the title, remove the rejected cartoon layers. */
       #jungle-intro:not(.ji-done){display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;background:#031003!important}
       #jungle-intro.ji-done{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important}
       #jungle-intro:not(.ji-done)::before{content:'';position:absolute;inset:0;z-index:0;background:linear-gradient(180deg,rgba(2,8,1,.18),rgba(2,8,1,.38) 58%,rgba(2,8,1,.78)),url('/assets/images/nariyal-premium-hero.webp') center 42%/cover no-repeat;transform:scale(1.015);animation:nsIntroFocus 3.2s cubic-bezier(.2,.75,.2,1) both}
@@ -97,7 +94,6 @@
       #ji-skip{display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;z-index:9999!important}
       #jungle-intro.ji-done + #ji-skip,#jungle-intro.ji-done~#ji-skip{display:none!important}
 
-      /* One deliberate image per merchandising context — no repeated grove fallback wall. */
       .hero-visual{background-image:linear-gradient(145deg,rgba(5,18,4,.08),rgba(2,8,1,.52)),url('/assets/images/nariyal-premium-hero.webp')!important}
       [data-product-card='tender'] .pc-img-wrap{background-image:url('/assets/images/nariyal-product-collection.webp')!important}
       [data-product-card='green'] .pc-img-wrap{background-image:url('/assets/images/green-round-coconut.jpg')!important}
@@ -106,7 +102,6 @@
       .water-window{background-image:linear-gradient(145deg,rgba(5,18,4,.08),rgba(2,8,1,.38)),url('/assets/images/freshness-coconut-splash.webp')!important}
       #live-motion{background-image:linear-gradient(145deg,rgba(5,18,4,.14),rgba(2,8,1,.55)),url('/assets/images/nariyal-hospitality.webp')!important;background-size:cover!important;background-position:center!important}
 
-      /* Give the source-to-cut film enough physical scroll distance to read as a film. */
       @media(min-width:981px){
         #v20-story-film{height:360vh!important;min-height:360vh!important}
         #v20-story-film .v421-local-knife{width:clamp(210px,20vw,320px)!important;height:44px!important}
@@ -145,27 +140,15 @@
     });
   }
 
-  function repairLiveMotion(){
-    const section=document.getElementById('live-motion');if(!section)return;
-    const candidates=[...section.querySelectorAll('video,canvas,.motion-film,.motion-loop,.motion-fold-media,.motion-fold-stage')];
-    candidates.forEach(el=>{
-      const isVideo=el.tagName==='VIDEO';
-      if(isVideo && (!el.currentSrc||el.error)){el.hidden=true;}
-      const host=isVideo?el.parentElement:el;if(!host)return;
-      host.style.setProperty('background-image',"linear-gradient(145deg,rgba(4,13,3,.12),rgba(2,8,1,.30)),url('/assets/images/freshness-coconut-splash.webp')",'important');
-      host.style.setProperty('background-size','cover','important');host.style.setProperty('background-position','center','important');
-    });
-  }
-
   document.documentElement.classList.add('ns-runtime-stabilized');
-  installExperienceCorrections();guardMedia();assignDistinctProductImages();repairLiveMotion();restoreIntro();
+  installExperienceCorrections();guardMedia();assignDistinctProductImages();restoreIntro();
 
   const mo=new MutationObserver(records=>{let peopleChanged=false;for(const r of records){for(const n of r.addedNodes){if(n.nodeType!==1)continue;guardMedia(n);if(n.closest?.('#nsPeopleMarquee')||n.querySelector?.('#nsPeopleMarquee,.ns-face-rows'))peopleChanged=true;}}if(peopleChanged)setTimeout(validatePeopleRail,180);});
   mo.observe(document.documentElement,{childList:true,subtree:true});
-  setTimeout(validatePeopleRail,900);setTimeout(validatePeopleRail,2600);setTimeout(assignDistinctProductImages,450);setTimeout(repairLiveMotion,850);
+  setTimeout(validatePeopleRail,900);setTimeout(validatePeopleRail,2600);setTimeout(assignDistinctProductImages,450);
 
   const sticky=document.querySelector('.sticky-bar');
   if(sticky){document.addEventListener('focusin',e=>{if(innerWidth<=768&&/^(INPUT|TEXTAREA|SELECT)$/.test(e.target?.tagName||''))sticky.classList.add('is-hidden');});document.addEventListener('focusout',()=>setTimeout(()=>sticky.classList.remove('is-hidden'),120));}
 
-  window.NS_V421_STABILIZATION={build:'2026-09-11-cinematic-admin-correction',guardedMedia:document.querySelectorAll('img,video').length,introDisabled:false,viewport:{w:innerWidth,h:innerHeight}};
+  window.NS_V421_STABILIZATION={build:'2026-09-12-contextual-media-recovery',guardedMedia:document.querySelectorAll('img,video').length,introDisabled:false,viewport:{w:innerWidth,h:innerHeight}};
 })();
