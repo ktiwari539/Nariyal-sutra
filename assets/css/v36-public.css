@@ -124,3 +124,19 @@ video.ns-video-failed{display:none!important}
   #v20-story-film{height:auto!important;min-height:0!important}
   .mobile-story-reel video{display:none!important}
 }
+
+/* V42.1 final release gate — the rejected legacy jungle intro must never block customers. */
+#jungle-intro,
+#ji-skip{
+  display:none!important;
+  visibility:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important;
+}
+#main-site{
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+}
+body{overflow-y:auto!important}
+body.ns-intro-mobile{height:auto!important;overflow-y:auto!important}
