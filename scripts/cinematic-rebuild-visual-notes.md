@@ -1,0 +1,1 @@
+Manual acceptance criteria: natural canopy-origin fall, depth/perspective, selected fruit, visible knife cut, splash toward camera, full-screen water finish, no dead black gap.
