@@ -2,6 +2,7 @@ import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
 import fs from 'node:fs';
 fs.mkdirSync('qa-artifacts/media-recovery',{recursive:true});
+const BASE='http://127.0.0.1:4192';
 const server=spawn('python3',['-m','http.server','4192','--bind','127.0.0.1'],{stdio:'ignore'});
 await new Promise(r=>setTimeout(r,800));
 const browser=await chromium.launch({headless:true});
@@ -15,7 +16,7 @@ const candidates=[
  ['AMB102-P','/assets/images/ambassadors/campaign/AMB102-portrait.webp','Current campaign derivative · beige vest'],
  ['AMB201-P','/assets/images/ambassadors/campaign/AMB201-portrait-blue.webp','Current campaign derivative · blue linen']
 ];
-const cards=candidates.map(([id,src,note])=>`<article><div class="frame"><img src="${src}" alt="${id}"></div><h2>${id}</h2><p>${note}</p><code>${src}</code></article>`).join('');
+const cards=candidates.map(([id,src,note])=>`<article><div class="frame"><img src="${BASE}${src}" alt="${id}"></div><h2>${id}</h2><p>${note}</p><code>${src}</code></article>`).join('');
 await page.setContent(`<!doctype html><html><head><style>body{margin:0;background:#071007;color:#f4eddc;font-family:Arial;padding:32px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}article{border:1px solid #66551d;background:#0d1b0c;padding:14px}.frame{height:360px;background:#111;display:grid;place-items:center;overflow:hidden}.frame img{width:100%;height:100%;object-fit:contain}h2{margin:12px 0 6px;color:#d9ad42}p{min-height:40px;color:#bbb}code{font-size:10px;word-break:break-all;color:#8da18d}</style></head><body><h1>Media recovery candidates</h1><div class="grid">${cards}</div></body></html>`,{waitUntil:'load'});
 await page.waitForTimeout(1600);
 const report=await page.evaluate(()=>[...document.images].map(img=>({alt:img.alt,src:new URL(img.src).pathname,ok:img.complete&&img.naturalWidth>0,w:img.naturalWidth,h:img.naturalHeight})));
