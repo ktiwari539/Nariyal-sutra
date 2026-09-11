@@ -148,22 +148,36 @@
   setTimeout(validatePeopleRail,900);
   setTimeout(validatePeopleRail,2600);
 
+  /* Final release gate: the legacy jungle intro was rejected and must never
+     lock scrolling or sit in front of the accepted storefront on any device. */
   function releaseMainSite(){
-    if(innerWidth>980)return;
     const intro=document.getElementById('jungle-intro');
+    const skip=document.getElementById('ji-skip');
     const main=document.getElementById('main-site');
-    if(!main)return;
-    const introVisible=intro && getComputedStyle(intro).display!=='none' && !intro.hidden;
-    if(!introVisible)return;
     document.body.classList.remove('ns-intro-mobile');
     document.body.style.removeProperty('overflow');
     document.body.style.removeProperty('height');
-    main.style.setProperty('opacity','1','important');
-    main.style.setProperty('pointer-events','auto','important');
-    if(intro){intro.style.setProperty('display','none','important');}
+    if(main){
+      main.classList.add('visible');
+      main.style.setProperty('opacity','1','important');
+      main.style.setProperty('visibility','visible','important');
+      main.style.setProperty('pointer-events','auto','important');
+    }
+    if(intro){
+      intro.setAttribute('aria-hidden','true');
+      intro.style.setProperty('display','none','important');
+      intro.style.setProperty('pointer-events','none','important');
+    }
+    if(skip){
+      skip.setAttribute('aria-hidden','true');
+      skip.style.setProperty('display','none','important');
+      skip.style.setProperty('pointer-events','none','important');
+    }
   }
-  setTimeout(releaseMainSite,4600);
-  window.addEventListener('pageshow',e=>{if(e.persisted)setTimeout(releaseMainSite,80);});
+  releaseMainSite();
+  setTimeout(releaseMainSite,50);
+  setTimeout(releaseMainSite,950);
+  window.addEventListener('pageshow',()=>setTimeout(releaseMainSite,40));
 
   const sticky=document.querySelector('.sticky-bar');
   if(sticky){
@@ -174,8 +188,9 @@
   }
 
   window.NS_V421_STABILIZATION={
-    build:'2026-09-09-live-stabilization',
+    build:'2026-09-11-final-reconciled',
     guardedMedia:document.querySelectorAll('img,video').length,
+    introDisabled:true,
     viewport:{w:innerWidth,h:innerHeight}
   };
 })();
