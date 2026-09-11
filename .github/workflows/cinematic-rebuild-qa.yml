@@ -12,12 +12,12 @@ jobs:
       - run: |
           npm install --no-save --no-package-lock playwright@1.55.0
           npx playwright install --with-deps chromium
-      - run: node scripts/cinematic-rebuild-qa.mjs
+      - run: node scripts/cinematic-professional-qa.mjs
       - name: Upload cinematic QA frames
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: cinematic-rebuild-frames
+          name: cinematic-professional-frames
           path: qa-artifacts/
           if-no-files-found: warn
           retention-days: 7
