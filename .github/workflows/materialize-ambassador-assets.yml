@@ -1,0 +1,55 @@
+name: Materialize ambassador campaign assets
+
+on:
+  push:
+    branches:
+      - fix/cinematic-real-sequence-20260911
+    paths:
+      - 'assets/images/ambassadors/campaign/ambassador-assets-bundle.zip.base64.txt'
+      - '.github/workflows/materialize-ambassador-assets.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/cinematic-real-sequence-20260911
+          fetch-depth: 0
+      - name: Decode approved ambassador assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          payload='assets/images/ambassadors/campaign/ambassador-assets-bundle.zip.base64.txt'
+          if [ ! -f "$payload" ]; then
+            echo 'Payload already materialized; nothing to do.'
+            exit 0
+          fi
+          base64 --decode "$payload" > /tmp/ambassador-assets.zip
+          unzip -o /tmp/ambassador-assets.zip -d assets/images/ambassadors/campaign
+          rm -f "$payload" assets/images/ambassadors/campaign/AMB101-portrait.webp.base64.txt
+          test -f assets/images/ambassadors/campaign/AMB101-portrait.webp
+          test -f assets/images/ambassadors/campaign/AMB102-portrait.webp
+          test -f assets/images/ambassadors/campaign/AMB201-portrait-blue.webp
+          test -f assets/images/ambassadors/campaign/AMB101-poster.webp
+          test -f assets/images/ambassadors/campaign/AMB102-poster.webp
+          test -f assets/images/ambassadors/campaign/AMB201-poster-blue.webp
+          test -f assets/images/ambassadors/campaign/AMB201-lifestyle-blue.webp
+          test -f assets/images/ambassadors/campaign/AMB-GALLERY.webp
+      - name: Commit materialized assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- .; then
+            echo 'No changes to commit.'
+            exit 0
+          fi
+          git config user.name 'Nariyal Sutra QA Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add assets/images/ambassadors/campaign
+          git commit -m 'Materialize approved ambassador campaign assets'
+          git push origin HEAD:fix/cinematic-real-sequence-20260911
