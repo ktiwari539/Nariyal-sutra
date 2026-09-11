@@ -8,7 +8,7 @@ function init(){
   const eligible=Store?((s.media||[]).filter(m=>Store.eligibleForPublic(s,m))):((s.media||[]).filter(m=>m.status==='Approved'&&m.visible));
   const people=eligible.filter(m=>m.cat==='People'&&m.placement!=='Library only');
   const byId=id=>people.find(m=>m.id===id);
-  const storyPreference=['G078','G077','G052','G046','G075','G073','G034','G001','G002'];
+  const storyPreference=['AMB101-P','AMB201-P','AMB102-P','G078','G077','G052','G046','G075','G073','G034','G001','G002'];
   const orderedStories=[...storyPreference.map(byId).filter(Boolean),...people.filter(m=>!storyPreference.includes(m.id))];
   document.querySelectorAll('[data-story-img]').forEach((el,i)=>{
     const m=orderedStories[i];
@@ -20,11 +20,11 @@ function init(){
   });
   const hero=document.getElementById('peopleHeroImg');
   if(hero){
-    const heroIds=['G078','G077','G052','G046','G075','G073','G034'];
+    const heroIds=['AMB201-P','AMB101-P','AMB102-P','G078','G077','G052','G046','G075','G073','G034'];
     const m=heroIds.map(byId).find(Boolean)||people[0];
-    hero.src=(m&&(m.src||m.thumb))||'assets/images/review/backwater-grove.png';
+    hero.src=(m&&(m.src||m.thumb))||'assets/images/nariyal-premium-hero.webp';
     if(m&&m.localBlobKey)hero.setAttribute('data-local-blob-key',m.localBlobKey);else hero.removeAttribute('data-local-blob-key');
-    hero.onerror=()=>{hero.onerror=null;hero.src='assets/images/review/backwater-grove.png';hero.removeAttribute('data-local-blob-key');};
+    hero.onerror=()=>{hero.onerror=null;hero.src='assets/images/nariyal-premium-hero.webp';hero.removeAttribute('data-local-blob-key');};
   }
   if(MediaDB&&MediaDB.hydrate)MediaDB.hydrate(document);
 }
