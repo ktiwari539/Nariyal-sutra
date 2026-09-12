@@ -4,11 +4,13 @@ if(window.__NS_V421_STOREFRONT_FINAL_POLISH__)return;
 window.__NS_V421_STOREFRONT_FINAL_POLISH__=true;
 const Store=window.NSV421Store;
 
-/* Curated defaults are fallbacks only. Explicit Admin sectionMedia selections always win. */
+/* Curated defaults are fallbacks only. Explicit Admin sectionMedia selections always win.
+   Large editorial surfaces intentionally use the strongest bundled sources; smaller supplied
+   media stays available in Admin but is not stretched into a hero/background. */
 const LOCAL_HARVEST=[
   '/assets/images/review/coastal-grove.png',
-  '/assets/images/website-media/ws005-field-harvest-workers.webp',
-  '/assets/images/website-media/ws006-tender-coconut-basket.webp'
+  '/assets/images/review/backwater-grove.png',
+  '/assets/images/nariyal-product-collection.webp'
 ];
 const HARVEST_TARGETS=['homepage-harvest-1','homepage-harvest-2','homepage-harvest-3'];
 let cinePhaseRaf=0;
@@ -19,6 +21,7 @@ function configuredMedia(target){
     const s=Store.load(),id=s?.sectionMedia?.[target];
     if(!id)return '';
     const m=Store.mediaById(s,id);
+    if(m?.largeSurfaceAllowed===false)return '';
     return m?.src||m?.thumb||'';
   }catch(_e){return '';}
 }
@@ -84,24 +87,24 @@ function requestCinematicPhase(){if(!cinePhaseRaf)cinePhaseRaf=requestAnimationF
 function diversifyHomepageMedia(){
   setImg('#cut-story .cut-photo-v16','/assets/images/freshness-coconut-splash.webp','Fresh coconut water splash after a clean cut');
   setImg('[data-product-card="tender"] .pc-img-wrap img','/assets/images/nariyal-product-collection.webp','Fresh tender coconut collection');
-  setImg('.story-visual .sv-img','/assets/images/website-media/ws006-tender-coconut-basket.webp','Tender coconuts selected and prepared for serving');
-  setImg('.trade-route.trade-buy img','/assets/images/website-media/ws001-fresh-cut-ocean.webp','Fresh-cut coconut hospitality by the coast');
-  setImg('.trade-route.trade-supply img','/assets/images/website-media/ws005-field-harvest-workers.webp','Coconut harvest, source and dispatch story');
+  setImg('.story-visual .sv-img','/assets/images/nariyal-coconut-grove.webp','Coconut grove source story');
+  setImg('.trade-route.trade-buy img','/assets/images/nariyal-hospitality.webp','Fresh coconut hospitality and serving story');
+  setImg('.trade-route.trade-supply img','/assets/images/review/backwater-grove.png','Coconut sourcing and supply story');
 
   const heroSrc=configuredMedia('homepage-hero');
   if(heroSrc)setImg('.hero-visual img',heroSrc,'Nariyal Sutra homepage hero');
-  setImg('#people-of-nariyal .ns-people-visual img',configuredMedia('homepage-people-teaser')||'/assets/images/ambassadors/G001.webp','Nariyal Sutra community and people story');
+  setImg('#people-of-nariyal .ns-people-visual img',configuredMedia('homepage-people-teaser')||'/assets/images/review/coastal-grove.png','Nariyal Sutra community and people story');
 
   setImg('.promise-portal.coast img','/assets/images/review/coastal-grove.png','Gujarat coastal coconut sourcing story');
   setImg('.promise-portal.grove img','/assets/images/review/backwater-grove.png','South India coconut backwater and canopy story');
-  setImg('.promise-portal.farm img','/assets/images/website-media/ws003-harvest-hands.webp','Direct coconut harvest and source handling story');
+  setImg('.promise-portal.farm img','/assets/images/nariyal-coconut-grove.webp','Direct coconut grove sourcing story');
 
   const brand=document.querySelector('.brand-moment-bg');
   if(brand){
     const adminSrc=configuredMedia('homepage-brand');
-    const src=adminSrc||'/assets/images/website-media/ws010-coast-sunset-grove.webp';
+    const src=adminSrc||'/assets/images/review/coastal-grove.png';
     brand.style.setProperty('background-image',`linear-gradient(90deg,rgba(2,9,2,.88) 0%,rgba(2,9,2,.34) 48%,rgba(2,9,2,.68) 100%),url('${src}')`,'important');
-    brand.dataset.nsMedia=adminSrc?'admin':'ws010';
+    brand.dataset.nsMedia=adminSrc?'admin':'coastal-grove';
   }
   const grove=document.querySelector('.grove-photo');
   if(grove){
@@ -156,8 +159,6 @@ function addCinematicDepth(){
     nut.classList.add(types[i%types.length]);
     const img=nut.querySelector('img');
     if(img){
-      /* Keep one clean transparent coconut sprite; create natural variety with geometry/tone.
-         This avoids white matte/cutout artifacts from photographic crops on mobile. */
       if(img.getAttribute('src')!=='/assets/images/story-coconut-hero.png')img.setAttribute('src','/assets/images/story-coconut-hero.png');
       nut.dataset.nsVariety='shape-tone-v2';
     }
@@ -171,10 +172,7 @@ function init(){
   fixLegacyStoryMedia();
   if(!addCinematicDepth()){
     let tries=0;
-    const timer=setInterval(()=>{
-      fixLegacyStoryMedia();
-      if(addCinematicDepth()||++tries>30)clearInterval(timer);
-    },120);
+    const timer=setInterval(()=>{fixLegacyStoryMedia();if(addCinematicDepth()||++tries>30)clearInterval(timer);},120);
   }
   setTimeout(fixLegacyStoryMedia,700);
   setTimeout(()=>{fixLegacyStoryMedia();addCinematicDepth();requestCinematicPhase();},1600);
