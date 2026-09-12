@@ -68,6 +68,7 @@ function enhanceCards(){
  const grid=$('#apMediaGrid');if(!grid)return;
  $$('.ap-media-card',grid).forEach(card=>{
   const id=card.dataset.id||$('.ap-media-id',card)?.textContent?.trim();if(!id)return;
+  card.dataset.id=id;
   const img=$('.ap-media-img',card);if(img&&!img.dataset.v39Bound){img.dataset.v39Bound='1';img.title='Open large preview and edit details';img.addEventListener('click',e=>{e.preventDefault();openInspector(id);});}
   const body=$('.ap-media-body',card);if(body&&!$('[data-v39-inspect]',card)){const b=document.createElement('button');b.type='button';b.className='ap-btn mini ap-v39-details';b.dataset.v39Inspect=id;b.textContent='View / edit details';b.onclick=()=>openInspector(id);body.appendChild(b);}
  });
