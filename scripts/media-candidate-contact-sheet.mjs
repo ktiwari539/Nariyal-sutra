@@ -1,0 +1,14 @@
+import { chromium } from 'playwright';
+import { spawn } from 'node:child_process';
+import fs from 'node:fs';
+fs.mkdirSync('qa-artifacts',{recursive:true});
+const server=spawn('python3',['-m','http.server','4194','--bind','127.0.0.1'],{stdio:'ignore'});
+await new Promise(r=>setTimeout(r,900));
+const browser=await chromium.launch({headless:true});
+const page=await browser.newPage({viewport:{width:1600,height:1200},deviceScaleFactor:1});
+const cards=Array.from({length:13},(_,i)=>{const n=String(i+1).padStart(2,'0');return `<article><div class="frame"><img src="http://127.0.0.1:4194/assets/images/website-media/candidate-${n}.webp" alt="candidate-${n}"></div><h2>candidate-${n}</h2><p class="meta"></p></article>`}).join('');
+await page.setContent(`<!doctype html><html><head><style>body{margin:0;background:#071007;color:#f4eddc;font-family:Arial;padding:24px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}article{border:1px solid #66551d;background:#0d1b0c;padding:12px}.frame{height:310px;background:#111;display:grid;place-items:center;overflow:hidden}.frame img{max-width:100%;max-height:100%;object-fit:contain}h2{margin:10px 0 4px;color:#d9ad42}.meta{color:#a8b5a8;font-size:12px}</style></head><body><h1>Website media candidates</h1><div class="grid">${cards}</div><script>Promise.all([...document.images].map(img=>img.complete?Promise.resolve():new Promise(r=>{img.onload=img.onerror=r}))).then(()=>{document.querySelectorAll('article').forEach(a=>{const img=a.querySelector('img');a.querySelector('.meta').textContent=img.naturalWidth+' × '+img.naturalHeight+' · '+(img.naturalWidth?'loaded':'FAILED')})})</script></body></html>`,{waitUntil:'load'});
+await page.waitForTimeout(1200);
+const report=await page.evaluate(()=>[...document.images].map(img=>({id:img.alt,ok:img.complete&&img.naturalWidth>0,w:img.naturalWidth,h:img.naturalHeight})));console.log('MEDIA CANDIDATES',JSON.stringify(report));
+await page.screenshot({path:'qa-artifacts/media-candidate-contact-sheet.png',fullPage:true});
+await browser.close();server.kill('SIGTERM');
