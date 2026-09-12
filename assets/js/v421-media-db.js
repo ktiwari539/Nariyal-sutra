@@ -8,77 +8,76 @@ async function del(key){const d=await open();return new Promise((res,rej)=>{cons
 async function hydrate(root){const imgs=[...(root||document).querySelectorAll('img[data-local-blob-key]')];for(const img of imgs){try{const b=await get(img.dataset.localBlobKey);if(b){const u=URL.createObjectURL(b);img.src=u;img.addEventListener('load',()=>setTimeout(()=>URL.revokeObjectURL(u),2000),{once:true});}}catch(e){}}}
 
 const CAMPAIGN_IDS=['AMB101-P','AMB102-P','AMB201-P'];
-const HOME_FEATURED=['AMB101-P','AMB201-P'];
 const WEBSITE_MEDIA_IDS=Array.from({length:11},(_,i)=>'WS'+String(i+1).padStart(3,'0'));
 const AMBASSADOR_ITEMS=[
- {id:'AMB101-P',name:'Brand ambassador · white shirt',cat:'People',status:'Approved',visible:true,publicAllowed:true,storyAllowed:true,homepageAllowed:true,brandFit:'Strong',placement:'Ambassadors',faceGroup:'AMB101',src:'assets/images/ambassadors/campaign/AMB101-portrait.webp',thumb:'assets/images/ambassadors/campaign/AMB101-portrait.webp',version:7,versions:[{version:7,src:'assets/images/ambassadors/campaign/AMB101-portrait.webp',at:'V42.1 approved reel'}]},
- {id:'AMB102-P',name:'Brand ambassador · beige vest',cat:'People',status:'Approved',visible:true,publicAllowed:true,storyAllowed:true,homepageAllowed:false,brandFit:'Strong',placement:'Ambassadors',faceGroup:'AMB102',src:'assets/images/ambassadors/campaign/AMB102-portrait.webp',thumb:'assets/images/ambassadors/campaign/AMB102-portrait.webp',version:7,versions:[{version:7,src:'assets/images/ambassadors/campaign/AMB102-portrait.webp',at:'V42.1 approved reel'}]},
- {id:'AMB201-P',name:'Product promoter · blue linen',cat:'People',status:'Approved',visible:true,publicAllowed:true,storyAllowed:true,homepageAllowed:true,brandFit:'Strong',placement:'Ambassadors',faceGroup:'AMB201',src:'assets/images/ambassadors/campaign/AMB201-portrait-blue.webp',thumb:'assets/images/ambassadors/campaign/AMB201-portrait-blue.webp',version:7,versions:[{version:7,src:'assets/images/ambassadors/campaign/AMB201-portrait-blue.webp',at:'V42.1 approved reel'}]}
+ {id:'AMB101-P',name:'Brand ambassador · white shirt',cat:'People',status:'Approved',visible:true,publicAllowed:true,storyAllowed:true,homepageAllowed:false,brandFit:'Strong',placement:'Ambassadors',faceGroup:'AMB101',src:'assets/images/ambassadors/campaign/AMB101-portrait.webp',thumb:'assets/images/ambassadors/campaign/AMB101-portrait.webp',width:170,height:212,qualityTier:'card-only',largeSurfaceAllowed:false,version:7,versions:[{version:7,src:'assets/images/ambassadors/campaign/AMB101-portrait.webp',at:'V42.1 approved reel'}]},
+ {id:'AMB102-P',name:'Brand ambassador · beige vest',cat:'People',status:'Approved',visible:true,publicAllowed:true,storyAllowed:true,homepageAllowed:false,brandFit:'Strong',placement:'Ambassadors',faceGroup:'AMB102',src:'assets/images/ambassadors/campaign/AMB102-portrait.webp',thumb:'assets/images/ambassadors/campaign/AMB102-portrait.webp',width:170,height:212,qualityTier:'card-only',largeSurfaceAllowed:false,version:7,versions:[{version:7,src:'assets/images/ambassadors/campaign/AMB102-portrait.webp',at:'V42.1 approved reel'}]},
+ {id:'AMB201-P',name:'Product promoter · blue linen',cat:'People',status:'Approved',visible:true,publicAllowed:true,storyAllowed:true,homepageAllowed:false,brandFit:'Strong',placement:'Ambassadors',faceGroup:'AMB201',src:'assets/images/ambassadors/campaign/AMB201-portrait-blue.webp',thumb:'assets/images/ambassadors/campaign/AMB201-portrait-blue.webp',width:170,height:212,qualityTier:'card-only',largeSurfaceAllowed:false,version:7,versions:[{version:7,src:'assets/images/ambassadors/campaign/AMB201-portrait-blue.webp',at:'V42.1 approved reel'}]}
 ];
 const WEBSITE_MEDIA_ITEMS=[
- {id:'WS001',name:'Fresh cut · coastal serve',cat:'Hospitality',src:'assets/images/website-media/ws001-fresh-cut-ocean.webp',publicAllowed:true,homepageAllowed:true,placement:'Website library'},
- {id:'WS002',name:'Harvest grove · 94 coconuts cinematic',cat:'Cinematic',src:'assets/images/website-media/ws002-harvest-grove-94-cinematic.webp',publicAllowed:false,homepageAllowed:false,placement:'Reference only'},
- {id:'WS003',name:'Harvest hands · source handling',cat:'Sourcing',src:'assets/images/website-media/ws003-harvest-hands.webp',publicAllowed:true,homepageAllowed:true,placement:'Website library'},
- {id:'WS004',name:'Golden backwaters · 94 cinematic',cat:'Cinematic',src:'assets/images/website-media/ws004-golden-backwaters-94-cinematic.webp',publicAllowed:false,homepageAllowed:false,placement:'Reference only'},
- {id:'WS005',name:'Field harvest · source and dispatch',cat:'Sourcing',src:'assets/images/website-media/ws005-field-harvest-workers.webp',publicAllowed:true,homepageAllowed:true,placement:'Website library'},
- {id:'WS006',name:'Tender coconut basket',cat:'Product',src:'assets/images/website-media/ws006-tender-coconut-basket.webp',publicAllowed:true,homepageAllowed:true,placement:'Website library'},
- {id:'WS007',name:'Coast grove · 100 cinematic',cat:'Cinematic',src:'assets/images/website-media/ws007-coast-grove-100-cinematic.webp',publicAllowed:false,homepageAllowed:false,placement:'Reference only'},
- {id:'WS008',name:'Coast grove · 30 cinematic',cat:'Cinematic',src:'assets/images/website-media/ws008-coast-grove-30-cinematic.webp',publicAllowed:false,homepageAllowed:false,placement:'Reference only'},
- {id:'WS009',name:'Harvest falls · cinematic frame',cat:'Cinematic',src:'assets/images/website-media/ws009-harvest-falls-cinematic.webp',publicAllowed:false,homepageAllowed:false,placement:'Reference only'},
- {id:'WS010',name:'Coastal grove sunset',cat:'Sourcing',src:'assets/images/website-media/ws010-coast-sunset-grove.webp',publicAllowed:true,homepageAllowed:true,placement:'Website library'},
- {id:'WS011',name:'Grove to fresh serve · cinematic frame',cat:'Cinematic',src:'assets/images/website-media/ws011-grove-to-fresh-serve-cinematic.webp',publicAllowed:false,homepageAllowed:false,placement:'Reference only'}
-].map((m,i)=>Object.assign({status:'Approved',visible:true,storyAllowed:true,brandFit:'Strong',faceGroup:null,thumb:m.src,version:1,versions:[{version:1,src:m.src,at:'V42.1 website media import'}],order:100+i},m));
+ {id:'WS001',name:'Fresh cut · coastal serve',cat:'Hospitality',src:'assets/images/website-media/ws001-fresh-cut-ocean.webp',width:360,height:270,publicAllowed:true,homepageAllowed:true,placement:'Website library'},
+ {id:'WS002',name:'Harvest grove · 94 coconuts cinematic',cat:'Cinematic',src:'assets/images/website-media/ws002-harvest-grove-94-cinematic.webp',width:400,height:225,publicAllowed:false,homepageAllowed:false,placement:'Reference only'},
+ {id:'WS003',name:'Harvest hands · source handling',cat:'Sourcing',src:'assets/images/website-media/ws003-harvest-hands.webp',width:640,height:480,publicAllowed:true,homepageAllowed:true,placement:'Website library'},
+ {id:'WS004',name:'Golden backwaters · 94 cinematic',cat:'Cinematic',src:'assets/images/website-media/ws004-golden-backwaters-94-cinematic.webp',width:360,height:203,publicAllowed:false,homepageAllowed:false,placement:'Reference only'},
+ {id:'WS005',name:'Field harvest · source and dispatch',cat:'Sourcing',src:'assets/images/website-media/ws005-field-harvest-workers.webp',width:448,height:560,publicAllowed:true,homepageAllowed:true,placement:'Website library'},
+ {id:'WS006',name:'Tender coconut basket',cat:'Product',src:'assets/images/website-media/ws006-tender-coconut-basket.webp',width:480,height:635,publicAllowed:true,homepageAllowed:true,placement:'Website library'},
+ {id:'WS007',name:'Coast grove · 100 cinematic',cat:'Cinematic',src:'assets/images/website-media/ws007-coast-grove-100-cinematic.webp',width:240,height:133,publicAllowed:false,homepageAllowed:false,placement:'Reference only'},
+ {id:'WS008',name:'Coast grove · 30 cinematic',cat:'Cinematic',src:'assets/images/website-media/ws008-coast-grove-30-cinematic.webp',width:240,height:133,publicAllowed:false,homepageAllowed:false,placement:'Reference only'},
+ {id:'WS009',name:'Harvest falls · cinematic frame',cat:'Cinematic',src:'assets/images/website-media/ws009-harvest-falls-cinematic.webp',width:360,height:200,publicAllowed:false,homepageAllowed:false,placement:'Reference only'},
+ {id:'WS010',name:'Coastal grove sunset',cat:'Sourcing',src:'assets/images/website-media/ws010-coast-sunset-grove.webp',width:419,height:236,publicAllowed:true,homepageAllowed:true,placement:'Website library'},
+ {id:'WS011',name:'Grove to fresh serve · cinematic frame',cat:'Cinematic',src:'assets/images/website-media/ws011-grove-to-fresh-serve-cinematic.webp',width:400,height:267,publicAllowed:false,homepageAllowed:false,placement:'Reference only'}
+].map((m,i)=>Object.assign({status:'Approved',visible:true,storyAllowed:true,brandFit:'Strong',faceGroup:null,thumb:m.src,qualityTier:(Math.min(m.width||0,m.height||0)>=700?'large':'standard'),largeSurfaceAllowed:Math.min(m.width||0,m.height||0)>=700,version:1,versions:[{version:1,src:m.src,at:'V42.1 website media import'}],order:100+i},m));
 
 function unique(ids){const seen=new Set();return (ids||[]).filter(id=>id&&!seen.has(id)&&(seen.add(id),true));}
-function featuredFirst(current){
- const rest=unique((current||[]).filter(id=>!HOME_FEATURED.includes(id)));
- if(!rest.length)return [...HOME_FEATURED];
- return unique([HOME_FEATURED[0],rest[0],HOME_FEATURED[1],...rest.slice(1)]);
-}
 function websiteItem(base,previous){
  const prev=previous||{},merged=Object.assign({},base,prev);
- /* Binary identity stays authoritative; Admin owns editorial metadata. */
  merged.id=base.id;merged.src=base.src;merged.thumb=base.thumb;merged.version=base.version;merged.versions=base.versions;merged.order=base.order;
- /* Cinematic composites remain reference-only even if someone toggles them in Admin. */
- if(base.publicAllowed===false){merged.publicAllowed=false;merged.homepageAllowed=false;merged.cat='Cinematic';}
+ merged.width=base.width;merged.height=base.height;
+ if(base.publicAllowed===false){merged.publicAllowed=false;merged.homepageAllowed=false;merged.cat='Cinematic';merged.largeSurfaceAllowed=false;}
  return merged;
 }
 function ensureApprovedMedia(s){
  if(!s||typeof s!=='object')return s;
  const existing=Array.isArray(s.media)?s.media:[];
  const byId=new Map(existing.map(m=>[m.id,m]));
- const campaign=AMBASSADOR_ITEMS.map(m=>Object.assign({},byId.get(m.id)||{},m));
+ const campaign=AMBASSADOR_ITEMS.map(base=>Object.assign({},base,byId.get(base.id)||{},{id:base.id,src:base.src,thumb:base.thumb,width:base.width,height:base.height,version:base.version,versions:base.versions,qualityTier:base.qualityTier,largeSurfaceAllowed:false}));
  const website=WEBSITE_MEDIA_ITEMS.map(m=>websiteItem(m,byId.get(m.id)));
  const reserved=new Set([...CAMPAIGN_IDS,...WEBSITE_MEDIA_IDS,'AMB101-POST','AMB102-POST','AMB201-POST']);
  const others=existing.filter(m=>m&&!reserved.has(m.id));
  s.media=[...campaign,...website,...others];
 
  s.faceMarquee=s.faceMarquee||{};
- s.faceMarquee.selectedIds=featuredFirst(Array.isArray(s.faceMarquee.selectedIds)?s.faceMarquee.selectedIds:[]);
+ s.faceMarquee.selectedIds=unique(Array.isArray(s.faceMarquee.selectedIds)?s.faceMarquee.selectedIds:[]);
  s.faceMarquee.enabled=s.faceMarquee.enabled!==false;
  s.faceMarquee.homepage=s.faceMarquee.homepage!==false;
 
  s.peopleStreams=s.peopleStreams||{};
  s.peopleStreams.ambassadors=s.peopleStreams.ambassadors||{enabled:true,title:'Brand Ambassadors',subtitle:'Approved ambassador portraits.',speed:48,direction:'ltr',selectedIds:[],placement:'people-page'};
- const ambassadors=Array.isArray(s.peopleStreams.ambassadors.selectedIds)?s.peopleStreams.ambassadors.selectedIds:[];
- s.peopleStreams.ambassadors.selectedIds=unique([...CAMPAIGN_IDS,...ambassadors.filter(id=>!CAMPAIGN_IDS.includes(id))]);
- s.peopleStreams.ambassadors.enabled=s.peopleStreams.ambassadors.enabled!==false;
+ const amb=s.peopleStreams.ambassadors;
+ if(amb.selectionInitialized!==true){
+   amb.selectedIds=unique(Array.isArray(amb.selectedIds)&&amb.selectedIds.length?amb.selectedIds:CAMPAIGN_IDS);
+   amb.selectionInitialized=true;
+ }else amb.selectedIds=unique(Array.isArray(amb.selectedIds)?amb.selectedIds:[]);
+ amb.enabled=amb.enabled!==false;
+ amb.desktopLimit=Math.max(0,Number(amb.desktopLimit)||0);
+ amb.tabletLimit=Math.max(0,Number(amb.tabletLimit)||0);
+ amb.mobileLimit=Math.max(0,Number(amb.mobileLimit)||0);
  return s;
 }
 function seedApprovedMedia(){
  const Store=window.NSV421Store;if(!Store)return;
- const MIG='ns-v421-authoritative-media-v7';
+ const MIG='ns-v421-authoritative-media-v8';
  const s=ensureApprovedMedia(Store.load());
- if(localStorage.getItem(MIG)!=='1')Store.audit?.(s,'Approved people + website media reconciled into Admin library','AMB101 / AMB102 / AMB201 / WS001–WS011');
+ if(localStorage.getItem(MIG)!=='1')Store.audit?.(s,'Approved people + website media reconciled without overriding Admin selections','AMB101 / AMB102 / AMB201 / WS001–WS011');
  Store.save(s);localStorage.setItem(MIG,'1');
 }
 function stabilizeMediaLoads(){
- const Store=window.NSV421Store;if(!Store||Store.__authoritativeMediaLoadStableV7)return;
+ const Store=window.NSV421Store;if(!Store||Store.__authoritativeMediaLoadStableV8)return;
  const originalLoad=Store.load.bind(Store);
  const originalPublicFaces=typeof Store.publicFaces==='function'?Store.publicFaces.bind(Store):null;
  Store.load=function(){return ensureApprovedMedia(originalLoad());};
  if(originalPublicFaces)Store.publicFaces=function(s){return originalPublicFaces(ensureApprovedMedia(s||Store.load()));};
- Store.__authoritativeMediaLoadStableV7=true;
+ Store.__authoritativeMediaLoadStableV8=true;
 }
 
 stabilizeMediaLoads();
@@ -91,5 +90,6 @@ if(isAdmin){
  if(!local&&!window.__NS_V421_PRODUCTION_BRIDGE__)loadOnce('/assets/js/v421-production-bridge.js','data-ns-production-bridge');
  loadOnce('/assets/js/admin-v38-production.js','data-ns-admin-v38');
  loadOnce('/assets/js/admin-v39-media-studio.js','data-ns-admin-v39');
+ loadOnce('/assets/js/admin-v40-owner-control.js','data-ns-admin-v40');
 }
 })();
