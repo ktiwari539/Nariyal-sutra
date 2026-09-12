@@ -52,19 +52,6 @@ async function installGeocoderMock(page){
   });
 }
 
-async function exposeOrder(page){
-  await page.evaluate(()=>{
-    const intro=document.getElementById('jungle-intro');
-    const main=document.getElementById('main-site');
-    if(intro)intro.style.display='none';
-    if(main){main.style.opacity='1';main.style.pointerEvents='auto';main.style.visibility='visible';}
-    document.body.classList.remove('ns-intro-mobile');
-    document.body.style.overflowY='auto';
-    document.getElementById('order')?.scrollIntoView({block:'start'});
-  });
-  await page.waitForTimeout(150);
-}
-
 try{
   const context=await browser.newContext({
     viewport:{width:390,height:844},
@@ -105,9 +92,6 @@ try{
   must(gps.city==='Jabalpur'&&gps.region==='Madhya Pradesh'&&gps.pin==='482011',`address components are out of sync ${JSON.stringify(gps)}`);
   must(/18 m/.test(gps.status),`GPS accuracy is not visible to the customer: ${gps.status}`);
 
-  await exposeOrder(page);
-  await page.screenshot({path:path.join(OUT,'mobile-gps-synchronized.png'),fullPage:false});
-
   const pin=await page.evaluate(async()=>{
     const r=await window.NSCheckoutLocation.apply(23.199111,80.020222,{source:'pin',updateAddress:true});
     const s=window.NSDeliveryState||{};
@@ -118,7 +102,6 @@ try{
   must(pin.state.locationSource==='pin',`pin source missing ${pin.state.locationSource}`);
   must(pin.address===reverseBody.display_name,`pin and address are not synchronized: ${pin.address}`);
   must(/23\.19911/.test(pin.coords)&&/80\.02022/.test(pin.coords),`coordinate display is stale: ${pin.coords}`);
-  await page.screenshot({path:path.join(OUT,'mobile-pin-synchronized.png'),fullPage:false});
   must(!errors.length,`page errors: ${errors.join(' | ')}`);
   await context.close();
 
@@ -132,6 +115,12 @@ try{
   const deniedText=await deniedPage.locator('#ns-gps-status').textContent();
   must(/permission|allow Location|manually/i.test(deniedText||''),`permission denial has no manual fallback: ${deniedText}`);
   await denied.close();
+
+  fs.writeFileSync(path.join(OUT,'location-sync-result.json'),JSON.stringify({
+    gps:{state:gps.state,address:gps.address,city:gps.city,region:gps.region,pin:gps.pin,status:gps.status,mapStatus:gps.mapStatus},
+    pin:{state:pin.state,address:pin.address,coords:pin.coords},
+    permissionDeniedMessage:deniedText
+  },null,2));
 
   console.log('CHECKOUT LOCATION SYNC QA: PASS');
 } finally {
