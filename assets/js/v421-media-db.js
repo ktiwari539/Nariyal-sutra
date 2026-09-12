@@ -29,34 +29,18 @@ const WEBSITE_MEDIA_ITEMS=[
 ].map((m,i)=>Object.assign({status:'Approved',visible:true,storyAllowed:true,brandFit:'Strong',faceGroup:null,thumb:m.src,qualityTier:'standard',largeSurfaceAllowed:false,version:1,versions:[{version:1,src:m.src,at:'V42.1 website media import'}],order:100+i},m));
 
 function unique(ids){const seen=new Set();return (ids||[]).filter(id=>id&&!seen.has(id)&&(seen.add(id),true));}
-function websiteItem(base,previous){
- const prev=previous||{},merged=Object.assign({},base,prev);
- merged.id=base.id;merged.src=base.src;merged.thumb=base.thumb;merged.version=base.version;merged.versions=base.versions;merged.order=base.order;merged.width=base.width;merged.height=base.height;merged.largeSurfaceAllowed=false;
- if(base.publicAllowed===false){merged.publicAllowed=false;merged.homepageAllowed=false;merged.cat='Cinematic';}
- return merged;
-}
+function websiteItem(base,previous){const prev=previous||{},merged=Object.assign({},base,prev);merged.id=base.id;merged.src=base.src;merged.thumb=base.thumb;merged.version=base.version;merged.versions=base.versions;merged.order=base.order;merged.width=base.width;merged.height=base.height;merged.largeSurfaceAllowed=false;if(base.publicAllowed===false){merged.publicAllowed=false;merged.homepageAllowed=false;merged.cat='Cinematic';}return merged;}
 function ensureApprovedMedia(s){
  if(!s||typeof s!=='object')return s;
  const existing=Array.isArray(s.media)?s.media:[],byId=new Map(existing.map(m=>[m.id,m]));
  const campaign=AMBASSADOR_ITEMS.map(base=>Object.assign({},base,byId.get(base.id)||{},{id:base.id,src:base.src,thumb:base.thumb,width:base.width,height:base.height,version:base.version,versions:base.versions,qualityTier:'card-only',largeSurfaceAllowed:false}));
  const website=WEBSITE_MEDIA_ITEMS.map(m=>websiteItem(m,byId.get(m.id))),reserved=new Set([...CAMPAIGN_IDS,...WEBSITE_MEDIA_IDS,'AMB101-POST','AMB102-POST','AMB201-POST']),others=existing.filter(m=>m&&!reserved.has(m.id));
  s.media=[...campaign,...website,...others];
-
- s.faceMarquee=s.faceMarquee||{};s.settings=s.settings||{};
- s.faceMarquee.selectedIds=unique(Array.isArray(s.faceMarquee.selectedIds)?s.faceMarquee.selectedIds:[]);
- /* V39 used to auto-insert the tiny campaign portraits into the homepage rail. Remove that
-    historical auto-seed once. After this migration Admin is the only owner of the selection. */
- if(s.settings.peopleMediaAdminMigrationV40!==true){
-   s.faceMarquee.selectedIds=s.faceMarquee.selectedIds.filter(id=>!CAMPAIGN_IDS.includes(id));
-   campaign.forEach(m=>m.homepageAllowed=false);
-   s.settings.peopleMediaAdminMigrationV40=true;
- }
+ s.faceMarquee=s.faceMarquee||{};s.settings=s.settings||{};s.faceMarquee.selectedIds=unique(Array.isArray(s.faceMarquee.selectedIds)?s.faceMarquee.selectedIds:[]);
+ if(s.settings.peopleMediaAdminMigrationV40!==true){s.faceMarquee.selectedIds=s.faceMarquee.selectedIds.filter(id=>!CAMPAIGN_IDS.includes(id));campaign.forEach(m=>m.homepageAllowed=false);s.settings.peopleMediaAdminMigrationV40=true;}
  s.faceMarquee.enabled=s.faceMarquee.enabled!==false;s.faceMarquee.homepage=s.faceMarquee.homepage!==false;
-
- s.peopleStreams=s.peopleStreams||{};
- s.peopleStreams.ambassadors=s.peopleStreams.ambassadors||{enabled:true,title:'Brand Ambassadors',subtitle:'Approved ambassador portraits.',speed:48,direction:'ltr',selectedIds:[],placement:'people-page'};
- const amb=s.peopleStreams.ambassadors;
- if(amb.selectionInitialized!==true){amb.selectedIds=unique(Array.isArray(amb.selectedIds)&&amb.selectedIds.length?amb.selectedIds:CAMPAIGN_IDS);amb.selectionInitialized=true;}else amb.selectedIds=unique(Array.isArray(amb.selectedIds)?amb.selectedIds:[]);
+ s.peopleStreams=s.peopleStreams||{};s.peopleStreams.ambassadors=s.peopleStreams.ambassadors||{enabled:true,title:'Brand Ambassadors',subtitle:'Approved ambassador portraits.',speed:48,direction:'ltr',selectedIds:[],placement:'people-page'};
+ const amb=s.peopleStreams.ambassadors;if(amb.selectionInitialized!==true){amb.selectedIds=unique(Array.isArray(amb.selectedIds)&&amb.selectedIds.length?amb.selectedIds:CAMPAIGN_IDS);amb.selectionInitialized=true;}else amb.selectedIds=unique(Array.isArray(amb.selectedIds)?amb.selectedIds:[]);
  amb.enabled=amb.enabled!==false;amb.desktopLimit=Math.max(0,Number(amb.desktopLimit)||0);amb.tabletLimit=Math.max(0,Number(amb.tabletLimit)||0);amb.mobileLimit=Math.max(0,Number(amb.mobileLimit)||0);amb.deviceVisibility=amb.deviceVisibility&&typeof amb.deviceVisibility==='object'?amb.deviceVisibility:{};
  return s;
 }
@@ -68,5 +52,5 @@ window.NSV421MediaDB={put,get,delete:del,hydrate,ensureApprovedAmbassadors:ensur
 function loadOnce(src,attr){if(document.querySelector(`script[${attr}]`))return;const s=document.createElement('script');s.src=src;s.defer=true;s.setAttribute(attr,'1');document.head.appendChild(s);}
 const isAdmin=/admin-preview\.html$/i.test(location.pathname),local=/^(localhost|127\.0\.0\.1|\[::1\])$/i.test(location.hostname);
 if(!isAdmin)loadOnce('/assets/js/v421-content-controls.js','data-ns-content-controls');
-if(isAdmin){if(!local&&!window.__NS_V421_PRODUCTION_BRIDGE__)loadOnce('/assets/js/v421-production-bridge.js','data-ns-production-bridge');loadOnce('/assets/js/admin-v38-production.js','data-ns-admin-v38');loadOnce('/assets/js/admin-v39-media-studio.js','data-ns-admin-v39');loadOnce('/assets/js/admin-v40-owner-control.js','data-ns-admin-v40');}
+if(isAdmin){if(!local&&!window.__NS_V421_PRODUCTION_BRIDGE__)loadOnce('/assets/js/v421-production-bridge.js','data-ns-production-bridge');loadOnce('/assets/js/admin-v38-production.js','data-ns-admin-v38');loadOnce('/assets/js/admin-v39-media-studio.js','data-ns-admin-v39');loadOnce('/assets/js/admin-v40-owner-control.js','data-ns-admin-v40');loadOnce('/assets/js/admin-v40-media-quality-gate.js','data-ns-admin-media-quality');}
 })();
