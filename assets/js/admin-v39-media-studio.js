@@ -6,9 +6,11 @@ const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelect
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 function canonicalizeAdminUrl(){
- if(/\/admin-preview\.html$/i.test(location.pathname)){
+ if(!/\/admin-preview\.html$/i.test(location.pathname))return;
+ setTimeout(()=>{
+  if(!/\/admin-preview\.html$/i.test(location.pathname))return;
   try{history.replaceState(history.state,'',location.pathname.replace(/admin-preview\.html$/i,'admin.html')+location.search+location.hash);}catch(_e){}
- }
+ },1200);
 }
 function installStyle(){
  if($('#apV39MediaStyle'))return;
