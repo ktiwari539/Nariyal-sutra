@@ -128,6 +128,7 @@
       if(!intro.classList.contains('ji-done'))intro.classList.add('ji-done');
       document.body.classList.remove('ns-intro-mobile');
       main.classList.add('visible');
+      if(compact)main.style.setProperty('transition','none','important');
       main.style.setProperty('opacity','1','important');
       main.style.setProperty('visibility','visible','important');
       main.style.setProperty('pointer-events','auto','important');
@@ -135,6 +136,8 @@
       document.body.style.removeProperty('height');
       if(skip){skip.style.setProperty('display','none','important');skip.style.setProperty('pointer-events','none','important');}
     };
+    /* V42.1 release rule: mobile/tablet never enter the rejected legacy intro state. */
+    if(compact){revealMain();return;}
     intro.removeAttribute('aria-hidden');
     if(staticReducedOpening){
       intro.style.removeProperty('display');intro.style.removeProperty('visibility');intro.style.removeProperty('opacity');intro.style.removeProperty('pointer-events');
@@ -177,5 +180,5 @@
   const sticky=document.querySelector('.sticky-bar');
   if(sticky){document.addEventListener('focusin',e=>{if(innerWidth<=768&&/^(INPUT|TEXTAREA|SELECT)$/.test(e.target?.tagName||''))sticky.classList.add('is-hidden');});document.addEventListener('focusout',()=>setTimeout(()=>sticky.classList.remove('is-hidden'),120));}
 
-  window.NS_V421_STABILIZATION={build:'2026-09-12-mobile-tablet-entry-static-reduced-motion',guardedMedia:document.querySelectorAll('img,video').length,introDisabled:false,viewport:{w:innerWidth,h:innerHeight}};
+  window.NS_V421_STABILIZATION={build:'2026-09-12-mobile-tablet-intro-bypass',guardedMedia:document.querySelectorAll('img,video').length,introDisabled:innerWidth<=980,viewport:{w:innerWidth,h:innerHeight}};
 })();
