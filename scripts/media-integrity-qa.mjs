@@ -81,8 +81,12 @@ try{
  const majorHeroSources=[];
  for(const c of cases){
    const p=await openPage(context,c.url,c.label);await p.waitForFunction(()=>document.documentElement.dataset.nsMediaIntegrity==='ready',null,{timeout:10000});await p.waitForTimeout(450);
-   const result=await p.evaluate(c.check);must(result.ok,`${c.label} key imagery failed to load: ${JSON.stringify(result)}`);must(new URL(result.a,BASE).pathname!==new URL(result.b,BASE).pathname,`${c.label} repeats the same major image: ${JSON.stringify(result)}`);
-   majorHeroSources.push({label:c.label,src:new URL(result.a,BASE).pathname});
+   const result=await p.evaluate(c.check);
+   must(result.ok,`${c.label} key imagery failed to load: ${JSON.stringify(result)}`);
+   const aUrl=new URL(result.a,BASE),bUrl=new URL(result.b,BASE),baseUrl=new URL(BASE);
+   must(aUrl.origin===baseUrl.origin&&bUrl.origin===baseUrl.origin,`${c.label} key imagery must be local: ${JSON.stringify(result)}`);
+   must(aUrl.pathname!==bUrl.pathname,`${c.label} repeats the same major image: ${JSON.stringify(result)}`);
+   majorHeroSources.push({label:c.label,src:aUrl.pathname});
    await assertNoBroken(p,c.label);await shot(p,`${c.label.toLowerCase().replaceAll(' ','-')}.png`);await p.close();
  }
  const duplicateHeroes=majorHeroSources.filter((item,i,a)=>a.findIndex(x=>x.src===item.src)!==i);
