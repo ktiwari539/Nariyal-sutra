@@ -11,9 +11,9 @@ const CAMPAIGN_IDS=['AMB101-P','AMB102-P','AMB201-P'];
 const HOME_FEATURED=['AMB101-P','AMB201-P'];
 const WEBSITE_MEDIA_IDS=Array.from({length:11},(_,i)=>'WS'+String(i+1).padStart(3,'0'));
 const AMBASSADOR_ITEMS=[
- {id:'AMB101-P',name:'Brand ambassador · white shirt',cat:'People',status:'Approved',visible:true,publicAllowed:true,storyAllowed:true,homepageAllowed:true,brandFit:'Strong',placement:'Ambassadors',faceGroup:'AMB101',src:'assets/images/ambassadors/campaign/AMB101-portrait.webp',thumb:'assets/images/ambassadors/campaign/AMB101-portrait.webp',version:6,versions:[{version:6,src:'assets/images/ambassadors/campaign/AMB101-portrait.webp',at:'V42.1 approved reel'}]},
- {id:'AMB102-P',name:'Brand ambassador · beige vest',cat:'People',status:'Approved',visible:true,publicAllowed:true,storyAllowed:true,homepageAllowed:false,brandFit:'Strong',placement:'Ambassadors',faceGroup:'AMB102',src:'assets/images/ambassadors/campaign/AMB102-portrait.webp',thumb:'assets/images/ambassadors/campaign/AMB102-portrait.webp',version:6,versions:[{version:6,src:'assets/images/ambassadors/campaign/AMB102-portrait.webp',at:'V42.1 approved reel'}]},
- {id:'AMB201-P',name:'Product promoter · blue linen',cat:'People',status:'Approved',visible:true,publicAllowed:true,storyAllowed:true,homepageAllowed:true,brandFit:'Strong',placement:'Ambassadors',faceGroup:'AMB201',src:'assets/images/ambassadors/campaign/AMB201-portrait-blue.webp',thumb:'assets/images/ambassadors/campaign/AMB201-portrait-blue.webp',version:6,versions:[{version:6,src:'assets/images/ambassadors/campaign/AMB201-portrait-blue.webp',at:'V42.1 approved reel'}]}
+ {id:'AMB101-P',name:'Brand ambassador · white shirt',cat:'People',status:'Approved',visible:true,publicAllowed:true,storyAllowed:true,homepageAllowed:true,brandFit:'Strong',placement:'Ambassadors',faceGroup:'AMB101',src:'assets/images/ambassadors/campaign/AMB101-portrait.webp',thumb:'assets/images/ambassadors/campaign/AMB101-portrait.webp',version:7,versions:[{version:7,src:'assets/images/ambassadors/campaign/AMB101-portrait.webp',at:'V42.1 approved reel'}]},
+ {id:'AMB102-P',name:'Brand ambassador · beige vest',cat:'People',status:'Approved',visible:true,publicAllowed:true,storyAllowed:true,homepageAllowed:false,brandFit:'Strong',placement:'Ambassadors',faceGroup:'AMB102',src:'assets/images/ambassadors/campaign/AMB102-portrait.webp',thumb:'assets/images/ambassadors/campaign/AMB102-portrait.webp',version:7,versions:[{version:7,src:'assets/images/ambassadors/campaign/AMB102-portrait.webp',at:'V42.1 approved reel'}]},
+ {id:'AMB201-P',name:'Product promoter · blue linen',cat:'People',status:'Approved',visible:true,publicAllowed:true,storyAllowed:true,homepageAllowed:true,brandFit:'Strong',placement:'Ambassadors',faceGroup:'AMB201',src:'assets/images/ambassadors/campaign/AMB201-portrait-blue.webp',thumb:'assets/images/ambassadors/campaign/AMB201-portrait-blue.webp',version:7,versions:[{version:7,src:'assets/images/ambassadors/campaign/AMB201-portrait-blue.webp',at:'V42.1 approved reel'}]}
 ];
 const WEBSITE_MEDIA_ITEMS=[
  {id:'WS001',name:'Fresh cut · coastal serve',cat:'Hospitality',src:'assets/images/website-media/ws001-fresh-cut-ocean.webp',publicAllowed:true,homepageAllowed:true,placement:'Website library'},
@@ -30,6 +30,11 @@ const WEBSITE_MEDIA_ITEMS=[
 ].map((m,i)=>Object.assign({status:'Approved',visible:true,storyAllowed:true,brandFit:'Strong',faceGroup:null,thumb:m.src,version:1,versions:[{version:1,src:m.src,at:'V42.1 website media import'}],order:100+i},m));
 
 function unique(ids){const seen=new Set();return (ids||[]).filter(id=>id&&!seen.has(id)&&(seen.add(id),true));}
+function featuredFirst(current){
+ const rest=unique((current||[]).filter(id=>!HOME_FEATURED.includes(id)));
+ if(!rest.length)return [...HOME_FEATURED];
+ return unique([HOME_FEATURED[0],rest[0],HOME_FEATURED[1],...rest.slice(1)]);
+}
 function ensureApprovedMedia(s){
  if(!s||typeof s!=='object')return s;
  const existing=Array.isArray(s.media)?s.media:[];
@@ -41,8 +46,7 @@ function ensureApprovedMedia(s){
  s.media=[...campaign,...website,...others];
 
  s.faceMarquee=s.faceMarquee||{};
- const current=Array.isArray(s.faceMarquee.selectedIds)?s.faceMarquee.selectedIds:[];
- s.faceMarquee.selectedIds=unique([...HOME_FEATURED,...current.filter(id=>!HOME_FEATURED.includes(id))]);
+ s.faceMarquee.selectedIds=featuredFirst(Array.isArray(s.faceMarquee.selectedIds)?s.faceMarquee.selectedIds:[]);
  s.faceMarquee.enabled=s.faceMarquee.enabled!==false;
  s.faceMarquee.homepage=s.faceMarquee.homepage!==false;
 
@@ -53,41 +57,24 @@ function ensureApprovedMedia(s){
  s.peopleStreams.ambassadors.enabled=s.peopleStreams.ambassadors.enabled!==false;
  return s;
 }
-function preloadFeaturedPeople(){
- for(const item of AMBASSADOR_ITEMS.filter(x=>HOME_FEATURED.includes(x.id))){
-  try{const img=new Image();img.decoding='async';img.fetchPriority='high';img.src=item.src;}catch(_){ }
- }
-}
-function promoteFeaturedPeopleImages(root){
- const scope=root&&root.querySelectorAll?root:document;
- for(const id of HOME_FEATURED){
-  scope.querySelectorAll(`img[data-id="${id}"]`).forEach(img=>{img.loading='eager';img.fetchPriority='high';if(!img.complete||!img.naturalWidth){const src=img.getAttribute('src');if(src){const pre=new Image();pre.src=src;}}});
- }
-}
-function installFeaturedPeopleObserver(){
- const start=()=>{promoteFeaturedPeopleImages(document);const obs=new MutationObserver(()=>promoteFeaturedPeopleImages(document));obs.observe(document.documentElement,{childList:true,subtree:true});};
- document.readyState==='loading'?document.addEventListener('DOMContentLoaded',start,{once:true}):start();
-}
 function seedApprovedMedia(){
  const Store=window.NSV421Store;if(!Store)return;
- const MIG='ns-v421-authoritative-media-v6';
+ const MIG='ns-v421-authoritative-media-v7';
  const s=ensureApprovedMedia(Store.load());
- if(localStorage.getItem(MIG)!=='1')Store.audit?.(s,'Approved people + website media promoted to authoritative Admin library','AMB101 / AMB102 / AMB201 / WS001–WS011');
+ if(localStorage.getItem(MIG)!=='1')Store.audit?.(s,'Approved people + website media reconciled into Admin library','AMB101 / AMB102 / AMB201 / WS001–WS011');
  Store.save(s);localStorage.setItem(MIG,'1');
 }
 function stabilizeMediaLoads(){
- const Store=window.NSV421Store;if(!Store||Store.__authoritativeMediaLoadStableV6)return;
+ const Store=window.NSV421Store;if(!Store||Store.__authoritativeMediaLoadStableV7)return;
  const originalLoad=Store.load.bind(Store);
  const originalPublicFaces=typeof Store.publicFaces==='function'?Store.publicFaces.bind(Store):null;
  Store.load=function(){return ensureApprovedMedia(originalLoad());};
  if(originalPublicFaces)Store.publicFaces=function(s){return originalPublicFaces(ensureApprovedMedia(s||Store.load()));};
- Store.__authoritativeMediaLoadStableV6=true;
+ Store.__authoritativeMediaLoadStableV7=true;
 }
 
-preloadFeaturedPeople();
 stabilizeMediaLoads();
 seedApprovedMedia();
-installFeaturedPeopleObserver();
 window.NSV421MediaDB={put,get,delete:del,hydrate,ensureApprovedAmbassadors:ensureApprovedMedia,ensureApprovedMedia,campaignIds:[...CAMPAIGN_IDS],websiteMediaIds:[...WEBSITE_MEDIA_IDS]};
 function loadOnce(src,attr){if(document.querySelector(`script[${attr}]`))return;const s=document.createElement('script');s.src=src;s.defer=true;s.setAttribute(attr,'1');document.head.appendChild(s);}
 const isAdmin=/admin-preview\.html$/i.test(location.pathname),local=/^(localhost|127\.0\.0\.1|\[::1\])$/i.test(location.hostname);
