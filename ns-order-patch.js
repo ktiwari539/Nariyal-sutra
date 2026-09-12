@@ -22,7 +22,19 @@
 
     var orig=window.NS_SAVE_ORDER;
     window.NS_SAVE_ORDER=async function(order){
-      var extra=window.NS_DELIVERY_EXTRA||{};
+      var state=window.NSDeliveryState||{};
+      var extra=Object.assign({},window.NS_DELIVERY_EXTRA||{});
+      var addressEl=document.getElementById('oA');
+      var finalAddress=addressEl?String(addressEl.value||'').trim():String(state.deliveryAddress||state.address2||'').trim();
+
+      /* Preserve one final checkout location snapshot in the private order. */
+      if(finalAddress) extra.deliveryAddress=finalAddress;
+      if(Number.isFinite(Number(state.lat))) extra.deliveryLat=Number(state.lat);
+      if(Number.isFinite(Number(state.lng))) extra.deliveryLng=Number(state.lng);
+      extra.deliveryAccuracy=Number.isFinite(Number(state.accuracy))?Number(state.accuracy):null;
+      extra.deliveryLocationSource=String(state.locationSource||extra.deliveryLocationSource||'manual');
+      extra.deliveryCoordinatesConfirmed=Number.isFinite(Number(extra.deliveryLat))&&Number.isFinite(Number(extra.deliveryLng));
+
       var merged=Object.assign({},order,extra);
 
       /* Account is optional. Only bind the order when Firebase Auth has resolved a real user. */
