@@ -21,14 +21,18 @@ function setImg(selector,src,alt){
  if(alt)img.alt=alt;
  img.dataset.nsIntegrity='1';return true;
 }
-function replaceEmptyVideo(selector,src,alt){
+function replaceEmptyVideo(selector,sources,alt){
  const video=$(selector);if(!video)return false;
  const hasSource=!!(video.getAttribute('src')||video.querySelector('source[src]'));
  if(hasSource)return false;
- const img=document.createElement('img');
- img.className=(video.className?video.className+' ':'')+'ns-integrity-still';
- img.src=local(src);img.alt=alt||'Nariyal Sutra product story';img.loading='eager';img.decoding='async';img.dataset.nsIntegrity='1';
- video.replaceWith(img);return true;
+ const frames=[...new Set((Array.isArray(sources)?sources:[sources]).filter(Boolean).map(local))];
+ const host=video.parentElement;
+ host?.querySelectorAll('.v23-water-play,.v23-motion-status,.v23-water-fallback').forEach(x=>x.remove());
+ const motion=document.createElement('div');
+ motion.className=(video.className?video.className+' ':'')+'ns-integrity-motion';
+ motion.dataset.nsIntegrity='1';motion.dataset.motionFrames=String(frames.length);
+ motion.innerHTML=frames.map((src,i)=>`<img class="${i===0?'ns-integrity-still ':''}ns-motion-frame" src="${src}" alt="${i===0?(alt||'Nariyal Sutra animated product study'):''}" loading="eager" decoding="async" style="--motion-i:${i};--motion-count:${frames.length}">`).join('')+'<span class="ns-motion-label">Animated product study · automatic</span>';
+ video.replaceWith(motion);return true;
 }
 function pageFallback(img){
  const product=img.closest?.('[data-product-card]')?.dataset.productCard;
@@ -85,8 +89,13 @@ function installStyle(){
  if($('#nsMediaIntegrityStyle'))return;
  const s=document.createElement('style');s.id='nsMediaIntegrityStyle';s.textContent=`
  .ns-integrity-still{display:block;width:100%;height:100%;object-fit:cover;object-position:center}
- .sp-video>.ns-integrity-still,.water-window>.ns-integrity-still{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
  .sp-video,.water-window{position:relative;overflow:hidden;background:#071107}
+ .sp-video>.ns-integrity-motion,.water-window>.ns-integrity-motion{position:absolute;inset:0;width:100%;height:100%}
+ .ns-integrity-motion{position:relative;display:block;overflow:hidden;background:#061006;min-height:280px}
+ .ns-integrity-motion .ns-motion-frame{position:absolute;inset:-3%;width:106%;height:106%;object-fit:cover;object-position:center;opacity:0;transform:scale(1.02);animation:nsIntegrityMotion calc(var(--motion-count) * 4.6s) ease-in-out infinite;animation-delay:calc(var(--motion-i) * 4.6s);will-change:opacity,transform}
+ .ns-integrity-motion .ns-motion-label{position:absolute;z-index:3;left:16px;top:16px;padding:7px 9px;border:1px solid rgba(255,255,255,.16);background:rgba(1,12,9,.58);backdrop-filter:blur(8px);color:rgba(255,255,255,.76);font:700 8px/1.2 Jost,sans-serif;letter-spacing:2px;text-transform:uppercase}
+ @keyframes nsIntegrityMotion{0%{opacity:0;transform:scale(1.02) translate3d(0,0,0)}5%{opacity:1}26%{opacity:1;transform:scale(1.09) translate3d(-1.4%,-.8%,0)}34%{opacity:0;transform:scale(1.12) translate3d(-2%,-1%,0)}100%{opacity:0}}
+ @media(prefers-reduced-motion:reduce){.ns-integrity-motion .ns-motion-frame{animation:none!important;opacity:0!important}.ns-integrity-motion .ns-motion-frame:first-child{opacity:1!important;transform:none!important}}
  .ns-media-unavailable-host{position:relative;background:radial-gradient(circle at 70% 20%,rgba(212,168,67,.10),transparent 36%),linear-gradient(145deg,#0a1708,#030902)!important;min-height:220px}
  .ns-media-unavailable-host:after{content:'Nariyal Sutra · visual unavailable';position:absolute;left:20px;bottom:18px;color:rgba(245,209,126,.58);font:600 8px/1.4 Jost,sans-serif;letter-spacing:2.2px;text-transform:uppercase}
  `;document.head.appendChild(s);
@@ -103,18 +112,18 @@ function applyPageVisuals(){
     setImg('.brand-portrait img',WS.productBasket,'Fresh tender coconuts prepared after sourcing');
     break;
   case 'freshness-first.html':
-    replaceEmptyVideo('.water-window video','/assets/images/freshness-coconut-splash.webp','Fresh coconut water and cut presentation study');
+    replaceEmptyVideo('.water-window video',['/assets/images/freshness-coconut-splash.webp',WS.hospitality,WS.productBasket],'Fresh coconut water and cut presentation study');
     break;
   case 'fresh-tender-coconut.html':
-    replaceEmptyVideo('.sp-video video','/assets/images/freshness-coconut-splash.webp','Fresh tender coconut cut and water study');
+    replaceEmptyVideo('.sp-video video',['/assets/images/nariyal-product-collection.webp','/assets/images/freshness-coconut-splash.webp',WS.productBasket],'Fresh tender coconut cut and water study');
     break;
   case 'green-coconut.html':
-    replaceEmptyVideo('.sp-video video','/assets/images/green-round-coconut.jpg','Green coconut product study');
+    replaceEmptyVideo('.sp-video video',['/assets/images/green-round-coconut.jpg',WS.productBasket,WS.coastSunset],'Green coconut product study');
     break;
   case 'coconut-events-hospitality.html':
     setImg('.sp-scenes .sp-scene:nth-child(1)',WS.hospitality,'Fresh-cut coconut hospitality and event presentation');
     setImg('.sp-scenes .sp-scene:nth-child(3)','/assets/images/bulk-coconut-pack.jpg','Event-scale coconut presentation');
-    replaceEmptyVideo('.sp-video video',WS.harvestHands,'Coconut preparation and source handling study');
+    replaceEmptyVideo('.sp-video video',[WS.harvestHands,WS.hospitality,WS.productBasket],'Coconut preparation and hospitality study');
     break;
   case 'coconut-water.html':
     setImg('.cw-visual img','/assets/images/brand/coconut-premium.webp','Fresh green tender coconut opened for coconut water');
