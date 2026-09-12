@@ -51,24 +51,48 @@ async function assertSourcesLoad(page,selector,label){
   return result;
 }
 
+async function centerInViewport(page,loc){
+  for(let attempt=0;attempt<3;attempt++){
+    await loc.evaluate(el=>el.scrollIntoView({block:'center',inline:'nearest',behavior:'instant'}));
+    await page.waitForTimeout(320);
+    const visible=await loc.evaluate(el=>{
+      const r=el.getBoundingClientRect();
+      return r.right>0&&r.left<innerWidth&&r.bottom>0&&r.top<innerHeight&&r.width>2&&r.height>2;
+    });
+    if(visible)return true;
+    await loc.evaluate(el=>{
+      const r=el.getBoundingClientRect();
+      const absoluteTop=scrollY+r.top;
+      const target=Math.max(0,absoluteTop-(innerHeight-r.height)/2);
+      scrollTo({top:target,left:0,behavior:'instant'});
+    });
+    await page.waitForTimeout(320);
+  }
+  return loc.evaluate(el=>{
+    const r=el.getBoundingClientRect();
+    return r.right>0&&r.left<innerWidth&&r.bottom>0&&r.top<innerHeight&&r.width>2&&r.height>2;
+  });
+}
+
 async function visibleShot(page,selector,name){
   const loc=page.locator(selector).first();
   must(await loc.count()===1,`${name}: missing ${selector}`);
-  await loc.scrollIntoViewIfNeeded();
+  must(await centerInViewport(page,loc),`${name}: target could not be positioned in the viewport`);
   await page.waitForTimeout(650);
   const state=await loc.evaluate(el=>{
     const s=getComputedStyle(el),r=el.getBoundingClientRect();
+    const inViewport=r.right>0&&r.left<innerWidth&&r.bottom>0&&r.top<innerHeight&&r.width>2&&r.height>2;
     const all=[...el.querySelectorAll('img')];
     const imgs=all.map(img=>{
       const ir=img.getBoundingClientRect(),cs=getComputedStyle(img);
       const visible=cs.display!=='none'&&cs.visibility!=='hidden'&&Number(cs.opacity||1)>.05&&ir.right>0&&ir.left<innerWidth&&ir.bottom>0&&ir.top<innerHeight&&ir.width>2&&ir.height>2;
-      return {src:img.getAttribute('src')||'',visible,complete:img.complete,ok:img.complete&&img.naturalWidth>0,w:img.naturalWidth,h:img.naturalHeight};
+      return {src:img.getAttribute('src')||'',visible,complete:img.complete,ok:img.complete&&img.naturalWidth>0,w:img.naturalWidth,h:img.naturalHeight,rect:{top:ir.top,bottom:ir.bottom,left:ir.left,right:ir.right}};
     });
-    return {display:s.display,visibility:s.visibility,opacity:Number(s.opacity||1),w:r.width,h:r.height,imgs,visibleImgs:imgs.filter(x=>x.visible)};
+    return {display:s.display,visibility:s.visibility,opacity:Number(s.opacity||1),inViewport,w:r.width,h:r.height,rect:{top:r.top,bottom:r.bottom,left:r.left,right:r.right},imgs,visibleImgs:imgs.filter(x=>x.visible)};
   });
-  must(state.display!=='none'&&state.visibility!=='hidden'&&state.opacity>.05&&state.w>120&&state.h>40,`${name}: target is not visibly rendered ${JSON.stringify(state)}`);
+  must(state.display!=='none'&&state.visibility!=='hidden'&&state.opacity>.05&&state.inViewport&&state.w>120&&state.h>40,`${name}: target is not visibly rendered ${JSON.stringify(state)}`);
   if(state.imgs.length){
-    must(state.visibleImgs.length>0,`${name}: target has images but none are actually visible in the viewport`);
+    must(state.visibleImgs.length>0,`${name}: target is in viewport but none of its images are visibly rendered ${JSON.stringify(state)}`);
     must(state.visibleImgs.every(x=>x.ok),`${name}: a user-visible image failed to render ${JSON.stringify(state.visibleImgs)}`);
   }
   await loc.screenshot({path:path.join(OUT,name)});
