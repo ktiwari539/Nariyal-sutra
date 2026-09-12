@@ -5,6 +5,13 @@ window.__NS_V421_MEDIA_INTEGRITY__=true;
 const file=(location.pathname.split('/').pop()||'index.html').toLowerCase()||'index.html';
 const $=(s,r=document)=>r.querySelector(s);
 const GENERIC_FALLBACKS=['/assets/images/nariyal-coconut-grove.webp','/assets/images/harvest-wall-organic.jpg'];
+const WS={
+ hospitality:'/assets/images/website-media/ws001-fresh-cut-ocean.webp',
+ harvestHands:'/assets/images/website-media/ws003-harvest-hands.webp',
+ fieldHarvest:'/assets/images/website-media/ws005-field-harvest-workers.webp',
+ productBasket:'/assets/images/website-media/ws006-tender-coconut-basket.webp',
+ coastSunset:'/assets/images/website-media/ws010-coast-sunset-grove.webp'
+};
 
 function local(src){return src.startsWith('/')?src:'/'+src;}
 function pathOf(src){try{return new URL(src,location.href).pathname;}catch(_){return src||'';}}
@@ -29,16 +36,16 @@ function pageFallback(img){
  if(product==='green')return '/assets/images/green-round-coconut.jpg';
  if(product==='bulk')return '/assets/images/bulk-coconut-pack.jpg';
  if(img.closest?.('#people-of-nariyal,.people-page,#nsPeopleMarquee,.v25-people-worlds'))return '';
- if(img.closest?.('.trade-buy'))return '/assets/images/generated/hospitality.webp';
- if(img.closest?.('.trade-supply'))return '/assets/images/generated/supplier.webp';
- if(img.closest?.('.promise-portal.farm'))return '/assets/images/generated/direct-sourcing.webp';
+ if(img.closest?.('.trade-buy'))return WS.hospitality;
+ if(img.closest?.('.trade-supply'))return WS.fieldHarvest;
+ if(img.closest?.('.promise-portal.farm'))return WS.harvestHands;
  if(img.closest?.('#cut-story,.water-window,.cw-image-panel'))return '/assets/images/freshness-coconut-splash.webp';
  const map={
-  'supplier-partnership.html':'/assets/images/generated/supplier.webp',
-  'direct-farm.html':'/assets/images/generated/direct-sourcing.webp',
+  'supplier-partnership.html':WS.fieldHarvest,
+  'direct-farm.html':WS.coastSunset,
   'freshness-first.html':'/assets/images/freshness-coconut-splash.webp',
   'fresh-tender-coconut.html':'/assets/images/nariyal-product-collection.webp',
-  'coconut-events-hospitality.html':'/assets/images/generated/hospitality.webp',
+  'coconut-events-hospitality.html':WS.hospitality,
   'green-coconut.html':'/assets/images/green-round-coconut.jpg',
   'bulk-coconut-supply.html':'/assets/images/bulk-coconut-pack.jpg',
   'gujarat-coast.html':'/assets/images/review/coastal-grove.png',
@@ -88,28 +95,28 @@ function applyPageVisuals(){
  installStyle();
  switch(file){
   case 'supplier-partnership.html':
-    setImg('.w-hero-media img','assets/images/generated/supplier.webp','Coconut supplier partnership and sourcing capability');
-    setImg('.supplier-photo img','assets/images/harvest-wall-organic.jpg','Current coconut source capability and field context');
+    setImg('.w-hero-media img',WS.fieldHarvest,'Coconut supplier partnership and field sourcing capability');
+    setImg('.supplier-photo img',WS.harvestHands,'Hands-on coconut harvest and source handling');
     break;
   case 'direct-farm.html':
-    setImg('.w-hero-media img','assets/images/generated/direct-sourcing.webp','Direct coconut sourcing and farmer supplier process');
-    setImg('.brand-portrait img','assets/images/brand/coconut-premium.webp','Current coconut product and sourcing requirement');
+    setImg('.w-hero-media img',WS.coastSunset,'Direct coconut sourcing from coastal groves');
+    setImg('.brand-portrait img',WS.productBasket,'Fresh tender coconuts prepared after sourcing');
     break;
   case 'freshness-first.html':
-    replaceEmptyVideo('.water-window video','assets/images/freshness-coconut-splash.webp','Fresh coconut water and cut presentation study');
+    replaceEmptyVideo('.water-window video','/assets/images/freshness-coconut-splash.webp','Fresh coconut water and cut presentation study');
     break;
   case 'fresh-tender-coconut.html':
-    replaceEmptyVideo('.sp-video video','assets/images/freshness-coconut-splash.webp','Fresh tender coconut cut and water study');
+    replaceEmptyVideo('.sp-video video','/assets/images/freshness-coconut-splash.webp','Fresh tender coconut cut and water study');
     break;
   case 'green-coconut.html':
-    replaceEmptyVideo('.sp-video video','assets/images/green-round-coconut.jpg','Green coconut product study');
+    replaceEmptyVideo('.sp-video video','/assets/images/green-round-coconut.jpg','Green coconut product study');
     break;
   case 'coconut-events-hospitality.html':
-    setImg('.sp-scenes .sp-scene:nth-child(3)','assets/images/bulk-coconut-pack.jpg','Event-scale coconut presentation');
-    replaceEmptyVideo('.sp-video video','assets/images/generated/hospitality.webp','Fresh coconut hospitality and event presentation');
+    setImg('.sp-scenes .sp-scene:nth-child(3)','/assets/images/bulk-coconut-pack.jpg','Event-scale coconut presentation');
+    replaceEmptyVideo('.sp-video video',WS.hospitality,'Fresh-cut coconut hospitality and event presentation');
     break;
   case 'coconut-water.html':
-    setImg('.cw-image-panel img','assets/images/nariyal-product-collection.webp','Fresh green coconuts prepared for serving');
+    setImg('.cw-image-panel img','/assets/images/nariyal-product-collection.webp','Fresh green coconuts prepared for serving');
     break;
  }
  markFailures();retireGenericRepaints();
