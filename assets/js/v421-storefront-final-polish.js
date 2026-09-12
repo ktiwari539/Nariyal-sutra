@@ -40,6 +40,9 @@ function installCinematicFinish(){
     #v421-cinematic-film-pro .nspro-bg,
     #v421-cinematic-film-pro .nspro-canopy-photo,
     #v421-cinematic-film-pro .nspro-grade{transition:opacity .7s ease,filter .7s ease,background .7s ease}
+    #v421-cinematic-film-pro .nspro-nut.ns-nut-round,#v421-cinematic-film-pro .nspro-nut.ns-nut-premium{overflow:hidden;border-radius:46% 54% 52% 48%/50% 47% 53% 50%;aspect-ratio:.86/1;background:#17320e}
+    #v421-cinematic-film-pro .nspro-nut.ns-nut-round img,#v421-cinematic-film-pro .nspro-nut.ns-nut-premium img{width:100%!important;height:100%!important;object-fit:cover!important;object-position:center!important;transform:scale(1.08)}
+    #v421-cinematic-film-pro .nspro-nut.ns-nut-premium{border-radius:43% 57% 49% 51%/46% 44% 56% 54%}
     #v421-cinematic-film-pro .nspro-knife{width:min(46vw,620px)!important;height:96px!important;filter:drop-shadow(0 18px 24px rgba(0,0,0,.48))!important}
     #v421-cinematic-film-pro .nspro-knife .blade{top:29px!important;width:72%!important;height:38px!important;border-radius:1px 34% 34% 1px!important;clip-path:polygon(0 38%,88% 4%,100% 48%,89% 92%,0 62%)!important;background:linear-gradient(180deg,#858e89 0%,#e1e4df 20%,#a8afab 40%,#525a56 58%,#c8ccc7 73%,#303734 100%)!important;box-shadow:inset 0 1px rgba(255,255,255,.48),inset 0 -1px rgba(8,13,11,.65)!important}
     #v421-cinematic-film-pro .nspro-knife .handle{top:20px!important;width:31%!important;height:57px!important;border-radius:10px 26px 26px 10px!important;background:linear-gradient(90deg,#604329 0%,#24160f 48%,#0f0b08 68%,#51351f 100%)!important;box-shadow:inset 0 1px 2px rgba(255,255,255,.12),0 9px 17px rgba(0,0,0,.42)!important}
@@ -79,8 +82,6 @@ function requestCinematicPhase(){if(!cinePhaseRaf)cinePhaseRaf=requestAnimationF
 function diversifyHomepageMedia(){
   setImg('#cut-story .cut-photo-v16','/assets/images/freshness-coconut-splash.webp','Fresh coconut water splash after a clean cut');
   setImg('[data-product-card="tender"] .pc-img-wrap img','/assets/images/nariyal-product-collection.webp','Fresh tender coconut collection');
-
-  /* Deliberately distinct editorial imagery across the homepage. */
   setImg('.story-visual .sv-img','/assets/images/website-media/ws006-tender-coconut-basket.webp','Tender coconuts selected and prepared for serving');
   setImg('.trade-route.trade-buy img','/assets/images/website-media/ws001-fresh-cut-ocean.webp','Fresh-cut coconut hospitality by the coast');
   setImg('.trade-route.trade-supply img','/assets/images/website-media/ws005-field-harvest-workers.webp','Coconut harvest, source and dispatch story');
@@ -105,7 +106,6 @@ function diversifyHomepageMedia(){
     grove.style.setProperty('background-image',"linear-gradient(to top,rgba(2,8,1,.94) 0%,rgba(2,8,1,.06) 55%,rgba(2,8,1,.26) 100%),linear-gradient(95deg,rgba(3,12,2,.42),rgba(3,12,2,.03) 60%,rgba(3,12,2,.28)),url('/assets/images/nariyal-coconut-grove.webp')",'important');
     grove.dataset.nsMedia='nariyal-coconut-grove';
   }
-
   document.documentElement.dataset.nsMediaDiversity='ready';
 }
 
@@ -118,7 +118,6 @@ function fixLegacyStoryMedia(){
     motion.style.setProperty('height','0','important');
     motion.querySelectorAll('video').forEach(v=>{try{v.pause();v.removeAttribute('src');v.querySelectorAll('source').forEach(s=>s.removeAttribute('src'));v.load();}catch(_e){}});
   }
-
   const harvest=document.getElementById('harvest-film');
   if(harvest){
     harvest.querySelectorAll('.harvest-scene').forEach((img,i)=>{
@@ -148,6 +147,12 @@ function addCinematicDepth(){
     nut.classList.toggle('ns-depth-mid',d>=.30&&d<=.72);
     nut.classList.toggle('ns-depth-far',d<.30);
     if(i%17===0)nut.classList.add('ns-cine-glint');
+    const img=nut.querySelector('img');
+    if(img&&!nut.dataset.nsVariety){
+      nut.dataset.nsVariety='1';
+      if(i%13===0){img.src='/assets/images/green-round-coconut.jpg';nut.classList.add('ns-nut-round');}
+      else if(i%19===0){img.src='/assets/images/brand/coconut-premium.webp';nut.classList.add('ns-nut-premium');}
+    }
   });
   requestCinematicPhase();
   return true;
