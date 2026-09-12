@@ -136,7 +136,7 @@ try{
     {url:'/supplier-partnership.html',label:'Supplier',check:()=>({a:document.querySelector('.w-hero-media img')?.getAttribute('src')||'',b:document.querySelector('.supplier-photo img')?.getAttribute('src')||'',ok:[document.querySelector('.w-hero-media img'),document.querySelector('.supplier-photo img')].every(i=>i&&i.complete&&i.naturalWidth>0)})},
     {url:'/direct-farm.html',label:'Direct sourcing',check:()=>({a:document.querySelector('.w-hero-media img')?.getAttribute('src')||'',b:document.querySelector('.brand-portrait img')?.getAttribute('src')||'',ok:[document.querySelector('.w-hero-media img'),document.querySelector('.brand-portrait img')].every(i=>i&&i.complete&&i.naturalWidth>0)})},
     {url:'/coconut-water.html',label:'Coconut water',check:()=>({a:document.querySelector('.cw-visual img')?.getAttribute('src')||'',b:document.querySelector('.cw-image-panel img')?.getAttribute('src')||'',ok:[document.querySelector('.cw-visual img'),document.querySelector('.cw-image-panel img')].every(i=>i&&i.complete&&i.naturalWidth>0)})},
-    {url:'/coconut-events-hospitality.html',label:'Hospitality hero',check:()=>{const a=document.querySelector('.sp-scenes .sp-scene:nth-child(1)'),b=document.querySelector('.sp-scenes .sp-scene:nth-child(3)');return {a:a?.getAttribute('src')||'',b:b?.getAttribute('src')||'',ok:[a,b].every(i=>i&&i.complete&&i.naturalWidth>0)}}
+    {url:'/coconut-events-hospitality.html',label:'Hospitality hero',check:()=>{const a=document.querySelector('.sp-scenes .sp-scene:nth-child(1)'),b=document.querySelector('.sp-scenes .sp-scene:nth-child(3)');return {a:a?.getAttribute('src')||'',b:b?.getAttribute('src')||'',ok:[a,b].every(i=>i&&i.complete&&i.naturalWidth>0)}}}
   ];
   const majorHeroSources=[];
   for(const c of cases){
