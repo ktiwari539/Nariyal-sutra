@@ -28,45 +28,59 @@ jobs:
         run: node scripts/cinematic-professional-qa.mjs
         timeout-minutes: 12
       - name: Full release candidate QA
+        if: always()
         run: node scripts/release-candidate-qa.mjs
         timeout-minutes: 15
       - name: Mobile and tablet opening-screen QA
+        if: always()
         run: node scripts/mobile-tablet-entry-qa.mjs
         timeout-minutes: 10
       - name: Full mobile and tablet storefront QA
+        if: always()
         run: node scripts/responsive-site-qa.mjs
         timeout-minutes: 15
       - name: Checkout live-location synchronization QA
+        if: always()
         run: node scripts/checkout-location-sync-qa.mjs
         timeout-minutes: 10
       - name: Admin production readiness QA
+        if: always()
         run: node scripts/admin-production-readiness-qa.mjs
         timeout-minutes: 15
       - name: Admin end-to-end interaction and responsive QA
+        if: always()
         run: node scripts/admin-e2e-interaction-qa.mjs
         timeout-minutes: 15
       - name: Owner Admin control and explanation QA
+        if: always()
         run: node scripts/admin-owner-control-qa.mjs
         timeout-minutes: 12
       - name: Admin media upload quality QA
+        if: always()
         run: node scripts/admin-media-upload-quality-qa.mjs
         timeout-minutes: 12
       - name: Brand Ambassador continuous rail QA
+        if: always()
         run: node scripts/ambassador-rail-qa.mjs
         timeout-minutes: 12
       - name: Media inventory and visual diversity QA
+        if: always()
         run: node scripts/media-integrity-qa.mjs
         timeout-minutes: 15
       - name: Storefront image quality gate
+        if: always()
         run: node scripts/media-quality-gate-qa.mjs
         timeout-minutes: 15
       - name: Website media Admin registry QA
+        if: always()
         run: node scripts/website-media-qa.mjs
         timeout-minutes: 12
       - name: Section image placement end-to-end QA
+        if: always()
         run: node scripts/section-media-placement-qa.mjs
         timeout-minutes: 12
       - name: Scroll-aware visual evidence QA
+        if: always()
         run: node scripts/visual-scroll-qa.mjs
         timeout-minutes: 15
       - name: Upload release QA evidence
