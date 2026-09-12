@@ -91,7 +91,7 @@ async function desktopFunctional(){
  const scheduleBefore=await page.evaluate(()=>window.NSV421Store.load().schedule.length);
  await page.locator('#apScheduleNew').click();await page.waitForSelector('#v23ScheduleForm');
  await page.locator('#v23ScheduleForm [name="title"]').fill('QA schedule persistence');await page.locator('#v23ScheduleForm [name="sectionId"]').selectOption('bulk-hero');await page.locator('#v23ScheduleForm [name="startAt"]').fill('2099-01-01T09:00');await page.locator('#v23ScheduleForm [name="endAt"]').fill('2099-01-01T10:00');
- const firstMedia=page.locator('#v23ScheduleMedia input[name="mediaId"]').first();if(!(await firstMedia.isChecked()))await firstMedia.check();await submitForm(page,'#v23ScheduleForm');
+ const firstMedia=page.locator('#v23ScheduleMedia input[name="mediaId"]').first();if(!(await firstMedia.isChecked()))await firstMedia.check({force:true});await submitForm(page,'#v23ScheduleForm');
  must(await page.evaluate(n=>window.NSV421Store.load().schedule.length===n+1,scheduleBefore),'Schedule item did not save');
  await waitAdmin(page);must(await page.evaluate(()=>window.NSV421Store.load().schedule.some(x=>x.title==='QA schedule persistence')),'Schedule item did not persist across reload');
  await page.evaluate(()=>{const s=window.NSV421Store.load();s.schedule=s.schedule.filter(x=>x.title!=='QA schedule persistence');window.NSV421Store.save(s);});
