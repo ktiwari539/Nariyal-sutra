@@ -116,6 +116,7 @@ function applyPageVisuals(){
     replaceEmptyVideo('.sp-video video',WS.hospitality,'Fresh-cut coconut hospitality and event presentation');
     break;
   case 'coconut-water.html':
+    setImg('.cw-visual img','/assets/images/brand/coconut-premium.webp','Fresh green tender coconut opened for coconut water');
     setImg('.cw-image-panel img','/assets/images/nariyal-product-collection.webp','Fresh green coconuts prepared for serving');
     break;
  }
