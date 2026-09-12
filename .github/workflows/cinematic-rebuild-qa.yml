@@ -3,6 +3,9 @@ on:
   push:
     branches: [fix/cinematic-real-sequence-20260911]
   workflow_dispatch:
+concurrency:
+  group: cinematic-rebuild-qa-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   qa:
     runs-on: ubuntu-latest
