@@ -1,0 +1,17 @@
+import { chromium } from 'playwright';
+import { spawn } from 'node:child_process';
+import fs from 'node:fs';
+import path from 'node:path';
+const BASE='http://127.0.0.1:4205',OUT=path.join(process.cwd(),'qa-artifacts','media-quality');fs.mkdirSync(OUT,{recursive:true});
+const must=(c,m)=>{if(!c)throw new Error(m)};const server=spawn('python3',['-m','http.server','4205','--bind','127.0.0.1'],{stdio:'ignore'});await new Promise(r=>setTimeout(r,900));const browser=await chromium.launch({headless:true});
+const pages=[['home','/'],['people','/people-of-nariyal-sutra.html'],['fresh','/fresh-tender-coconut.html'],['green','/green-coconut.html'],['bulk','/bulk-coconut-supply.html'],['sourcing','/direct-farm.html'],['hospitality','/coconut-events-hospitality.html']];
+async function settle(page,name){if(name==='home')await page.waitForTimeout(6200);else await page.waitForTimeout(800);const h=await page.evaluate(()=>document.documentElement.scrollHeight);for(const y of [0,.25,.5,.75,1]){await page.evaluate(v=>scrollTo(0,v),Math.max(0,(h-900)*y));await page.waitForTimeout(120);}await page.evaluate(()=>scrollTo(0,0));}
+async function inspect(page){return page.evaluate(async()=>{
+ const visible=e=>{const r=e.getBoundingClientRect(),s=getComputedStyle(e);return r.width>=260&&r.height>=160&&s.display!=='none'&&s.visibility!=='hidden'&&Number(s.opacity||1)>.05};
+ const issues=[],seen=[];
+ document.querySelectorAll('img').forEach(img=>{if(!visible(img)||!img.complete||!img.naturalWidth)return;const r=img.getBoundingClientRect(),scale=Math.max(r.width/img.naturalWidth,r.height/img.naturalHeight);seen.push({type:'img',src:img.currentSrc||img.src,natural:[img.naturalWidth,img.naturalHeight],rendered:[Math.round(r.width),Math.round(r.height)],scale:+scale.toFixed(2)});if(scale>1.18)issues.push(`upscaled image ${Math.round(scale*100)}%: ${img.currentSrc||img.src} natural ${img.naturalWidth}x${img.naturalHeight} rendered ${Math.round(r.width)}x${Math.round(r.height)}`);});
+ const bg=[];document.querySelectorAll('section,div,article').forEach(el=>{if(!visible(el))return;const b=getComputedStyle(el).backgroundImage||'';const m=b.match(/url\(["']?([^"')]+)["']?\)/);if(m)bg.push({el,src:m[1]});});
+ for(const x of bg.slice(0,80)){const d=await new Promise(res=>{const im=new Image();im.onload=()=>res([im.naturalWidth,im.naturalHeight]);im.onerror=()=>res([0,0]);im.src=x.src;});if(!d[0]){issues.push(`broken background ${x.src}`);continue;}const r=x.el.getBoundingClientRect(),scale=Math.max(r.width/d[0],r.height/d[1]);seen.push({type:'bg',src:x.src,natural:d,rendered:[Math.round(r.width),Math.round(r.height)],scale:+scale.toFixed(2)});if(scale>1.18)issues.push(`upscaled background ${Math.round(scale*100)}%: ${x.src} natural ${d[0]}x${d[1]} rendered ${Math.round(r.width)}x${Math.round(r.height)}`);}
+ return {issues,seen};
+ });}
+try{const context=await browser.newContext({viewport:{width:1440,height:900},deviceScaleFactor:1,serviceWorkers:'block'});for(const [name,url] of pages){const page=await context.newPage();await page.goto(BASE+url,{waitUntil:'domcontentloaded',timeout:30000});await settle(page,name);const out=await inspect(page);fs.writeFileSync(path.join(OUT,`${name}.json`),JSON.stringify(out,null,2));await page.screenshot({path:path.join(OUT,`${name}.png`),fullPage:true});must(!out.issues.length,`${name}: ${out.issues.join(' | ')}`);await page.close();}await context.close();console.log('MEDIA QUALITY GATE QA: PASS');}finally{await browser.close();server.kill();}
