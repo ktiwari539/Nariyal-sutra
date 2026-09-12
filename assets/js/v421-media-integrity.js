@@ -112,6 +112,7 @@ function applyPageVisuals(){
     replaceEmptyVideo('.sp-video video','/assets/images/green-round-coconut.jpg','Green coconut product study');
     break;
   case 'coconut-events-hospitality.html':
+    setImg('.sp-scenes .sp-scene:nth-child(1)','/assets/images/nariyal-hospitality.webp','Fresh coconut hospitality service presentation');
     setImg('.sp-scenes .sp-scene:nth-child(3)','/assets/images/bulk-coconut-pack.jpg','Event-scale coconut presentation');
     replaceEmptyVideo('.sp-video video',WS.hospitality,'Fresh-cut coconut hospitality and event presentation');
     break;
