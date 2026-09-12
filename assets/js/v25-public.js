@@ -11,10 +11,17 @@ function visibleIds(st,items){
  const d=device(),vis=st.deviceVisibility||{},filtered=items.filter(m=>vis[m.id]?.[d]!==false),limit=d==='mobile'?+st.mobileLimit||0:d==='tablet'?+st.tabletLimit||0:+st.desktopLimit||0;
  return limit>0?filtered.slice(0,Math.max(1,limit)):filtered;
 }
+function loopMode(list){
+ /* A professional rail should not duplicate a tiny set just to force movement.
+    Keep sparse approved Ambassador sets static until there are enough unique cards
+    to fill the viewport; mobile can loop earlier because its viewport is narrower. */
+ const min={desktop:6,tablet:4,mobile:3}[device()]||6;
+ return list.length>=min?'loop':'static';
+}
 function streamSection(key,st,items){
  const reverse=st.direction==='rtl',anchor='people-'+key,list=visibleIds(st,items),inner=list.map(card).join('');
  if(!inner)return '';
- const mode=list.length<2?'static':'loop';
+ const mode=loopMode(list);
  return `<section class="v25-story-stream" id="${esc(anchor)}" data-stream="${esc(key)}" data-stream-mode="${mode}" data-device="${device()}" style="--v25-speed:${+st.speed||48}s"><div class="v25-story-stream-head"><div><small>${key==='ambassadors'?'Ambassadors':key==='promoters'?'Promoters':'Community'}</small><h3>${esc(st.title||key)}</h3></div><p>${esc(st.subtitle||'')}</p></div><div class="v25-story-viewport"><div class="v25-story-track ${reverse?'reverse':''} ${mode==='static'?'is-static':''}"><div class="v25-story-group">${inner}</div>${mode==='loop'?`<div class="v25-story-group" aria-hidden="true">${inner}</div>`:''}</div></div><div class="v25-story-stream-foot">Full-picture treatment · Admin controls image selection, order, speed, direction and device visibility</div></section>`;}
 function normalizeAfterFailure(root,id){const cards=[...root.querySelectorAll(`.v25-story-person[data-id="${CSS.escape(id)}"]`)];cards.forEach(c=>c.remove());const groups=[...root.querySelectorAll('.v25-story-group')],live=groups[0]?.querySelectorAll('.v25-story-person').length||0;if(live<2){root.querySelector('.v25-story-track')?.classList.add('is-static');root.dataset.streamMode='static';if(groups.length>1)groups[1].remove();}if(!live)root.remove();}
 function wireFallback(root,s){root.querySelectorAll('.v25-story-person img:not([data-local-blob-key])').forEach(img=>{const id=img.closest('.v25-story-person')?.dataset.id,m=Store.mediaById(s,id),ss=sources(m);let i=Math.max(0,ss.indexOf(img.getAttribute('src')));img.onerror=()=>{i++;if(i<ss.length){img.src=ss[i];return;}img.onerror=null;const stream=img.closest('.v25-story-stream');if(stream&&id)normalizeAfterFailure(stream,id);};});}
