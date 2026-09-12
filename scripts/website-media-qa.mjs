@@ -18,8 +18,7 @@ try{
  const res=await page.goto(BASE+'/admin-preview.html',{waitUntil:'domcontentloaded',timeout:30000});
  must(res&&res.status()<400,`Admin returned ${res?.status()}`);
  await page.waitForFunction(()=>window.__NSV21_ADMIN_BOUND===true&&window.__NS_V421_ADMIN_V38__===true&&window.__NS_V421_ADMIN_MEDIA_STUDIO__===true,null,{timeout:12000});
- await page.waitForTimeout(500);
- must(new URL(page.url()).pathname==='/admin.html',`Admin preview URL was not canonicalized: ${page.url()}`);
+ await page.waitForFunction(()=>location.pathname==='/admin.html',null,{timeout:4000});
  const state=await page.evaluate(({ids,clean,reference})=>{
   const s=window.NSV421Store.load(),find=id=>window.NSV421Store.mediaById(s,id);
   return {
@@ -48,13 +47,22 @@ try{
  must(await page.locator('#apV39MediaInspector.is-open').count()===1,'Admin media inspector did not open');
  for(const field of ['name','cat','placement','status','focus','notes'])must(await page.locator(`#apV39MediaForm [name="${field}"]`).count()===1,`Media inspector missing ${field}`);
  await page.screenshot({path:path.join(OUT,'admin-media-inspector.png'),fullPage:false});
- await page.locator('#apV39MediaInspector [data-v39-close]').first().click();
+ await page.locator('#apV39MediaForm [name="name"]').fill('QA media title');
+ await page.locator('#apV39MediaForm [name="cat"]').fill('QA category');
+ await page.locator('#apV39MediaForm [name="placement"]').fill('QA placement');
+ await page.locator('#apV39MediaForm [name="notes"]').fill('QA media inspector persistence check');
+ await page.locator('#apV39MediaForm [name="focus"]').selectOption('50% 30%');
+ await page.locator('#apV39MediaForm button[type="submit"]').click();await page.waitForTimeout(180);
+ const persisted=await page.evaluate(()=>{const s=window.NSV421Store.load(),m=window.NSV421Store.mediaById(s,'WS001');return {name:m?.name,cat:m?.cat,placement:m?.placement,notes:m?.notes,focus:m?.focus};});
+ must(persisted.name==='QA media title'&&persisted.cat==='QA category'&&persisted.placement==='QA placement'&&persisted.notes==='QA media inspector persistence check'&&persisted.focus==='50% 30%',`Admin media edits did not persist: ${JSON.stringify(persisted)}`);
+ const referenceSafety=await page.evaluate(()=>{const s=window.NSV421Store.load(),m=window.NSV421Store.mediaById(s,'WS002');m.publicAllowed=true;m.homepageAllowed=true;window.NSV421Store.save(s);const x=window.NSV421Store.load(),r=window.NSV421Store.mediaById(x,'WS002');return {publicAllowed:r?.publicAllowed,homepageAllowed:r?.homepageAllowed,cat:r?.cat};});
+ must(referenceSafety.publicAllowed===false&&referenceSafety.homepageAllowed===false&&referenceSafety.cat==='Cinematic',`Reference-only media safety was weakened: ${JSON.stringify(referenceSafety)}`);
  await page.locator('#apNav button[data-view="pages"]').click();await page.waitForTimeout(250);
  await page.locator('[data-v38-target="homepage-hero"]').click();await page.waitForTimeout(250);
  const picker=await page.locator('[data-v38-pick]').evaluateAll(nodes=>nodes.map(n=>n.getAttribute('data-v38-pick')));
  for(const id of CLEAN)must(picker.includes(id),`${id} missing from section image picker`);
  for(const id of REFERENCE)must(!picker.includes(id),`${id} reference frame exposed in standard image picker`);
- console.log('WEBSITE MEDIA ADMIN QA: PASS',JSON.stringify({ids:IDS,clean:CLEAN,reference:REFERENCE,loads}));
+ console.log('WEBSITE MEDIA ADMIN QA: PASS',JSON.stringify({ids:IDS,clean:CLEAN,reference:REFERENCE,loads,persisted,referenceSafety}));
 } finally {
  await browser.close();server.kill();
 }
