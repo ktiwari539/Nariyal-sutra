@@ -86,6 +86,7 @@ seedApprovedMedia();
 window.NSV421MediaDB={put,get,delete:del,hydrate,ensureApprovedAmbassadors:ensureApprovedMedia,ensureApprovedMedia,campaignIds:[...CAMPAIGN_IDS],websiteMediaIds:[...WEBSITE_MEDIA_IDS]};
 function loadOnce(src,attr){if(document.querySelector(`script[${attr}]`))return;const s=document.createElement('script');s.src=src;s.defer=true;s.setAttribute(attr,'1');document.head.appendChild(s);}
 const isAdmin=/admin-preview\.html$/i.test(location.pathname),local=/^(localhost|127\.0\.0\.1|\[::1\])$/i.test(location.hostname);
+if(!isAdmin)loadOnce('/assets/js/v421-content-controls.js','data-ns-content-controls');
 if(isAdmin){
  if(!local&&!window.__NS_V421_PRODUCTION_BRIDGE__)loadOnce('/assets/js/v421-production-bridge.js','data-ns-production-bridge');
  loadOnce('/assets/js/admin-v38-production.js','data-ns-admin-v38');
