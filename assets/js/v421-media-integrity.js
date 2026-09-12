@@ -15,8 +15,17 @@ const WS={
 
 function local(src){return src.startsWith('/')?src:'/'+src;}
 function pathOf(src){try{return new URL(src,location.href).pathname;}catch(_){return src||'';}}
+function restoreImgState(img){
+ if(!img)return;
+ img.classList.remove('ns-media-unavailable','ns-media-failed');
+ delete img.dataset.nsMediaFailure;
+ img.style.removeProperty('display');
+ const host=img.closest('figure,.w-hero-media,.sp-video,.water-window,.supplier-photo,.brand-portrait,.farm-media,.story-card,.cw-image-panel,.trade-route')||img.parentElement;
+ if(host){host.classList.remove('ns-media-unavailable-host');delete host.dataset.nsMissingMedia;}
+}
 function setImg(selector,src,alt){
  const img=$(selector);if(!img)return false;
+ restoreImgState(img);
  img.src=local(src);img.removeAttribute('srcset');img.removeAttribute('onerror');
  if(alt)img.alt=alt;
  img.dataset.nsIntegrity='1';return true;
@@ -64,7 +73,7 @@ function retireGenericRepaints(){
    const original=pathOf(img.dataset.nsOriginalSrc||'');
    if(!GENERIC_FALLBACKS.includes(current)||GENERIC_FALLBACKS.includes(original))return;
    const replacement=pageFallback(img);
-   if(replacement&&replacement!==current){img.src=replacement;img.removeAttribute('srcset');img.dataset.nsIntegrityRecovery='context';}
+   if(replacement&&replacement!==current){restoreImgState(img);img.src=replacement;img.removeAttribute('srcset');img.dataset.nsIntegrityRecovery='context';}
    else if(!replacement){const card=img.closest('.ns-face-card,.v25-story-person,.story-card');if(card)card.remove();else img.style.setProperty('display','none','important');}
  });
 }
@@ -74,7 +83,7 @@ function markFailures(){
    img.addEventListener('error',()=>{
      const replacement=pageFallback(img),current=pathOf(img.currentSrc||img.getAttribute('src')||'');
      if(replacement&&pathOf(replacement)!==current&&img.dataset.nsIntegrityRecovery!=='final'){
-       img.dataset.nsIntegrityRecovery='final';img.src=replacement;img.removeAttribute('srcset');return;
+       img.dataset.nsIntegrityRecovery='final';restoreImgState(img);img.src=replacement;img.removeAttribute('srcset');return;
      }
      img.classList.add('ns-media-unavailable');
      const card=img.closest('.ns-face-card,.v25-story-person');if(card){card.remove();return;}
@@ -103,6 +112,11 @@ function installStyle(){
 function applyPageVisuals(){
  installStyle();
  switch(file){
+  case 'index.html':
+    setImg('.trade-route.trade-buy img',WS.hospitality,'Fresh-cut coconuts prepared for hospitality and events');
+    setImg('.trade-route.trade-supply img',WS.fieldHarvest,'Coconut harvest and field sourcing');
+    setImg('.promise-portal.farm img',WS.harvestHands,'Hands-on coconut harvest and source handling');
+    break;
   case 'supplier-partnership.html':
     setImg('.w-hero-media img',WS.fieldHarvest,'Coconut supplier partnership and field sourcing capability');
     setImg('.supplier-photo img',WS.harvestHands,'Hands-on coconut harvest and source handling');
