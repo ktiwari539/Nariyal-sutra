@@ -24,6 +24,8 @@ jobs:
         run: node scripts/admin-production-readiness-qa.mjs
       - name: Media inventory and visual diversity QA
         run: node scripts/media-integrity-qa.mjs
+      - name: Website media Admin registry QA
+        run: node scripts/website-media-qa.mjs
       - name: Upload release QA evidence
         if: always()
         uses: actions/upload-artifact@v4
