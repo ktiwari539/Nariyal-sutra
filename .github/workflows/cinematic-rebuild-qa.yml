@@ -22,12 +22,20 @@ jobs:
         run: node scripts/release-candidate-qa.mjs
       - name: Mobile and tablet opening-screen QA
         run: node scripts/mobile-tablet-entry-qa.mjs
+      - name: Full mobile and tablet storefront QA
+        run: node scripts/responsive-site-qa.mjs
       - name: Admin production readiness QA
         run: node scripts/admin-production-readiness-qa.mjs
       - name: Admin end-to-end interaction and responsive QA
         run: node scripts/admin-e2e-interaction-qa.mjs
+      - name: Owner Admin control and explanation QA
+        run: node scripts/admin-owner-control-qa.mjs
+      - name: Brand Ambassador continuous rail QA
+        run: node scripts/ambassador-rail-qa.mjs
       - name: Media inventory and visual diversity QA
         run: node scripts/media-integrity-qa.mjs
+      - name: Storefront image quality gate
+        run: node scripts/media-quality-gate-qa.mjs
       - name: Website media Admin registry QA
         run: node scripts/website-media-qa.mjs
       - name: Section image placement end-to-end QA
