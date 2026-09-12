@@ -30,6 +30,8 @@ jobs:
         run: node scripts/media-integrity-qa.mjs
       - name: Website media Admin registry QA
         run: node scripts/website-media-qa.mjs
+      - name: Section image placement end-to-end QA
+        run: node scripts/section-media-placement-qa.mjs
       - name: Scroll-aware visual evidence QA
         run: node scripts/visual-scroll-qa.mjs
       - name: Upload release QA evidence
