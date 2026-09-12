@@ -78,11 +78,16 @@ try{
   {url:'/coconut-water.html',label:'Coconut water',check:()=>({a:document.querySelector('.cw-visual img')?.getAttribute('src')||'',b:document.querySelector('.cw-image-panel img')?.getAttribute('src')||'',ok:[document.querySelector('.cw-visual img'),document.querySelector('.cw-image-panel img')].every(i=>i&&i.complete&&i.naturalWidth>0)})},
   {url:'/coconut-events-hospitality.html',label:'Hospitality hero',check:()=>{const a=document.querySelector('.sp-scenes .sp-scene:nth-child(1)'),b=document.querySelector('.sp-scenes .sp-scene:nth-child(3)');return {a:a?.getAttribute('src')||'',b:b?.getAttribute('src')||'',ok:[a,b].every(i=>i&&i.complete&&i.naturalWidth>0)}}}
  ];
+ const majorHeroSources=[];
  for(const c of cases){
    const p=await openPage(context,c.url,c.label);await p.waitForFunction(()=>document.documentElement.dataset.nsMediaIntegrity==='ready',null,{timeout:10000});await p.waitForTimeout(450);
    const result=await p.evaluate(c.check);must(result.ok,`${c.label} key imagery failed to load: ${JSON.stringify(result)}`);must(new URL(result.a,BASE).pathname!==new URL(result.b,BASE).pathname,`${c.label} repeats the same major image: ${JSON.stringify(result)}`);
+   majorHeroSources.push({label:c.label,src:new URL(result.a,BASE).pathname});
    await assertNoBroken(p,c.label);await shot(p,`${c.label.toLowerCase().replaceAll(' ','-')}.png`);await p.close();
  }
+ const duplicateHeroes=majorHeroSources.filter((item,i,a)=>a.findIndex(x=>x.src===item.src)!==i);
+ must(!duplicateHeroes.length,`Major website pages reuse the same hero imagery: ${JSON.stringify(majorHeroSources)}`);
+ console.log('MAJOR PAGE HERO DIVERSITY',JSON.stringify(majorHeroSources));
 
  const stillCases=[
   {url:'/freshness-first.html',label:'Freshness',host:'.water-window',old:'.water-window video'},
