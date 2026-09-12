@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 const Store=window.NSV421Store, MediaDB=window.NSV421MediaDB;
-const IMM='https://nariyal-sutra.netlify.app/assets/images/story-coconut-hero.png';
+const IMM='/assets/images/story-coconut-hero.png';
 const FEATURED_CAMPAIGN=new Set(['AMB101-P','AMB201-P']);
 const $=s=>document.querySelector(s);
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
