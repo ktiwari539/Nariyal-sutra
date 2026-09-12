@@ -81,5 +81,6 @@ const isAdmin=/admin-preview\.html$/i.test(location.pathname),local=/^(localhost
 if(isAdmin){
  if(!local&&!window.__NS_V421_PRODUCTION_BRIDGE__)loadOnce('/assets/js/v421-production-bridge.js','data-ns-production-bridge');
  loadOnce('/assets/js/admin-v38-production.js','data-ns-admin-v38');
+ loadOnce('/assets/js/admin-v39-media-studio.js','data-ns-admin-v39');
 }
 })();
