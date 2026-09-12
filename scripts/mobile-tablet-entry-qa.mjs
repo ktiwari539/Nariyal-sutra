@@ -7,6 +7,12 @@ const BASE='http://127.0.0.1:4201';
 const OUT=path.join(process.cwd(),'qa-artifacts','mobile-tablet-entry');
 fs.mkdirSync(OUT,{recursive:true});
 const must=(c,m)=>{if(!c)throw new Error(m)};
+
+/* Static guard: the final release stylesheet must outrank older ns-intro-mobile rules. */
+const releaseCss=fs.readFileSync(path.join(process.cwd(),'assets/css/v36-public.css'),'utf8');
+must(releaseCss.includes('html body.ns-intro-mobile #jungle-intro'),'final release gate must explicitly outrank legacy mobile intro rules');
+must(releaseCss.includes('html body.ns-intro-mobile #main-site'),'final release gate must explicitly keep storefront visible under ns-intro-mobile');
+
 const server=spawn('python3',['-m','http.server','4201','--bind','127.0.0.1'],{stdio:'ignore'});
 await new Promise(r=>setTimeout(r,900));
 const browser=await chromium.launch({headless:true});
@@ -15,6 +21,7 @@ async function state(page){
   return page.evaluate(()=>{
     const intro=document.getElementById('jungle-intro');
     const main=document.getElementById('main-site');
+    const skip=document.getElementById('ji-skip');
     const title=document.querySelector('#jungle-intro .ji-title-wrap');
     const logo=document.querySelector('#jungle-intro .ji-logo');
     const cs=e=>e?getComputedStyle(e):null;
@@ -27,11 +34,9 @@ async function state(page){
       introVisible:isVisible(intro),
       introDisplay:cs(intro)?.display,
       introOpacity:Number(cs(intro)?.opacity||0),
-      introDone:intro?.classList.contains('ji-done')||false,
-      introBg:cs(intro,'::before')?.backgroundImage||'',
       titleVisible:isVisible(title),
       logoVisible:isVisible(logo),
-      logoText:(logo?.textContent||'').trim(),
+      skipVisible:isVisible(skip),
       mainVisible:isVisible(main),
       mainOpacity:Number(cs(main)?.opacity||0),
       mainPointer:cs(main)?.pointerEvents,
@@ -39,6 +44,16 @@ async function state(page){
       scrollY
     };
   });
+}
+
+async function assertStorefrontReady(page,label){
+  const s=await state(page);
+  must(!s.introVisible&&s.introDisplay==='none'&&s.introOpacity<.05,`${label}: rejected jungle intro is still visible ${JSON.stringify(s)}`);
+  must(!s.titleVisible&&!s.logoVisible&&!s.skipVisible,`${label}: legacy intro branding/skip leaked into viewport ${JSON.stringify(s)}`);
+  must(s.mainVisible&&s.mainOpacity>.9&&s.mainPointer!=='none',`${label}: storefront is not immediately usable ${JSON.stringify(s)}`);
+  must(s.overflow!=='hidden',`${label}: body is still scroll-locked ${JSON.stringify(s)}`);
+  must(s.scrollWidth<=s.w+6,`${label}: horizontal overflow ${s.scrollWidth}>${s.w}`);
+  return s;
 }
 
 async function checkViewport(cfg,reducedMotion='no-preference'){
@@ -57,29 +72,17 @@ async function checkViewport(cfg,reducedMotion='no-preference'){
   const res=await page.goto(BASE+'/',{waitUntil:'domcontentloaded',timeout:30000});
   must(res&&res.status()<400,`${label}: homepage returned ${res?.status()}`);
   await page.waitForTimeout(350);
-  const opening=await state(page);
-  must(opening.introVisible,`${label}: opening screen is not visible ${JSON.stringify(opening)}`);
-  must(opening.titleVisible&&opening.logoVisible&&/NARIYAL/i.test(opening.logoText),`${label}: opening branding is not visible ${JSON.stringify(opening)}`);
-  must(/nariyal-premium-hero\.webp/.test(opening.introBg),`${label}: opening image is not applied ${opening.introBg}`);
-  must(opening.mainOpacity<.15||opening.mainPointer==='none',`${label}: storefront is exposed underneath opening ${JSON.stringify(opening)}`);
-  must(opening.scrollWidth<=opening.w+6,`${label}: opening has horizontal overflow ${opening.scrollWidth}>${opening.w}`);
-  await page.screenshot({path:path.join(OUT,`${label}-opening.png`)});
 
-  const maxWait=reducedMotion==='reduce'?3500:6500;
-  await page.waitForFunction(()=>{
-    const i=document.getElementById('jungle-intro'),m=document.getElementById('main-site');
-    if(!i||!m)return false;
-    const a=getComputedStyle(i),b=getComputedStyle(m);
-    const introGone=a.display==='none'||a.visibility==='hidden'||Number(a.opacity||1)<.05;
-    const mainReady=b.display!=='none'&&b.visibility!=='hidden'&&Number(b.opacity||0)>.9&&b.pointerEvents!=='none';
-    return introGone&&mainReady&&!document.body.classList.contains('ns-intro-mobile')&&getComputedStyle(document.body).overflowY!=='hidden';
-  },null,{timeout:maxWait});
-  await page.waitForTimeout(250);
-  const opened=await state(page);
-  must(!opened.introVisible&&opened.mainVisible&&opened.mainOpacity>.9&&opened.mainPointer!=='none',`${label}: storefront did not open cleanly ${JSON.stringify(opened)}`);
-  must(opened.scrollWidth<=opened.w+6,`${label}: storefront has horizontal overflow ${opened.scrollWidth}>${opened.w}`);
+  await assertStorefrontReady(page,label);
+  await page.screenshot({path:path.join(OUT,`${label}-storefront.png`),fullPage:false});
+
+  /* Regression guard: even if old JS adds ns-intro-mobile later, the rejected intro must stay off. */
+  await page.evaluate(()=>document.body.classList.add('ns-intro-mobile'));
+  await page.waitForTimeout(80);
+  await assertStorefrontReady(page,`${label}-forced-ns-intro-mobile`);
+  await page.screenshot({path:path.join(OUT,`${label}-forced-class.png`),fullPage:false});
+
   must(!errors.length,`${label}: page errors ${errors.join(' | ')}`);
-  await page.screenshot({path:path.join(OUT,`${label}-storefront.png`)});
   await context.close();
 }
 
@@ -93,22 +96,7 @@ try{
     await checkViewport(t,'reduce');
   }
 
-  const context=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:3,isMobile:true,hasTouch:true,reducedMotion:'no-preference',serviceWorkers:'block'});
-  const page=await context.newPage();
-  await page.goto(BASE+'/',{waitUntil:'domcontentloaded',timeout:30000});
-  await page.waitForTimeout(350);
-  const skip=page.locator('#ji-skip');
-  must(await skip.isVisible(),'mobile-skip: skip control is not visible');
-  await skip.click({timeout:3000});
-  await page.waitForFunction(()=>{
-    const i=document.getElementById('jungle-intro'),m=document.getElementById('main-site');
-    const a=i&&getComputedStyle(i),b=m&&getComputedStyle(m);
-    return i&&m&&(a.display==='none'||a.visibility==='hidden'||Number(a.opacity||1)<.05)&&Number(b.opacity||0)>.9&&b.pointerEvents!=='none';
-  },null,{timeout:2500});
-  await page.screenshot({path:path.join(OUT,'mobile-skip-storefront.png')});
-  await context.close();
-
-  console.log('MOBILE + TABLET OPENING QA: PASS');
+  console.log('MOBILE + TABLET ENTRY QA: PASS');
 } finally {
   await browser.close();
   server.kill();
