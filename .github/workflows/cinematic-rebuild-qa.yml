@@ -30,6 +30,8 @@ jobs:
         run: node scripts/admin-e2e-interaction-qa.mjs
       - name: Owner Admin control and explanation QA
         run: node scripts/admin-owner-control-qa.mjs
+      - name: Admin media upload quality QA
+        run: node scripts/admin-media-upload-quality-qa.mjs
       - name: Brand Ambassador continuous rail QA
         run: node scripts/ambassador-rail-qa.mjs
       - name: Media inventory and visual diversity QA
