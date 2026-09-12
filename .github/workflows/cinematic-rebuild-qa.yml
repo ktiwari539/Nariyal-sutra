@@ -22,6 +22,8 @@ jobs:
         run: node scripts/release-candidate-qa.mjs
       - name: Admin production readiness QA
         run: node scripts/admin-production-readiness-qa.mjs
+      - name: Admin end-to-end interaction and responsive QA
+        run: node scripts/admin-e2e-interaction-qa.mjs
       - name: Media inventory and visual diversity QA
         run: node scripts/media-integrity-qa.mjs
       - name: Website media Admin registry QA
