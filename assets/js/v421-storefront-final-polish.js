@@ -40,9 +40,11 @@ function installCinematicFinish(){
     #v421-cinematic-film-pro .nspro-bg,
     #v421-cinematic-film-pro .nspro-canopy-photo,
     #v421-cinematic-film-pro .nspro-grade{transition:opacity .7s ease,filter .7s ease,background .7s ease}
-    #v421-cinematic-film-pro .nspro-nut.ns-nut-round,#v421-cinematic-film-pro .nspro-nut.ns-nut-premium{overflow:hidden;border-radius:46% 54% 52% 48%/50% 47% 53% 50%;aspect-ratio:.86/1;background:#17320e}
-    #v421-cinematic-film-pro .nspro-nut.ns-nut-round img,#v421-cinematic-film-pro .nspro-nut.ns-nut-premium img{width:100%!important;height:100%!important;object-fit:cover!important;object-position:center!important;transform:scale(1.08)}
-    #v421-cinematic-film-pro .nspro-nut.ns-nut-premium{border-radius:43% 57% 49% 51%/46% 44% 56% 54%}
+    #v421-cinematic-film-pro .nspro-nut img{transform-origin:50% 52%;transition:filter .25s linear}
+    #v421-cinematic-film-pro .nspro-nut.ns-nut-type-round img{transform:scaleX(.86) scaleY(.96) rotate(var(--nut-tilt,0deg));filter:hue-rotate(-8deg) saturate(1.15) brightness(1.06)}
+    #v421-cinematic-film-pro .nspro-nut.ns-nut-type-long img{transform:scaleX(.76) scaleY(1.06) rotate(var(--nut-tilt,0deg));filter:saturate(.88) brightness(.90) contrast(1.05)}
+    #v421-cinematic-film-pro .nspro-nut.ns-nut-type-gold img{transform:scaleX(.94) scaleY(.98) rotate(var(--nut-tilt,0deg));filter:hue-rotate(13deg) sepia(.10) saturate(1.08) brightness(.94)}
+    #v421-cinematic-film-pro .nspro-nut.ns-nut-type-fresh img{transform:scaleX(1.02) scaleY(.94) rotate(var(--nut-tilt,0deg));filter:hue-rotate(-18deg) saturate(1.28) brightness(1.08)}
     #v421-cinematic-film-pro .nspro-knife{width:min(46vw,620px)!important;height:96px!important;filter:drop-shadow(0 18px 24px rgba(0,0,0,.48))!important}
     #v421-cinematic-film-pro .nspro-knife .blade{top:29px!important;width:72%!important;height:38px!important;border-radius:1px 34% 34% 1px!important;clip-path:polygon(0 38%,88% 4%,100% 48%,89% 92%,0 62%)!important;background:linear-gradient(180deg,#858e89 0%,#e1e4df 20%,#a8afab 40%,#525a56 58%,#c8ccc7 73%,#303734 100%)!important;box-shadow:inset 0 1px rgba(255,255,255,.48),inset 0 -1px rgba(8,13,11,.65)!important}
     #v421-cinematic-film-pro .nspro-knife .handle{top:20px!important;width:31%!important;height:57px!important;border-radius:10px 26px 26px 10px!important;background:linear-gradient(90deg,#604329 0%,#24160f 48%,#0f0b08 68%,#51351f 100%)!important;box-shadow:inset 0 1px 2px rgba(255,255,255,.12),0 9px 17px rgba(0,0,0,.42)!important}
@@ -138,20 +140,26 @@ function addCinematicDepth(){
   if(!film)return false;
   installCinematicFinish();
   film.classList.add('nspro-depth-ready');
+  const types=['ns-nut-type-round','ns-nut-type-long','ns-nut-type-gold','ns-nut-type-fresh'];
   film.querySelectorAll('.nspro-nut').forEach((nut,i)=>{
     const d=Math.max(0,Math.min(1,Number(nut.dataset.depth||0.5)));
     nut.style.setProperty('--ns-depth',d.toFixed(3));
     nut.style.setProperty('--ns-depth-z',`${Math.round((d-.50)*300)}px`);
     nut.style.setProperty('--ns-depth-scale',(0.82+d*.34).toFixed(3));
+    nut.style.setProperty('--nut-tilt',`${((i*17)%15)-7}deg`);
     nut.classList.toggle('ns-depth-near',d>.72);
     nut.classList.toggle('ns-depth-mid',d>=.30&&d<=.72);
     nut.classList.toggle('ns-depth-far',d<.30);
     if(i%17===0)nut.classList.add('ns-cine-glint');
+    types.forEach(t=>nut.classList.remove(t));
+    nut.classList.remove('ns-nut-round','ns-nut-premium');
+    nut.classList.add(types[i%types.length]);
     const img=nut.querySelector('img');
-    if(img&&!nut.dataset.nsVariety){
-      nut.dataset.nsVariety='1';
-      if(i%13===0){img.src='/assets/images/green-round-coconut.jpg';nut.classList.add('ns-nut-round');}
-      else if(i%19===0){img.src='/assets/images/brand/coconut-premium.webp';nut.classList.add('ns-nut-premium');}
+    if(img){
+      /* Keep one clean transparent coconut sprite; create natural variety with geometry/tone.
+         This avoids white matte/cutout artifacts from photographic crops on mobile. */
+      if(img.getAttribute('src')!=='/assets/images/story-coconut-hero.png')img.setAttribute('src','/assets/images/story-coconut-hero.png');
+      nut.dataset.nsVariety='shape-tone-v2';
     }
   });
   requestCinematicPhase();
