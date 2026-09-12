@@ -35,12 +35,20 @@ function featuredFirst(current){
  if(!rest.length)return [...HOME_FEATURED];
  return unique([HOME_FEATURED[0],rest[0],HOME_FEATURED[1],...rest.slice(1)]);
 }
+function websiteItem(base,previous){
+ const prev=previous||{},merged=Object.assign({},base,prev);
+ /* Binary identity stays authoritative; Admin owns editorial metadata. */
+ merged.id=base.id;merged.src=base.src;merged.thumb=base.thumb;merged.version=base.version;merged.versions=base.versions;merged.order=base.order;
+ /* Cinematic composites remain reference-only even if someone toggles them in Admin. */
+ if(base.publicAllowed===false){merged.publicAllowed=false;merged.homepageAllowed=false;merged.cat='Cinematic';}
+ return merged;
+}
 function ensureApprovedMedia(s){
  if(!s||typeof s!=='object')return s;
  const existing=Array.isArray(s.media)?s.media:[];
  const byId=new Map(existing.map(m=>[m.id,m]));
  const campaign=AMBASSADOR_ITEMS.map(m=>Object.assign({},byId.get(m.id)||{},m));
- const website=WEBSITE_MEDIA_ITEMS.map(m=>Object.assign({},byId.get(m.id)||{},m));
+ const website=WEBSITE_MEDIA_ITEMS.map(m=>websiteItem(m,byId.get(m.id)));
  const reserved=new Set([...CAMPAIGN_IDS,...WEBSITE_MEDIA_IDS,'AMB101-POST','AMB102-POST','AMB201-POST']);
  const others=existing.filter(m=>m&&!reserved.has(m.id));
  s.media=[...campaign,...website,...others];
