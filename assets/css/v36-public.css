@@ -125,18 +125,25 @@ video.ns-video-failed{display:none!important}
   .mobile-story-reel video{display:none!important}
 }
 
-/* V42.1 final release gate — the rejected legacy jungle intro must never block customers. */
-#jungle-intro,
-#ji-skip{
+/* V42.1 final release gate — the rejected legacy jungle intro must never block customers.
+   These selectors intentionally outrank all older ns-intro-mobile !important rules. */
+html body #jungle-intro,
+html body.ns-intro-mobile #jungle-intro,
+html body #ji-skip,
+html body.ns-intro-mobile #ji-skip{
   display:none!important;
   visibility:hidden!important;
   opacity:0!important;
   pointer-events:none!important;
 }
-#main-site{
+html body #main-site,
+html body.ns-intro-mobile #main-site{
   opacity:1!important;
   visibility:visible!important;
   pointer-events:auto!important;
 }
-body{overflow-y:auto!important}
-body.ns-intro-mobile{height:auto!important;overflow-y:auto!important}
+html body,
+html body.ns-intro-mobile{
+  height:auto!important;
+  overflow-y:auto!important;
+}
