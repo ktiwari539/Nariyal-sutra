@@ -1,11 +1,9 @@
 /* V36 — release stabilization layer. Loaded last on the storefront. */
 
-/* Desktop: keep the accepted cinematic runway compact. */
+/* Desktop cinematic contract: long enough for grove → selected coconut → cut → splash → water
+   without stretching the sequence into the retired 575vh experiment. */
 @media(min-width:981px){
-  #v20-story-film{height:185vh!important}
-}
-@media(min-width:981px) and (max-height:820px){
-  #v20-story-film{height:175vh!important}
+  #v20-story-film{height:360vh!important;min-height:360vh!important}
 }
 
 /* Media safety: failed/slow visual media must never expose a black/empty block. */

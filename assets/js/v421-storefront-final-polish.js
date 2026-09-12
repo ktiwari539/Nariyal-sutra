@@ -11,13 +11,13 @@ function diversifyHomepageMedia(){
  setImg('[data-product-card="tender"] .pc-img-wrap img','/assets/images/nariyal-product-collection.webp','Fresh tender coconut collection');
  setImg('.story-visual .sv-img','/assets/images/nariyal-coconut-grove.webp','Coconut grove source story');
  setImg('.trade-route.trade-buy img','/assets/images/nariyal-hospitality.webp','Fresh coconut hospitality and serving story');
- setImg('.trade-route.trade-supply img','/assets/images/review/backwater-grove.png','Coconut sourcing and supply story');
+ setImg('.trade-route.trade-supply img','/assets/images/bulk-coconut-pack.jpg','Bulk coconut sourcing, packing and supply story');
  const heroSrc=configuredMedia('homepage-hero');if(heroSrc)setImg('.hero-visual img',heroSrc,'Nariyal Sutra homepage hero');
- setImg('#people-of-nariyal .ns-people-visual img',configuredMedia('homepage-people-teaser')||'/assets/images/review/coastal-grove.png','Nariyal Sutra community and people story');
+ setImg('#people-of-nariyal .ns-people-visual img',configuredMedia('homepage-people-teaser')||'/assets/images/ambassadors/G031.webp','People around the Nariyal Sutra story');
  setImg('.promise-portal.coast img','/assets/images/review/coastal-grove.png','Gujarat coastal coconut sourcing story');
  setImg('.promise-portal.grove img','/assets/images/review/backwater-grove.png','South India coconut backwater and canopy story');
- setImg('.promise-portal.farm img','/assets/images/nariyal-coconut-grove.webp','Direct coconut grove sourcing story');
- const brand=document.querySelector('.brand-moment-bg');if(brand){const adminSrc=configuredMedia('homepage-brand'),src=adminSrc||'/assets/images/review/coastal-grove.png';brand.style.setProperty('background-image',`linear-gradient(90deg,rgba(2,9,2,.88) 0%,rgba(2,9,2,.34) 48%,rgba(2,9,2,.68) 100%),url('${src}')`,'important');brand.dataset.nsMedia=adminSrc?'admin':'coastal-grove';}
+ setImg('.promise-portal.farm img','/assets/images/harvest-wall-organic.jpg','Direct coconut harvest and farm sourcing story');
+ const brand=document.querySelector('.brand-moment-bg');if(brand){const adminSrc=configuredMedia('homepage-brand'),src=adminSrc||'/assets/images/brand/coconut-premium.webp';brand.style.setProperty('background-image',`linear-gradient(90deg,rgba(2,9,2,.88) 0%,rgba(2,9,2,.34) 48%,rgba(2,9,2,.68) 100%),url('${src}')`,'important');brand.dataset.nsMedia=adminSrc?'admin':'brand-coconut-premium';}
  const grove=document.querySelector('.grove-photo');if(grove){grove.style.setProperty('background-image',"linear-gradient(to top,rgba(2,8,1,.94) 0%,rgba(2,8,1,.06) 55%,rgba(2,8,1,.26) 100%),linear-gradient(95deg,rgba(3,12,2,.42),rgba(3,12,2,.03) 60%,rgba(3,12,2,.28)),url('/assets/images/nariyal-coconut-grove.webp')",'important');grove.dataset.nsMedia='nariyal-coconut-grove';}
  document.documentElement.dataset.nsMediaDiversity='ready';
 }
