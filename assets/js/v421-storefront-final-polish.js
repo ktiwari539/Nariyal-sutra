@@ -6,9 +6,9 @@ const Store=window.NSV421Store;
 
 /* Curated defaults are fallbacks only. Explicit Admin sectionMedia selections always win. */
 const LOCAL_HARVEST=[
-  '/assets/images/brand/coconut-premium.webp',
-  '/assets/images/green-round-coconut.jpg',
-  '/assets/images/bulk-coconut-pack.jpg'
+  '/assets/images/review/coastal-grove.png',
+  '/assets/images/website-media/ws005-field-harvest-workers.webp',
+  '/assets/images/website-media/ws006-tender-coconut-basket.webp'
 ];
 const HARVEST_TARGETS=['homepage-harvest-1','homepage-harvest-2','homepage-harvest-3'];
 let cinePhaseRaf=0;
@@ -39,7 +39,7 @@ function installCinematicFinish(){
   style.textContent=`
     #v421-cinematic-film-pro .nspro-bg,
     #v421-cinematic-film-pro .nspro-canopy-photo,
-    #v421-cinematic-film-pro .nspro-grade{transition:opacity .42s ease,filter .42s ease,background .42s ease}
+    #v421-cinematic-film-pro .nspro-grade{transition:opacity .7s ease,filter .7s ease,background .7s ease}
     #v421-cinematic-film-pro .nspro-knife{width:min(46vw,620px)!important;height:96px!important;filter:drop-shadow(0 18px 24px rgba(0,0,0,.48))!important}
     #v421-cinematic-film-pro .nspro-knife .blade{top:29px!important;width:72%!important;height:38px!important;border-radius:1px 34% 34% 1px!important;clip-path:polygon(0 38%,88% 4%,100% 48%,89% 92%,0 62%)!important;background:linear-gradient(180deg,#858e89 0%,#e1e4df 20%,#a8afab 40%,#525a56 58%,#c8ccc7 73%,#303734 100%)!important;box-shadow:inset 0 1px rgba(255,255,255,.48),inset 0 -1px rgba(8,13,11,.65)!important}
     #v421-cinematic-film-pro .nspro-knife .handle{top:20px!important;width:31%!important;height:57px!important;border-radius:10px 26px 26px 10px!important;background:linear-gradient(90deg,#604329 0%,#24160f 48%,#0f0b08 68%,#51351f 100%)!important;box-shadow:inset 0 1px 2px rgba(255,255,255,.12),0 9px 17px rgba(0,0,0,.42)!important}
@@ -48,11 +48,11 @@ function installCinematicFinish(){
     #v421-cinematic-film-pro.ns-v421-splash-phase .nspro-body,
     #v421-cinematic-film-pro.ns-v421-splash-phase .nspro-cap,
     #v421-cinematic-film-pro.ns-v421-splash-phase .nspro-focus-ring{opacity:0!important}
-    #v421-cinematic-film-pro.ns-v421-splash-phase .nspro-bg{opacity:.20!important;filter:saturate(.70) contrast(1.12) brightness(.40)!important}
-    #v421-cinematic-film-pro.ns-v421-splash-phase .nspro-canopy-photo{opacity:.08!important;filter:saturate(.72) contrast(1.10) brightness(.36)!important}
-    #v421-cinematic-film-pro.ns-v421-splash-phase .nspro-grade{background:linear-gradient(180deg,rgba(1,8,5,.48),rgba(1,8,7,.70) 58%,rgba(0,10,14,.82))!important}
-    #v421-cinematic-film-pro .nspro-water-photo{inset:-4%!important;width:108%!important;height:108%!important;object-position:center 54%!important;filter:saturate(1.03) contrast(1.12) brightness(.68)!important;mix-blend-mode:normal!important}
-    #v421-cinematic-film-pro .nspro-water{inset:-8%!important;background:radial-gradient(circle at 48% 44%,rgba(218,250,244,.18) 0%,rgba(97,202,194,.25) 25%,rgba(19,112,126,.43) 52%,rgba(3,45,61,.66) 78%,rgba(1,18,29,.82) 100%),linear-gradient(180deg,rgba(0,40,48,.08),rgba(1,22,34,.38))!important}
+    #v421-cinematic-film-pro.ns-v421-splash-phase .nspro-bg{opacity:.15!important;filter:saturate(.68) contrast(1.10) brightness(.34)!important}
+    #v421-cinematic-film-pro.ns-v421-splash-phase .nspro-canopy-photo{opacity:.05!important;filter:saturate(.70) contrast(1.08) brightness(.30)!important}
+    #v421-cinematic-film-pro.ns-v421-splash-phase .nspro-grade{background:linear-gradient(180deg,rgba(1,8,5,.42),rgba(1,8,7,.64) 54%,rgba(0,14,20,.88))!important}
+    #v421-cinematic-film-pro .nspro-water-photo{inset:-10%!important;width:120%!important;height:120%!important;object-position:center 54%!important;filter:saturate(1.03) contrast(1.10) brightness(.72)!important;mix-blend-mode:normal!important;transition:opacity .35s linear,transform .35s ease-out}
+    #v421-cinematic-film-pro .nspro-water{inset:-20%!important;background:radial-gradient(circle at 48% 44%,rgba(218,250,244,.22) 0%,rgba(97,202,194,.30) 25%,rgba(19,112,126,.50) 52%,rgba(3,45,61,.76) 78%,rgba(1,18,29,.94) 100%),linear-gradient(180deg,rgba(0,40,48,.12),rgba(1,22,34,.52))!important;transition:opacity .35s linear,transform .35s ease-out}
     #v421-cinematic-film-pro .nspro-water:before,#v421-cinematic-film-pro .nspro-water:after{inset:-4%!important;background:radial-gradient(ellipse at 43% 47%,transparent 0 18%,rgba(255,255,255,.10) 19% 20%,transparent 21% 31%,rgba(255,255,255,.055) 32% 33%,transparent 34%)!important;mix-blend-mode:screen!important}
     #v421-cinematic-film-pro .nspro-water:after{opacity:.38!important}
     #v421-cinematic-film-pro .nspro-note{padding:7px 9px;background:rgba(1,18,20,.32);border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(8px)}
@@ -72,50 +72,44 @@ function syncCinematicPhase(){
   const film=document.getElementById('v421-cinematic-film-pro');
   if(!film)return;
   const p=Number(window.__NS_V421_PRO_CINE?.progress||0);
-  film.classList.toggle('ns-v421-splash-phase',p>=.645);
+  film.classList.toggle('ns-v421-splash-phase',p>=.62);
 }
 function requestCinematicPhase(){if(!cinePhaseRaf)cinePhaseRaf=requestAnimationFrame(syncCinematicPhase);}
 
 function diversifyHomepageMedia(){
-  /* Product / cut chapters */
   setImg('#cut-story .cut-photo-v16','/assets/images/freshness-coconut-splash.webp','Fresh coconut water splash after a clean cut');
   setImg('[data-product-card="tender"] .pc-img-wrap img','/assets/images/nariyal-product-collection.webp','Fresh tender coconut collection');
 
-  /* Main story image: product-led, not another grove landscape. */
-  setImg('.story-visual .sv-img','/assets/images/brand/coconut-premium.webp','Premium fresh green coconut prepared for drinking');
+  /* Deliberately distinct editorial imagery across the homepage. */
+  setImg('.story-visual .sv-img','/assets/images/website-media/ws006-tender-coconut-basket.webp','Tender coconuts selected and prepared for serving');
+  setImg('.trade-route.trade-buy img','/assets/images/website-media/ws001-fresh-cut-ocean.webp','Fresh-cut coconut hospitality by the coast');
+  setImg('.trade-route.trade-supply img','/assets/images/website-media/ws005-field-harvest-workers.webp','Coconut harvest, source and dispatch story');
 
-  /* User-approved generated campaign visuals: each commercial story gets its own scene. */
-  setImg('.trade-route.trade-buy img','/assets/images/generated/hospitality.webp','Fresh coconuts prepared for bulk, events and hospitality');
-  setImg('.trade-route.trade-supply img','/assets/images/generated/supplier.webp','Coconut farm and supplier partnership story');
-
-  /* Explicit Admin choices outrank coded defaults. */
   const heroSrc=configuredMedia('homepage-hero');
   if(heroSrc)setImg('.hero-visual img',heroSrc,'Nariyal Sutra homepage hero');
   setImg('#people-of-nariyal .ns-people-visual img',configuredMedia('homepage-people-teaser')||'/assets/images/ambassadors/G001.webp','Nariyal Sutra community and people story');
 
-  /* Five-story portals: coast / canopy / hands each get a different visual language. */
   setImg('.promise-portal.coast img','/assets/images/review/coastal-grove.png','Gujarat coastal coconut sourcing story');
   setImg('.promise-portal.grove img','/assets/images/review/backwater-grove.png','South India coconut backwater and canopy story');
-  setImg('.promise-portal.farm img','/assets/images/generated/direct-sourcing.webp','Direct coconut sourcing and harvest story');
+  setImg('.promise-portal.farm img','/assets/images/website-media/ws003-harvest-hands.webp','Direct coconut harvest and source handling story');
 
-  /* Brand moment uses Admin media when selected, otherwise the curated coastal default. */
   const brand=document.querySelector('.brand-moment-bg');
   if(brand){
-    const src=configuredMedia('homepage-brand')||'/assets/images/review/coastal-grove.png';
-    brand.style.setProperty('background-image',`linear-gradient(90deg,rgba(2,9,2,.90) 0%,rgba(2,9,2,.40) 48%,rgba(2,9,2,.72) 100%),url('${src}')`,'important');
-    brand.dataset.nsMedia=configuredMedia('homepage-brand')?'admin':'coastal-grove';
+    const adminSrc=configuredMedia('homepage-brand');
+    const src=adminSrc||'/assets/images/website-media/ws010-coast-sunset-grove.webp';
+    brand.style.setProperty('background-image',`linear-gradient(90deg,rgba(2,9,2,.88) 0%,rgba(2,9,2,.34) 48%,rgba(2,9,2,.68) 100%),url('${src}')`,'important');
+    brand.dataset.nsMedia=adminSrc?'admin':'ws010';
   }
   const grove=document.querySelector('.grove-photo');
   if(grove){
-    grove.style.setProperty('background-image',"linear-gradient(to top,rgba(2,8,1,.96) 0%,rgba(2,8,1,.08) 55%,rgba(2,8,1,.30) 100%),linear-gradient(95deg,rgba(3,12,2,.48),rgba(3,12,2,.05) 60%,rgba(3,12,2,.34)),url('/assets/images/review/backwater-grove.png')",'important');
-    grove.dataset.nsMedia='backwater-grove';
+    grove.style.setProperty('background-image',"linear-gradient(to top,rgba(2,8,1,.94) 0%,rgba(2,8,1,.06) 55%,rgba(2,8,1,.26) 100%),linear-gradient(95deg,rgba(3,12,2,.42),rgba(3,12,2,.03) 60%,rgba(3,12,2,.28)),url('/assets/images/nariyal-coconut-grove.webp')",'important');
+    grove.dataset.nsMedia='nariyal-coconut-grove';
   }
 
   document.documentElement.dataset.nsMediaDiversity='ready';
 }
 
 function fixLegacyStoryMedia(){
-  /* The retired 72-frame/video fold duplicates the new cinematic and could render blank. */
   const motion=document.getElementById('live-motion');
   if(motion){
     motion.hidden=true;
@@ -125,7 +119,6 @@ function fixLegacyStoryMedia(){
     motion.querySelectorAll('video').forEach(v=>{try{v.pause();v.removeAttribute('src');v.querySelectorAll('source').forEach(s=>s.removeAttribute('src'));v.load();}catch(_e){}});
   }
 
-  /* Harvest film: Admin-selected frames when present, otherwise three distinct defaults. */
   const harvest=document.getElementById('harvest-film');
   if(harvest){
     harvest.querySelectorAll('.harvest-scene').forEach((img,i)=>{
