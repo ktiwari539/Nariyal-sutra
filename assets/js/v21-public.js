@@ -14,7 +14,7 @@ function setupRain(){const film=$('#v20-story-film');if(!film||innerWidth<981)re
 
 /* Checkout location is one synchronized state: coordinates -> reverse geocode -> map -> address fields -> order payload. */
 function locationState(){return window.NSDeliveryState||(window.NSDeliveryState={});}
-function finite(v){return Number.isFinite(Number(v));}
+function finite(v){return v!==null&&v!==undefined&&v!==''&&typeof v!=='boolean'&&Number.isFinite(Number(v));}
 function emitLocation(extra){const s=locationState();window.dispatchEvent(new CustomEvent('ns:location-updated',{detail:{...s,...(extra||{})}}));}
 function gpsStatus(message,kind){const el=$('#ns-gps-status');if(!el)return;el.textContent=message;el.className='ns-gps-status'+(kind?' '+kind:'');}
 function coordLabel(lat,lng){return Number(lat).toFixed(6)+', '+Number(lng).toFixed(6);}
