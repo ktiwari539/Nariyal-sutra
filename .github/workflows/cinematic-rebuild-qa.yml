@@ -27,6 +27,8 @@ jobs:
         run: node scripts/mobile-tablet-entry-qa.mjs
       - name: Full mobile and tablet storefront QA
         run: node scripts/responsive-site-qa.mjs
+      - name: Checkout live-location synchronization QA
+        run: node scripts/checkout-location-sync-qa.mjs
       - name: Admin production readiness QA
         run: node scripts/admin-production-readiness-qa.mjs
       - name: Admin end-to-end interaction and responsive QA
