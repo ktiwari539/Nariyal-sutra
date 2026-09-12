@@ -99,6 +99,23 @@ async function visibleShot(page,selector,name){
   return state;
 }
 
+async function exerciseReveals(page,label,minCount){
+  const reveals=page.locator('.w-reveal');
+  const count=await reveals.count();
+  must(count>=minCount,`${label}: expected at least ${minCount} reveal sections, found ${count}`);
+  for(let i=0;i<count;i++){
+    const loc=reveals.nth(i);
+    must(await centerInViewport(page,loc),`${label}: reveal ${i+1} could not enter viewport`);
+    await page.waitForFunction(index=>{
+      const el=document.querySelectorAll('.w-reveal')[index];
+      return !!el&&el.classList.contains('is-visible')&&Number(getComputedStyle(el).opacity)>.05;
+    },i,{timeout:3000});
+  }
+  const state=await page.evaluate(()=>[...document.querySelectorAll('.w-reveal')].map((el,i)=>({i,visible:el.classList.contains('is-visible'),opacity:getComputedStyle(el).opacity})));
+  must(state.every(x=>x.visible&&Number(x.opacity)>.05),`${label}: reveal sections failed after real viewport exposure: ${JSON.stringify(state)}`);
+  return state;
+}
+
 async function noBroken(page,label){
   const broken=await page.evaluate(()=>[...document.images].filter(img=>{
     const s=getComputedStyle(img),r=img.getBoundingClientRect();
@@ -124,9 +141,7 @@ try{
   {
     const {context,page}=await openPage('/direct-farm.html','Direct sourcing');
     await page.waitForFunction(()=>document.documentElement.dataset.nsMediaIntegrity==='ready',null,{timeout:10000});
-    await scrollThrough(page);
-    const reveal=await page.evaluate(()=>[...document.querySelectorAll('.w-reveal')].map(el=>({visible:el.classList.contains('is-visible'),opacity:getComputedStyle(el).opacity})));
-    must(reveal.length>=6&&reveal.every(x=>x.visible&&Number(x.opacity)>.05),`Direct sourcing reveal sections did not activate: ${JSON.stringify(reveal)}`);
+    await exerciseReveals(page,'Direct sourcing',6);
     await visibleShot(page,'.brand-note-grid','direct-sourcing-brand-note.png');
     await visibleShot(page,'.source-proof-grid','direct-sourcing-proof.png');
     await visibleShot(page,'.farm-step:nth-child(1)','direct-sourcing-chain.png');
@@ -138,9 +153,7 @@ try{
   {
     const {context,page}=await openPage('/supplier-partnership.html','Supplier');
     await page.waitForFunction(()=>document.documentElement.dataset.nsMediaIntegrity==='ready',null,{timeout:10000});
-    await scrollThrough(page);
-    const reveal=await page.evaluate(()=>[...document.querySelectorAll('.w-reveal')].map(el=>el.classList.contains('is-visible')));
-    must(reveal.length>=5&&reveal.every(Boolean),`Supplier reveal sections did not activate: ${JSON.stringify(reveal)}`);
+    await exerciseReveals(page,'Supplier',5);
     await visibleShot(page,'.supplier-photo','supplier-photo-visible.png');
     await visibleShot(page,'.supplier-questions','supplier-questions-visible.png');
     await noBroken(page,'Supplier');
