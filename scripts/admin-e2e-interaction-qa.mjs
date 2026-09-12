@@ -37,6 +37,11 @@ async function navigationMatrix(page,label,mobile=false){
  must(views.length>=20,`${label}: unexpectedly small Admin navigation set: ${views.length}`);
  for(const view of views){await openNav(page,view,mobile);await assertLayout(page,`${label}/${view}`);}
 }
+async function submitForm(page,form){
+ const button=page.locator(`${form} button.ap-btn.primary`).last();
+ must(await button.count()===1,`${form}: primary save button missing`);
+ await button.click();
+}
 
 async function desktopFunctional(){
  const context=await browser.newContext({viewport:{width:1440,height:900},serviceWorkers:'block'});
@@ -70,21 +75,23 @@ async function desktopFunctional(){
 
  await openNav(page,'products');
  const productBefore=await page.evaluate(()=>window.NSV421Store.load().products[0].name);
- await page.locator('[data-prod="0"]').click();await page.locator('#v21ProductForm [name="name"]').fill(productBefore+' QA');await page.locator('#v21ProductForm button[type="submit"]').click();
+ await page.locator('[data-prod="0"]').click();await page.waitForSelector('#v21ProductForm');
+ await page.locator('#v21ProductForm [name="name"]').fill(productBefore+' QA');await submitForm(page,'#v21ProductForm');
  must(await page.evaluate(v=>window.NSV421Store.load().products[0].name===v,productBefore+' QA'),'Product edit did not save');
  await waitAdmin(page);must(await page.evaluate(v=>window.NSV421Store.load().products[0].name===v,productBefore+' QA'),'Product edit did not persist across reload');
- await openNav(page,'products');await page.locator('[data-prod="0"]').click();await page.locator('#v21ProductForm [name="name"]').fill(productBefore);await page.locator('#v21ProductForm button[type="submit"]').click();
+ await openNav(page,'products');await page.locator('[data-prod="0"]').click();await page.waitForSelector('#v21ProductForm');await page.locator('#v21ProductForm [name="name"]').fill(productBefore);await submitForm(page,'#v21ProductForm');
 
  await openNav(page,'inventory');
  const incomingBefore=await page.evaluate(()=>window.NSV421Store.load().inventory[0].incoming);
- await page.locator('[data-stock="0"]').click();await page.locator('#v21StockForm [name="incoming"]').fill(String(Number(incomingBefore)+1));await page.locator('#v21StockForm button[type="submit"]').click();
+ await page.locator('[data-stock="0"]').click();await page.waitForSelector('#v21StockForm');await page.locator('#v21StockForm [name="incoming"]').fill(String(Number(incomingBefore)+1));await submitForm(page,'#v21StockForm');
  must(await page.evaluate(v=>window.NSV421Store.load().inventory[0].incoming===v,Number(incomingBefore)+1),'Inventory adjustment did not save');
- await openNav(page,'inventory');await page.locator('[data-stock="0"]').click();await page.locator('#v21StockForm [name="incoming"]').fill(String(incomingBefore));await page.locator('#v21StockForm button[type="submit"]').click();
+ await openNav(page,'inventory');await page.locator('[data-stock="0"]').click();await page.waitForSelector('#v21StockForm');await page.locator('#v21StockForm [name="incoming"]').fill(String(incomingBefore));await submitForm(page,'#v21StockForm');
 
  await openNav(page,'schedule');
  const scheduleBefore=await page.evaluate(()=>window.NSV421Store.load().schedule.length);
- await page.locator('#apScheduleNew').click();await page.locator('#v23ScheduleForm [name="title"]').fill('QA schedule persistence');await page.locator('#v23ScheduleForm [name="sectionId"]').selectOption('bulk-hero');await page.locator('#v23ScheduleForm [name="startAt"]').fill('2099-01-01T09:00');await page.locator('#v23ScheduleForm [name="endAt"]').fill('2099-01-01T10:00');
- const firstMedia=page.locator('#v23ScheduleMedia input[name="mediaId"]').first();if(!(await firstMedia.isChecked()))await firstMedia.check();await page.locator('#v23ScheduleForm button[type="submit"]').click();
+ await page.locator('#apScheduleNew').click();await page.waitForSelector('#v23ScheduleForm');
+ await page.locator('#v23ScheduleForm [name="title"]').fill('QA schedule persistence');await page.locator('#v23ScheduleForm [name="sectionId"]').selectOption('bulk-hero');await page.locator('#v23ScheduleForm [name="startAt"]').fill('2099-01-01T09:00');await page.locator('#v23ScheduleForm [name="endAt"]').fill('2099-01-01T10:00');
+ const firstMedia=page.locator('#v23ScheduleMedia input[name="mediaId"]').first();if(!(await firstMedia.isChecked()))await firstMedia.check();await submitForm(page,'#v23ScheduleForm');
  must(await page.evaluate(n=>window.NSV421Store.load().schedule.length===n+1,scheduleBefore),'Schedule item did not save');
  await waitAdmin(page);must(await page.evaluate(()=>window.NSV421Store.load().schedule.some(x=>x.title==='QA schedule persistence')),'Schedule item did not persist across reload');
  await page.evaluate(()=>{const s=window.NSV421Store.load();s.schedule=s.schedule.filter(x=>x.title!=='QA schedule persistence');window.NSV421Store.save(s);});
