@@ -59,6 +59,16 @@ try{
  });
  must(reel.items.every(x=>x.exists&&x.ok),`Approved homepage campaign images did not render: ${JSON.stringify(reel)}`);
  must(reel.first.includes('AMB101-P')&&reel.first.includes('AMB201-P'),`Approved campaign images are not early in rolling section: ${JSON.stringify(reel.first)}`);
+ await home.waitForFunction(()=>document.documentElement.dataset.nsMediaDiversity==='ready'&&document.querySelectorAll('#v421-cinematic-film-pro .nspro-nut').length>20,null,{timeout:10000});
+ const homeVisuals=await home.evaluate(()=>{
+   const selectors=['.story-visual .sv-img','.trade-route.trade-buy img','.trade-route.trade-supply img','.promise-portal.coast img','.promise-portal.grove img','.promise-portal.farm img'];
+   const sources=selectors.map(sel=>document.querySelector(sel)?.getAttribute('src')||'').filter(Boolean);
+   const nutSources=[...new Set([...document.querySelectorAll('#v421-cinematic-film-pro .nspro-nut img')].map(img=>img.getAttribute('src')||'').filter(Boolean))];
+   return {sources,unique:[...new Set(sources)],nutSources};
+ });
+ must(homeVisuals.sources.length>=6&&homeVisuals.unique.length>=6,`Homepage key stories repeat media: ${JSON.stringify(homeVisuals.sources)}`);
+ must(homeVisuals.nutSources.length>=3,`Cinematic coconut rain lacks visual variety: ${JSON.stringify(homeVisuals.nutSources)}`);
+ await shot(home,'homepage-media-diversity.png',true);
  await shot(home,'homepage-people-reel.png',false);await assertNoBroken(home,'Homepage');await home.close();
 
  const people=await openPage(context,'/people-of-nariyal-sutra.html','People page');
@@ -101,8 +111,8 @@ try{
  ];
  for(const c of stillCases){
    const p=await openPage(context,c.url,c.label);await p.waitForFunction(()=>document.documentElement.dataset.nsMediaIntegrity==='ready',null,{timeout:10000});await p.waitForTimeout(450);
-   const result=await p.evaluate(({host,old})=>{const img=document.querySelector(`${host} img.ns-integrity-still`);return {oldCount:document.querySelectorAll(old).length,img:!!img,ok:!!img&&img.complete&&img.naturalWidth>0,src:img?.getAttribute('src')||''};},{host:c.host,old:c.old});
-   must(result.oldCount===0&&result.img&&result.ok,`${c.label} still has a blank/source-less motion frame: ${JSON.stringify(result)}`);
+   const result=await p.evaluate(({host,old})=>{const img=document.querySelector(`${host} img.ns-integrity-still`),motion=document.querySelector(`${host} .ns-integrity-motion`),frames=document.querySelectorAll(`${host} .ns-motion-frame`);return {oldCount:document.querySelectorAll(old).length,img:!!img,ok:!!img&&img.complete&&img.naturalWidth>0,motion:!!motion,frames:frames.length,src:img?.getAttribute('src')||''};},{host:c.host,old:c.old});
+   must(result.oldCount===0&&result.img&&result.ok&&result.motion&&result.frames>=3,`${c.label} animated motion study is incomplete: ${JSON.stringify(result)}`);
    await assertNoBroken(p,c.label);await shot(p,`${c.label.toLowerCase().replaceAll(' ','-')}.png`);await p.close();
  }
 
