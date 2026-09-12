@@ -13,6 +13,10 @@
 (function(){
   'use strict';
 
+  function hasNumber(v){
+    return v!==null&&v!==undefined&&v!==''&&typeof v!=='boolean'&&Number.isFinite(Number(v));
+  }
+
   function patchWhenReady(attempts){
     attempts=attempts||0;
     if(typeof window.NS_SAVE_ORDER!=='function'){
@@ -29,11 +33,11 @@
 
       /* Preserve one final checkout location snapshot in the private order. */
       if(finalAddress) extra.deliveryAddress=finalAddress;
-      if(Number.isFinite(Number(state.lat))) extra.deliveryLat=Number(state.lat);
-      if(Number.isFinite(Number(state.lng))) extra.deliveryLng=Number(state.lng);
-      extra.deliveryAccuracy=Number.isFinite(Number(state.accuracy))?Number(state.accuracy):null;
+      if(hasNumber(state.lat)) extra.deliveryLat=Number(state.lat);
+      if(hasNumber(state.lng)) extra.deliveryLng=Number(state.lng);
+      extra.deliveryAccuracy=hasNumber(state.accuracy)?Number(state.accuracy):null;
       extra.deliveryLocationSource=String(state.locationSource||extra.deliveryLocationSource||'manual');
-      extra.deliveryCoordinatesConfirmed=Number.isFinite(Number(extra.deliveryLat))&&Number.isFinite(Number(extra.deliveryLng));
+      extra.deliveryCoordinatesConfirmed=hasNumber(extra.deliveryLat)&&hasNumber(extra.deliveryLng);
 
       var merged=Object.assign({},order,extra);
 
