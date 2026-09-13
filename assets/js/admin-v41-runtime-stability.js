@@ -1,31 +1,95 @@
 (function(){
 'use strict';
-if(window.__NS_V421_ADMIN_RUNTIME_STABILITY__)return;window.__NS_V421_ADMIN_RUNTIME_STABILITY__=true;
-const Store=window.NSV421Store;if(!Store)return;
-const TARGETS=[
- ['homepage-hero','Homepage hero','Main product/lifestyle hero','/assets/images/nariyal-premium-hero.webp'],
- ['homepage-brand','Brand moment','Immersive brand background','/assets/images/brand/coconut-premium.webp'],
- ['homepage-harvest-1','Harvest film · frame 1','First harvest editorial frame','/assets/images/review/coastal-grove.png'],
- ['homepage-harvest-2','Harvest film · frame 2','Second harvest editorial frame','/assets/images/review/backwater-grove.png'],
- ['homepage-harvest-3','Harvest film · frame 3','Third harvest editorial frame','/assets/images/nariyal-product-collection.webp'],
- ['homepage-people-teaser','People teaser','People of Nariyal Sutra editorial image','/assets/images/review/coastal-grove.png'],
- ['homepage-cinematic-grove','Cinematic grove','Current source-to-cut grove background','/assets/images/review/coastal-grove.png'],
- ['homepage-cinematic-canopy','Cinematic canopy','Current source-to-cut canopy','/assets/images/review/backwater-grove.png'],
- ['people-hero','People page hero','People of Nariyal Sutra hero','/assets/images/review/coastal-grove.png'],
- ['fresh-tender-hero','Fresh tender page hero','Fresh tender coconut hero','/assets/images/nariyal-premium-hero.webp'],
- ['green-hero','Green coconut page hero','Green coconut hero','/assets/images/green-round-coconut.jpg'],
- ['bulk-hero','Bulk supply page hero','Bulk supply hero','/assets/images/bulk-coconut-pack.jpg']
-];
-const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+if(window.__NS_V421_ADMIN_RUNTIME_STABILITY__)return;
+window.__NS_V421_ADMIN_RUNTIME_STABILITY__=true;
+
 let repairTimer=0;
-function largeReady(m){if(!m||m.status!=='Approved'||m.visible===false||m.publicAllowed===false||m.brandFit==='Weak'||!(m.src||m.thumb))return false;if(m.largeSurfaceAllowed===false)return false;const w=Number(m.width||0),h=Number(m.height||0);return !w||!h||(Math.max(w,h)>=1000&&Math.min(w,h)>=600);}
-function configured(s,id){const mid=s.sectionMedia?.[id],m=mid?Store.mediaById(s,mid):null;return m&&(m.thumb||m.src)?{mid,m,src:m.thumb||m.src}:null;}
-function renderPanel(panel){if(!panel)return null;const s=Store.load();s.sectionMedia=s.sectionMedia||{};panel.innerHTML=`<div class="ap-panel-head"><div><h2>Live image placement map</h2><span>Preview and change storefront imagery. Large surfaces only offer media suitable for large display.</span></div><button class="ap-btn" type="button" data-v38-preview>Open storefront ↗</button></div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px">${TARGETS.map(([id,name,desc,def])=>{const c=configured(s,id),src=c?.src||def,state=c?'custom':'default',label=c?`Custom · ${esc(c.m.name||c.mid)}`:'Default image';return `<article data-v38-placement-card="${esc(id)}" data-v38-status="${state}" style="border:1px solid rgba(212,168,67,.14);padding:12px;background:rgba(255,255,255,.02)"><img src="${esc(src)}" alt="${esc(name)}" style="width:100%;height:150px;object-fit:cover;margin-bottom:10px"><div data-v38-status="${state}" style="font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:${c?'#d4a843':'var(--muted)'};margin-bottom:6px">${label}</div><strong>${esc(name)}</strong><p style="font-size:10px;color:var(--muted);line-height:1.5;margin:5px 0 10px">${esc(desc)}</p><div style="display:flex;gap:6px;flex-wrap:wrap"><button class="ap-btn mini" type="button" data-v38-target="${esc(id)}">Change image</button>${c?`<button class="ap-btn mini" type="button" data-v38-clear="${esc(id)}">Use default</button>`:''}</div></article>`}).join('')}</div>`;return panel;}
-function ensurePanel(){const view=document.querySelector('.ap-view[data-view="pages"]');if(!view)return null;let panel=[...document.querySelectorAll('#apV38ImageTargets')].find(x=>x.parentElement===view)||null;document.querySelectorAll('#apV38ImageTargets').forEach(x=>{if(x!==panel)x.remove();});if(!panel){panel=document.createElement('div');panel.id='apV38ImageTargets';panel.className='ap-card ap-panel';panel.style.marginTop='16px';view.insertBefore(panel,view.firstChild);}panel.dataset.v41Recovered='1';return renderPanel(panel);}
-function scheduleRepair(ms=0){clearTimeout(repairTimer);repairTimer=setTimeout(ensurePanel,ms);}
-function repairBurst(){[0,80,250,700,1300].forEach(ms=>setTimeout(ensurePanel,ms));}
-function prunePicker(target){const modal=document.getElementById('apModal');if(!modal?.classList.contains('is-open'))return;const s=Store.load();let kept=0;modal.querySelectorAll('[data-v38-pick]').forEach(btn=>{const m=Store.mediaById(s,btn.getAttribute('data-v38-pick'));if(!largeReady(m))btn.remove();else kept++;});let note=modal.querySelector('[data-v41-quality-note]');if(!note){note=document.createElement('p');note.dataset.v41QualityNote='1';note.style.cssText='grid-column:1/-1;margin:0 0 10px;color:rgba(255,255,255,.55);font-size:10px;line-height:1.6';document.getElementById('apModalBody')?.prepend(note);}if(note)note.textContent=kept?`${kept} approved large-surface image${kept===1?'':'s'} available for this placement.`:'No approved large-surface image is available. Upload or approve a higher-resolution source first.';modal.dataset.v41Target=target;}
-function bind(){repairBurst();document.addEventListener('click',e=>{if(e.target?.closest?.('#apNav [data-view="pages"]')){repairBurst();return;}const target=e.target?.closest?.('[data-v38-target]');if(target)setTimeout(()=>prunePicker(target.dataset.v38Target),20);if(e.target?.closest?.('[data-v38-clear],[data-v38-pick]'))repairBurst();},true);window.addEventListener('nsv421:change',repairBurst);window.addEventListener('nsv421:production-ready',repairBurst);const root=document.querySelector('.ap-content')||document.body||document.documentElement;new MutationObserver(()=>{const view=document.querySelector('.ap-view[data-view="pages"]');if(view&&!view.querySelector('#apV38ImageTargets'))scheduleRepair(20);}).observe(root,{childList:true,subtree:true});}
+function ensureHost(){
+  const view=document.querySelector('.ap-view[data-view="pages"]');
+  if(!view)return null;
+  let host=[...document.querySelectorAll('#apV38ImageTargets')].find(x=>x.parentElement===view)||null;
+  document.querySelectorAll('#apV38ImageTargets').forEach(x=>{if(x!==host)x.remove();});
+  let created=false;
+  if(!host){
+    host=document.createElement('div');
+    host.id='apV38ImageTargets';
+    host.className='ap-card ap-panel';
+    host.style.marginTop='16px';
+    view.insertBefore(host,view.firstChild);
+    created=true;
+  }
+  host.dataset.v41Recovered='1';
+  if(created){
+    /* V38/V40 own the panel contents. V41 only restores the mount point and then
+       asks the registered Admin owners to render it. This avoids competing renderers. */
+    setTimeout(()=>window.dispatchEvent(new CustomEvent('nsv421:change')),0);
+  }
+  return host;
+}
+
+function decorateCompatibility(){
+  const host=ensureHost();
+  if(!host)return null;
+  const state=window.NSV421Store?.load?.()||{};
+
+  host.querySelectorAll('[data-v40-target]').forEach(btn=>{
+    const id=btn.dataset.v40Target;
+    btn.dataset.v38Target=id;
+    const card=btn.closest('article');
+    if(card){
+      card.dataset.v38PlacementCard=id;
+      card.dataset.v38Status=state.sectionMedia?.[id]?'custom':'default';
+    }
+  });
+  host.querySelectorAll('[data-v40-clear]').forEach(btn=>{btn.dataset.v38Clear=btn.dataset.v40Clear;});
+
+  const modal=document.getElementById('apModal');
+  if(modal?.classList.contains('is-open')){
+    modal.querySelectorAll('[data-v40-pick]').forEach(btn=>{
+      /* Alias only selectable large-surface choices. Small reference media remains
+         visible in V40 but is intentionally not exposed through the legacy V38 API. */
+      if(btn.disabled){delete btn.dataset.v38Pick;delete btn.dataset.v38PickTarget;return;}
+      btn.dataset.v38Pick=btn.dataset.v40Pick;
+      btn.dataset.v38PickTarget=btn.dataset.v40PickTarget||'';
+    });
+  }
+  return host;
+}
+
+function scheduleRepair(ms=20){
+  clearTimeout(repairTimer);
+  repairTimer=setTimeout(()=>{ensureHost();setTimeout(decorateCompatibility,30);},ms);
+}
+function repairBurst(){
+  [0,80,220,550,1100].forEach(ms=>setTimeout(()=>{ensureHost();decorateCompatibility();},ms));
+}
+function largeReady(m){
+  if(!m||m.status!=='Approved'||m.visible===false||m.publicAllowed===false||m.brandFit==='Weak'||!(m.src||m.thumb))return false;
+  if(m.largeSurfaceAllowed===false)return false;
+  const w=Number(m.width||0),h=Number(m.height||0);
+  return !w||!h||(Math.max(w,h)>=1000&&Math.min(w,h)>=600);
+}
+
+function bind(){
+  repairBurst();
+  document.addEventListener('click',e=>{
+    if(e.target?.closest?.('#apNav [data-view="pages"]'))repairBurst();
+    if(e.target?.closest?.('[data-v40-target],[data-v38-target],[data-v40-clear],[data-v38-clear],[data-v40-pick],[data-v38-pick]')){
+      setTimeout(decorateCompatibility,40);
+      setTimeout(decorateCompatibility,140);
+    }
+  },true);
+  window.addEventListener('nsv421:change',()=>{setTimeout(decorateCompatibility,40);setTimeout(decorateCompatibility,160);});
+  window.addEventListener('nsv421:production-ready',repairBurst);
+
+  const root=document.querySelector('.ap-content')||document.body||document.documentElement;
+  new MutationObserver(()=>{
+    const view=document.querySelector('.ap-view[data-view="pages"]');
+    if(view&&!view.querySelector('#apV38ImageTargets'))scheduleRepair(20);
+    else if(view)setTimeout(decorateCompatibility,20);
+  }).observe(root,{childList:true,subtree:true});
+}
+
 document.readyState==='loading'?document.addEventListener('DOMContentLoaded',bind,{once:true}):bind();
-window.NSV421AdminRuntimeStability={ensurePanel,largeReady,repairBurst};
+window.NSV421AdminRuntimeStability={ensurePanel:ensureHost,largeReady,repairBurst,decorateCompatibility};
 })();
