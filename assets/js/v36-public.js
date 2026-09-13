@@ -2,6 +2,7 @@
   'use strict';
 
   const INTRO_MS=3800;
+  const REDUCED_INTRO_MS=650;
   const DEPLOY_HOST_RE=/^[a-f0-9]{20,}--nariyal-sutra\.netlify\.app$/i;
 
   function isDeployScoped(url){try{return DEPLOY_HOST_RE.test(new URL(url,location.href).hostname);}catch(_){return false;}}
@@ -42,6 +43,7 @@
       #live-motion{background-image:linear-gradient(145deg,rgba(5,18,4,.14),rgba(2,8,1,.55)),url('/assets/images/nariyal-hospitality.webp')!important;background-size:cover!important;background-position:center!important}
       @media(min-width:981px){#v20-story-film .v421-local-knife{width:clamp(210px,20vw,320px)!important;height:44px!important}#v20-story-film .v421-local-knife .blade{height:24px!important}#v20-story-film .v421-local-knife .handle{height:34px!important}#v20-story-film .v421-water-finish img{filter:saturate(1.08) contrast(1.05) brightness(.86)!important}}
       @media(max-width:980px){#jungle-intro.ns-intro-owned::before{background-position:60% center;animation-duration:3.2s}#jungle-intro.ns-intro-owned .ji-title-wrap{width:calc(100% - 36px)!important;left:18px!important;right:auto!important;top:auto!important;bottom:14%!important;transform:none!important;text-align:left!important}}
+      @media(prefers-reduced-motion:reduce){#jungle-intro.ns-intro-owned::before{animation:none!important}}
     `;
     document.head.appendChild(style);
   }
@@ -72,10 +74,9 @@
     if(introOwner.started)return;
     const intro=document.getElementById('jungle-intro'),skip=document.getElementById('ji-skip'),main=document.getElementById('main-site');if(!intro||!main)return;
     introOwner.started=true;introOwner.reduced=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-    if(introOwner.reduced){finishIntro('reduced');return;}
     holdIntro(intro,skip,main);
     introOwner.enforcer=setInterval(()=>holdIntro(intro,skip,main),60);
-    introOwner.timer=setTimeout(()=>finishIntro('timer'),INTRO_MS);
+    introOwner.timer=setTimeout(()=>finishIntro(introOwner.reduced?'reduced':'timer'),introOwner.reduced?REDUCED_INTRO_MS:INTRO_MS);
     skip?.addEventListener('click',()=>{queueMicrotask(()=>finishIntro('skip'));},{capture:true,once:true});
   }
 
@@ -112,5 +113,5 @@
   const mo=new MutationObserver(records=>{let peopleChanged=false,filmTouched=false;for(const r of records){for(const n of r.addedNodes){if(n.nodeType!==1)continue;guardMedia(n);if(n.id==='v20-story-film'||n.classList?.contains('v20-story-sticky')||n.querySelector?.('#v20-story-film,.v20-story-sticky'))filmTouched=true;if(n.closest?.('#nsPeopleMarquee')||n.querySelector?.('#nsPeopleMarquee,.ns-face-rows'))peopleChanged=true;}}if(filmTouched)setTimeout(()=>{enforceCinematicRunway();enforceCinematicViewport();},0);if(peopleChanged)setTimeout(validatePeopleRail,120);});
   mo.observe(document.documentElement,{childList:true,subtree:true});setTimeout(validatePeopleRail,900);setTimeout(validatePeopleRail,2400);
   const sticky=document.querySelector('.sticky-bar');if(sticky){document.addEventListener('focusin',e=>{if(innerWidth<=768&&/^(INPUT|TEXTAREA|SELECT)$/.test(e.target?.tagName||''))sticky.classList.add('is-hidden');});document.addEventListener('focusout',()=>setTimeout(()=>sticky.classList.remove('is-hidden'),120));}
-  window.NS_V421_STABILIZATION={build:'2026-09-13-single-intro-owner',guardedMedia:document.querySelectorAll('img,video').length,introDisabled:false,introDurationMs:INTRO_MS,introOwner:'v36-single-owner',introAsset:'/assets/images/nariyal-coconut-grove.webp',homepageHeroAsset:'/assets/images/nariyal-premium-hero.webp',desktopRunway:'390vh',cinematicLayerContract:'v421-visual-recovery',cinematicViewportContract:'v36-fixed-stage',viewport:{w:innerWidth,h:innerHeight}};
+  window.NS_V421_STABILIZATION={build:'2026-09-13-single-intro-owner',guardedMedia:document.querySelectorAll('img,video').length,introDisabled:false,introDurationMs:INTRO_MS,reducedIntroDurationMs:REDUCED_INTRO_MS,introOwner:'v36-single-owner',introAsset:'/assets/images/nariyal-coconut-grove.webp',homepageHeroAsset:'/assets/images/nariyal-premium-hero.webp',desktopRunway:'390vh',cinematicLayerContract:'v421-visual-recovery',cinematicViewportContract:'v36-fixed-stage',viewport:{w:innerWidth,h:innerHeight}};
 })();
