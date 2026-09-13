@@ -12,6 +12,7 @@ const WS={
  productBasket:'/assets/images/website-media/ws006-tender-coconut-basket.webp',
  coastSunset:'/assets/images/website-media/ws010-coast-sunset-grove.webp'
 };
+const LARGE_GREEN_FALLBACK='/assets/images/nariyal-product-collection.webp';
 
 function local(src){return src.startsWith('/')?src:'/'+src;}
 function pathOf(src){try{return new URL(src,location.href).pathname;}catch(_){return src||'';}}
@@ -46,7 +47,7 @@ function replaceEmptyVideo(selector,sources,alt){
 function pageFallback(img){
  const product=img.closest?.('[data-product-card]')?.dataset.productCard;
  if(product==='tender')return '/assets/images/nariyal-product-collection.webp';
- if(product==='green')return '/assets/images/green-round-coconut.jpg';
+ if(product==='green')return LARGE_GREEN_FALLBACK;
  if(product==='bulk')return '/assets/images/bulk-coconut-pack.jpg';
  if(img.closest?.('#people-of-nariyal,.people-page,#nsPeopleMarquee,.v25-people-worlds'))return '';
  if(img.closest?.('.trade-buy'))return WS.hospitality;
@@ -59,7 +60,7 @@ function pageFallback(img){
   'freshness-first.html':'/assets/images/freshness-coconut-splash.webp',
   'fresh-tender-coconut.html':'/assets/images/nariyal-product-collection.webp',
   'coconut-events-hospitality.html':WS.hospitality,
-  'green-coconut.html':'/assets/images/green-round-coconut.jpg',
+  'green-coconut.html':LARGE_GREEN_FALLBACK,
   'bulk-coconut-supply.html':'/assets/images/bulk-coconut-pack.jpg',
   'gujarat-coast.html':'/assets/images/review/coastal-grove.png',
   'south-india-groves.html':'/assets/images/review/backwater-grove.png',
@@ -132,7 +133,7 @@ function applyPageVisuals(){
     replaceEmptyVideo('.sp-video video',['/assets/images/nariyal-product-collection.webp','/assets/images/freshness-coconut-splash.webp',WS.productBasket],'Fresh tender coconut cut and water study');
     break;
   case 'green-coconut.html':
-    replaceEmptyVideo('.sp-video video',['/assets/images/green-round-coconut.jpg',WS.productBasket,WS.coastSunset],'Green coconut product study');
+    replaceEmptyVideo('.sp-video video',[LARGE_GREEN_FALLBACK,'/assets/images/nariyal-premium-hero.webp','/assets/images/nariyal-coconut-grove.webp'],'Green coconut product study');
     break;
   case 'coconut-events-hospitality.html':
     setImg('.sp-scenes .sp-scene:nth-child(1)',WS.hospitality,'Fresh-cut coconut hospitality and event presentation');
