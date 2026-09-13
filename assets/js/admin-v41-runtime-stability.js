@@ -4,6 +4,14 @@ if(window.__NS_V421_ADMIN_RUNTIME_STABILITY__)return;
 window.__NS_V421_ADMIN_RUNTIME_STABILITY__=true;
 
 let repairTimer=0,authoritativeTimer=0;
+function ensurePeopleStreamsControl(){
+  if(window.__NS_V421_ADMIN_V42_PEOPLE_STREAMS__||document.getElementById('ns-v42-people-stream-control'))return;
+  const script=document.createElement('script');
+  script.id='ns-v42-people-stream-control';
+  script.src='assets/js/admin-v42-people-streams.js';
+  script.async=false;
+  document.head.appendChild(script);
+}
 function ensureHost(){
   const view=document.querySelector('.ap-view[data-view="pages"]');
   if(!view)return null;
@@ -111,6 +119,7 @@ function largeReady(m){
 }
 
 function bind(){
+  ensurePeopleStreamsControl();
   repairBurst();
   document.addEventListener('click',e=>{
     if(e.target?.closest?.('#apNav [data-view="pages"]'))repairBurst();
@@ -125,6 +134,7 @@ function bind(){
 
   const root=document.querySelector('.ap-content')||document.body||document.documentElement;
   new MutationObserver(()=>{
+    ensurePeopleStreamsControl();
     const view=document.querySelector('.ap-view[data-view="pages"]');
     if(view&&!view.querySelector('#apV38ImageTargets'))scheduleRepair(20);
     else if(view)setTimeout(stabilizePlacement,20);
@@ -132,5 +142,5 @@ function bind(){
 }
 
 document.readyState==='loading'?document.addEventListener('DOMContentLoaded',bind,{once:true}):bind();
-window.NSV421AdminRuntimeStability={ensurePanel:ensureHost,largeReady,repairBurst,decorateCompatibility,stabilizePlacement};
+window.NSV421AdminRuntimeStability={ensurePanel:ensureHost,largeReady,repairBurst,decorateCompatibility,stabilizePlacement,ensurePeopleStreamsControl};
 })();
