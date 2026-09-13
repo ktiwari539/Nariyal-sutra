@@ -116,6 +116,11 @@
     skip?.style.removeProperty('opacity');
     skip?.style.removeProperty('pointer-events');
     const sync=()=>{
+      const deadline=Number(intro.dataset.nsIntroReadyAt||Infinity);
+      if(intro.classList.contains('ji-done')&&performance.now()<deadline){
+        intro.classList.remove('ji-done');
+        return;
+      }
       const done=intro.classList.contains('ji-done');
       if(done){
         main.classList.add('visible');
@@ -140,10 +145,13 @@
       const armCompletion=()=>{
         if(intro.dataset.nsIntroDeadline==='armed')return;
         intro.dataset.nsIntroDeadline='armed';
-        requestAnimationFrame(()=>setTimeout(()=>{
-          if(!intro.classList.contains('ji-done'))intro.classList.add('ji-done');
-          sync();
-        },3800));
+        requestAnimationFrame(()=>{
+          intro.dataset.nsIntroReadyAt=String(performance.now()+3800);
+          setTimeout(()=>{
+            if(!intro.classList.contains('ji-done'))intro.classList.add('ji-done');
+            sync();
+          },3800);
+        });
       };
       if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',armCompletion,{once:true});
       else armCompletion();
