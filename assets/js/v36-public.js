@@ -69,6 +69,16 @@
     const style=document.createElement('style');
     style.id='ns-v421-user-corrections';
     style.textContent=`
+      #jungle-intro:not(.ji-done){display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;background:#031003!important}
+      #jungle-intro.ji-done{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important}
+      #jungle-intro:not(.ji-done)::before{content:'';position:absolute;inset:0;z-index:0;background:linear-gradient(180deg,rgba(2,8,1,.16),rgba(2,8,1,.34) 58%,rgba(2,8,1,.78)),url('/assets/images/nariyal-coconut-grove.webp') center 46%/cover no-repeat;transform:scale(1.015);animation:nsIntroFocus 3.6s cubic-bezier(.2,.75,.2,1) both}
+      @keyframes nsIntroFocus{from{transform:scale(1.075);filter:brightness(.66)}to{transform:scale(1.015);filter:brightness(.9)}}
+      #jungle-intro .ji-sky,#jungle-intro #starCanvas,#jungle-intro .ji-moon,#jungle-intro .ji-mist,#jungle-intro .ji-layer,#jungle-intro #fireflies{display:none!important}
+      #jungle-intro .ji-cinematic-wash{display:block!important;opacity:.42!important}
+      #jungle-intro .ji-title-wrap{display:block!important;visibility:visible!important;opacity:1!important;z-index:8!important}
+      #jungle-intro .ji-logo,#jungle-intro .ji-eyebrow,#jungle-intro .ji-tagline{visibility:visible!important;opacity:1!important}
+      #ji-skip{display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;z-index:9999!important}
+      #jungle-intro.ji-done + #ji-skip,#jungle-intro.ji-done~#ji-skip{display:none!important}
       .hero-visual{background-image:linear-gradient(145deg,rgba(5,18,4,.08),rgba(2,8,1,.52)),url('/assets/images/nariyal-premium-hero.webp')!important}
       [data-product-card='tender'] .pc-img-wrap{background-image:url('/assets/images/nariyal-product-collection.webp')!important}
       [data-product-card='green'] .pc-img-wrap{background-image:url('/assets/images/green-round-coconut.jpg')!important}
@@ -82,40 +92,54 @@
         #v20-story-film .v421-local-knife .handle{height:34px!important}
         #v20-story-film .v421-water-finish img{filter:saturate(1.08) contrast(1.05) brightness(.86)!important}
       }
+      @media(max-width:980px){
+        #jungle-intro:not(.ji-done)::before{background-position:60% center;animation-duration:3.2s}
+        #jungle-intro .ji-title-wrap{width:calc(100% - 36px)!important;left:18px!important;right:auto!important;top:auto!important;bottom:14%!important;transform:none!important;text-align:left!important}
+      }
     `;
     document.head.appendChild(style);
   }
 
-  function disableLegacyIntro(){
+  function restoreIntro(){
     const intro=document.getElementById('jungle-intro');
     const skip=document.getElementById('ji-skip');
     const main=document.getElementById('main-site');
-    if(intro){
-      intro.classList.add('ji-done');
-      intro.setAttribute('aria-hidden','true');
-      intro.style.setProperty('display','none','important');
-      intro.style.setProperty('visibility','hidden','important');
-      intro.style.setProperty('opacity','0','important');
-      intro.style.setProperty('pointer-events','none','important');
+    if(!intro||!main)return;
+    intro.removeAttribute('aria-hidden');
+    intro.style.removeProperty('display');
+    intro.style.removeProperty('visibility');
+    intro.style.removeProperty('opacity');
+    intro.style.removeProperty('pointer-events');
+    skip?.removeAttribute('aria-hidden');
+    skip?.style.removeProperty('display');
+    skip?.style.removeProperty('visibility');
+    skip?.style.removeProperty('opacity');
+    skip?.style.removeProperty('pointer-events');
+    const sync=()=>{
+      const done=intro.classList.contains('ji-done');
+      if(done){
+        main.classList.add('visible');
+        main.style.setProperty('opacity','1','important');
+        main.style.setProperty('visibility','visible','important');
+        main.style.setProperty('pointer-events','auto','important');
+        main.style.removeProperty('transition');
+        document.body?.classList.add('v30-intro-done');
+        document.body?.style.removeProperty('overflow');
+        document.body?.style.removeProperty('height');
+      }else{
+        main.classList.remove('visible');
+        main.style.setProperty('opacity','0','important');
+        main.style.setProperty('visibility','visible','important');
+        main.style.setProperty('pointer-events','none','important');
+        document.body?.classList.remove('v30-intro-done');
+      }
+    };
+    if(intro.dataset.nsIntroRestore!=='1'){
+      intro.dataset.nsIntroRestore='1';
+      new MutationObserver(sync).observe(intro,{attributes:true,attributeFilter:['class']});
+      setTimeout(()=>{if(!intro.classList.contains('ji-done'))intro.classList.add('ji-done');sync();},3800);
     }
-    if(skip){
-      skip.setAttribute('aria-hidden','true');
-      skip.style.setProperty('display','none','important');
-      skip.style.setProperty('visibility','hidden','important');
-      skip.style.setProperty('opacity','0','important');
-      skip.style.setProperty('pointer-events','none','important');
-    }
-    if(main){
-      main.classList.add('visible');
-      main.style.setProperty('opacity','1','important');
-      main.style.setProperty('visibility','visible','important');
-      main.style.setProperty('pointer-events','auto','important');
-      main.style.setProperty('transition','none','important');
-    }
-    document.body?.classList.remove('ns-intro-mobile');
-    document.body?.classList.add('v30-intro-done');
-    document.body?.style.removeProperty('height');
-    document.body?.style.removeProperty('overflow');
+    sync();
   }
 
   function enforceCinematicRunway(){
@@ -208,7 +232,7 @@
   }
 
   function stabilize(){
-    disableLegacyIntro();
+    restoreIntro();
     enforceCinematicRunway();
     enforceCinematicViewport();
     assignDistinctProductImages();
@@ -238,7 +262,7 @@
         if(n.closest?.('#nsPeopleMarquee')||n.querySelector?.('#nsPeopleMarquee,.ns-face-rows'))peopleChanged=true;
       }
     }
-    if(introTouched)setTimeout(disableLegacyIntro,0);
+    if(introTouched)setTimeout(restoreIntro,0);
     if(filmTouched)setTimeout(()=>{enforceCinematicRunway();enforceCinematicViewport();},0);
     if(peopleChanged)setTimeout(validatePeopleRail,120);
   });
@@ -254,9 +278,12 @@
   }
 
   window.NS_V421_STABILIZATION={
-    build:'2026-09-13-deterministic-cinematic-stage',
+    build:'2026-09-13-brand-intro-restored',
     guardedMedia:document.querySelectorAll('img,video').length,
-    introDisabled:true,
+    introDisabled:false,
+    introDurationMs:3800,
+    introAsset:'/assets/images/nariyal-coconut-grove.webp',
+    homepageHeroAsset:'/assets/images/nariyal-premium-hero.webp',
     desktopRunway:'390vh',
     cinematicLayerContract:'v421-visual-recovery',
     cinematicViewportContract:'v36-fixed-stage',
