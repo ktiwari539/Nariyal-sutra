@@ -137,7 +137,16 @@
     if(intro.dataset.nsIntroRestore!=='1'){
       intro.dataset.nsIntroRestore='1';
       new MutationObserver(sync).observe(intro,{attributes:true,attributeFilter:['class']});
-      setTimeout(()=>{if(!intro.classList.contains('ji-done'))intro.classList.add('ji-done');sync();},3800);
+      const armCompletion=()=>{
+        if(intro.dataset.nsIntroDeadline==='armed')return;
+        intro.dataset.nsIntroDeadline='armed';
+        requestAnimationFrame(()=>setTimeout(()=>{
+          if(!intro.classList.contains('ji-done'))intro.classList.add('ji-done');
+          sync();
+        },3800));
+      };
+      if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',armCompletion,{once:true});
+      else armCompletion();
     }
     sync();
   }
