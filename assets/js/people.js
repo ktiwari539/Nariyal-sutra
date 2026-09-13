@@ -7,10 +7,13 @@ function init(){
   const s=Store?Store.load():(legacy?legacy.load():{media:[]});
   const eligible=Store?((s.media||[]).filter(m=>Store.eligibleForPublic(s,m))):((s.media||[]).filter(m=>m.status==='Approved'&&m.visible));
   const people=eligible.filter(m=>m.cat==='People'&&m.placement!=='Library only');
-  const byId=id=>people.find(m=>m.id===id);
   const byAnyId=id=>eligible.find(m=>m.id===id);
-  const storyPreference=['AMB101-P','AMB201-P','AMB102-P','G078','G077','G052','G046','G075','G073','G034','G001','G002'];
-  const orderedStories=[...storyPreference.map(byId).filter(Boolean),...people.filter(m=>!storyPreference.includes(m.id))];
+  const editorialPeople=people.filter(m=>m.largeSurfaceAllowed!==false&&m.qualityTier!=='card-only');
+  const byEditorialId=id=>editorialPeople.find(m=>m.id===id);
+  /* Campaign Ambassador portraits are intentionally card-only (170×212). Keep them in
+     the dedicated Ambassador rail, never stretch them into the large editorial story grid. */
+  const storyPreference=['G078','G077','G052','G046','G075','G073','G034','G001','G002','G031','G023','G040'];
+  const orderedStories=[...storyPreference.map(byEditorialId).filter(Boolean),...editorialPeople.filter(m=>!storyPreference.includes(m.id))];
   document.querySelectorAll('[data-story-img]').forEach((el,i)=>{
     const m=orderedStories[i];
     if(!m){const card=el.closest('.story-card');if(card)card.hidden=true;return;}
@@ -23,7 +26,7 @@ function init(){
   if(hero){
     const selectedId=s.sectionMedia&&s.sectionMedia['people-hero'];
     const selected=selectedId?byAnyId(selectedId):null;
-    const selectedAllowed=selected&&(!Store||Store.eligibleForPublic(s,selected));
+    const selectedAllowed=selected&&(!Store||Store.eligibleForPublic(s,selected))&&selected.largeSurfaceAllowed!==false&&selected.qualityTier!=='card-only';
     const src=selectedAllowed?(selected.src||selected.thumb):'assets/images/review/coastal-grove.png';
     hero.src=src;
     if(selectedAllowed&&selected.localBlobKey)hero.setAttribute('data-local-blob-key',selected.localBlobKey);else hero.removeAttribute('data-local-blob-key');
