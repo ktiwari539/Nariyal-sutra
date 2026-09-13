@@ -29,6 +29,15 @@ const WEBSITE_MEDIA_ITEMS=[
 ].map((m,i)=>Object.assign({status:'Approved',visible:true,storyAllowed:true,brandFit:'Strong',faceGroup:null,thumb:m.src,qualityTier:'standard',largeSurfaceAllowed:false,version:1,versions:[{version:1,src:m.src,at:'V42.1 website media import'}],order:100+i},m));
 function unique(ids){const seen=new Set();return (ids||[]).filter(id=>id&&!seen.has(id)&&(seen.add(id),true));}
 function websiteItem(base,previous){const prev=previous||{},merged=Object.assign({},base,prev);merged.id=base.id;merged.src=base.src;merged.thumb=base.thumb;merged.version=base.version;merged.versions=base.versions;merged.order=base.order;merged.width=base.width;merged.height=base.height;merged.largeSurfaceAllowed=false;if(base.publicAllowed===false){merged.publicAllowed=false;merged.homepageAllowed=false;merged.cat='Cinematic';}return merged;}
+function largeSurfaceReady(m){
+ if(!m||m.largeSurfaceAllowed===false||m.qualityTier==='card-only')return false;
+ const w=Number(m.width||0),h=Number(m.height||0);
+ return !w||!h||(Math.max(w,h)>=1000&&Math.min(w,h)>=600);
+}
+function eligibleForLargePublic(s,m){
+ const Store=window.NSV421Store;
+ return !!(Store&&Store.eligibleForPublic(s,m)&&largeSurfaceReady(m));
+}
 function ensureApprovedMedia(s){
  if(!s||typeof s!=='object')return s;
  const existing=Array.isArray(s.media)?s.media:[],byId=new Map(existing.map(m=>[m.id,m]));
@@ -49,7 +58,7 @@ function ensureApprovedMedia(s){
 function seedApprovedMedia(){const Store=window.NSV421Store;if(!Store)return;const MIG='ns-v421-authoritative-media-v9',s=ensureApprovedMedia(Store.load());if(localStorage.getItem(MIG)!=='1')Store.audit?.(s,'Media registry migrated to Admin-owned people selections','Campaign portraits remain card-only; website reference media cannot be stretched into large sections');Store.save(s);localStorage.setItem(MIG,'1');}
 function stabilizeMediaLoads(){const Store=window.NSV421Store;if(!Store||Store.__authoritativeMediaLoadStableV9)return;const originalLoad=Store.load.bind(Store),originalPublicFaces=typeof Store.publicFaces==='function'?Store.publicFaces.bind(Store):null;Store.load=function(){return ensureApprovedMedia(originalLoad());};if(originalPublicFaces)Store.publicFaces=function(s){return originalPublicFaces(ensureApprovedMedia(s||Store.load()));};Store.__authoritativeMediaLoadStableV9=true;}
 stabilizeMediaLoads();seedApprovedMedia();
-window.NSV421MediaDB={put,get,delete:del,hydrate,ensureApprovedAmbassadors:ensureApprovedMedia,ensureApprovedMedia,campaignIds:[...CAMPAIGN_IDS],websiteMediaIds:[...WEBSITE_MEDIA_IDS]};
+window.NSV421MediaDB={put,get,delete:del,hydrate,ensureApprovedAmbassadors:ensureApprovedMedia,ensureApprovedMedia,largeSurfaceReady,eligibleForLargePublic,campaignIds:[...CAMPAIGN_IDS],websiteMediaIds:[...WEBSITE_MEDIA_IDS]};
 function loadOnce(src,attr){
  if(document.querySelector(`script[${attr}]`))return;
  const s=document.createElement('script');s.src=src;s.async=false;s.setAttribute(attr,'1');document.head.appendChild(s);

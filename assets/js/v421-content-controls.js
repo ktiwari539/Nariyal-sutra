@@ -21,7 +21,7 @@ const TARGETS={
 function file(){return (location.pathname.split('/').pop()||'index.html').toLowerCase();}
 function pageId(){return PAGE_IDS[file()]||file().replace(/\.html$/,'');}
 function mediaRecord(s,id){const m=Store.mediaById(s,id);return m&&Store.eligibleForPublic(s,m)?m:null;}
-function largeReady(m){if(!m)return false;if(m.largeSurfaceAllowed===false)return false;const w=Number(m.width||0),h=Number(m.height||0);if(!w||!h)return true;return Math.max(w,h)>=1000&&Math.min(w,h)>=600;}
+function largeReady(m){const policy=window.NSV421MediaDB?.largeSurfaceReady;if(policy)return policy(m);if(!m||m.largeSurfaceAllowed===false||m.qualityTier==='card-only')return false;const w=Number(m.width||0),h=Number(m.height||0);if(!w||!h)return true;return Math.max(w,h)>=1000&&Math.min(w,h)>=600;}
 function applyImages(){
  const s=Store.load(),map=s.sectionMedia||{},layouts=s.sectionMediaLayout||{};
  for(const [id,mId] of Object.entries(map)){
@@ -48,7 +48,7 @@ function renderCustom(){
  const host=customHost(),footer=document.querySelector('footer');if(!host)return;
  for(const sec of wanted){
    let el=document.querySelector(`[data-admin-custom-section="${CSS.escape(sec.id)}"]`);if(!el){el=document.createElement('section');el.className='ns-admin-custom-section';el.dataset.adminCustomSection=sec.id;if(footer&&footer.parentElement===host)host.insertBefore(el,footer);else host.appendChild(el);}
-   const media=(sec.mediaIds||[]).map(id=>{const m=mediaRecord(s,id);return {id,src:m&&(m.src||m.thumb||''),focus:m?.focus||'50% 50%',fit:m?.fit||'cover',ok:!!m&&m.largeSurfaceAllowed!==false};}).filter(x=>x.src).slice(0,4);
+   const media=(sec.mediaIds||[]).map(id=>{const m=mediaRecord(s,id);return {id,src:m&&(m.src||m.thumb||''),focus:m?.focus||'50% 50%',fit:m?.fit||'cover',ok:largeReady(m)};}).filter(x=>x.src&&x.ok).slice(0,4);
    el.innerHTML=`<div class="ns-admin-custom-inner"><div class="ns-admin-custom-copy"><small>${String(sec.template||'Nariyal Sutra').replace(/[<>]/g,'')}</small><h2>${String(sec.title||'').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</h2><p>${String(sec.subtitle||'').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</p></div>${media.length?`<div class="ns-admin-custom-media">${media.map(m=>`<img src="${m.src.replace(/"/g,'&quot;')}" alt="" style="object-position:${m.focus};object-fit:${m.fit}">`).join('')}</div>`:''}</div>`;
  }
 }
