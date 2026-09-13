@@ -69,16 +69,16 @@
     const style=document.createElement('style');
     style.id='ns-v421-user-corrections';
     style.textContent=`
-      #jungle-intro:not(.ji-done){display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;background:#031003!important}
-      #jungle-intro.ji-done{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important}
-      #jungle-intro:not(.ji-done)::before{content:'';position:absolute;inset:0;z-index:0;background:linear-gradient(180deg,rgba(2,8,1,.16),rgba(2,8,1,.34) 58%,rgba(2,8,1,.78)),url('/assets/images/nariyal-coconut-grove.webp') center 46%/cover no-repeat;transform:scale(1.015);animation:nsIntroFocus 3.6s cubic-bezier(.2,.75,.2,1) both}
+      #jungle-intro:not(.ji-done),#jungle-intro.ns-intro-active{display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;background:#031003!important}
+      #jungle-intro.ji-done:not(.ns-intro-active){display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important}
+      #jungle-intro:not(.ji-done)::before,#jungle-intro.ns-intro-active::before{content:'';position:absolute;inset:0;z-index:0;background:linear-gradient(180deg,rgba(2,8,1,.16),rgba(2,8,1,.34) 58%,rgba(2,8,1,.78)),url('/assets/images/nariyal-coconut-grove.webp') center 46%/cover no-repeat;transform:scale(1.015);animation:nsIntroFocus 3.6s cubic-bezier(.2,.75,.2,1) both}
       @keyframes nsIntroFocus{from{transform:scale(1.075);filter:brightness(.66)}to{transform:scale(1.015);filter:brightness(.9)}}
       #jungle-intro .ji-sky,#jungle-intro #starCanvas,#jungle-intro .ji-moon,#jungle-intro .ji-mist,#jungle-intro .ji-layer,#jungle-intro #fireflies{display:none!important}
       #jungle-intro .ji-cinematic-wash{display:block!important;opacity:.42!important}
       #jungle-intro .ji-title-wrap{display:block!important;visibility:visible!important;opacity:1!important;z-index:8!important}
       #jungle-intro .ji-logo,#jungle-intro .ji-eyebrow,#jungle-intro .ji-tagline{visibility:visible!important;opacity:1!important}
       #ji-skip{display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;z-index:9999!important}
-      #jungle-intro.ji-done + #ji-skip,#jungle-intro.ji-done~#ji-skip{display:none!important}
+      #jungle-intro.ji-done:not(.ns-intro-active) + #ji-skip,#jungle-intro.ji-done:not(.ns-intro-active)~#ji-skip{display:none!important}
       .hero-visual{background-image:linear-gradient(145deg,rgba(5,18,4,.08),rgba(2,8,1,.52)),url('/assets/images/nariyal-premium-hero.webp')!important}
       [data-product-card='tender'] .pc-img-wrap{background-image:url('/assets/images/nariyal-product-collection.webp')!important}
       [data-product-card='green'] .pc-img-wrap{background-image:url('/assets/images/green-round-coconut.jpg')!important}
@@ -93,7 +93,7 @@
         #v20-story-film .v421-water-finish img{filter:saturate(1.08) contrast(1.05) brightness(.86)!important}
       }
       @media(max-width:980px){
-        #jungle-intro:not(.ji-done)::before{background-position:60% center;animation-duration:3.2s}
+        #jungle-intro:not(.ji-done)::before,#jungle-intro.ns-intro-active::before{background-position:60% center;animation-duration:3.2s}
         #jungle-intro .ji-title-wrap{width:calc(100% - 36px)!important;left:18px!important;right:auto!important;top:auto!important;bottom:14%!important;transform:none!important;text-align:left!important}
       }
     `;
@@ -105,24 +105,37 @@
     const skip=document.getElementById('ji-skip');
     const main=document.getElementById('main-site');
     if(!intro||!main)return;
-    intro.removeAttribute('aria-hidden');
-    intro.style.removeProperty('display');
-    intro.style.removeProperty('visibility');
-    intro.style.removeProperty('opacity');
-    intro.style.removeProperty('pointer-events');
-    skip?.removeAttribute('aria-hidden');
-    skip?.style.removeProperty('display');
-    skip?.style.removeProperty('visibility');
-    skip?.style.removeProperty('opacity');
-    skip?.style.removeProperty('pointer-events');
+    const reduced=matchMedia?.('(prefers-reduced-motion: reduce)')?.matches===true;
+    const clearLegacyInline=el=>{
+      if(!el)return;
+      ['display','visibility','opacity','pointer-events'].forEach(p=>{if(el.style.getPropertyValue(p))el.style.removeProperty(p);});
+      el.removeAttribute('aria-hidden');
+    };
+    const keepIntroVisible=()=>{
+      if(!intro.classList.contains('ns-intro-active'))intro.classList.add('ns-intro-active');
+      if(intro.classList.contains('ji-done'))intro.classList.remove('ji-done');
+      clearLegacyInline(intro);
+      clearLegacyInline(skip);
+    };
+    clearLegacyInline(intro);
+    clearLegacyInline(skip);
     const sync=()=>{
       const deadline=Number(intro.dataset.nsIntroReadyAt||Infinity);
-      if(intro.classList.contains('ji-done')&&performance.now()<deadline){
-        intro.classList.remove('ji-done');
+      const userSkip=intro.dataset.nsIntroUserSkip==='1';
+      const hold=!reduced&&!userSkip&&intro.dataset.nsIntroDeadline!=='complete'&&performance.now()<deadline;
+      if(hold){
+        keepIntroVisible();
+        main.classList.remove('visible');
+        main.style.setProperty('opacity','0','important');
+        main.style.setProperty('visibility','visible','important');
+        main.style.setProperty('pointer-events','none','important');
+        document.body?.classList.remove('v30-intro-done');
         return;
       }
-      const done=intro.classList.contains('ji-done');
+      intro.classList.remove('ns-intro-active');
+      const done=intro.classList.contains('ji-done')||userSkip||intro.dataset.nsIntroDeadline==='complete'||reduced;
       if(done){
+        if(!intro.classList.contains('ji-done'))intro.classList.add('ji-done');
         main.classList.add('visible');
         main.style.setProperty('opacity','1','important');
         main.style.setProperty('visibility','visible','important');
@@ -131,26 +144,36 @@
         document.body?.classList.add('v30-intro-done');
         document.body?.style.removeProperty('overflow');
         document.body?.style.removeProperty('height');
+        requestAnimationFrame(enforceCinematicViewport);
       }else{
-        main.classList.remove('visible');
-        main.style.setProperty('opacity','0','important');
-        main.style.setProperty('visibility','visible','important');
-        main.style.setProperty('pointer-events','none','important');
-        document.body?.classList.remove('v30-intro-done');
+        keepIntroVisible();
       }
     };
     if(intro.dataset.nsIntroRestore!=='1'){
       intro.dataset.nsIntroRestore='1';
-      new MutationObserver(sync).observe(intro,{attributes:true,attributeFilter:['class']});
+      const observer=new MutationObserver(sync);
+      observer.observe(intro,{attributes:true,attributeFilter:['class','style','aria-hidden']});
+      if(skip)observer.observe(skip,{attributes:true,attributeFilter:['style','aria-hidden']});
+      skip?.addEventListener('click',()=>{
+        intro.dataset.nsIntroUserSkip='1';
+        intro.dataset.nsIntroDeadline='complete';
+        intro.classList.remove('ns-intro-active');
+        queueMicrotask(sync);
+      },{capture:true});
       const armCompletion=()=>{
-        if(intro.dataset.nsIntroDeadline==='armed')return;
+        if(intro.dataset.nsIntroDeadline==='armed'||intro.dataset.nsIntroDeadline==='complete')return;
         intro.dataset.nsIntroDeadline='armed';
         requestAnimationFrame(()=>{
-          intro.dataset.nsIntroReadyAt=String(performance.now()+3800);
+          const duration=reduced?120:3800;
+          intro.dataset.nsIntroReadyAt=String(performance.now()+duration);
+          keepIntroVisible();
           setTimeout(()=>{
+            if(intro.dataset.nsIntroUserSkip==='1')return;
+            intro.dataset.nsIntroDeadline='complete';
+            intro.classList.remove('ns-intro-active');
             if(!intro.classList.contains('ji-done'))intro.classList.add('ji-done');
             sync();
-          },3800);
+          },duration);
         });
       };
       if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',armCompletion,{once:true});
@@ -295,7 +318,7 @@
   }
 
   window.NS_V421_STABILIZATION={
-    build:'2026-09-13-brand-intro-restored',
+    build:'2026-09-13-intro-lifecycle-owner',
     guardedMedia:document.querySelectorAll('img,video').length,
     introDisabled:false,
     introDurationMs:3800,
