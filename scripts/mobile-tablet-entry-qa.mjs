@@ -8,10 +8,10 @@ const OUT=path.join(process.cwd(),'qa-artifacts','mobile-tablet-entry');
 fs.mkdirSync(OUT,{recursive:true});
 const must=(c,m)=>{if(!c)throw new Error(m)};
 
-/* Static guard: the final release stylesheet must outrank older ns-intro-mobile rules. */
-const releaseCss=fs.readFileSync(path.join(process.cwd(),'assets/css/v36-public.css'),'utf8');
-must(releaseCss.includes('html body.ns-intro-mobile #jungle-intro'),'final release gate must explicitly outrank legacy mobile intro rules');
-must(releaseCss.includes('html body.ns-intro-mobile #main-site'),'final release gate must explicitly keep storefront visible under ns-intro-mobile');
+const releaseJs=fs.readFileSync(path.join(process.cwd(),'assets/js/v36-public.js'),'utf8');
+must(releaseJs.includes('introDurationMs:3800'),'release runtime must keep the approved 3.8s intro contract');
+must(releaseJs.includes("introAsset:'/assets/images/nariyal-coconut-grove.webp'"),'intro asset contract missing');
+must(releaseJs.includes("homepageHeroAsset:'/assets/images/nariyal-premium-hero.webp'"),'homepage hero asset contract missing');
 
 const server=spawn('python3',['-m','http.server','4201','--bind','127.0.0.1'],{stdio:'ignore'});
 await new Promise(r=>setTimeout(r,900));
@@ -27,77 +27,63 @@ async function state(page){
     const cs=e=>e?getComputedStyle(e):null;
     const rect=e=>e?e.getBoundingClientRect():null;
     const isVisible=e=>{if(!e)return false;const s=cs(e),r=rect(e);return s.display!=='none'&&s.visibility!=='hidden'&&Number(s.opacity||1)>.05&&r.width>2&&r.height>2;};
+    const before=intro?getComputedStyle(intro,'::before'):null;
+    const hero=document.querySelector('.hero-visual');
     return {
       w:innerWidth,h:innerHeight,
       bodyClass:document.body.className,
       overflow:cs(document.body).overflowY,
-      introVisible:isVisible(intro),
-      introDisplay:cs(intro)?.display,
-      introOpacity:Number(cs(intro)?.opacity||0),
-      titleVisible:isVisible(title),
-      logoVisible:isVisible(logo),
-      skipVisible:isVisible(skip),
-      mainVisible:isVisible(main),
-      mainOpacity:Number(cs(main)?.opacity||0),
-      mainPointer:cs(main)?.pointerEvents,
-      scrollWidth:Math.max(document.documentElement.scrollWidth,document.body.scrollWidth),
-      scrollY
+      introVisible:isVisible(intro),introDisplay:cs(intro)?.display,introOpacity:Number(cs(intro)?.opacity||0),
+      titleVisible:isVisible(title),logoVisible:isVisible(logo),skipVisible:isVisible(skip),
+      introBackground:before?.backgroundImage||'',heroBackground:hero?getComputedStyle(hero).backgroundImage:'',
+      mainVisible:isVisible(main),mainOpacity:Number(cs(main)?.opacity||0),mainPointer:cs(main)?.pointerEvents,
+      scrollWidth:Math.max(document.documentElement.scrollWidth,document.body.scrollWidth),scrollY
     };
   });
 }
 
+async function assertOpening(page,label){
+  const s=await state(page);
+  must(s.introVisible&&s.introOpacity>.9,`${label}: branded intro is not visible ${JSON.stringify(s)}`);
+  must(s.titleVisible&&s.logoVisible,`${label}: Nariyal Sutra branding is not visible ${JSON.stringify(s)}`);
+  must(s.introBackground.includes('nariyal-coconut-grove.webp'),`${label}: approved intro background missing ${s.introBackground}`);
+  must(!s.heroBackground.includes('nariyal-coconut-grove.webp'),`${label}: intro image is incorrectly reused as homepage hero`);
+  must(!s.mainVisible||s.mainOpacity<.1||s.mainPointer==='none',`${label}: storefront should not compete with opening frame ${JSON.stringify(s)}`);
+  must(s.scrollWidth<=s.w+6,`${label}: horizontal overflow ${s.scrollWidth}>${s.w}`);
+}
+
 async function assertStorefrontReady(page,label){
   const s=await state(page);
-  must(!s.introVisible&&s.introDisplay==='none'&&s.introOpacity<.05,`${label}: rejected jungle intro is still visible ${JSON.stringify(s)}`);
-  must(!s.titleVisible&&!s.logoVisible&&!s.skipVisible,`${label}: legacy intro branding/skip leaked into viewport ${JSON.stringify(s)}`);
-  must(s.mainVisible&&s.mainOpacity>.9&&s.mainPointer!=='none',`${label}: storefront is not immediately usable ${JSON.stringify(s)}`);
-  must(s.overflow!=='hidden',`${label}: body is still scroll-locked ${JSON.stringify(s)}`);
+  must(!s.introVisible&&s.introDisplay==='none'&&s.introOpacity<.05,`${label}: intro did not complete ${JSON.stringify(s)}`);
+  must(!s.titleVisible&&!s.logoVisible&&!s.skipVisible,`${label}: intro controls leaked after completion ${JSON.stringify(s)}`);
+  must(s.mainVisible&&s.mainOpacity>.9&&s.mainPointer!=='none',`${label}: storefront is not usable after intro ${JSON.stringify(s)}`);
+  must(s.overflow!=='hidden',`${label}: body is still scroll-locked`);
   must(s.scrollWidth<=s.w+6,`${label}: horizontal overflow ${s.scrollWidth}>${s.w}`);
-  return s;
 }
 
 async function checkViewport(cfg,reducedMotion='no-preference'){
   const label=`${cfg.label}-${reducedMotion==='reduce'?'reduced':'normal'}`;
-  const context=await browser.newContext({
-    viewport:{width:cfg.width,height:cfg.height},
-    deviceScaleFactor:cfg.scale,
-    isMobile:cfg.mobile,
-    hasTouch:true,
-    reducedMotion,
-    serviceWorkers:'block'
-  });
+  const context=await browser.newContext({viewport:{width:cfg.width,height:cfg.height},deviceScaleFactor:cfg.scale,isMobile:cfg.mobile,hasTouch:true,reducedMotion,serviceWorkers:'block'});
   const page=await context.newPage();
-  const errors=[];
-  page.on('pageerror',e=>errors.push(String(e)));
+  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
   const res=await page.goto(BASE+'/',{waitUntil:'domcontentloaded',timeout:30000});
   must(res&&res.status()<400,`${label}: homepage returned ${res?.status()}`);
-  await page.waitForTimeout(350);
-
+  await page.waitForTimeout(450);
+  await assertOpening(page,label);
+  await page.screenshot({path:path.join(OUT,`${label}-opening.png`),fullPage:false});
+  await page.waitForFunction(()=>document.getElementById('jungle-intro')?.classList.contains('ji-done'),null,{timeout:6000});
+  await page.waitForTimeout(180);
   await assertStorefrontReady(page,label);
   await page.screenshot({path:path.join(OUT,`${label}-storefront.png`),fullPage:false});
-
-  /* Regression guard: even if old JS adds ns-intro-mobile later, the rejected intro must stay off. */
   await page.evaluate(()=>document.body.classList.add('ns-intro-mobile'));
   await page.waitForTimeout(80);
   await assertStorefrontReady(page,`${label}-forced-ns-intro-mobile`);
-  await page.screenshot({path:path.join(OUT,`${label}-forced-class.png`),fullPage:false});
-
   must(!errors.length,`${label}: page errors ${errors.join(' | ')}`);
   await context.close();
 }
 
 try{
-  const targets=[
-    {label:'mobile',width:390,height:844,scale:3,mobile:true},
-    {label:'tablet',width:820,height:1100,scale:2,mobile:true}
-  ];
-  for(const t of targets){
-    await checkViewport(t,'no-preference');
-    await checkViewport(t,'reduce');
-  }
-
+  const targets=[{label:'mobile',width:390,height:844,scale:3,mobile:true},{label:'tablet',width:820,height:1100,scale:2,mobile:true}];
+  for(const t of targets){await checkViewport(t,'no-preference');await checkViewport(t,'reduce');}
   console.log('MOBILE + TABLET ENTRY QA: PASS');
-} finally {
-  await browser.close();
-  server.kill();
-}
+} finally {await browser.close();server.kill();}
