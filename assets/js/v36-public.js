@@ -151,8 +151,6 @@
     };
     if(intro.dataset.nsIntroRestore!=='1'){
       intro.dataset.nsIntroRestore='1';
-      const observer=new MutationObserver(sync);
-      observer.observe(intro,{attributes:true,attributeFilter:['class']});
       const introGuard=setInterval(()=>{
         const deadline=Number(intro.dataset.nsIntroReadyAt||Infinity);
         const holding=!reduced&&intro.dataset.nsIntroUserSkip!=='1'&&intro.dataset.nsIntroDeadline!=='complete'&&performance.now()<deadline;
@@ -324,7 +322,7 @@
   }
 
   window.NS_V421_STABILIZATION={
-    build:'2026-09-13-bounded-intro-guard',
+    build:'2026-09-13-timer-only-intro-guard',
     guardedMedia:document.querySelectorAll('img,video').length,
     introDisabled:false,
     introDurationMs:3800,
