@@ -24,8 +24,12 @@ async function state(page){
     const skip=document.getElementById('ji-skip');
     const title=document.querySelector('#jungle-intro .ji-title-wrap');
     const logo=document.querySelector('#jungle-intro .ji-logo');
+    const eyebrow=document.querySelector('#jungle-intro .ji-eyebrow');
+    const tagline=document.querySelector('#jungle-intro .ji-tagline');
+    const hint=document.querySelector('#jungle-intro .ji-scroll-hint');
     const cs=e=>e?getComputedStyle(e):null;
     const rect=e=>e?e.getBoundingClientRect():null;
+    const box=e=>{const r=rect(e);return r?{left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height}:null;};
     const isVisible=e=>{if(!e)return false;const s=cs(e),r=rect(e);return s.display!=='none'&&s.visibility!=='hidden'&&Number(s.opacity||1)>.05&&r.width>2&&r.height>2;};
     const before=intro?getComputedStyle(intro,'::before'):null;
     const hero=document.querySelector('.hero-visual');
@@ -34,7 +38,8 @@ async function state(page){
       bodyClass:document.body.className,
       overflow:cs(document.body).overflowY,
       introVisible:isVisible(intro),introDisplay:cs(intro)?.display,introOpacity:Number(cs(intro)?.opacity||0),
-      titleVisible:isVisible(title),logoVisible:isVisible(logo),skipVisible:isVisible(skip),
+      titleVisible:isVisible(title),logoVisible:isVisible(logo),eyebrowVisible:isVisible(eyebrow),taglineVisible:isVisible(tagline),hintVisible:isVisible(hint),skipVisible:isVisible(skip),
+      titleBox:box(title),logoBox:box(logo),eyebrowBox:box(eyebrow),taglineBox:box(tagline),hintBox:box(hint),skipBox:box(skip),
       introBackground:before?.backgroundImage||'',heroBackground:hero?getComputedStyle(hero).backgroundImage:'',
       mainVisible:isVisible(main),mainOpacity:Number(cs(main)?.opacity||0),mainPointer:cs(main)?.pointerEvents,
       scrollWidth:Math.max(document.documentElement.scrollWidth,document.body.scrollWidth),scrollY
@@ -42,10 +47,22 @@ async function state(page){
   });
 }
 
+function assertInViewport(box,s,label,name,pad=1){
+  must(box,`${label}: ${name} bounds missing ${JSON.stringify(s)}`);
+  must(box.left>=-pad&&box.right<=s.w+pad,`${label}: ${name} clipped horizontally ${JSON.stringify({box,w:s.w})}`);
+  must(box.top>=-pad&&box.bottom<=s.h+pad,`${label}: ${name} clipped vertically ${JSON.stringify({box,h:s.h})}`);
+}
+
 async function assertOpening(page,label){
   const s=await state(page);
   must(s.introVisible&&s.introOpacity>.9,`${label}: branded intro is not visible ${JSON.stringify(s)}`);
-  must(s.titleVisible&&s.logoVisible,`${label}: Nariyal Sutra branding is not visible ${JSON.stringify(s)}`);
+  must(s.titleVisible&&s.logoVisible&&s.eyebrowVisible&&s.taglineVisible,`${label}: complete Nariyal Sutra branding is not visible ${JSON.stringify(s)}`);
+  assertInViewport(s.titleBox,s,label,'title block');
+  assertInViewport(s.logoBox,s,label,'NARIYAL SUTRA logo');
+  assertInViewport(s.eyebrowBox,s,label,'intro eyebrow');
+  assertInViewport(s.taglineBox,s,label,'intro tagline');
+  if(s.hintVisible)assertInViewport(s.hintBox,s,label,'intro supporting hint');
+  if(s.skipVisible)assertInViewport(s.skipBox,s,label,'intro skip control');
   must(s.introBackground.includes('nariyal-coconut-grove.webp'),`${label}: approved intro background missing ${s.introBackground}`);
   must(!s.heroBackground.includes('nariyal-coconut-grove.webp'),`${label}: intro image is incorrectly reused as homepage hero`);
   must(!s.mainVisible||s.mainOpacity<.1||s.mainPointer==='none',`${label}: storefront should not compete with opening frame ${JSON.stringify(s)}`);

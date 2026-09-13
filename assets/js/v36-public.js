@@ -33,7 +33,20 @@
       .water-window{background-image:linear-gradient(145deg,rgba(5,18,4,.08),rgba(2,8,1,.38)),url('/assets/images/freshness-coconut-splash.webp')!important}
       #live-motion{background-image:linear-gradient(145deg,rgba(5,18,4,.14),rgba(2,8,1,.55)),url('/assets/images/nariyal-hospitality.webp')!important;background-size:cover!important;background-position:center!important}
       @media(min-width:981px){#v20-story-film .v421-local-knife{width:clamp(210px,20vw,320px)!important;height:44px!important}#v20-story-film .v421-local-knife .blade{height:24px!important}#v20-story-film .v421-local-knife .handle{height:34px!important}#v20-story-film .v421-water-finish img{filter:saturate(1.08) contrast(1.05) brightness(.86)!important}}
-      @media(max-width:980px){#jungle-intro.ns-intro-owned::before{background-position:60% center;animation-duration:3.2s}#jungle-intro.ns-intro-owned .ji-title-wrap{width:calc(100% - 36px)!important;left:18px!important;right:auto!important;top:auto!important;bottom:14%!important;transform:none!important;text-align:left!important}}
+      @media(max-width:980px){
+        #jungle-intro.ns-intro-owned::before{background-position:60% center;animation-duration:3.2s}
+        #jungle-intro.ns-intro-owned .ji-title-wrap{left:20px!important;right:20px!important;width:auto!important;max-width:none!important;top:auto!important;bottom:14%!important;transform:none!important;text-align:left!important;box-sizing:border-box!important;overflow:visible!important}
+        #jungle-intro.ns-intro-owned .ji-eyebrow{font-size:clamp(9px,2.25vw,11px)!important;letter-spacing:clamp(2px,.8vw,5px)!important;line-height:1.5!important;max-width:100%!important;white-space:normal!important}
+        #jungle-intro.ns-intro-owned .ji-logo{font-size:clamp(42px,12.5vw,84px)!important;line-height:.9!important;letter-spacing:clamp(3px,1.4vw,8px)!important;width:100%!important;max-width:100%!important;white-space:normal!important;overflow:visible!important}
+        #jungle-intro.ns-intro-owned .ji-tagline{font-size:clamp(9px,2.45vw,12px)!important;letter-spacing:clamp(1.5px,.72vw,4px)!important;line-height:1.65!important;max-width:100%!important;white-space:normal!important;margin-top:16px!important}
+        #jungle-intro.ns-intro-owned .ji-scroll-hint{justify-content:flex-start!important;gap:10px!important;flex-wrap:wrap!important;margin-top:24px!important;max-width:100%!important}
+        #jungle-intro.ns-intro-owned .ji-scroll-hint span{font-size:9px!important;letter-spacing:clamp(1.5px,.6vw,3px)!important;white-space:normal!important}
+        #jungle-intro.ns-intro-owned .ji-scroll-line{width:clamp(22px,7vw,40px)!important;flex:0 0 auto!important}
+      }
+      @media(max-width:430px){
+        #jungle-intro.ns-intro-owned .ji-title-wrap{left:18px!important;right:18px!important;bottom:13%!important}
+        #jungle-intro.ns-intro-owned .ji-logo{font-size:clamp(40px,12vw,52px)!important;letter-spacing:clamp(2px,1.05vw,4px)!important}
+      }
       @media(prefers-reduced-motion:reduce){#jungle-intro.ns-intro-owned::before{animation:none!important;transform:scale(1.015)!important;filter:brightness(.9)!important}}
     `;document.head.appendChild(style);
   }
@@ -78,5 +91,5 @@
   let cinematicViewportRaf=0;const requestCinematicViewport=()=>{if(cinematicViewportRaf||innerWidth<=980)return;cinematicViewportRaf=requestAnimationFrame(()=>{cinematicViewportRaf=0;enforceCinematicViewport();});};addEventListener('scroll',requestCinematicViewport,{passive:true});addEventListener('resize',()=>{clearTimeout(enforceCinematicRunway.t);enforceCinematicRunway.t=setTimeout(()=>{enforceCinematicRunway();enforceCinematicViewport();},80);},{passive:true});
   const mo=new MutationObserver(records=>{let peopleChanged=false,filmTouched=false;for(const r of records){for(const n of r.addedNodes){if(n.nodeType!==1)continue;guardMedia(n);if(n.id==='v20-story-film'||n.classList?.contains('v20-story-sticky')||n.querySelector?.('#v20-story-film,.v20-story-sticky'))filmTouched=true;if(n.closest?.('#nsPeopleMarquee')||n.querySelector?.('#nsPeopleMarquee,.ns-face-rows'))peopleChanged=true;}}if(filmTouched)setTimeout(()=>{enforceCinematicRunway();enforceCinematicViewport();},0);if(peopleChanged)setTimeout(validatePeopleRail,120);});mo.observe(document.documentElement,{childList:true,subtree:true});setTimeout(validatePeopleRail,900);setTimeout(validatePeopleRail,2400);
   const sticky=document.querySelector('.sticky-bar');if(sticky){document.addEventListener('focusin',e=>{if(innerWidth<=768&&/^(INPUT|TEXTAREA|SELECT)$/.test(e.target?.tagName||''))sticky.classList.add('is-hidden');});document.addEventListener('focusout',()=>setTimeout(()=>sticky.classList.remove('is-hidden'),120));}
-  window.NS_V421_STABILIZATION={build:'2026-09-13-retired-legacy-intro',guardedMedia:document.querySelectorAll('img,video').length,introDisabled:false,introDurationMs:3800,reducedIntroDurationMs:REDUCED_INTRO_MS,introOwner:'v36-single-owner',introAsset:'/assets/images/nariyal-coconut-grove.webp',homepageHeroAsset:'/assets/images/nariyal-premium-hero.webp',desktopRunway:'390vh',cinematicLayerContract:'v421-visual-recovery',cinematicViewportContract:'v36-fixed-stage',viewport:{w:innerWidth,h:innerHeight}};
+  window.NS_V421_STABILIZATION={build:'2026-09-13-intro-safe-bounds',guardedMedia:document.querySelectorAll('img,video').length,introDisabled:false,introDurationMs:3800,reducedIntroDurationMs:REDUCED_INTRO_MS,introOwner:'v36-single-owner',introAsset:'/assets/images/nariyal-coconut-grove.webp',homepageHeroAsset:'/assets/images/nariyal-premium-hero.webp',desktopRunway:'390vh',cinematicLayerContract:'v421-visual-recovery',cinematicViewportContract:'v36-fixed-stage',viewport:{w:innerWidth,h:innerHeight}};
 })();
