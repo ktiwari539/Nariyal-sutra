@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-/* Homepage polish must never block or mutate the professional isolated cinematic. */
+/* Keep the deployed professional cinematic as the visual owner. Later code here is limited to non-cinematic media safety. */
 function zoomWords(){
   const nodes=[...document.querySelectorAll('main h1,main h2,section h2,.people-hero-copy h1,.sec-title')]
     .filter((x,i,a)=>a.indexOf(x)===i&&!x.closest('#jungle-intro')&&!x.closest('#v421-cinematic-film-pro'));
@@ -10,12 +10,21 @@ function zoomWords(){
   nodes.forEach(x=>io.observe(x));
 }
 function cleanDeadSpace(){document.querySelectorAll('section').forEach(sec=>{if(sec.hidden)return;const meaningful=sec.querySelector('img,video,form,article,h1,h2,h3,p,button,a,input,textarea,select');if(!meaningful&&!sec.id)sec.style.display='none';});}
+function applyMediaSafety(){
+  const trade=document.querySelector('.trade-route.trade-buy img');
+  if(trade&&/ws001-fresh-cut-ocean/.test(trade.currentSrc||trade.getAttribute('src')||'')){
+    trade.setAttribute('src','/assets/images/freshness-coconut-splash.webp');
+    trade.removeAttribute('srcset');
+    trade.alt='Fresh coconut water served after a clean cut';
+  }
+}
 function loadFinalPolish(){
   if(document.querySelector('script[data-ns-final-polish]'))return;
   const p=document.createElement('script');
   p.src='assets/js/v421-storefront-final-polish.js?v=20260911-depth-scroll-2';
   p.defer=true;
   p.dataset.nsFinalPolish='1';
+  p.onload=()=>{setTimeout(applyMediaSafety,40);setTimeout(applyMediaSafety,700);};
   document.head.appendChild(p);
 }
 function loadProfessionalCinematic(){
@@ -40,9 +49,11 @@ function init(){
   setTimeout(()=>{
     loadProfessionalCinematic();
     setTimeout(loadFinalPolish,500);
+    setTimeout(applyMediaSafety,1200);
     try{zoomWords();}catch(e){console.warn('[NS] zoomWords skipped',e);}
     try{cleanDeadSpace();}catch(e){console.warn('[NS] cleanDeadSpace skipped',e);}
   },80);
+  window.addEventListener('nsv421:change',()=>setTimeout(applyMediaSafety,80));
 }
 document.readyState==='loading'?document.addEventListener('DOMContentLoaded',init,{once:true}):init();
 })();
