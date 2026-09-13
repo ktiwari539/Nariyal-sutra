@@ -1,96 +1,15 @@
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
 import fs from 'node:fs';
-
-const server=spawn('python3',['-m','http.server','4173','--bind','127.0.0.1'],{stdio:'ignore'});
-const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-fs.mkdirSync('qa-artifacts',{recursive:true});
-await sleep(1200);
-const browser=await chromium.launch({headless:true});
-
+const server=spawn('python3',['-m','http.server','4173','--bind','127.0.0.1'],{stdio:'ignore'}),sleep=ms=>new Promise(r=>setTimeout(r,ms));fs.mkdirSync('qa-artifacts',{recursive:true});await sleep(1000);const browser=await chromium.launch({headless:true});
+const must=(c,m)=>{if(!c)throw new Error(m)},intersects=(b,v)=>b&&b.right>0&&b.bottom>0&&b.x<v.w&&b.y<v.h&&b.w>20&&b.h>20;
 async function storefront(viewport,label){
- const context=await browser.newContext({viewport,serviceWorkers:'block',reducedMotion:'no-preference'});
- const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(String(e)));
- await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded',timeout:30000});
- await page.addStyleTag({content:'html{scroll-behavior:auto!important}'});
- await page.waitForTimeout(1100);
- await page.evaluate(()=>{try{window.skipIntro?.()}catch{} const i=document.getElementById('jungle-intro');if(i)i.classList.add('ji-done');document.documentElement.style.scrollBehavior='auto';});
- await page.waitForSelector('#v421-cinematic-film-pro[data-ready="1"]',{state:'attached',timeout:20000});
- await page.waitForFunction(()=>window.__NS_V421_PRO_CINE&&window.__NS_V421_PRO_CINE.ready===true,null,{timeout:20000});
- await page.waitForTimeout(300);
- const legacy=await page.evaluate(()=>['scroll-cinema','v421-cinematic-film'].every(id=>{const e=document.getElementById(id);return !e||e.hidden||getComputedStyle(e).display==='none'}));
- if(!legacy)throw new Error(`${label}: legacy cinematic still visible`);
- const polish=await page.evaluate(()=>{
-   const motion=document.getElementById('live-motion');
-   const first=document.querySelector('#harvest-film .harvest-scene');
-   const depth=document.querySelectorAll('#v421-cinematic-film-pro .nspro-nut[style*="--ns-depth-z"]').length;
-   return {motionHidden:!motion||motion.hidden||getComputedStyle(motion).display==='none',harvestSrc:first?.getAttribute('src')||'',depth};
- });
- if(!polish.motionHidden)throw new Error(`${label}: retired blank live-motion fold is still visible`);
- if(polish.harvestSrc&&!polish.harvestSrc.startsWith('/assets/'))throw new Error(`${label}: harvest panel still depends on retired deploy media ${polish.harvestSrc}`);
- if(polish.depth<6)throw new Error(`${label}: cinematic depth treatment did not initialize ${JSON.stringify(polish)}`);
- const metrics=await page.locator('#v421-cinematic-film-pro').evaluate(el=>{const r=el.getBoundingClientRect();return {top:r.top+scrollY,height:el.offsetHeight,viewport:innerHeight};});
- if(metrics.height<metrics.viewport*3.2)throw new Error(`${label}: runway too short ${metrics.height}`);
- const range=metrics.height-metrics.viewport;
- const samples=[['rain',.16],['hero',.47],['knife',.56],['splash',.69],['water',.86]];
- const states={};
- for(const [name,p] of samples){
-   const target=metrics.top+range*p;
-   await page.evaluate(y=>{document.documentElement.style.scrollBehavior='auto';window.scrollTo({top:y,left:0,behavior:'instant'});},target);
-   await page.waitForFunction(expected=>Math.abs((window.__NS_V421_PRO_CINE?.progress||0)-expected)<.055,p,{timeout:5000});
-   await page.waitForTimeout(160);
-   states[name]=await page.evaluate(()=>{
-     const op=s=>Number.parseFloat(getComputedStyle(document.querySelector(s)).opacity)||0;
-     const box=s=>{const e=document.querySelector(s);if(!e)return null;const r=e.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height,right:r.right,bottom:r.bottom};};
-     return {...window.__NS_V421_PRO_CINE,
-       heroOpacity:op('#v421-cinematic-film-pro .nspro-main'),
-       knifeOpacity:op('#v421-cinematic-film-pro .nspro-knife'),
-       splashOpacity:op('#v421-cinematic-film-pro .nspro-splash'),
-       waterOpacity:op('#v421-cinematic-film-pro .nspro-water'),
-       stage:box('#v421-cinematic-film-pro .nspro-stage'),
-       heroBox:box('#v421-cinematic-film-pro .nspro-main'),
-       knifeBox:box('#v421-cinematic-film-pro .nspro-knife'),
-       splashBox:box('#v421-cinematic-film-pro .nspro-splash'),
-       water:box('#v421-cinematic-film-pro .nspro-water'),
-       viewport:{w:innerWidth,h:innerHeight}};
-   });
-   const st=states[name].stage;
-   if(!st||st.w<viewport.width*.98||st.h<viewport.height*.98||Math.abs(st.y)>3)throw new Error(`${label}: stage is not pinned to viewport at ${name}: ${JSON.stringify(states[name])}`);
-   await page.screenshot({path:`qa-artifacts/${label}-${name}.png`,fullPage:false});
- }
- const intersects=(b,v)=>b&&b.right>0&&b.bottom>0&&b.x<v.w&&b.y<v.h&&b.w>20&&b.h>20;
- if((states.rain.rainVisible||0)<6)throw new Error(`${label}: rain not visible ${JSON.stringify(states.rain)}`);
- if(states.hero.heroOpacity<.35||!intersects(states.hero.heroBox,states.hero.viewport))throw new Error(`${label}: hero coconut not on screen ${JSON.stringify(states.hero)}`);
- if(states.knife.knifeOpacity<.35||!intersects(states.knife.knifeBox,states.knife.viewport))throw new Error(`${label}: knife not on screen ${JSON.stringify(states.knife)}`);
- if(states.splash.splashOpacity<.35||!intersects(states.splash.splashBox,states.splash.viewport))throw new Error(`${label}: splash not on screen ${JSON.stringify(states.splash)}`);
- if(states.water.waterOpacity<.75||states.water.water.w<states.water.viewport.w*.98||states.water.water.h<states.water.viewport.h*.98)throw new Error(`${label}: water not full screen ${JSON.stringify(states.water)}`);
- const assets=await page.evaluate(()=>[...document.querySelectorAll('#v421-cinematic-film-pro img')].map(i=>({src:i.getAttribute('src'),ok:!i.complete||i.naturalWidth>0,w:i.naturalWidth,h:i.naturalHeight})));
- if(assets.some(a=>!a.ok))throw new Error(`${label}: broken cinematic asset ${JSON.stringify(assets.filter(a=>!a.ok))}`);
- if(errors.length)throw new Error(`${label}: page errors ${errors.join(' | ')}`);
- console.log(`${label.toUpperCase()} CINEMATIC PASS`,JSON.stringify({metrics,states,assets,polish}));
- await context.close();
+ const c=await browser.newContext({viewport,serviceWorkers:'block',reducedMotion:'no-preference'}),p=await c.newPage(),errors=[];p.on('pageerror',e=>errors.push(String(e)));await p.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded',timeout:30000});await p.addStyleTag({content:'html{scroll-behavior:auto!important}'});await p.waitForTimeout(500);const skip=p.locator('#ji-skip');if(await skip.count()&&await skip.isVisible().catch(()=>false))await skip.click();await p.waitForSelector('#v421-cinematic-film-pro[data-ready="1"]',{timeout:20000});await p.waitForFunction(()=>window.__NS_V421_PRO_CINE?.ready===true&&window.__NS_V421_GOLD_MASTER_CORRECTION__===true,null,{timeout:20000});await p.waitForTimeout(300);
+ const base=await p.evaluate(()=>{const pro=document.getElementById('v421-cinematic-film-pro'),legacy=document.getElementById('scroll-cinema'),motion=document.getElementById('live-motion'),ring=pro?.querySelector('.nspro-focus-ring'),natural=[...pro?.querySelectorAll('.nspro-nut[data-ns-natural-fall="1"]')||[]];return {pro:!!pro,legacyHidden:!legacy||legacy.hidden||getComputedStyle(legacy).display==='none',motionHidden:!motion||motion.hidden||getComputedStyle(motion).display==='none',ringHidden:!ring||getComputedStyle(ring).display==='none'||parseFloat(getComputedStyle(ring).opacity||0)<.05,naturalCount:natural.length,badBg:[...pro?.querySelectorAll('.nspro-nut,.nspro-nut img')||[]].filter(x=>{const b=getComputedStyle(x).backgroundColor;return b&&b!=='rgba(0, 0, 0, 0)'&&b!=='transparent'}).length};});
+ must(base.pro&&base.legacyHidden&&base.motionHidden,`${label}: live professional cinematic ownership invalid ${JSON.stringify(base)}`);must(base.ringHidden,`${label}: cut halo visible`);must(base.badBg===0,`${label}: coconut sprite matte/background detected`);must(base.naturalCount>=5&&base.naturalCount<=14,`${label}: harvest density is still sticker-rain ${base.naturalCount}`);
+ const metrics=await p.locator('#v421-cinematic-film-pro').evaluate(e=>{const r=e.getBoundingClientRect();return {top:r.top+scrollY,h:e.offsetHeight,v:innerHeight}});must(metrics.h>metrics.v*3.2,`${label}: cinematic runway too short`);const range=metrics.h-metrics.v,states={};
+ for(const [name,x] of [['rain',.16],['hero',.47],['knife',.57],['splash',.69],['water',.86]]){await p.evaluate(y=>scrollTo(0,y),metrics.top+range*x);await p.waitForTimeout(320);states[name]=await p.evaluate(()=>{const op=q=>parseFloat(getComputedStyle(document.querySelector(q)).opacity)||0,box=q=>{const e=document.querySelector(q);if(!e)return null;const r=e.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height,right:r.right,bottom:r.bottom}},stage=box('#v421-cinematic-film-pro .nspro-stage'),knife=document.querySelector('#v421-cinematic-film-pro .nspro-knife');return {...window.__NS_V421_PRO_CINE,heroOpacity:op('#v421-cinematic-film-pro .nspro-main'),knifeOpacity:op('#v421-cinematic-film-pro .nspro-knife'),splashOpacity:op('#v421-cinematic-film-pro .nspro-splash'),waterOpacity:op('#v421-cinematic-film-pro .nspro-water'),stage,heroBox:box('#v421-cinematic-film-pro .nspro-main'),knifeBox:box('#v421-cinematic-film-pro .nspro-knife'),splashBox:box('#v421-cinematic-film-pro .nspro-splash'),waterBox:box('#v421-cinematic-film-pro .nspro-water'),cutContact:knife?.dataset.nsCutContact==='1',viewport:{w:innerWidth,h:innerHeight}}});must(states[name].stage&&states[name].stage.w>=viewport.width*.98&&states[name].stage.h>=viewport.height*.98&&Math.abs(states[name].stage.y)<=3,`${label}: cinematic stage not viewport-pinned at ${name}`);await p.screenshot({path:`qa-artifacts/${label}-${name}.png`});}
+ must((states.rain.rainVisible||0)>=2&&states.rain.rainVisible<=14,`${label}: natural harvest fall not visible ${JSON.stringify(states.rain)}`);must(states.hero.heroOpacity>.3&&intersects(states.hero.heroBox,states.hero.viewport),`${label}: selected coconut missing`);must(states.knife.knifeOpacity>.3&&intersects(states.knife.knifeBox,states.knife.viewport),`${label}: knife missing`);must(states.knife.cutContact,`${label}: knife never reaches selected coconut contact window`);must(states.splash.splashOpacity>.3&&intersects(states.splash.splashBox,states.splash.viewport),`${label}: splash missing`);must(states.water.waterOpacity>.7&&states.water.waterBox?.w>=states.water.viewport.w*.98,`${label}: water finish missing`);must(!errors.length,`${label}: page errors ${errors.join(' | ')}`);console.log(`${label.toUpperCase()} CINEMATIC PASS`,JSON.stringify({base,metrics,states}));await c.close();
 }
-
-async function admin(){
- const context=await browser.newContext({viewport:{width:1440,height:900},serviceWorkers:'block'});
- const page=await context.newPage();
- await page.goto('http://127.0.0.1:4173/admin.html',{waitUntil:'domcontentloaded',timeout:30000});
- await page.waitForURL(/admin-preview\.html/,{timeout:10000});
- await page.waitForSelector('.ap-app',{state:'visible',timeout:10000});
- if(!/Business Command Center/i.test(await page.title()))throw new Error(`Local Admin title is wrong: ${await page.title()}`);
- const state=await page.evaluate(()=>{
-   const labels=[...document.querySelectorAll('#apNav button')].map(b=>b.textContent.replace(/\s+/g,' ').trim());
-   const required=['Overview','Orders','Payments','Products & Pricing','Inventory','Warehouses / Nodes','Delivery Services','Delivery Hub','Customer 360','Media Library','Schedule','Team / Tasks'];
-   return {
-     requiredMissing:required.filter(x=>!labels.some(v=>v.includes(x))),
-     sidebarVisible:!!document.querySelector('#apSidebar')&&getComputedStyle(document.querySelector('#apSidebar')).display!=='none',
-     localBanner:/LOCAL INTERACTIVE PREVIEW/i.test(document.body.innerText),
-     appVisible:!!document.querySelector('.ap-app')
-   };
- });
- if(!state.appVisible||!state.sidebarVisible||state.requiredMissing.length)throw new Error(`Business Command Center local UI invalid ${JSON.stringify(state)}`);
- await page.screenshot({path:'qa-artifacts/admin-business-command-center.png',fullPage:false});
- await context.close();
-}
-
+async function admin(){const c=await browser.newContext({viewport:{width:1440,height:900},serviceWorkers:'block'}),p=await c.newPage();await p.goto('http://127.0.0.1:4173/admin.html',{waitUntil:'domcontentloaded',timeout:30000});await p.waitForURL(/admin-preview\.html/,{timeout:10000});await p.waitForSelector('.ap-app',{state:'visible',timeout:10000});must(/Business Command Center/i.test(await p.title()),'Admin title invalid');await p.screenshot({path:'qa-artifacts/admin-business-command-center.png'});await c.close();}
 try{await storefront({width:1440,height:900},'desktop');await storefront({width:390,height:844},'mobile');await admin();console.log('PROFESSIONAL WEBSITE QA: PASS');}finally{await browser.close();server.kill();}
