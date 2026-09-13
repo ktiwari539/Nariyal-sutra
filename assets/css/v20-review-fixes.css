@@ -13,12 +13,11 @@
 #v20-story-film .v20-story-copy-grove{top:28%!important}
 #v20-story-film .v20-story-copy-cut{top:28%!important}
 #v20-story-film .v20-handoff-label{z-index:22!important;background:rgba(2,8,1,.38);padding:8px 12px;border-radius:999px;backdrop-filter:blur(8px)}
-/* The choreography variables are authoritative; later legacy rules must not hide or collapse their rendered layers. */
-#v20-story-film .v20-story-coconut.v21-photo-coconut{display:block!important;visibility:visible!important;position:absolute!important;left:var(--hero-x,58%)!important;top:var(--hero-y,56vh)!important;width:clamp(320px,23.2vw,430px)!important;height:clamp(440px,31.9vw,592px)!important;z-index:24!important;transform:translate(-50%,-50%) rotate(var(--hero-rot,-1.2deg)) scale(var(--hero-scale,.98))!important;opacity:var(--hero-alpha,0)!important}
-#v20-story-film .v20-story-coconut.v21-photo-coconut>img{display:block!important;visibility:visible!important;position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:contain!important}
-#v20-story-film .v20-knife{display:block!important;visibility:visible!important;position:absolute!important;left:50%!important;top:49.6%!important;width:clamp(310px,40vw,620px)!important;height:clamp(90px,9vw,145px)!important;z-index:25!important;opacity:var(--knife-alpha,0)!important;transform:translate3d(calc(-50% + var(--knife-x,-78vw)),calc(var(--knife-y,0)*1px),0) rotate(-9deg)!important}
-#v20-story-film .v20-story-coconut.v21-photo-coconut .water-stream{display:block!important;visibility:visible!important;opacity:var(--stream-alpha,var(--stream-opacity,0))!important}
-#v20-story-film .v20-water-fill{display:block!important;visibility:visible!important;position:absolute!important;left:-6%!important;right:-6%!important;bottom:-6%!important;min-height:0!important;height:var(--water-height,0)!important;z-index:30!important;opacity:var(--water-alpha,0)!important}
+/* The choreography variables are authoritative; later legacy rules must not hide their rendered layers. */
+#v20-story-film .v20-story-coconut{display:block!important;visibility:visible!important;z-index:24!important;opacity:var(--hero-alpha,0)!important}
+#v20-story-film .v20-knife{display:block!important;visibility:visible!important;z-index:25!important;opacity:var(--knife-alpha,0)!important}
+#v20-story-film .v20-story-coconut .water-stream{display:block!important;visibility:visible!important;opacity:var(--stream-alpha,var(--stream-opacity,0))!important}
+#v20-story-film .v20-water-fill{display:block!important;visibility:visible!important;z-index:30!important;opacity:var(--water-alpha,0)!important}
 #v20-story-film .v20-water-message,#v20-story-film .v20-end-copy{z-index:31!important}
 .v20-origin-note{position:absolute;z-index:20;right:5vw;bottom:7vh;max-width:300px;padding:12px 14px;border:1px solid rgba(212,168,67,.18);background:rgba(2,8,1,.48);backdrop-filter:blur(12px);font:500 8px/1.6 Jost,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.62);opacity:var(--origin-note-alpha,0);transition:opacity .35s}
 /* Never allow legacy CSS coconut objects from experimental builds. */
