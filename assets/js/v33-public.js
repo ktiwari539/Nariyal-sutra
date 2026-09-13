@@ -114,8 +114,39 @@ function premiumHarvest(){
   render();
 }
 
+/* Mobile/tablet intro wordmark stabilization.
+   The legacy .ji-logo-break anonymous-line layout compresses the second word and
+   can visually smear/clamp SUTRA even when the outer title wrapper is in bounds.
+   Give each word an explicit line box and neutralize child-level legacy transforms. */
+function stabilizeIntroWordmark(){
+  const intro=$('#jungle-intro');
+  const logo=$('.ji-logo',intro||document);
+  if(!intro||!logo)return;
+
+  if(!logo.dataset.nsWordmarkStable){
+    logo.innerHTML='<span class="ns-wordmark-line ns-wordmark-nariyal"><span class="ji-logo-n">N</span>ARIYAL</span><span class="ns-wordmark-line ns-wordmark-sutra"><span class="ji-logo-s">S</span>UTRA</span>';
+    logo.dataset.nsWordmarkStable='1';
+  }
+
+  if(!document.getElementById('ns-v33-wordmark-guard')){
+    const style=document.createElement('style');
+    style.id='ns-v33-wordmark-guard';
+    style.textContent=`
+      @media(max-width:980px){
+        html body #jungle-intro .ji-logo[data-ns-wordmark-stable="1"]{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:.08em!important;line-height:1!important;overflow:visible!important;white-space:normal!important}
+        html body #jungle-intro .ji-logo[data-ns-wordmark-stable="1"] .ns-wordmark-line{display:block!important;position:static!important;width:max-content!important;max-width:100%!important;height:auto!important;min-height:1em!important;margin:0!important;padding:0!important;opacity:1!important;visibility:visible!important;transform:none!important;filter:none!important;clip:auto!important;clip-path:none!important;overflow:visible!important;white-space:nowrap!important;line-height:1!important}
+        html body #jungle-intro .ji-logo[data-ns-wordmark-stable="1"] .ns-wordmark-sutra{margin-top:.04em!important}
+        html body #jungle-intro .ji-logo[data-ns-wordmark-stable="1"] .ji-logo-n,
+        html body #jungle-intro .ji-logo[data-ns-wordmark-stable="1"] .ji-logo-s{display:inline!important;position:static!important;opacity:1!important;visibility:visible!important;transform:none!important;filter:none!important;clip:auto!important;clip-path:none!important}
+      }
+    `;
+    document.head.appendChild(style);
+  }
+}
+
 function init(){
   repairCinematicPlacement();
+  stabilizeIntroWordmark();
   /* V32 will react to the store change, then V33 applies the premium harvest after older harvest enrichers. */
   setTimeout(premiumHarvest,420);
 }

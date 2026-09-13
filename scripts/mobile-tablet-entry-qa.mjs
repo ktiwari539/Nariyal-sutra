@@ -27,6 +27,7 @@ async function state(page){
     const eyebrow=document.querySelector('#jungle-intro .ji-eyebrow');
     const tagline=document.querySelector('#jungle-intro .ji-tagline');
     const hint=document.querySelector('#jungle-intro .ji-scroll-hint');
+    const wordmarkLines=[...document.querySelectorAll('#jungle-intro .ji-logo .ns-wordmark-line')];
     const cs=e=>e?getComputedStyle(e):null;
     const rect=e=>e?e.getBoundingClientRect():null;
     const box=e=>{const r=rect(e);return r?{left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height}:null;};
@@ -40,6 +41,8 @@ async function state(page){
       introVisible:isVisible(intro),introDisplay:cs(intro)?.display,introOpacity:Number(cs(intro)?.opacity||0),
       titleVisible:isVisible(title),logoVisible:isVisible(logo),eyebrowVisible:isVisible(eyebrow),taglineVisible:isVisible(tagline),hintVisible:isVisible(hint),skipVisible:isVisible(skip),
       titleBox:box(title),logoBox:box(logo),eyebrowBox:box(eyebrow),taglineBox:box(tagline),hintBox:box(hint),skipBox:box(skip),
+      wordmarkText:(logo?.innerText||'').replace(/\s+/g,' ').trim().toUpperCase(),
+      wordmarkLines:wordmarkLines.map(e=>({text:(e.textContent||'').trim().toUpperCase(),box:box(e),visible:isVisible(e),opacity:Number(cs(e)?.opacity||0),filter:cs(e)?.filter||'none',transform:cs(e)?.transform||'none'})),
       introBackground:before?.backgroundImage||'',heroBackground:hero?getComputedStyle(hero).backgroundImage:'',
       mainVisible:isVisible(main),mainOpacity:Number(cs(main)?.opacity||0),mainPointer:cs(main)?.pointerEvents,
       scrollWidth:Math.max(document.documentElement.scrollWidth,document.body.scrollWidth),scrollY
@@ -53,6 +56,21 @@ function assertInViewport(box,s,label,name,pad=1){
   must(box.top>=-pad&&box.bottom<=s.h+pad,`${label}: ${name} clipped vertically ${JSON.stringify({box,h:s.h})}`);
 }
 
+function assertWordmark(s,label){
+  must(s.wordmarkText==='NARIYAL SUTRA',`${label}: wordmark text changed ${JSON.stringify(s.wordmarkText)}`);
+  must(s.wordmarkLines.length===2,`${label}: expected two explicit wordmark lines ${JSON.stringify(s.wordmarkLines)}`);
+  const [nariyal,sutra]=s.wordmarkLines;
+  must(nariyal.text==='NARIYAL'&&sutra.text==='SUTRA',`${label}: wordmark line content invalid ${JSON.stringify(s.wordmarkLines)}`);
+  for(const [name,line] of [['NARIYAL',nariyal],['SUTRA',sutra]]){
+    must(line.visible&&line.opacity>.8,`${label}: ${name} line is not clearly visible ${JSON.stringify(line)}`);
+    must(line.box?.width>40&&line.box?.height>20,`${label}: ${name} line has trivial visible bounds ${JSON.stringify(line)}`);
+    assertInViewport(line.box,s,label,`${name} wordmark line`,2);
+    must(line.filter==='none',`${label}: ${name} line has residual filter ${line.filter}`);
+    must(line.transform==='none',`${label}: ${name} line has residual transform ${line.transform}`);
+  }
+  must(sutra.box.top>=nariyal.box.bottom-4,`${label}: SUTRA overlaps NARIYAL ${JSON.stringify({nariyal:nariyal.box,sutra:sutra.box})}`);
+}
+
 async function assertOpening(page,label){
   const s=await state(page);
   must(s.introVisible&&s.introOpacity>.9,`${label}: branded intro is not visible ${JSON.stringify(s)}`);
@@ -61,6 +79,7 @@ async function assertOpening(page,label){
   assertInViewport(s.logoBox,s,label,'NARIYAL SUTRA logo');
   assertInViewport(s.eyebrowBox,s,label,'intro eyebrow');
   assertInViewport(s.taglineBox,s,label,'intro tagline');
+  assertWordmark(s,label);
   if(s.hintVisible)assertInViewport(s.hintBox,s,label,'intro supporting hint');
   if(s.skipVisible)assertInViewport(s.skipBox,s,label,'intro skip control');
   must(s.introBackground.includes('nariyal-coconut-grove.webp'),`${label}: approved intro background missing ${s.introBackground}`);
