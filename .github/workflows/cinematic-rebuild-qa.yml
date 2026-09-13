@@ -24,6 +24,9 @@ jobs:
       - name: Capture supplied media recovery candidates
         run: node scripts/media-recovery-contact-sheet.mjs
         timeout-minutes: 10
+      - name: Gold-master visual regression QA
+        run: node scripts/gold-master-visual-qa.mjs
+        timeout-minutes: 12
       - name: Cinematic and secure Admin entry QA
         run: node scripts/cinematic-professional-qa.mjs
         timeout-minutes: 12
