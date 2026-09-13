@@ -14,6 +14,7 @@ const WS={
 };
 const LARGE_GREEN_FALLBACK='/assets/images/nariyal-product-collection.webp';
 const LARGE_SOURCE_FALLBACK='/assets/images/nariyal-coconut-grove.webp';
+const LARGE_HOSPITALITY_FALLBACK='/assets/images/nariyal-premium-hero.webp';
 
 function local(src){return src.startsWith('/')?src:'/'+src;}
 function pathOf(src){try{return new URL(src,location.href).pathname;}catch(_){return src||'';}}
@@ -60,7 +61,7 @@ function pageFallback(img){
   'direct-farm.html':LARGE_SOURCE_FALLBACK,
   'freshness-first.html':'/assets/images/freshness-coconut-splash.webp',
   'fresh-tender-coconut.html':'/assets/images/nariyal-product-collection.webp',
-  'coconut-events-hospitality.html':WS.hospitality,
+  'coconut-events-hospitality.html':LARGE_HOSPITALITY_FALLBACK,
   'green-coconut.html':LARGE_GREEN_FALLBACK,
   'bulk-coconut-supply.html':'/assets/images/bulk-coconut-pack.jpg',
   'gujarat-coast.html':'/assets/images/review/coastal-grove.png',
@@ -137,9 +138,9 @@ function applyPageVisuals(){
     replaceEmptyVideo('.sp-video video',[LARGE_GREEN_FALLBACK,'/assets/images/nariyal-premium-hero.webp','/assets/images/nariyal-coconut-grove.webp'],'Green coconut product study');
     break;
   case 'coconut-events-hospitality.html':
-    setImg('.sp-scenes .sp-scene:nth-child(1)',WS.hospitality,'Fresh-cut coconut hospitality and event presentation');
+    setImg('.sp-scenes .sp-scene:nth-child(1)',LARGE_HOSPITALITY_FALLBACK,'Fresh-cut coconut hospitality and event presentation');
     setImg('.sp-scenes .sp-scene:nth-child(3)','/assets/images/bulk-coconut-pack.jpg','Event-scale coconut presentation');
-    replaceEmptyVideo('.sp-video video',[WS.harvestHands,WS.hospitality,WS.productBasket],'Coconut preparation and hospitality study');
+    replaceEmptyVideo('.sp-video video',[LARGE_HOSPITALITY_FALLBACK,'/assets/images/nariyal-product-collection.webp','/assets/images/nariyal-coconut-grove.webp'],'Coconut preparation and hospitality study');
     break;
   case 'coconut-water.html':
     setImg('.cw-visual img','/assets/images/brand/coconut-premium.webp','Fresh green tender coconut opened for coconut water');
