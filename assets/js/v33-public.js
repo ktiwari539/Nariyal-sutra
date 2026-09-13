@@ -4,20 +4,14 @@ const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>[...r.querySelectorAll(s)];
 const Store=window.NSV421Store;
 
+/* V32 owns the approved default homepage order and Admin owns all later sequencing.
+   V33 must not move the cinematic again after an Admin change. */
 function repairCinematicPlacement(){
   if(!Store||!/(^|\/)index\.html$|\/$/.test(location.pathname))return;
   const s=Store.load();
   if(!s||s.v33CinematicPlacementSchema===1)return;
-  const list=Array.isArray(s.sections)?s.sections.slice().sort((a,b)=>(+a.order||999)-(+b.order||999)):[];
-  const ix=list.findIndex(x=>x.id==='cinematic');
-  if(ix>=0){
-    const [cinematic]=list.splice(ix,1);
-    list.splice(Math.min(3,list.length),0,cinematic);
-    list.forEach((x,i)=>x.order=i+1);
-    s.sections=list;
-  }
   s.v33CinematicPlacementSchema=1;
-  try{Store.audit?.(s,'V33 cinematic placement','Moved source-to-cut cinematic to storefront position 4; Admin retains future sequencing control.');}catch(e){}
+  try{Store.audit?.(s,'V33 cinematic placement adopted','Accepted the V32/Admin-managed homepage sequence without overriding it.');}catch(e){}
   Store.save(s);
 }
 
