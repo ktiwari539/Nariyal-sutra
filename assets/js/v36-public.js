@@ -2,7 +2,7 @@
   'use strict';
 
   const INTRO_MS=3800;
-  const REDUCED_INTRO_MS=650;
+  const REDUCED_INTRO_MS=1200;
   const DEPLOY_HOST_RE=/^[a-f0-9]{20,}--nariyal-sutra\.netlify\.app$/i;
 
   function isDeployScoped(url){try{return DEPLOY_HOST_RE.test(new URL(url,location.href).hostname);}catch(_){return false;}}
@@ -75,11 +75,12 @@
   function startIntroOwner(){
     if(introOwner.started)return;
     const intro=document.getElementById('jungle-intro'),skip=document.getElementById('ji-skip'),main=document.getElementById('main-site');if(!intro||!main)return;
+    window.introActive=false;
     introOwner.started=true;introOwner.reduced=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
     holdIntro(intro,skip,main);
     introOwner.enforcer=setInterval(()=>holdIntro(intro,skip,main),60);
     introOwner.timer=setTimeout(()=>finishIntro(introOwner.reduced?'reduced':'timer'),introOwner.reduced?REDUCED_INTRO_MS:INTRO_MS);
-    skip?.addEventListener('click',()=>{queueMicrotask(()=>finishIntro('skip'));},{capture:true,once:true});
+    skip?.addEventListener('click',()=>finishIntro('skip'),{capture:true,once:true});
   }
 
   function enforceCinematicRunway(){
