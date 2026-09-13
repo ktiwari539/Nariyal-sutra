@@ -37,7 +37,7 @@
       .hero-visual{background-image:linear-gradient(145deg,rgba(5,18,4,.08),rgba(2,8,1,.52)),url('/assets/images/nariyal-premium-hero.webp')!important}
       [data-product-card='tender'] .pc-img-wrap{background-image:url('/assets/images/nariyal-product-collection.webp')!important}
       [data-product-card='green'] .pc-img-wrap{background-image:url('/assets/images/green-round-coconut.jpg')!important}
-      [data-product-card='bulk'] .pc-img-wrap{background-image:url('/assets/images/bulk-coconut-pack.jpg')!important}
+      [data-product-card='bulk'] .pc-img-wrap{background-image:url('/assets/images/brand/coconut-premium.webp')!important}
       #harvest-film .film-frame{background-image:linear-gradient(145deg,rgba(5,18,4,.08),rgba(2,8,1,.45)),url('/assets/images/harvest-wall-organic.jpg')!important}
       .water-window{background-image:linear-gradient(145deg,rgba(5,18,4,.08),rgba(2,8,1,.38)),url('/assets/images/freshness-coconut-splash.webp')!important}
       #live-motion{background-image:linear-gradient(145deg,rgba(5,18,4,.14),rgba(2,8,1,.55)),url('/assets/images/nariyal-hospitality.webp')!important;background-size:cover!important;background-position:center!important}
@@ -60,13 +60,15 @@
   function releaseScrollAndMain(){
     const main=document.getElementById('main-site');if(!main)return;
     ['height','overflow'].forEach(p=>document.body?.style.removeProperty(p));document.body?.classList.remove('ns-intro-owned','ns-intro-mobile');document.body?.classList.add('v30-intro-done');
-    main.classList.add('visible');main.style.setProperty('opacity','1','important');main.style.setProperty('visibility','visible','important');main.style.setProperty('pointer-events','auto','important');main.style.removeProperty('transition');
+    main.classList.add('visible');main.style.setProperty('transition','none','important');main.style.setProperty('opacity','1','important');main.style.setProperty('visibility','visible','important');main.style.setProperty('pointer-events','auto','important');
   }
   function finishIntro(reason){
     if(introOwner.finished)return;introOwner.finished=true;clearInterval(introOwner.enforcer);clearTimeout(introOwner.timer);
     const intro=document.getElementById('jungle-intro'),skip=document.getElementById('ji-skip');if(!intro)return;
-    intro.dataset.nsIntroDeadline='complete';intro.classList.remove('ns-intro-owned');intro.classList.add('ji-done');releaseScrollAndMain();
-    if(skip){skip.style.setProperty('opacity','0','important');skip.style.setProperty('pointer-events','none','important');skip.style.setProperty('display','none','important');}
+    intro.dataset.nsIntroDeadline='complete';intro.classList.remove('ns-intro-owned');intro.classList.add('ji-done');
+    intro.style.setProperty('display','none','important');intro.style.setProperty('visibility','hidden','important');intro.style.setProperty('opacity','0','important');intro.style.setProperty('pointer-events','none','important');
+    releaseScrollAndMain();
+    if(skip){skip.style.setProperty('opacity','0','important');skip.style.setProperty('visibility','hidden','important');skip.style.setProperty('pointer-events','none','important');skip.style.setProperty('display','none','important');}
     if(reason==='timer'&&innerWidth>980){try{window.dispatchEvent(new WheelEvent('wheel',{deltaY:0}));}catch(_){}}
     requestAnimationFrame(()=>{enforceCinematicRunway();enforceCinematicViewport();});
   }
@@ -98,7 +100,7 @@
     const script=document.createElement('script');script.id='ns-v421-visual-recovery-runtime';script.src='assets/js/v421-visual-recovery.js';script.async=false;script.onload=()=>{enforceCinematicRunway();enforceCinematicViewport();};document.head.appendChild(script);
   }
   function assignDistinctProductImages(){
-    const map={tender:'/assets/images/nariyal-product-collection.webp',green:'/assets/images/green-round-coconut.jpg',bulk:'/assets/images/bulk-coconut-pack.jpg'};
+    const map={tender:'/assets/images/nariyal-product-collection.webp',green:'/assets/images/green-round-coconut.jpg',bulk:'/assets/images/brand/coconut-premium.webp'};
     Object.entries(map).forEach(([key,src])=>{const img=document.querySelector(`[data-product-card="${key}"] .pc-img-wrap img`);if(!img)return;img.src=src;img.removeAttribute('srcset');img.dataset.nsProductAsset=key;});
   }
   function validatePeopleRail(){
