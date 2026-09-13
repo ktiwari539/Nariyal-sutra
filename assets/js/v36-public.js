@@ -140,19 +140,38 @@
   function enforceCinematicViewport(){
     const film=document.getElementById('v20-story-film');
     if(!film||innerWidth<=980)return;
-    const sticky=film.querySelector('.v20-story-sticky');
-    if(!sticky)return;
-    sticky.style.setProperty('position','sticky','important');
-    sticky.style.setProperty('top','0','important');
-    sticky.style.setProperty('left','0','important');
-    sticky.style.setProperty('right','0','important');
-    sticky.style.setProperty('height','100vh','important');
-    sticky.style.setProperty('min-height','680px','important');
-    sticky.style.setProperty('overflow','hidden','important');
-    sticky.style.setProperty('isolation','isolate','important');
-    sticky.style.setProperty('transform','none','important');
+    const stage=film.querySelector('.v20-story-sticky');
+    if(!stage)return;
+    const rect=film.getBoundingClientRect();
+    const active=rect.top<=0&&rect.bottom>=innerHeight;
+    stage.style.setProperty('left','0','important');
+    stage.style.setProperty('right','0','important');
+    stage.style.setProperty('height','100vh','important');
+    stage.style.setProperty('min-height','680px','important');
+    stage.style.setProperty('overflow','hidden','important');
+    stage.style.setProperty('isolation','isolate','important');
+    stage.style.setProperty('transform','none','important');
+    if(active){
+      stage.style.setProperty('position','fixed','important');
+      stage.style.setProperty('top','0','important');
+      stage.style.setProperty('bottom','auto','important');
+      stage.style.setProperty('width','100vw','important');
+      film.dataset.nsViewportState='active';
+    }else{
+      stage.style.setProperty('position','absolute','important');
+      stage.style.setProperty('width','100%','important');
+      if(rect.top>0){
+        stage.style.setProperty('top','0','important');
+        stage.style.setProperty('bottom','auto','important');
+        film.dataset.nsViewportState='before';
+      }else{
+        stage.style.setProperty('top','auto','important');
+        stage.style.setProperty('bottom','0','important');
+        film.dataset.nsViewportState='after';
+      }
+    }
     film.dataset.nsLayerContract='v421-visual-recovery';
-    film.dataset.nsViewportContract='v36-sticky-viewport';
+    film.dataset.nsViewportContract='v36-fixed-stage';
   }
 
   function ensureCinematicOwner(){
@@ -203,6 +222,9 @@
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',stabilize,{once:true});
   [0,120,450,1000,2200].forEach(ms=>setTimeout(stabilize,ms));
+  let cinematicViewportRaf=0;
+  const requestCinematicViewport=()=>{if(cinematicViewportRaf||innerWidth<=980)return;cinematicViewportRaf=requestAnimationFrame(()=>{cinematicViewportRaf=0;enforceCinematicViewport();});};
+  addEventListener('scroll',requestCinematicViewport,{passive:true});
   addEventListener('resize',()=>{clearTimeout(enforceCinematicRunway.t);enforceCinematicRunway.t=setTimeout(()=>{enforceCinematicRunway();enforceCinematicViewport();},80);},{passive:true});
 
   const mo=new MutationObserver(records=>{
@@ -232,12 +254,12 @@
   }
 
   window.NS_V421_STABILIZATION={
-    build:'2026-09-13-single-cinematic-owner',
+    build:'2026-09-13-deterministic-cinematic-stage',
     guardedMedia:document.querySelectorAll('img,video').length,
     introDisabled:true,
     desktopRunway:'390vh',
     cinematicLayerContract:'v421-visual-recovery',
-    cinematicViewportContract:'v36-sticky-viewport',
+    cinematicViewportContract:'v36-fixed-stage',
     viewport:{w:innerWidth,h:innerHeight}
   };
 })();
