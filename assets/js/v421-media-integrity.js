@@ -13,6 +13,7 @@ const WS={
  coastSunset:'/assets/images/website-media/ws010-coast-sunset-grove.webp'
 };
 const LARGE_GREEN_FALLBACK='/assets/images/nariyal-product-collection.webp';
+const LARGE_SOURCE_FALLBACK='/assets/images/nariyal-coconut-grove.webp';
 
 function local(src){return src.startsWith('/')?src:'/'+src;}
 function pathOf(src){try{return new URL(src,location.href).pathname;}catch(_){return src||'';}}
@@ -56,7 +57,7 @@ function pageFallback(img){
  if(img.closest?.('#cut-story,.water-window,.cw-image-panel'))return '/assets/images/freshness-coconut-splash.webp';
  const map={
   'supplier-partnership.html':WS.fieldHarvest,
-  'direct-farm.html':WS.coastSunset,
+  'direct-farm.html':LARGE_SOURCE_FALLBACK,
   'freshness-first.html':'/assets/images/freshness-coconut-splash.webp',
   'fresh-tender-coconut.html':'/assets/images/nariyal-product-collection.webp',
   'coconut-events-hospitality.html':WS.hospitality,
@@ -123,7 +124,7 @@ function applyPageVisuals(){
     setImg('.supplier-photo img',WS.harvestHands,'Hands-on coconut harvest and source handling');
     break;
   case 'direct-farm.html':
-    setImg('.w-hero-media img',WS.coastSunset,'Direct coconut sourcing from coastal groves');
+    setImg('.w-hero-media img',LARGE_SOURCE_FALLBACK,'Direct coconut sourcing from coastal groves');
     setImg('.brand-portrait img',WS.productBasket,'Fresh tender coconuts prepared after sourcing');
     break;
   case 'freshness-first.html':

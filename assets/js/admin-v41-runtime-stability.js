@@ -3,7 +3,7 @@
 if(window.__NS_V421_ADMIN_RUNTIME_STABILITY__)return;
 window.__NS_V421_ADMIN_RUNTIME_STABILITY__=true;
 
-let repairTimer=0;
+let repairTimer=0,authoritativeTimer=0;
 function ensureHost(){
   const view=document.querySelector('.ap-view[data-view="pages"]');
   if(!view)return null;
@@ -20,13 +20,28 @@ function ensureHost(){
   }
   host.dataset.v41Recovered='1';
   host.dataset.nsPlacementContract='v1';
-  if(created)setTimeout(()=>window.dispatchEvent(new CustomEvent('nsv421:change')),0);
+  if(created)requestAuthoritativeRender(0);
+  return host;
+}
+function requestAuthoritativeRender(ms=0){
+  if(!window.__NS_V421_ADMIN_V40__)return;
+  clearTimeout(authoritativeTimer);
+  authoritativeTimer=setTimeout(()=>window.dispatchEvent(new CustomEvent('nsv421:change')),ms);
+}
+function ensureAuthoritativeHost(){
+  const host=ensureHost();
+  if(!host)return null;
+  if(window.__NS_V421_ADMIN_V40__&&(host.dataset.v40Owned!=='1'||!host.querySelector('[data-v40-target]'))){
+    requestAuthoritativeRender(0);
+    return host;
+  }
   return host;
 }
 
 function decorateCompatibility(){
-  const host=ensureHost();
+  const host=ensureAuthoritativeHost();
   if(!host)return null;
+  if(window.__NS_V421_ADMIN_V40__&&(host.dataset.v40Owned!=='1'||!host.querySelector('[data-v40-target]')))return host;
   const state=window.NSV421Store?.load?.()||{};
 
   host.querySelectorAll('[data-v40-target],[data-v38-target]').forEach(btn=>{
@@ -68,12 +83,22 @@ function decorateCompatibility(){
   return host;
 }
 
+function stabilizePlacement(){
+  const host=ensureAuthoritativeHost();
+  if(!host)return;
+  if(window.__NS_V421_ADMIN_V40__&&(host.dataset.v40Owned!=='1'||!host.querySelector('[data-v40-target]'))){
+    requestAuthoritativeRender(10);
+    setTimeout(decorateCompatibility,60);
+    return;
+  }
+  decorateCompatibility();
+}
 function scheduleRepair(ms=20){
   clearTimeout(repairTimer);
-  repairTimer=setTimeout(()=>{ensureHost();setTimeout(decorateCompatibility,30);},ms);
+  repairTimer=setTimeout(stabilizePlacement,ms);
 }
 function repairBurst(){
-  [0,80,220,550,1100,1800,2800].forEach(ms=>setTimeout(()=>{ensureHost();decorateCompatibility();},ms));
+  [0,80,220,550,1100,1800,2800].forEach(ms=>setTimeout(stabilizePlacement,ms));
 }
 function largeReady(m){
   const s=window.NSV421Store?.load?.()||{};
@@ -90,22 +115,22 @@ function bind(){
   document.addEventListener('click',e=>{
     if(e.target?.closest?.('#apNav [data-view="pages"]'))repairBurst();
     if(e.target?.closest?.('[data-v40-target],[data-v38-target],[data-v40-clear],[data-v38-clear],[data-v40-pick],[data-v38-pick]')){
-      setTimeout(decorateCompatibility,40);
-      setTimeout(decorateCompatibility,140);
-      setTimeout(decorateCompatibility,320);
+      setTimeout(stabilizePlacement,40);
+      setTimeout(stabilizePlacement,140);
+      setTimeout(stabilizePlacement,320);
     }
   },true);
-  window.addEventListener('nsv421:change',()=>{setTimeout(decorateCompatibility,40);setTimeout(decorateCompatibility,160);setTimeout(decorateCompatibility,420);});
+  window.addEventListener('nsv421:change',()=>{setTimeout(stabilizePlacement,40);setTimeout(stabilizePlacement,160);setTimeout(stabilizePlacement,420);});
   window.addEventListener('nsv421:production-ready',repairBurst);
 
   const root=document.querySelector('.ap-content')||document.body||document.documentElement;
   new MutationObserver(()=>{
     const view=document.querySelector('.ap-view[data-view="pages"]');
     if(view&&!view.querySelector('#apV38ImageTargets'))scheduleRepair(20);
-    else if(view)setTimeout(decorateCompatibility,20);
+    else if(view)setTimeout(stabilizePlacement,20);
   }).observe(root,{childList:true,subtree:true});
 }
 
 document.readyState==='loading'?document.addEventListener('DOMContentLoaded',bind,{once:true}):bind();
-window.NSV421AdminRuntimeStability={ensurePanel:ensureHost,largeReady,repairBurst,decorateCompatibility};
+window.NSV421AdminRuntimeStability={ensurePanel:ensureHost,largeReady,repairBurst,decorateCompatibility,stabilizePlacement};
 })();
