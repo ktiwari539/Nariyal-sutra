@@ -105,11 +105,11 @@
     const skip=document.getElementById('ji-skip');
     const main=document.getElementById('main-site');
     if(!intro||!main)return;
-    const reduced=matchMedia?.('(prefers-reduced-motion: reduce)')?.matches===true;
+    const reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const clearLegacyInline=el=>{
       if(!el)return;
       ['display','visibility','opacity','pointer-events'].forEach(p=>{if(el.style.getPropertyValue(p))el.style.removeProperty(p);});
-      el.removeAttribute('aria-hidden');
+      if(el.hasAttribute('aria-hidden'))el.removeAttribute('aria-hidden');
     };
     const keepIntroVisible=()=>{
       if(!intro.classList.contains('ns-intro-active'))intro.classList.add('ns-intro-active');
@@ -152,11 +152,16 @@
     if(intro.dataset.nsIntroRestore!=='1'){
       intro.dataset.nsIntroRestore='1';
       const observer=new MutationObserver(sync);
-      observer.observe(intro,{attributes:true,attributeFilter:['class','style','aria-hidden']});
-      if(skip)observer.observe(skip,{attributes:true,attributeFilter:['style','aria-hidden']});
+      observer.observe(intro,{attributes:true,attributeFilter:['class']});
+      const introGuard=setInterval(()=>{
+        const deadline=Number(intro.dataset.nsIntroReadyAt||Infinity);
+        const holding=!reduced&&intro.dataset.nsIntroUserSkip!=='1'&&intro.dataset.nsIntroDeadline!=='complete'&&performance.now()<deadline;
+        if(holding)sync();else clearInterval(introGuard);
+      },80);
       skip?.addEventListener('click',()=>{
         intro.dataset.nsIntroUserSkip='1';
         intro.dataset.nsIntroDeadline='complete';
+        clearInterval(introGuard);
         intro.classList.remove('ns-intro-active');
         queueMicrotask(sync);
       },{capture:true});
@@ -170,6 +175,7 @@
           setTimeout(()=>{
             if(intro.dataset.nsIntroUserSkip==='1')return;
             intro.dataset.nsIntroDeadline='complete';
+            clearInterval(introGuard);
             intro.classList.remove('ns-intro-active');
             if(!intro.classList.contains('ji-done'))intro.classList.add('ji-done');
             sync();
@@ -318,7 +324,7 @@
   }
 
   window.NS_V421_STABILIZATION={
-    build:'2026-09-13-intro-lifecycle-owner',
+    build:'2026-09-13-bounded-intro-guard',
     guardedMedia:document.querySelectorAll('img,video').length,
     introDisabled:false,
     introDurationMs:3800,
