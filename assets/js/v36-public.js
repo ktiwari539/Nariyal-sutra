@@ -136,8 +136,7 @@
   }
 
   /* V36 owns only the structural desktop viewport contract. The authoritative
-     V42.1 foreground choreography is created and animated by v421-visual-recovery.js.
-     Do not write geometry or opacity for legacy coconut/knife/water layers here. */
+     V42.1 foreground choreography is created and animated by v421-visual-recovery.js. */
   function enforceCinematicViewport(){
     const film=document.getElementById('v20-story-film');
     if(!film||innerWidth<=980)return;
@@ -154,6 +153,16 @@
     sticky.style.setProperty('transform','none','important');
     film.dataset.nsLayerContract='v421-visual-recovery';
     film.dataset.nsViewportContract='v36-sticky-viewport';
+  }
+
+  function ensureCinematicOwner(){
+    if(window.__NS_V421_VISUAL_RECOVERY__||document.getElementById('ns-v421-visual-recovery-runtime'))return;
+    const script=document.createElement('script');
+    script.id='ns-v421-visual-recovery-runtime';
+    script.src='assets/js/v421-visual-recovery.js';
+    script.async=false;
+    script.onload=()=>{enforceCinematicRunway();enforceCinematicViewport();};
+    document.head.appendChild(script);
   }
 
   function assignDistinctProductImages(){
@@ -189,6 +198,7 @@
 
   document.documentElement.classList.add('ns-runtime-stabilized');
   installExperienceCorrections();
+  ensureCinematicOwner();
   stabilize();
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',stabilize,{once:true});
