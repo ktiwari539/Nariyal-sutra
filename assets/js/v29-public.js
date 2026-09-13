@@ -16,7 +16,20 @@ function applyMediaSafety(){
     trade.setAttribute('src','/assets/images/freshness-coconut-splash.webp');
     trade.removeAttribute('srcset');
     trade.alt='Fresh coconut water served after a clean cut';
+    trade.dataset.nsLargeMediaSafe='1';
   }
+}
+function installMediaSafetyGuard(){
+  applyMediaSafety();
+  const root=document.querySelector('#main-site')||document.body;
+  if(!root||root.dataset.nsMediaSafetyGuard==='1')return;
+  root.dataset.nsMediaSafetyGuard='1';
+  new MutationObserver(muts=>{
+    for(const m of muts){
+      if(m.type==='attributes'&&m.target?.matches?.('.trade-route.trade-buy img')){applyMediaSafety();return;}
+      if(m.type==='childList'&&[...m.addedNodes].some(n=>n.nodeType===1&&(n.matches?.('.trade-route.trade-buy img')||n.querySelector?.('.trade-route.trade-buy img')))){applyMediaSafety();return;}
+    }
+  }).observe(root,{subtree:true,childList:true,attributes:true,attributeFilter:['src','srcset']});
 }
 function loadFinalPolish(){
   if(document.querySelector('script[data-ns-final-polish]'))return;
@@ -24,7 +37,7 @@ function loadFinalPolish(){
   p.src='assets/js/v421-storefront-final-polish.js?v=20260911-depth-scroll-2';
   p.defer=true;
   p.dataset.nsFinalPolish='1';
-  p.onload=()=>{setTimeout(applyMediaSafety,40);setTimeout(applyMediaSafety,700);};
+  p.onload=()=>{installMediaSafetyGuard();setTimeout(applyMediaSafety,40);setTimeout(applyMediaSafety,700);setTimeout(applyMediaSafety,1800);};
   document.head.appendChild(p);
 }
 function loadProfessionalCinematic(){
@@ -46,6 +59,7 @@ function loadProfessionalCinematic(){
   document.head.appendChild(s);
 }
 function init(){
+  installMediaSafetyGuard();
   setTimeout(()=>{
     loadProfessionalCinematic();
     setTimeout(loadFinalPolish,500);
@@ -54,6 +68,7 @@ function init(){
     try{cleanDeadSpace();}catch(e){console.warn('[NS] cleanDeadSpace skipped',e);}
   },80);
   window.addEventListener('nsv421:change',()=>setTimeout(applyMediaSafety,80));
+  window.addEventListener('nsv421:production-ready',()=>setTimeout(applyMediaSafety,80));
 }
 document.readyState==='loading'?document.addEventListener('DOMContentLoaded',init,{once:true}):init();
 })();
