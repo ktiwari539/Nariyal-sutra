@@ -11,8 +11,8 @@ const TARGETS={
  'homepage-harvest-2':{page:'homepage',sel:'#harvest-film .harvest-scene:nth-child(2)',kind:'img',large:true,fit:'cover'},
  'homepage-harvest-3':{page:'homepage',sel:'#harvest-film .harvest-scene:nth-child(3)',kind:'img',large:true,fit:'cover'},
  'homepage-people-teaser':{page:'homepage',sel:'#people-of-nariyal .ns-people-visual img',kind:'img',large:true,fit:'cover'},
- 'homepage-cinematic-grove':{page:'homepage',sel:'#v421-cinematic-film-pro .nspro-bg',kind:'img',large:true,fit:'cover'},
- 'homepage-cinematic-canopy':{page:'homepage',sel:'#v421-cinematic-film-pro .nspro-canopy-photo',kind:'img',large:true,fit:'cover'},
+ 'homepage-cinematic-grove':{page:'homepage',sel:'#v20-story-film .v20-origin-scene[data-cinematic-slot="grove"]',kind:'img',large:true,fit:'cover'},
+ 'homepage-cinematic-canopy':{page:'homepage',sel:'#v20-story-film .v20-origin-scene[data-cinematic-slot="canopy"]',kind:'img',large:true,fit:'cover'},
  'people-hero':{page:'people',sel:'#peopleHeroImg',kind:'img',large:true,fit:'cover'},
  'fresh-tender-hero':{page:'fresh-tender-coconut',sel:'.sp-scenes .sp-scene:first-child',kind:'img',large:true,fit:'cover'},
  'green-hero':{page:'green-coconut',sel:'.sp-scenes .sp-scene:first-child',kind:'img',large:true,fit:'cover'},
@@ -48,11 +48,11 @@ function renderCustom(){
  const host=customHost(),footer=document.querySelector('footer');if(!host)return;
  for(const sec of wanted){
    let el=document.querySelector(`[data-admin-custom-section="${CSS.escape(sec.id)}"]`);if(!el){el=document.createElement('section');el.className='ns-admin-custom-section';el.dataset.adminCustomSection=sec.id;if(footer&&footer.parentElement===host)host.insertBefore(el,footer);else host.appendChild(el);}
-   const media=(sec.mediaIds||[]).map(id=>{const m=mediaRecord(s,id);return {id,src:m&&(m.src||m.thumb||''),focus:m?.focus||'50% 50%',fit:m?.fit||'cover',ok:m&&!m.largeSurfaceAllowed===false};}).filter(x=>x.src).slice(0,4);
+   const media=(sec.mediaIds||[]).map(id=>{const m=mediaRecord(s,id);return {id,src:m&&(m.src||m.thumb||''),focus:m?.focus||'50% 50%',fit:m?.fit||'cover',ok:!!m&&m.largeSurfaceAllowed!==false};}).filter(x=>x.src).slice(0,4);
    el.innerHTML=`<div class="ns-admin-custom-inner"><div class="ns-admin-custom-copy"><small>${String(sec.template||'Nariyal Sutra').replace(/[<>]/g,'')}</small><h2>${String(sec.title||'').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</h2><p>${String(sec.subtitle||'').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</p></div>${media.length?`<div class="ns-admin-custom-media">${media.map(m=>`<img src="${m.src.replace(/"/g,'&quot;')}" alt="" style="object-position:${m.focus};object-fit:${m.fit}">`).join('')}</div>`:''}</div>`;
  }
 }
 let t=0;function apply(){clearTimeout(t);t=setTimeout(()=>{applyImages();renderCustom();},30);}
-function init(){apply();setTimeout(apply,250);setTimeout(apply,700);setTimeout(apply,1400);setTimeout(apply,2800);window.addEventListener('nsv421:change',apply);window.addEventListener('nsv421:production-ready',apply);const mo=new MutationObserver(records=>{for(const r of records){for(const n of r.addedNodes){if(n.nodeType!==1)continue;if(n.id==='v421-cinematic-film-pro'||n.querySelector?.('#v421-cinematic-film-pro,.nspro-bg,.nspro-canopy-photo')){apply();return;}}}});mo.observe(document.documentElement,{childList:true,subtree:true});}
-document.readyState==='loading'?document.addEventListener('DOMContentLoaded',init):init();window.NSV421ContentControls={apply,TARGETS,largeReady};
+function init(){apply();setTimeout(apply,250);setTimeout(apply,700);setTimeout(apply,1400);setTimeout(apply,2800);window.addEventListener('nsv421:change',apply);window.addEventListener('nsv421:production-ready',apply);const mo=new MutationObserver(records=>{for(const r of records){for(const n of r.addedNodes){if(n.nodeType!==1)continue;if(n.id==='v20-story-film'||n.matches?.('.v20-origin-scenes,.v20-origin-scene')||n.querySelector?.('#v20-story-film,.v20-origin-scenes,.v20-origin-scene')){apply();return;}}}});mo.observe(document.documentElement,{childList:true,subtree:true});}
+document.readyState==='loading'?document.addEventListener('DOMContentLoaded',init,{once:true}):init();window.NSV421ContentControls={apply,TARGETS,largeReady};
 })();
