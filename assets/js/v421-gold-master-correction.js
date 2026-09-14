@@ -30,6 +30,16 @@ function setDistinctMedia(){
  if(canopy&&canopy.getAttribute('src')!=='/assets/images/review/coastal-grove.png')canopy.setAttribute('src','/assets/images/review/coastal-grove.png');
  const tradeBuy=document.querySelector('.trade-route.trade-buy img');if(tradeBuy){tradeBuy.setAttribute('src','/assets/images/freshness-coconut-splash.webp');tradeBuy.removeAttribute('srcset');tradeBuy.alt='Fresh coconut water served after a clean cut';}
 }
+function protectHomepageImageQuality(){
+ if(!/^(?:\/|\/index\.html)$/i.test(location.pathname))return;
+ document.querySelectorAll('img').forEach(img=>{
+  const src=(img.currentSrc||img.getAttribute('src')||'').toLowerCase();
+  if(!src.includes('/assets/images/website-media/ws001-fresh-cut-ocean.webp'))return;
+  img.setAttribute('src','/assets/images/nariyal-hospitality.webp');
+  img.removeAttribute('srcset');
+  img.dataset.nsQualityFallback='ws001-homepage';
+ });
+}
 function naturalizeRain(){
  const nuts=[...document.querySelectorAll('#v421-cinematic-film-pro .nspro-nut')];if(!nuts.length)return;const keep=innerWidth<=980?KEEP_MOBILE:KEEP_DESKTOP;
  nuts.forEach((nut,i)=>{const on=keep.has(i);nut.dataset.nsNaturalFall=on?'1':'0';if(!on)return;const depth=Number(nut.dataset.depth||.5);nut.style.setProperty('--w',`${Math.round(34+depth*48)}px`);nut.style.setProperty('--blur',`${((1-depth)*.45).toFixed(2)}px`);const img=nut.querySelector('img');if(img){img.src='/assets/images/story-coconut-hero.png';img.removeAttribute('srcset');}});
@@ -41,7 +51,7 @@ function syncKnifeContact(){
  const t=Math.max(0,Math.min(1,(p-.49)/.13)),x=26-(t*45),y=-54+(t*7),rot=-16+(t*8);knife.style.setProperty('transform',`translate(calc(-50% + ${x.toFixed(2)}vw),${y.toFixed(1)}%) rotate(${rot.toFixed(1)}deg)`,'important');knife.dataset.nsCutContact=(t>.48&&t<.78)?'1':'0';
 }
 function request(){if(!raf)raf=requestAnimationFrame(syncKnifeContact)}
-function apply(){installStyle();setDistinctMedia();naturalizeRain();polishCopy();request();}
-function init(){apply();let n=0;const timer=setInterval(()=>{apply();if(document.querySelector('#v421-cinematic-film-pro[data-ready="1"]')||++n>30)clearInterval(timer)},120);setTimeout(apply,900);setTimeout(apply,1800);addEventListener('scroll',request,{passive:true});addEventListener('resize',()=>{naturalizeRain();request()},{passive:true});addEventListener('nsv421:change',()=>setTimeout(apply,0));}
+function apply(){installStyle();setDistinctMedia();protectHomepageImageQuality();naturalizeRain();polishCopy();request();}
+function init(){apply();let n=0;const timer=setInterval(()=>{apply();if(document.querySelector('#v421-cinematic-film-pro[data-ready="1"]')||++n>30)clearInterval(timer)},120);setTimeout(apply,900);setTimeout(apply,1800);addEventListener('scroll',request,{passive:true});addEventListener('resize',()=>{protectHomepageImageQuality();naturalizeRain();request()},{passive:true});addEventListener('nsv421:change',()=>setTimeout(apply,0));}
 document.readyState==='loading'?document.addEventListener('DOMContentLoaded',init,{once:true}):init();
 })();
