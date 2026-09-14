@@ -25,9 +25,15 @@ jobs:
       - name: Admin media upload quality QA
         run: node scripts/admin-media-upload-quality-qa.mjs
         timeout-minutes: 12
+      - name: Owner order delete OTP QA
+        run: node scripts/admin-owner-order-otp-qa.mjs
+        timeout-minutes: 12
       - name: Admin end-to-end interaction and responsive QA
         run: node scripts/admin-e2e-interaction-qa.mjs
         timeout-minutes: 15
+      - name: Checkout live-location synchronization QA
+        run: node scripts/checkout-location-sync-qa.mjs
+        timeout-minutes: 10
   qa:
     needs: media-targeted
     runs-on: ubuntu-latest
@@ -83,6 +89,10 @@ jobs:
         if: always()
         run: node scripts/admin-owner-control-qa.mjs
         timeout-minutes: 12
+      - name: Owner order delete OTP QA
+        if: always()
+        run: node scripts/admin-owner-order-otp-qa.mjs
+        timeout-minutes: 12
       - name: Admin media upload quality QA
         if: always()
         run: node scripts/admin-media-upload-quality-qa.mjs
@@ -99,7 +109,7 @@ jobs:
         if: always()
         run: node scripts/media-quality-gate-qa.mjs
         timeout-minutes: 15
-      - name: Website media Admin registry QA
+      - name: Website Media Admin registry QA
         if: always()
         run: node scripts/website-media-qa.mjs
         timeout-minutes: 12
