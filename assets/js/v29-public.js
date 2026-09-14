@@ -60,6 +60,7 @@ function loadProfessionalCinematic(){
 }
 function init(){
   installMediaSafetyGuard();
+  const safetyTimer=setInterval(applyMediaSafety,250);setTimeout(()=>clearInterval(safetyTimer),5000);
   setTimeout(()=>{
     loadProfessionalCinematic();
     setTimeout(loadFinalPolish,500);

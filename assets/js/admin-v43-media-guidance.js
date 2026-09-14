@@ -3,27 +3,26 @@
 if(window.__NS_V421_ADMIN_V43_MEDIA_GUIDANCE__)return;
 window.__NS_V421_ADMIN_V43_MEDIA_GUIDANCE__=true;
 const $=(s,r=document)=>r.querySelector(s);
-function goMedia(openUpload){
-  const nav=$('#apNav button[data-view="media"]');
-  if(!nav)return;
-  nav.click();
-  setTimeout(()=>{installMediaNotice();if(openUpload)$('#apUploadMedia')?.click();},120);
-}
-function installPeopleHelp(){
-  const host=$('#apV42PeopleStreams');if(!host||$('#apV43PeopleHelp',host))return;
-  const box=document.createElement('div');box.id='apV43PeopleHelp';box.style.cssText='margin:12px 0;padding:14px 16px;border:1px solid rgba(212,168,67,.28);background:rgba(212,168,67,.07);border-radius:10px;font-size:11px;line-height:1.65;color:inherit';
-  box.innerHTML='<strong style="display:block;margin-bottom:5px">How to add more Ambassador / People photos</strong><span>1. Upload the original photo in <b>Media Library</b>. 2. Set Category to <b>People</b>, Status to <b>Approved</b>, and keep it Visible. 3. Return here, choose the photo under “Add approved People image”, set its order/device visibility, then Save. The three campaign portraits are starter items, not a limit.</span><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button type="button" class="ap-btn primary" data-v43-upload-people>＋ Upload new People photo</button><button type="button" class="ap-btn" data-v43-open-media>Open Media Library</button></div>';
-  const head=host.querySelector('.ap-panel-head');(head?.nextSibling?host.insertBefore(box,head.nextSibling):host.prepend(box));
-}
-function installMediaNotice(){
-  const view=$('.ap-view[data-view="media"]');if(!view||$('#apV43MediaNotice',view))return;
-  const head=view.querySelector('.ap-page-head');if(!head)return;
-  const box=document.createElement('div');box.id='apV43MediaNotice';box.style.cssText='margin:0 0 16px;padding:14px 16px;border:1px solid rgba(212,168,67,.28);background:rgba(212,168,67,.06);border-radius:10px;font-size:11px;line-height:1.65';
-  box.innerHTML='<strong style="display:block;margin-bottom:5px">Media quality and People publishing</strong><span>The existing WS/Cinematic cards are legacy/reference library assets; several are intentionally blocked from large public surfaces because their resolution is too small. For a new Ambassador, Promoter, story or homepage image, use <b>＋ Upload + place media</b> with the highest-resolution original available (preferably 1200px+ on the long edge). New People photos do not appear publicly until they are Approved + Visible and explicitly added to a People rail.</span>';
-  head.insertAdjacentElement('afterend',box);
-}
-function refresh(){installPeopleHelp();installMediaNotice();}
-document.addEventListener('click',e=>{if(e.target.closest?.('[data-v43-upload-people]')){e.preventDefault();goMedia(true);}else if(e.target.closest?.('[data-v43-open-media]')){e.preventDefault();goMedia(false);}else if(e.target.closest?.('#apNav button[data-view="ambassadors"],#apNav button[data-view="media"]'))setTimeout(refresh,100);},true);
+function goMedia(openUpload){const nav=$('#apNav button[data-view="media"]');if(!nav)return;nav.click();setTimeout(()=>{installMediaNotice();if(openUpload)$('#apUploadMedia')?.click();},120);}
+function installUxStyle(){if($('#apV43UxFix'))return;const s=document.createElement('style');s.id='apV43UxFix';s.textContent=`
+#apV40Impact{pointer-events:none!important;z-index:2147480500!important;width:min(320px,calc(100vw - 28px))!important;padding:10px 12px!important;box-shadow:0 10px 28px rgba(0,0,0,.28)!important}
+#apMediaGrid{grid-template-columns:repeat(auto-fit,minmax(290px,1fr))!important;align-items:stretch!important}
+#apMediaGrid .ap-media-card{display:flex!important;flex-direction:column!important;min-width:0!important;min-height:404px!important;overflow:hidden!important}
+#apMediaGrid .ap-media-visual{height:200px!important;min-height:200px!important;max-height:200px!important;flex:0 0 200px!important;overflow:hidden!important;position:relative!important;z-index:1!important}
+#apMediaGrid .ap-media-visual>img{width:100%!important;height:100%!important;object-fit:cover!important;display:block!important;position:static!important;inset:auto!important;transform:none!important}
+#apMediaGrid .ap-media-body{display:flex!important;flex:1 1 auto!important;flex-direction:column!important;position:relative!important;z-index:2!important;min-height:0!important;overflow:visible!important;background:inherit!important}
+#apMediaGrid .ap-media-body .ap-v39-details{margin-top:auto!important;position:relative!important;z-index:3!important;pointer-events:auto!important}
+#apV40Ambassador{display:none!important}
+#apV42PeopleStreams{order:-10!important;border-color:rgba(212,168,67,.34)!important;box-shadow:0 10px 28px rgba(0,0,0,.12)!important}
+@media(max-width:620px){#apMediaGrid{grid-template-columns:1fr!important}#apMediaGrid .ap-media-card{min-height:380px!important}#apMediaGrid .ap-media-visual{height:190px!important;min-height:190px!important;flex-basis:190px!important}}
+`;document.head.appendChild(s);}
+function installPeopleHelp(){const host=$('#apV42PeopleStreams');if(!host||$('#apV43PeopleHelp',host))return;const box=document.createElement('div');box.id='apV43PeopleHelp';box.style.cssText='margin:12px 0;padding:14px 16px;border:1px solid rgba(212,168,67,.28);background:rgba(212,168,67,.07);border-radius:10px;font-size:11px;line-height:1.65;color:inherit';box.innerHTML='<strong style="display:block;margin-bottom:5px">Owner publishing control</strong><span>This is the main control for Brand Ambassadors, Promoters and Community stories. Choose a tab, manage exact order/device visibility/motion, then Save. To add a new person: upload the original in Media Library, set Category to <b>People</b>, Status to <b>Approved</b>, keep it Visible, then add it here.</span><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button type="button" class="ap-btn primary" data-v43-upload-people>＋ Upload new People photo</button><button type="button" class="ap-btn" data-v43-open-media>Open Media Library</button></div>';const head=host.querySelector('.ap-panel-head');(head?.nextSibling?host.insertBefore(box,head.nextSibling):host.prepend(box));}
+function installMediaNotice(){const view=$('.ap-view[data-view="media"]');if(!view||$('#apV43MediaNotice',view))return;const head=view.querySelector('.ap-page-head');if(!head)return;const box=document.createElement('div');box.id='apV43MediaNotice';box.style.cssText='margin:0 0 16px;padding:14px 16px;border:1px solid rgba(212,168,67,.28);background:rgba(212,168,67,.06);border-radius:10px;font-size:11px;line-height:1.65';box.innerHTML='<strong style="display:block;margin-bottom:5px">Media Library</strong><span>Click any thumbnail or <b>View / edit details</b> to open its full inspector. The inspector shows dimensions, quality, placement, eligibility and where the image is used. Use <b>＋ Upload + place media</b> for new high-resolution originals (preferably 1200px+ on the long edge).</span>';head.insertAdjacentElement('afterend',box);}
+function mediaIdFrom(target){const card=target.closest?.('.ap-media');return card?.dataset.id||card?.querySelector?.('.ap-media-img')?.dataset.id||card?.querySelector?.('.ap-media-id')?.textContent?.trim()||'';}
+function openMediaInspector(e){const target=e.target,details=target.closest?.('[data-v39-inspect]'),visual=target.closest?.('#apMediaGrid .ap-media-img,#apMediaGrid .ap-media-visual');if(!details&&!visual)return false;const id=details?.dataset.v39Inspect||mediaIdFrom(target);if(!id||!window.NSV421AdminMediaStudio?.open)return false;e.preventDefault();e.stopImmediatePropagation();$('#apV40Impact')?.classList.remove('is-show');window.NSV421AdminMediaStudio.open(id);return true;}
+function suppressLowValueImpact(target){const button=target.closest?.('button,a.ap-btn');if(!button)return;const txt=(button.textContent||'').trim();const meaningful=button.matches('[data-v40-target],[data-v40-layout],[data-v40-replace],[data-media][data-ma="toggle"],[data-media][data-ma="place"],[data-media][data-ma="state"],[data-v42-save],[data-v42-remove],[data-ns-order-cancel],[data-ns-order-delete-test],#apUploadMedia')||/save|publish|approve|delete|remove|replace|cancel/i.test(txt);if(!meaningful)setTimeout(()=>$('#apV40Impact')?.classList.remove('is-show'),0);else setTimeout(()=>$('#apV40Impact')?.classList.remove('is-show'),2600);}
+function refresh(){installUxStyle();installPeopleHelp();installMediaNotice();}
+document.addEventListener('click',e=>{if(openMediaInspector(e))return;if(e.target.closest?.('[data-v43-upload-people]')){e.preventDefault();goMedia(true);}else if(e.target.closest?.('[data-v43-open-media]')){e.preventDefault();goMedia(false);}else if(e.target.closest?.('#apNav button[data-view="ambassadors"],#apNav button[data-view="media"]'))setTimeout(refresh,100);suppressLowValueImpact(e.target);},true);
 window.addEventListener('nsv421:change',()=>setTimeout(refresh,80));
 document.readyState==='loading'?document.addEventListener('DOMContentLoaded',()=>{refresh();new MutationObserver(refresh).observe(document.body,{childList:true,subtree:true});},{once:true}):(()=>{refresh();new MutationObserver(refresh).observe(document.body,{childList:true,subtree:true});})();
 })();
