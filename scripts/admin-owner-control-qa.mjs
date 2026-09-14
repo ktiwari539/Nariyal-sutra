@@ -33,7 +33,10 @@ async function installQaOrder(page){
 async function checkOrderControls(page,label){
  await page.evaluate(()=>{window.NSV421ProductionBridge={isProduction:true};});
  await page.addScriptTag({path:ORDER_OPS});
- await page.locator('#apNav button[data-view="orders"]').click();await page.waitForTimeout(120);
+ const orderNavActivated=await page.evaluate(()=>{const b=document.querySelector('#apNav button[data-view="orders"]');if(!b)return false;b.click();return true;});
+ must(orderNavActivated,`${label}: Orders nav button missing`);
+ await page.waitForFunction(()=>document.querySelector('#apOrdersBody')?.closest('.ap-view')?.classList.contains('is-active'),null,{timeout:5000});
+ await page.waitForTimeout(120);
  await installQaOrder(page);
  const first=page.locator('#apOrdersBody tr[data-order-qa]').first();must(await first.count()===1,`${label}: deterministic QA order row missing`);await first.click();await page.waitForTimeout(100);
  await page.evaluate(()=>window.NSV421OrderOperations?.refresh?.());await page.waitForTimeout(40);
