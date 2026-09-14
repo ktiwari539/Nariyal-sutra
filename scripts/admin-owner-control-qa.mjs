@@ -6,29 +6,50 @@ import path from 'node:path';
 const BASE='http://127.0.0.1:4203';
 const OUT=path.join(process.cwd(),'qa-artifacts','admin-owner-control');
 const ORDER_OPS=path.join(process.cwd(),'assets','js','admin-v44-order-operations.js');
+const PROD_BRIDGE=path.join(process.cwd(),'assets','js','v421-production-bridge.js');
 fs.mkdirSync(OUT,{recursive:true});
 const must=(c,m)=>{if(!c)throw new Error(m)};
 must(fs.existsSync(ORDER_OPS),'Order operations module missing');
 const contract=fs.readFileSync(ORDER_OPS,'utf8');
-for(const token of ["runTransaction","status:'cancelled'","publicTracking","customerOrders","CANCEL_ROLES","Paid cancellation does not issue a refund","will not guess which live orders are tests"]){must(contract.includes(token),`Order operations contract missing: ${token}`);}
+for(const token of ["runTransaction","status:'cancelled'","publicTracking","customerOrders","CANCEL_ROLES","Paid cancellation does not issue a refund","deleteTestOrder","tx.delete(orderRef)","data-ns-order-delete-test","Only the Owner can permanently delete test orders","exact order ID"]){must(contract.includes(token),`Order operations contract missing: ${token}`);}
+const bridgeContract=fs.readFileSync(PROD_BRIDGE,'utf8');
+for(const demoId of ['NS-1048','NS-1047','NS-1046','NS-1042'])must(bridgeContract.includes(demoId),`Production bridge demo suppression missing ${demoId}`);
 const server=spawn('python3',['-m','http.server','4203','--bind','127.0.0.1'],{stdio:'ignore'});
 await new Promise(r=>setTimeout(r,900));
 const browser=await chromium.launch({headless:true});
 
+async function installQaOrder(page){
+ await page.evaluate(()=>{
+  const body=document.querySelector('#apOrdersBody');
+  if(!body)return;
+  body.innerHTML='<tr data-order-qa="1"><td class="mono">QA-ORDER-001</td><td>QA Customer</td><td>Tender Coconut</td><td>12</td><td><span class="ap-status green">Paid</span></td><td>Preparing</td><td>₹660</td></tr>';
+  body.querySelector('[data-order-qa]')?.addEventListener('click',()=>{
+   const detail=document.querySelector('#apOrderDetail');
+   if(detail)detail.innerHTML='<h3>QA-ORDER-001</h3><p>QA Customer</p><div class="ap-divider"></div><div class="ap-detail-grid"><div class="ap-detail"><label>Payment</label><span>Paid</span></div><div class="ap-detail"><label>Delivery</label><span>Preparing</span></div></div>';
+  });
+ });
+}
+
 async function checkOrderControls(page,label){
  await page.evaluate(()=>{window.NSV421ProductionBridge={isProduction:true};});
  await page.addScriptTag({path:ORDER_OPS});
- await page.locator('#apNav button[data-view="orders"]').click();await page.waitForTimeout(180);
- const first=page.locator('#apOrdersBody tr').first();must(await first.count()===1,`${label}: no order row for owner controls`);await first.click();await page.waitForTimeout(120);
- const orderId=(await page.locator('#apOrderDetail h3').textContent())?.trim();must(orderId,`${label}: selected order id missing`);
+ await page.locator('#apNav button[data-view="orders"]').click();await page.waitForTimeout(120);
+ await installQaOrder(page);
+ const first=page.locator('#apOrdersBody tr[data-order-qa]').first();must(await first.count()===1,`${label}: deterministic QA order row missing`);await first.click();await page.waitForTimeout(100);
+ await page.evaluate(()=>window.NSV421OrderOperations?.refresh?.());await page.waitForTimeout(40);
+ const orderId=(await page.locator('#apOrderDetail h3').textContent())?.trim();must(orderId==='QA-ORDER-001',`${label}: selected QA order id missing`);
  must(await page.locator(`[data-ns-order-cancel="${orderId}"]`).count()===1,`${label}: Owner cancel control missing`);
+ must(await page.locator(`[data-ns-order-delete-test="${orderId}"]`).count()===1,`${label}: Owner delete-test control missing`);
  const cancelConfirm=await page.evaluate(async id=>{let seen='';window.prompt=()=> 'QA cancellation';window.confirm=m=>{seen=String(m);return false;};document.querySelector(`[data-ns-order-cancel="${id}"]`)?.click();await new Promise(r=>setTimeout(r,20));return seen;},orderId);
- must(cancelConfirm.includes(orderId),`${label}: cancel confirmation omits order id`);must(/preserves the order history/i.test(cancelConfirm),`${label}: cancel confirmation omits history semantics`);
- await page.selectOption('#apRole','Operations');await page.waitForTimeout(80);
- must(await page.locator(`[data-ns-order-cancel="${orderId}"]`).count()===1,`${label}: Operations cancel control missing`);
- await page.selectOption('#apRole','Support');await page.waitForTimeout(80);
- must(await page.locator('[data-ns-order-cancel]').count()===0,`${label}: Support must not see cancel`);
- await page.selectOption('#apRole','Owner');await page.waitForTimeout(80);
+ must(cancelConfirm.includes(orderId),`${label}: cancel confirmation omits order id`);must(/preserves the order history/i.test(cancelConfirm),`${label}: cancel confirmation omits history semantics`);must(/does NOT issue a refund/i.test(cancelConfirm),`${label}: paid cancellation refund warning missing`);
+ const deletePrompt=await page.evaluate(async id=>{let seen='';window.prompt=m=>{seen=String(m);return null;};document.querySelector(`[data-ns-order-delete-test="${id}"]`)?.click();await new Promise(r=>setTimeout(r,20));return seen;},orderId);
+ must(deletePrompt.includes(orderId),`${label}: delete confirmation omits exact order id`);must(/exact order ID/i.test(deletePrompt),`${label}: delete confirmation does not require exact id`);
+ await page.selectOption('#apRole','Operations');await page.waitForTimeout(80);await page.evaluate(()=>window.NSV421OrderOperations?.refresh?.());
+ must(await page.locator(`[data-ns-order-cancel="${orderId}"]`).count()===1,`${label}: Operations cancel control missing`);must(await page.locator('[data-ns-order-delete-test]').count()===0,`${label}: Operations must not see hard delete`);
+ await page.selectOption('#apRole','Support');await page.waitForTimeout(80);await page.evaluate(()=>window.NSV421OrderOperations?.refresh?.());
+ must(await page.locator('[data-ns-order-cancel]').count()===0,`${label}: Support must not see cancel`);must(await page.locator('[data-ns-order-delete-test]').count()===0,`${label}: Support must not see hard delete`);
+ await page.selectOption('#apRole','Owner');await page.waitForTimeout(80);await page.evaluate(()=>window.NSV421OrderOperations?.refresh?.());
+ must(await page.locator(`[data-ns-order-delete-test="${orderId}"]`).count()===1,`${label}: Owner delete-test control did not return`);
 }
 
 async function openAdmin(width,height,label){
