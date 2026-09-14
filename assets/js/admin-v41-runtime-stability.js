@@ -110,7 +110,7 @@ function bind(){
   window.addEventListener('nsv421:change',()=>{ensureMediaGuidance();setTimeout(stabilizePlacement,40);setTimeout(stabilizePlacement,160);setTimeout(stabilizePlacement,420);setTimeout(dsBind,80);});
   window.addEventListener('nsv421:production-ready',()=>{repairBurst();dsRepairBurst();});
   const root=document.querySelector('.ap-content')||document.body||document.documentElement;
-  new MutationObserver(()=>{ensurePeopleStreamsControl();ensureMediaGuidance();const view=document.querySelector('.ap-view[data-view="pages"]');if(view&&!view.querySelector('#apV38ImageTargets'))scheduleRepair(20);else if(view)setTimeout(stabilizePlacement,20);if(document.getElementById('apDeliveryServicesBody'))setTimeout(dsBind,20);}).observe(root,{childList:true,subtree:true});
+  new MutationObserver(()=>{ensurePeopleStreamsControl();ensureMediaGuidance();const view=document.querySelector('.ap-view[data-view="pages"]');if(view&&!view.querySelector('#apV38ImageTargets'))scheduleRepair(20);else if(view)setTimeout(stabilizePlacement,20);const dsBody=document.getElementById('apDeliveryServicesBody'),dsAdd=document.getElementById('apAddDeliveryService');if(dsBody&&(!dsAdd?.dataset.v41DeliveryBound||(dsBody.children.length>0&&!dsBody.querySelector('[data-ds-edit]'))))setTimeout(dsBind,20);}).observe(root,{childList:true,subtree:true});
 }
 document.readyState==='loading'?document.addEventListener('DOMContentLoaded',bind,{once:true}):bind();
 window.NSV421AdminRuntimeStability={ensurePanel:ensureHost,largeReady,repairBurst,decorateCompatibility,stabilizePlacement,ensurePeopleStreamsControl,ensureMediaGuidance};
