@@ -19,7 +19,7 @@ async function inspectMediaLayout(page,label){
   const cards=[...document.querySelectorAll('#apMediaGrid .ap-media')].filter(c=>{const r=c.getBoundingClientRect();return r.width>0&&r.height>0;});
   const rows=cards.map(card=>{
    const visual=card.querySelector('.ap-media-img'),body=card.querySelector('.ap-media-body'),img=visual?.querySelector('img'),cr=card.getBoundingClientRect(),vr=visual?.getBoundingClientRect(),br=body?.getBoundingClientRect();
-   const buttons=[...(body?.querySelectorAll('button')||[])].filter(b=>{const s=getComputedStyle(b),r=b.getBoundingClientRect();return s.display!=='none'&&s.visibility!=='hidden'&&Number(s.opacity)>0&&r.width>0&&r.height>0;}).map(b=>{const r=b.getBoundingClientRect(),x=Math.min(innerWidth-1,Math.max(0,r.left+r.width/2)),y=Math.min(innerHeight-1,Math.max(0,r.top+r.height/2)),hit=document.elementFromPoint(x,y);return {text:(b.textContent||'').trim(),rect:{left:r.left,top:r.top,right:r.right,bottom:r.bottom,width:r.width,height:r.height},inside:r.left>=cr.left-1&&r.right<=cr.right+1&&r.top>=cr.top-1&&r.bottom<=cr.bottom+1,hit:!!hit&&(hit===b||b.contains(hit))};});
+   const buttons=[...(body?.querySelectorAll('button')||[])].filter(b=>{const s=getComputedStyle(b),r=b.getBoundingClientRect();return s.display!=='none'&&s.visibility!=='hidden'&&Number(s.opacity)>0&&r.width>0&&r.height>0;}).map(b=>{const r=b.getBoundingClientRect();return {text:(b.textContent||'').trim(),rect:{left:r.left,top:r.top,right:r.right,bottom:r.bottom,width:r.width,height:r.height},inside:r.left>=cr.left-1&&r.right<=cr.right+1&&r.top>=cr.top-1&&r.bottom<=cr.bottom+1};});
    const nw=img?.naturalWidth||0,nh=img?.naturalHeight||0;
    return {id:card.dataset.id||'',card:{left:cr.left,top:cr.top,right:cr.right,bottom:cr.bottom,width:cr.width,height:cr.height},visual:vr&&{top:vr.top,bottom:vr.bottom,height:vr.height},body:br&&{top:br.top,bottom:br.bottom,height:br.height},buttons,nw,nh,portrait:nh>nw*1.15,landscape:nw>nh*1.15,imgRect:img?(()=>{const r=img.getBoundingClientRect();return {top:r.top,bottom:r.bottom,height:r.height}})():null};
   });
@@ -35,8 +35,31 @@ async function inspectMediaLayout(page,label){
   must(row.body.top>=row.visual.bottom-1,`${label}: ${row.id} body overlaps visual (${row.body.top} < ${row.visual.bottom})`);
   if(row.imgRect)must(row.imgRect.bottom<=row.visual.bottom+1&&row.imgRect.top>=row.visual.top-1,`${label}: ${row.id} image escaped visual bounds`);
   must(row.buttons.length>=1,`${label}: ${row.id} has no visible media action buttons`);
-  for(const b of row.buttons){must(b.inside,`${label}: ${row.id} action escaped card: ${b.text}`);must(b.hit,`${label}: ${row.id} action center intercepted: ${b.text}`);}
+  for(const b of row.buttons)must(b.inside,`${label}: ${row.id} action escaped card: ${b.text}`);
   portrait||=row.portrait;landscape||=row.landscape;
+ }
+
+ // Hit-test every visible action only after bringing it into the viewport. Clamping
+ // off-screen button coordinates to the viewport edge creates false interception
+ // failures and does not test the actual button.
+ const cards=page.locator('#apMediaGrid .ap-media');
+ for(let i=0;i<await cards.count();i++){
+  const card=cards.nth(i);
+  if(!await card.isVisible())continue;
+  const id=await card.getAttribute('data-id')||`card-${i}`;
+  const buttons=card.locator('.ap-media-body button:visible');
+  for(let j=0;j<await buttons.count();j++){
+   const button=buttons.nth(j);
+   await button.scrollIntoViewIfNeeded();
+   const hit=await button.evaluate((b)=>{
+    const r=b.getBoundingClientRect();
+    const x=r.left+r.width/2,y=r.top+r.height/2;
+    const el=document.elementFromPoint(x,y);
+    return !!el&&(el===b||b.contains(el));
+   });
+   const text=(await button.textContent()||'').trim();
+   must(hit,`${label}: ${id} action center intercepted: ${text}`);
+  }
  }
  return {count:result.rows.length,portrait,landscape};
 }
