@@ -23,14 +23,14 @@ async function inspectMediaLayout(page,label){
    const nw=img?.naturalWidth||0,nh=img?.naturalHeight||0;
    return {id:card.dataset.id||'',card:{left:cr.left,top:cr.top,right:cr.right,bottom:cr.bottom,width:cr.width,height:cr.height},visual:vr&&{top:vr.top,bottom:vr.bottom,height:vr.height},body:br&&{top:br.top,bottom:br.bottom,height:br.height},buttons,nw,nh,portrait:nh>nw*1.15,landscape:nw>nh*1.15,imgRect:img?(()=>{const r=img.getBoundingClientRect();return {top:r.top,bottom:r.bottom,height:r.height}})():null};
   });
-  return {rows,overflow:document.documentElement.scrollWidth>innerWidth+2};
+  return {rows,overflow:document.documentElement.scrollWidth>innerWidth+2,viewportWidth:innerWidth};
  });
  must(result.rows.length>0,`${label}: no rendered media cards`);
  must(!result.overflow,`${label}: media view caused horizontal page overflow`);
  let portrait=false,landscape=false;
  for(const row of result.rows){
   must(row.visual&&row.body,`${label}: ${row.id} missing visual/body`);
-  const expected=innerWidth<=860?200:220;
+  const expected=result.viewportWidth<=860?200:220;
   must(Math.abs(row.visual.height-expected)<=2,`${label}: ${row.id} visual escaped bounded height ${row.visual.height} expected ${expected}`);
   must(row.body.top>=row.visual.bottom-1,`${label}: ${row.id} body overlaps visual (${row.body.top} < ${row.visual.bottom})`);
   if(row.imgRect)must(row.imgRect.bottom<=row.visual.bottom+1&&row.imgRect.top>=row.visual.top-1,`${label}: ${row.id} image escaped visual bounds`);
