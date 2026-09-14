@@ -7,7 +7,29 @@ concurrency:
   group: cinematic-rebuild-qa-${{ github.ref }}
   cancel-in-progress: true
 jobs:
+  media-targeted:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+        timeout-minutes: 15
+      - name: Media organizer QA
+        run: node scripts/admin-media-organizer-qa.mjs
+        timeout-minutes: 12
+      - name: Website Media Admin registry QA
+        run: node scripts/website-media-qa.mjs
+        timeout-minutes: 12
+      - name: Admin media upload quality QA
+        run: node scripts/admin-media-upload-quality-qa.mjs
+        timeout-minutes: 12
+      - name: Admin end-to-end interaction and responsive QA
+        run: node scripts/admin-e2e-interaction-qa.mjs
+        timeout-minutes: 15
   qa:
+    needs: media-targeted
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
