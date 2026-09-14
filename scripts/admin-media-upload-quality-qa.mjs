@@ -10,11 +10,46 @@ const must=(c,m)=>{if(!c)throw new Error(m)};
 const server=spawn('python3',['-m','http.server','4207','--bind','127.0.0.1'],{stdio:'ignore'});
 await new Promise(r=>setTimeout(r,900));
 const browser=await chromium.launch({headless:true});
+
+async function inspectMediaLayout(page,label){
+ await page.evaluate(()=>document.querySelector('#apNav button[data-view="media"]')?.click());
+ await page.waitForSelector('#apMediaGrid .ap-media',{state:'visible',timeout:8000});
+ await page.waitForTimeout(180);
+ const result=await page.evaluate(()=>{
+  const cards=[...document.querySelectorAll('#apMediaGrid .ap-media')].filter(c=>{const r=c.getBoundingClientRect();return r.width>0&&r.height>0;});
+  const rows=cards.map(card=>{
+   const visual=card.querySelector('.ap-media-img'),body=card.querySelector('.ap-media-body'),img=visual?.querySelector('img'),cr=card.getBoundingClientRect(),vr=visual?.getBoundingClientRect(),br=body?.getBoundingClientRect();
+   const buttons=[...(body?.querySelectorAll('button')||[])].filter(b=>{const s=getComputedStyle(b),r=b.getBoundingClientRect();return s.display!=='none'&&s.visibility!=='hidden'&&Number(s.opacity)>0&&r.width>0&&r.height>0;}).map(b=>{const r=b.getBoundingClientRect(),x=Math.min(innerWidth-1,Math.max(0,r.left+r.width/2)),y=Math.min(innerHeight-1,Math.max(0,r.top+r.height/2)),hit=document.elementFromPoint(x,y);return {text:(b.textContent||'').trim(),rect:{left:r.left,top:r.top,right:r.right,bottom:r.bottom,width:r.width,height:r.height},inside:r.left>=cr.left-1&&r.right<=cr.right+1&&r.top>=cr.top-1&&r.bottom<=cr.bottom+1,hit:!!hit&&(hit===b||b.contains(hit))};});
+   const nw=img?.naturalWidth||0,nh=img?.naturalHeight||0;
+   return {id:card.dataset.id||'',card:{left:cr.left,top:cr.top,right:cr.right,bottom:cr.bottom,width:cr.width,height:cr.height},visual:vr&&{top:vr.top,bottom:vr.bottom,height:vr.height},body:br&&{top:br.top,bottom:br.bottom,height:br.height},buttons,nw,nh,portrait:nh>nw*1.15,landscape:nw>nh*1.15,imgRect:img?(()=>{const r=img.getBoundingClientRect();return {top:r.top,bottom:r.bottom,height:r.height}})():null};
+  });
+  return {rows,overflow:document.documentElement.scrollWidth>innerWidth+2};
+ });
+ must(result.rows.length>0,`${label}: no rendered media cards`);
+ must(!result.overflow,`${label}: media view caused horizontal page overflow`);
+ let portrait=false,landscape=false;
+ for(const row of result.rows){
+  must(row.visual&&row.body,`${label}: ${row.id} missing visual/body`);
+  const expected=innerWidth<=860?200:220;
+  must(Math.abs(row.visual.height-expected)<=2,`${label}: ${row.id} visual escaped bounded height ${row.visual.height} expected ${expected}`);
+  must(row.body.top>=row.visual.bottom-1,`${label}: ${row.id} body overlaps visual (${row.body.top} < ${row.visual.bottom})`);
+  if(row.imgRect)must(row.imgRect.bottom<=row.visual.bottom+1&&row.imgRect.top>=row.visual.top-1,`${label}: ${row.id} image escaped visual bounds`);
+  must(row.buttons.length>=1,`${label}: ${row.id} has no visible media action buttons`);
+  for(const b of row.buttons){must(b.inside,`${label}: ${row.id} action escaped card: ${b.text}`);must(b.hit,`${label}: ${row.id} action center intercepted: ${b.text}`);}
+  portrait||=row.portrait;landscape||=row.landscape;
+ }
+ return {count:result.rows.length,portrait,landscape};
+}
+
 try{
  const context=await browser.newContext({viewport:{width:1280,height:900},serviceWorkers:'block'});
  const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(String(e)));
  await page.goto(BASE+'/admin.html',{waitUntil:'domcontentloaded',timeout:30000});
- await page.waitForFunction(()=>window.__NS_V421_ADMIN_MEDIA_QUALITY_GATE__===true&&document.querySelector('#apNewMediaPicker'),null,{timeout:12000});
+ await page.waitForFunction(()=>window.__NS_V421_ADMIN_MEDIA_QUALITY_GATE__===true&&window.__NS_V421_ADMIN_MEDIA_STUDIO__===true&&document.querySelector('#apNewMediaPicker'),null,{timeout:12000});
+ const desktopLayout=await inspectMediaLayout(page,'desktop');
+ must(desktopLayout.portrait,'desktop: no tall/portrait media card was exercised');
+ must(desktopLayout.landscape,'desktop: no landscape media card was exercised');
+
  const before=await page.evaluate(()=>window.NSV421Store.load().media.length);
  const low=path.resolve('assets/images/ambassadors/campaign/AMB101-portrait.webp');
  must(fs.existsSync(low),'low-res campaign fixture missing');
@@ -31,7 +66,13 @@ try{
  const accepted=await page.evaluate((before)=>{const s=window.NSV421Store.load(),added=s.media.slice(before);return {count:s.media.length,added:added.map(m=>({id:m.id,width:m.width||m.uploadAssist?.width,height:m.height||m.uploadAssist?.height,large:m.largeSurfaceAllowed,tier:m.qualityTier,status:m.status}))};},before);
  must(accepted.count===before+1,`professional upload was not accepted: ${JSON.stringify(accepted)}`);
  const m=accepted.added[0];must(m.width&&m.height,`accepted upload missing dimensions ${JSON.stringify(m)}`);must(['large','standard'].includes(m.tier),`accepted upload missing quality tier ${JSON.stringify(m)}`);
+ await inspectMediaLayout(page,'desktop-after-upload');
  await page.screenshot({path:path.join(OUT,'quality-gate.png'),fullPage:true});
+
+ await page.setViewportSize({width:820,height:900});
+ await inspectMediaLayout(page,'tablet');
+ await page.setViewportSize({width:390,height:844});
+ await inspectMediaLayout(page,'mobile');
  must(!errors.length,`page errors: ${errors.join(' | ')}`);
  await context.close();
  console.log('ADMIN MEDIA UPLOAD QUALITY QA: PASS');
