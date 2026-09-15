@@ -7,8 +7,27 @@ function ensure(){const pages=$('.ap-view[data-view="pages"]');if(!pages||$('#ap
 function cfg(file){const s=Store.load();s.pageSequences=s.pageSequences||{};const labels=PAGES[file]||[],def=labels.map((_,i)=>'s'+String(i+1).padStart(2,'0'));let c=s.pageSequences[file];if(!c){c={order:def.slice(),hidden:{}};s.pageSequences[file]=c;Store.save(s)}def.forEach(k=>{if(!c.order.includes(k))c.order.push(k)});c.order=c.order.filter(k=>def.includes(k));return{s,c,labels}}
 function save(s,w,f){Store.audit(s,w,f);Store.save(s);window.dispatchEvent(new CustomEvent('nsv421:change'));render()}
 function render(){const sel=$('#apV30PageSelect'),host=$('#apV30PageRows');if(!sel||!host)return;const file=sel.value,{s,c,labels}=cfg(file);host.innerHTML=c.order.map((k,i)=>{const idx=parseInt(k.slice(1),10)-1;return`<div class="ap-v30-seq-row"><div><strong>${String(i+1).padStart(2,'0')} · ${esc(labels[idx]||k)}</strong><small>${esc(file)} · ${c.hidden[k]?'Hidden':'Visible'}</small></div><div class="ap-v30-seq-actions"><button class="ap-btn mini" data-up="${k}" ${i===0?'disabled':''}>↑</button><button class="ap-btn mini" data-down="${k}" ${i===c.order.length-1?'disabled':''}>↓</button><button class="ap-btn mini" data-vis="${k}">${c.hidden[k]?'Show':'Hide'}</button></div></div>`}).join('');$$('[data-up]',host).forEach(b=>b.onclick=()=>move(file,b.dataset.up,-1));$$('[data-down]',host).forEach(b=>b.onclick=()=>move(file,b.dataset.down,1));$$('[data-vis]',host).forEach(b=>b.onclick=()=>toggle(file,b.dataset.vis))}
-function move(f,k,d){const{s,c}=cfg(f),i=c.order.indexOf(k),j=i+d;if(i<0||j<0||j>=c.order.length)return;[c.order[i],c.order[j]]=[c.order[j],c.order[i]];save(s,'Public page section moved',f)}function toggle(f,k){const{s,c}=cfg(f);c.hidden[k]=!c.hidden[k];save(s,'Public page section visibility changed',f)}
-function load(src,attr,flag){if(window[flag]||document.querySelector(`script[${attr}]`))return;const s=document.createElement('script');s.src=src;s.setAttribute(attr,'1');document.body.appendChild(s)}
-function init(){setTimeout(ensure,120);window.addEventListener('nsv421:change',()=>setTimeout(ensure,20));load('assets/js/admin-v44-order-operations.js','data-ns-order-operations','__NS_V421_ORDER_OPERATIONS__');load('assets/js/admin-v38.js','data-ns-admin-v38','__NS_V421_ADMIN_COMMUNICATION__');load('assets/js/admin-v38-reviews-contract.js','data-ns-v38-contract','__NS_V421_ADMIN_V38_CONTRACT__');load('assets/js/admin-v48-action-contract.js','data-ns-v48-contract','__NS_V421_ADMIN_V48_ACTION_CONTRACT__')}
+function move(f,k,d){const{s,c}=cfg(f),i=c.order.indexOf(k),j=i+d;if(i<0||j<0||j>=c.order.length)return;[c.order[i],c.order[j]]=[c.order[j],c.order[i]];save(s,'Public page section moved',f)}
+function toggle(f,k){const{s,c}=cfg(f);c.hidden[k]=!c.hidden[k];save(s,'Public page section visibility changed',f)}
+
+function loadOptional(src,attr,flag){if(window[flag]||document.querySelector(`script[${attr}]`))return;const s=document.createElement('script');s.src=src;s.setAttribute(attr,'1');s.async=false;document.body.appendChild(s)}
+const requiredAttempts={};
+function loadRequired(src,attr,ready){
+ if(ready())return;
+ const attempt=(requiredAttempts[attr]||0)+1;requiredAttempts[attr]=attempt;
+ if(attempt>3){console.error(`[Admin runtime] Required module failed readiness after 3 attempts: ${src}`);return;}
+ const prior=document.querySelector(`script[${attr}]`);if(prior)prior.remove();
+ const s=document.createElement('script');s.src=src;s.setAttribute(attr,'1');s.async=false;
+ s.onload=()=>{if(ready()){s.dataset.nsReady='1';return;}console.error(`[Admin runtime] ${src} loaded without readiness handshake (attempt ${attempt}).`);setTimeout(()=>loadRequired(src,attr,ready),40);};
+ s.onerror=()=>{console.error(`[Admin runtime] Failed to load ${src} (attempt ${attempt}).`);setTimeout(()=>loadRequired(src,attr,ready),40);};
+ document.body.appendChild(s);
+}
+function init(){
+ setTimeout(ensure,120);window.addEventListener('nsv421:change',()=>setTimeout(ensure,20));
+ loadOptional('assets/js/admin-v44-order-operations.js','data-ns-order-operations','__NS_V421_ORDER_OPERATIONS__');
+ loadRequired('assets/js/admin-communication.js','data-ns-admin-communication',()=>window.NSV421CommunicationAdmin?.ready===true);
+ loadOptional('assets/js/admin-v38-reviews-contract.js','data-ns-v38-contract','__NS_V421_ADMIN_V38_CONTRACT__');
+ loadOptional('assets/js/admin-v48-action-contract.js','data-ns-v48-contract','__NS_V421_ADMIN_V48_ACTION_CONTRACT__');
+}
 document.readyState==='loading'?document.addEventListener('DOMContentLoaded',init):init();
 })();
