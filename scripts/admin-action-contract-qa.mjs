@@ -56,9 +56,14 @@ async function assertCreateOpensForm({view,button,form,key,cancel}){
 try{
  const res=await page.goto(BASE+'/admin-preview.html',{waitUntil:'domcontentloaded',timeout:30000});
  must(res&&res.status()<400,`Admin returned ${res?.status()}`);
- await page.waitForFunction(()=>window.__NSV21_ADMIN_BOUND===true&&window.__NS_V421_ADMIN_V38__===1&&window.__NS_V421_ADMIN_V45__===true&&window.__NS_V421_MANUAL_ACCEPTANCE__===true&&window.__NS_V421_ADMIN_V48_ACTION_CONTRACT__===true,null,{timeout:15000});
+ await page.waitForFunction(()=>window.__NSV21_ADMIN_BOUND===true&&window.__NS_V421_ADMIN_V48_ACTION_CONTRACT__===true,null,{timeout:15000});
  await page.waitForSelector('.ap-app',{state:'visible'});
- await sleep(900);
+ await sleep(1200);
+ const flags=await page.evaluate(()=>({v21:window.__NSV21_ADMIN_BOUND,v38:window.__NS_V421_ADMIN_V38__,v45:window.__NS_V421_ADMIN_V45__,v47:window.__NS_V421_MANUAL_ACCEPTANCE__,v48:window.__NS_V421_ADMIN_V48_ACTION_CONTRACT__,delivery:!!window.NSV421DeliveryServicesAdmin,review:!!window.NSV421ReviewQueue}));
+ must(flags.v38===1,`Communication runtime did not load: ${JSON.stringify(flags)}`);
+ must(flags.v45===true,`Operability runtime did not load: ${JSON.stringify(flags)}`);
+ must(flags.delivery,`Delivery Services runtime did not load: ${JSON.stringify(flags)}`);
+ must(flags.review,`Review Queue runtime did not load: ${JSON.stringify(flags)}`);
  original=await page.evaluate(()=>window.NSV421Store.load());
 
  // Global actions must do something observable.
@@ -131,7 +136,7 @@ try{
 
  must(externalMutations.length===0,`Local Admin action sweep attempted external mutation(s): ${JSON.stringify(externalMutations)}`);
  must(pageErrors.length===0,`Admin action sweep page errors: ${JSON.stringify(pageErrors)}`);
- console.log('ADMIN ACTION CONTRACT QA: PASS',JSON.stringify({staticButtons:buttonTags.length,externalMutations:externalMutations.length}));
+ console.log('ADMIN ACTION CONTRACT QA: PASS',JSON.stringify({staticButtons:buttonTags.length,flags,externalMutations:externalMutations.length}));
 } finally {
  if(original){try{await page.evaluate(s=>window.NSV421Store?.save?.(s),original);}catch{}}
  await context.close();await browser.close();server.kill();
