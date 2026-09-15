@@ -29,8 +29,25 @@ const context=await browser.newContext({viewport:{width:1440,height:1000},servic
 const page=await context.newPage();
 const pageErrors=[];
 const externalMutations=[];
+const nonBusinessExternalPosts=[];
+function classifyExternalPost(raw){
+  let u;
+  try{u=new URL(raw);}catch{return 'unknown';}
+  const h=u.hostname,p=u.pathname;
+  if(h==='firestore.googleapis.com'&&/\/google\.firestore\.v1\.Firestore\/Listen\/channel$/.test(p))return 'background-read';
+  if(h==='firebaseremoteconfig.googleapis.com'&&/:fetch$/.test(p))return 'background-read';
+  if(h==='firebaseinstallations.googleapis.com'&&/\/installations$/.test(p))return 'bootstrap-telemetry';
+  if((h==='www.google-analytics.com'||h.endsWith('.google-analytics.com'))&&/\/g\/collect$/.test(p))return 'bootstrap-telemetry';
+  return 'mutation';
+}
 page.on('pageerror',e=>pageErrors.push(String(e)));
-page.on('request',r=>{const u=r.url(),m=r.method();if(!u.startsWith(BASE)&&!['GET','HEAD','OPTIONS'].includes(m))externalMutations.push(`${m} ${u}`);});
+page.on('request',r=>{
+  const u=r.url(),m=r.method();
+  if(u.startsWith(BASE)||['GET','HEAD','OPTIONS'].includes(m))return;
+  const kind=classifyExternalPost(u);
+  if(kind==='mutation')externalMutations.push(`${m} ${u}`);
+  else nonBusinessExternalPosts.push({method:m,url:u,kind});
+});
 let original=null;
 
 async function activeView(){return page.locator('.ap-view.is-active').getAttribute('data-view');}
@@ -134,9 +151,9 @@ try{
  must(await page.locator('#apAddDeliveryService').isDisabled(),'Operations delivery-service Add should be explicitly read-only');
  await page.locator('#apRole').selectOption('Owner');await sleep(100);
 
- must(externalMutations.length===0,`Local Admin action sweep attempted external mutation(s): ${JSON.stringify(externalMutations)}`);
+ must(externalMutations.length===0,`Local Admin action sweep attempted external business mutation(s): ${JSON.stringify(externalMutations)}`);
  must(pageErrors.length===0,`Admin action sweep page errors: ${JSON.stringify(pageErrors)}`);
- console.log('ADMIN ACTION CONTRACT QA: PASS',JSON.stringify({staticButtons:buttonTags.length,flags,externalMutations:externalMutations.length}));
+ console.log('ADMIN ACTION CONTRACT QA: PASS',JSON.stringify({staticButtons:buttonTags.length,flags,externalMutations:externalMutations.length,nonBusinessExternalPosts:nonBusinessExternalPosts.length}));
 } finally {
  if(original){try{await page.evaluate(s=>window.NSV421Store?.save?.(s),original);}catch{}}
  await context.close();await browser.close();server.kill();
