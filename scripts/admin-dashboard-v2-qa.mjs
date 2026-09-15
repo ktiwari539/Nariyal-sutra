@@ -36,8 +36,10 @@ try{
  must(metric.pending.length===stateMetric.pending,'Pending-order KPI is not derived from order source');
  await page.locator('[data-dash-view="reviews"]').click();
  await page.waitForFunction(()=>document.querySelector('.ap-view[data-view="reviews"]')?.classList.contains('is-active'));
+ await page.waitForSelector('.ap-view[data-view="reviews"] .ns-dash-context',{state:'attached',timeout:3000});
  must(await page.locator('.ap-view[data-view="reviews"] .ns-dash-context').count()===1,'Review Queue deep-link did not preserve dashboard context');
  await page.locator('.ap-view[data-view="reviews"] .ns-dash-context button').click();
+ await page.waitForFunction(()=>!document.querySelector('.ap-view[data-view="reviews"] .ns-dash-context'));
  must(await page.locator('.ap-view[data-view="reviews"] .ns-dash-context').count()===0,'Clear dashboard filter did not clear context');
  await overview();const before=await page.evaluate(()=>window.NSV421Store.load().communications?.length||0);
  await page.locator('[data-quick="communication"]').click();
@@ -47,9 +49,17 @@ try{
  await page.locator('[data-comm-cancel]').click();await sleep(60);
  must((await page.evaluate(()=>window.NSV421Store.load().communications?.length||0))===before,'Cancelling dashboard Communication quick action changed state');
  await overview();const oid=await page.evaluate(()=>String(window.NSV421Store.load().orders?.[0]?.id||''));
- if(oid){await page.locator('#nsDashSearch').fill(oid);await page.locator('#nsDashSearchBtn').click();await page.waitForFunction(()=>document.querySelector('.ap-view[data-view="orders"]')?.classList.contains('is-active'));must(await page.locator('.ap-view[data-view="orders"] .ns-dash-context').count()===1,'Dashboard search did not route known order with context');}
+ if(oid){
+  await page.locator('#nsDashSearch').fill(oid);await page.locator('#nsDashSearchBtn').click();
+  await page.waitForFunction(()=>document.querySelector('.ap-view[data-view="orders"]')?.classList.contains('is-active'));
+  await page.waitForSelector('.ap-view[data-view="orders"] .ns-dash-context',{state:'attached',timeout:3000});
+  must(await page.locator('.ap-view[data-view="orders"] .ns-dash-context').count()===1,'Dashboard search did not route known order with context');
+ }
  await overview();await page.locator('[data-pulse="awaiting"]').click();await page.waitForFunction(()=>document.querySelector('.ap-view[data-view="orders"]')?.classList.contains('is-active'));
- const paymentFilter=page.locator('#apOrderPaymentFilter');if(await paymentFilter.count())must(/awaiting/i.test(await paymentFilter.inputValue()),'Payment pulse did not apply existing Awaiting filter');
+ const paymentFilter=page.locator('#apOrderPaymentFilter');if(await paymentFilter.count()){
+  await page.waitForFunction(()=>{const e=document.querySelector('#apOrderPaymentFilter');return !!e&&/awaiting/i.test(e.options[e.selectedIndex]?.textContent||e.value);},null,{timeout:3000});
+  must(/awaiting/i.test(await paymentFilter.locator('option:checked').textContent()),'Payment pulse did not apply existing Awaiting filter');
+ }
  for(const vp of [{width:1024,height:900},{width:390,height:844}]){await page.setViewportSize(vp);await overview();await sleep(80);const box=await page.locator('#nsDashboardV2').boundingBox();must(box&&box.x>=-1&&box.x+box.width<=vp.width+1,`Dashboard V2 overflows ${vp.width}px viewport`);const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>document.documentElement.clientWidth+2);must(!overflow,`Dashboard V2 caused horizontal document overflow at ${vp.width}px`);}
  await page.evaluate(s=>{window.NSV421Store.save(s);window.dispatchEvent(new CustomEvent('nsv421:change'));},original);await sleep(80);
  must(errors.length===0,`Dashboard V2 page errors: ${errors.join(' | ')}`);
