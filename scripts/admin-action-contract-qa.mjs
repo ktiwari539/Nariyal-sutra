@@ -12,7 +12,7 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 // an owning Admin runtime reference.
 const html=fs.readFileSync('admin-preview.html','utf8');
 const jsDir=path.join(process.cwd(),'assets','js');
-const adminJs=fs.readdirSync(jsDir).filter(n=>/^admin-v\d+.*\.js$/.test(n)).map(n=>fs.readFileSync(path.join(jsDir,n),'utf8')).join('\n');
+const adminJs=fs.readdirSync(jsDir).filter(n=>/^admin-(?:v\d+.*|communication)\.js$/.test(n)).map(n=>fs.readFileSync(path.join(jsDir,n),'utf8')).join('\n');
 const buttonTags=[...html.matchAll(/<button\b([^>]*)>/gi)].map(m=>m[1]);
 const unowned=[];
 for(const attrs of buttonTags){
@@ -56,11 +56,11 @@ async function assertCreateOpensForm({view,button,form,key,cancel}){
 try{
  const res=await page.goto(BASE+'/admin-preview.html',{waitUntil:'domcontentloaded',timeout:30000});
  must(res&&res.status()<400,`Admin returned ${res?.status()}`);
- await page.waitForFunction(()=>window.__NSV21_ADMIN_BOUND===true&&window.__NS_V421_ADMIN_V48_ACTION_CONTRACT__===true,null,{timeout:15000});
+ await page.waitForFunction(()=>window.__NSV21_ADMIN_BOUND===true&&window.__NS_V421_ADMIN_V48_ACTION_CONTRACT__===true&&window.NSV421CommunicationAdmin?.ready===true,null,{timeout:15000});
  await page.waitForSelector('.ap-app',{state:'visible'});
- await sleep(1200);
- const flags=await page.evaluate(()=>({v21:window.__NSV21_ADMIN_BOUND,v38:window.__NS_V421_ADMIN_V38__,communication:window.__NS_V421_ADMIN_COMMUNICATION__,communicationApi:!!window.NSV421CommunicationAdmin,v45:window.__NS_V421_ADMIN_V45__,v47:window.__NS_V421_MANUAL_ACCEPTANCE__,v48:window.__NS_V421_ADMIN_V48_ACTION_CONTRACT__,delivery:!!window.NSV421DeliveryServicesAdmin,review:!!window.NSV421ReviewQueue}));
- must(flags.communication===true&&flags.communicationApi,`Communication runtime did not load: ${JSON.stringify(flags)}`);
+ await sleep(300);
+ const flags=await page.evaluate(()=>({v21:window.__NSV21_ADMIN_BOUND,v38:window.__NS_V421_ADMIN_V38__,communication:window.__NS_V421_ADMIN_COMMUNICATION__,communicationApi:!!window.NSV421CommunicationAdmin,communicationReady:window.NSV421CommunicationAdmin?.ready===true,communicationOwner:document.querySelector('#apCommunicationNew')?.dataset?.nsCommunicationOwner||null,v45:window.__NS_V421_ADMIN_V45__,v47:window.__NS_V421_MANUAL_ACCEPTANCE__,v48:window.__NS_V421_ADMIN_V48_ACTION_CONTRACT__,delivery:!!window.NSV421DeliveryServicesAdmin,review:!!window.NSV421ReviewQueue}));
+ must(flags.communication===true&&flags.communicationApi&&flags.communicationReady&&flags.communicationOwner==='1',`Communication runtime did not become authoritative: ${JSON.stringify(flags)}`);
  must(flags.v45===true,`Operability runtime did not load: ${JSON.stringify(flags)}`);
  must(flags.delivery,`Delivery Services runtime did not load: ${JSON.stringify(flags)}`);
  must(flags.review,`Review Queue runtime did not load: ${JSON.stringify(flags)}`);
@@ -101,7 +101,7 @@ try{
  await assertCreateOpensForm({view:'warehouses',button:'#apAddWarehouse',form:'#v48WarehouseForm',key:'warehouses',cancel:'[data-v48-cancel]'});
  await assertCreateOpensForm({view:'delivery-services',button:'#apAddDeliveryService',form:'#apDeliveryServiceForm',key:'deliveryServices',cancel:'[data-ds-cancel]'});
  await assertCreateOpensForm({view:'segments',button:'#apSegmentAdd',form:'#v48SegmentForm',key:'segments',cancel:'[data-v48-cancel]'});
- await assertCreateOpensForm({view:'communication',button:'#apCommunicationNew',form:'#v38Form',key:'communications'});
+ await assertCreateOpensForm({view:'communication',button:'#apCommunicationNew',form:'#v38Form',key:'communications',cancel:'[data-comm-cancel]'});
  await assertCreateOpensForm({view:'content',button:'#apNewContent',form:'#v48ContentForm',key:'content',cancel:'[data-v48-cancel]'});
  await assertCreateOpensForm({view:'stories',button:'#apAddStory',form:'#v48StoryForm',key:'stories',cancel:'[data-v48-cancel]'});
 
