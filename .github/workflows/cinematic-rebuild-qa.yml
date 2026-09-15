@@ -37,6 +37,9 @@ jobs:
       - name: Communication and Review Queue acceptance QA
         run: node scripts/admin-communication-review-qa.mjs
         timeout-minutes: 15
+      - name: Admin Command Center V2 QA
+        run: node scripts/admin-dashboard-v2-qa.mjs
+        timeout-minutes: 15
       - name: People profile Admin and public interaction QA
         run: node scripts/people-profile-qa.mjs
         timeout-minutes: 12
