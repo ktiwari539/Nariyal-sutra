@@ -34,6 +34,9 @@ jobs:
       - name: Admin action contract QA
         run: node scripts/admin-action-contract-qa.mjs
         timeout-minutes: 15
+      - name: Communication and Review Queue acceptance QA
+        run: node scripts/admin-communication-review-qa.mjs
+        timeout-minutes: 15
       - name: People profile Admin and public interaction QA
         run: node scripts/people-profile-qa.mjs
         timeout-minutes: 12
