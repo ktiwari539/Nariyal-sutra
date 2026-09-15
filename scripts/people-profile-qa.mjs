@@ -82,7 +82,10 @@ try{
  const trigger=page.locator('#v25PeopleStreams .v25-story-group[data-v25-primary="1"] .v38-profile-trigger').first();
  must(await trigger.getAttribute('role')==='button','Public People card is not exposed as an accessible button');
  must(await trigger.getAttribute('tabindex')==='0','Public People card is not keyboard focusable');
- await trigger.click();
+ // The approved People stream continuously translates; Playwright's normal click waits for
+ // geometric stability that a deliberately moving card never reaches. Force still performs a
+ // real pointer click on the rendered trigger, while the keyboard path below is tested normally.
+ await trigger.click({force:true});
  await page.waitForSelector('#v38PersonModal.is-open');
  must(await page.locator('#v38PersonName').innerText()==='QA People Profile','Public profile did not resolve the selected person');
  must(await page.locator('#v38PersonModal').getAttribute('role')==='dialog','Public profile is not exposed as a dialog');
