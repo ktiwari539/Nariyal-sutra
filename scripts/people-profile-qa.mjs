@@ -40,6 +40,8 @@ try{
    const people=(s.media||[]).filter(m=>m.cat==='People'&&Store.eligibleForPublic(s,m)&&(m.src||m.thumb));
    if(people.length<2)return {ok:false,count:people.length};
    const [a,b]=people;
+   const qaImage=n=>`data:image/svg+xml;charset=utf-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000"><rect width="800" height="1000" fill="${n===1?'%23d8e4d3':'%23eadfc9'}"/><text x="400" y="500" text-anchor="middle" font-size="48">QA People ${n}</text></svg>`)}`;
+   a.src=a.thumb=qaImage(1);b.src=b.thumb=qaImage(2);
    const personId='QA-PEOPLE-PROFILE';
    s.peopleStreams=s.peopleStreams||{};
    s.peopleStreams.ambassadors=s.peopleStreams.ambassadors||{};
