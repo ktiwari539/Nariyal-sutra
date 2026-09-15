@@ -59,8 +59,8 @@ try{
  await page.waitForFunction(()=>window.__NSV21_ADMIN_BOUND===true&&window.__NS_V421_ADMIN_V48_ACTION_CONTRACT__===true,null,{timeout:15000});
  await page.waitForSelector('.ap-app',{state:'visible'});
  await sleep(1200);
- const flags=await page.evaluate(()=>({v21:window.__NSV21_ADMIN_BOUND,v38:window.__NS_V421_ADMIN_V38__,v45:window.__NS_V421_ADMIN_V45__,v47:window.__NS_V421_MANUAL_ACCEPTANCE__,v48:window.__NS_V421_ADMIN_V48_ACTION_CONTRACT__,delivery:!!window.NSV421DeliveryServicesAdmin,review:!!window.NSV421ReviewQueue}));
- must(Boolean(flags.v38),`Communication runtime did not load: ${JSON.stringify(flags)}`);
+ const flags=await page.evaluate(()=>({v21:window.__NSV21_ADMIN_BOUND,v38:window.__NS_V421_ADMIN_V38__,communication:window.__NS_V421_ADMIN_COMMUNICATION__,communicationApi:!!window.NSV421CommunicationAdmin,v45:window.__NS_V421_ADMIN_V45__,v47:window.__NS_V421_MANUAL_ACCEPTANCE__,v48:window.__NS_V421_ADMIN_V48_ACTION_CONTRACT__,delivery:!!window.NSV421DeliveryServicesAdmin,review:!!window.NSV421ReviewQueue}));
+ must(flags.communication===true&&flags.communicationApi,`Communication runtime did not load: ${JSON.stringify(flags)}`);
  must(flags.v45===true,`Operability runtime did not load: ${JSON.stringify(flags)}`);
  must(flags.delivery,`Delivery Services runtime did not load: ${JSON.stringify(flags)}`);
  must(flags.review,`Review Queue runtime did not load: ${JSON.stringify(flags)}`);
