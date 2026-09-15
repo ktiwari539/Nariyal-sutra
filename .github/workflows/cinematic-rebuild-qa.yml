@@ -31,6 +31,9 @@ jobs:
       - name: Admin end-to-end interaction and responsive QA
         run: node scripts/admin-e2e-interaction-qa.mjs
         timeout-minutes: 15
+      - name: People profile Admin and public interaction QA
+        run: node scripts/people-profile-qa.mjs
+        timeout-minutes: 12
       - name: Checkout live-location synchronization QA
         run: node scripts/checkout-location-sync-qa.mjs
         timeout-minutes: 10
