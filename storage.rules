@@ -2,17 +2,26 @@ rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
     function isSignedIn() { return request.auth != null; }
-    function isOwner() { return isSignedIn() && request.auth.uid == '9FjkrCMDstfVS1Ghu2LlA0skoAf2'; }
+    function isOwner() {
+      return isSignedIn()
+        && request.auth.uid == '9FjkrCMDstfVS1Ghu2LlA0skoAf2'
+        && request.auth.token.email_verified == true
+        && request.auth.token.email == 'nariyalsutra@gmail.com';
+    }
     function isSelf(uid) { return isSignedIn() && request.auth.uid == uid; }
 
     match /customer-profile-images/{uid}/{fileName} {
-      // Migration safety: existing V42 profile binaries are not deleted and remain privately readable.
-      // V42.1 intentionally blocks new customer Firebase Storage writes while profile upload is gated.
+      // Customer avatars are private. The browser always writes one processed WebP
+      // to the caller's own deterministic path; no arbitrary user storage is exposed.
       allow read: if isSelf(uid) || isOwner();
-      allow create, update, delete: if false;
+      allow create, update: if isSelf(uid)
+        && fileName == 'avatar.webp'
+        && request.resource.size <= 5 * 1024 * 1024
+        && request.resource.contentType == 'image/webp';
+      allow delete: if isSelf(uid) || isOwner();
     }
 
-    // Admin media is stored through signed Cloudinary uploads for the test phase.
+    // Admin/public website media continues to use signed Cloudinary uploads.
     match /{allPaths=**} { allow read, write: if false; }
   }
 }
