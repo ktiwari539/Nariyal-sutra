@@ -1,4 +1,5 @@
 const crypto = require('crypto');
+const {verifyAppCheckRequest}=require('./app-check-verify');
 let certCache = { expiresAt: 0, certs: null };
 function json(statusCode, body, origin) {
   return {statusCode,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store','access-control-allow-origin':origin||'https://nariyal-sutra.netlify.app','access-control-allow-methods':'POST, OPTIONS','access-control-allow-headers':'content-type, authorization, x-firebase-appcheck','vary':'Origin'},body:statusCode===204?'':JSON.stringify(body)};
@@ -30,8 +31,9 @@ exports.handler = async (event) => {
   if(!origin)return json(403,{error:'Origin not allowed'});
   const cloudName=process.env.CLOUDINARY_CLOUD_NAME,apiKey=process.env.CLOUDINARY_API_KEY,apiSecret=process.env.CLOUDINARY_API_SECRET;
   if(!cloudName||!apiKey||!apiSecret)return json(503,{error:'Media upload is not configured on this environment.'},origin);
+  let appCheck;try{appCheck=await verifyAppCheckRequest(event);}catch(_){return json(401,{error:'App Check verification failed.'},origin);}
   const projectId=process.env.FIREBASE_PROJECT_ID||'nariyal-sutra',ownerUid=process.env.NS_ADMIN_OWNER_UID||'9FjkrCMDstfVS1Ghu2LlA0skoAf2',ownerEmail=process.env.NS_OWNER_EMAIL||'nariyalsutra@gmail.com';
-  const authHeader=String(event.headers?.authorization||event.headers?.Authorization||''),token=authHeader.match(/^Bearer\s+(.+)$/i)?.[1]||'',appCheckToken=String(event.headers?.['x-firebase-appcheck']||event.headers?.['X-Firebase-AppCheck']||'');
+  const authHeader=String(event.headers?.authorization||event.headers?.Authorization||''),token=authHeader.match(/^Bearer\s+(.+)$/i)?.[1]||'',appCheckToken=appCheck.token;
   if(!token)return json(401,{error:'Admin authentication required.'},origin);
   let claims;try{claims=await verifyFirebaseToken(token,projectId);}catch(e){return json(401,{error:'Admin authentication could not be verified.'},origin);}
   const role=await adminRole(claims,token,appCheckToken,projectId,ownerUid,ownerEmail);if(!['Owner','Admin','Manager','Content'].includes(role))return json(403,{error:'This active verified Admin role cannot upload public media.'},origin);
