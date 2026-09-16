@@ -1,6 +1,7 @@
 'use strict';
 const crypto=require('crypto');
 const {completeTemplateParams}=require('./email-template-contract');
+const {verifyAppCheckRequest}=require('./app-check-verify');
 let certCache={expiresAt:0,certs:null};
 const buckets=new Map();
 function allowedOrigin(origin){if(!origin)return null;try{const u=new URL(origin);if(u.protocol!=='https:')return null;if(u.hostname==='nariyal-sutra.netlify.app'||/--nariyal-sutra\.netlify\.app$/i.test(u.hostname)||(process.env.URL&&u.origin===new URL(process.env.URL).origin))return origin;}catch(_){}return null;}
@@ -21,8 +22,9 @@ exports.handler=async(event)=>{
  if(!origin)return json(403,{error:'Origin not allowed'});
  const ct=String(event.headers?.['content-type']||event.headers?.['Content-Type']||'');if(!ct.includes('application/json'))return json(415,{error:'JSON content type required'},origin);
  if(Number(event.headers?.['content-length']||0)>16384||String(event.body||'').length>16384)return json(413,{error:'Request too large'},origin);
+ let appCheck;try{appCheck=await verifyAppCheckRequest(event);}catch(_){return json(401,{error:'App Check verification failed.'},origin);}
  const projectId=process.env.FIREBASE_PROJECT_ID||'nariyal-sutra',ownerUid=process.env.NS_ADMIN_OWNER_UID||'9FjkrCMDstfVS1Ghu2LlA0skoAf2',ownerEmail=process.env.NS_OWNER_EMAIL||'nariyalsutra@gmail.com';
- const authHeader=String(event.headers?.authorization||event.headers?.Authorization||''),token=authHeader.match(/^Bearer\s+(.+)$/i)?.[1]||'',appCheckToken=String(event.headers?.['x-firebase-appcheck']||event.headers?.['X-Firebase-AppCheck']||'');if(!token)return json(401,{error:'Admin authentication required.'},origin);
+ const authHeader=String(event.headers?.authorization||event.headers?.Authorization||''),token=authHeader.match(/^Bearer\s+(.+)$/i)?.[1]||'',appCheckToken=appCheck.token;if(!token)return json(401,{error:'Admin authentication required.'},origin);
  let claims;try{claims=await verifyFirebaseToken(token,projectId);}catch(_){return json(401,{error:'Admin authentication could not be verified.'},origin);}
  const role=await adminRole(claims,token,appCheckToken,projectId,ownerUid,ownerEmail);if(!['Owner','Admin','Manager'].includes(role))return json(403,{error:'This active verified Admin role cannot send external email communications.'},origin);
  const ip=(event.headers?.['x-nf-client-connection-ip']||event.headers?.['x-forwarded-for']||'').split(',')[0].trim();if(!rateOk(claims.sub,ip))return json(429,{error:'Too many communication send attempts. Try again shortly.'},origin);
