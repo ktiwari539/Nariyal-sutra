@@ -1,0 +1,223 @@
+import fs from 'node:fs';
+import {
+  initializeTestEnvironment,
+  assertSucceeds,
+  assertFails
+} from '@firebase/rules-unit-testing';
+import {
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  writeBatch,
+  serverTimestamp
+} from 'firebase/firestore';
+
+const PROJECT='nariyal-sutra';
+const OWNER_UID='9FjkrCMDstfVS1Ghu2LlA0skoAf2';
+const OWNER_EMAIL='nariyalsutra@gmail.com';
+const TOKEN='a'.repeat(48);
+const TOKEN2='b'.repeat(48);
+const TOKEN3='c'.repeat(48);
+const ORDER='NS-2026-RULES01';
+const ORDER2='NS-2026-RULES02';
+const ORDER3='NS-2026-RULES03';
+const must=(c,m)=>{if(!c)throw new Error(m)};
+
+function baseOrder(orderId=ORDER,token=TOKEN,extra={}){
+  return {
+    orderId,
+    customerName:'QA Customer',
+    phone:'919876543210',
+    email:'qa.customer@example.com',
+    city:'Jabalpur',
+    address:'893 Aman Nagar, New Ranjhi, Jabalpur 482011',
+    deliveryAddress:'893 Aman Nagar, New Ranjhi, Jabalpur 482011',
+    notes:'',
+    productKey:'tender',
+    productName:'Fresh Tender Coconut',
+    quantity:2,
+    unitPrice:55,
+    total:110,
+    paymentType:'cod',
+    paymentLabel:'Cash on Delivery (COD)',
+    status:'pending',
+    createdAt:serverTimestamp(),
+    updatedAt:serverTimestamp(),
+    source:'website',
+    country:'India',
+    state:'Madhya Pradesh',
+    pin:'482011',
+    landmark:'',
+    deliveryLat:23.198712,
+    deliveryLng:80.019245,
+    deliveryAccuracy:18,
+    deliveryLocationSource:'gps',
+    deliveryCoordinatesConfirmed:true,
+    deliveryMethod:'review',
+    deliveryLabel:'Delivery Review',
+    deliveryEtaMin:null,
+    deliveryEtaMax:null,
+    deliveryEta:'Confirmed on WhatsApp',
+    isInternational:false,
+    recurringPreference:'onetime',
+    trackingToken:token,
+    deliveryOTP:'123456',
+    qtyBand:'retail',
+    ...extra
+  };
+}
+
+function tracking(orderId=ORDER,token=TOKEN,extra={}){
+  return {
+    trackingToken:token,
+    orderId,
+    status:'pending',
+    productName:'Fresh Tender Coconut',
+    quantity:2,
+    deliveryMethod:'Delivery Review',
+    deliveryEstimate:'Confirmed on WhatsApp',
+    estimatedTotal:'₹110 + delivery (confirmed later)',
+    destinationDisplay:'Jabalpur, Madhya Pradesh, India',
+    eta:'Confirmed on WhatsApp',
+    updatedAt:serverTimestamp(),
+    ...extra
+  };
+}
+
+function customerProjection(uid,orderId=ORDER3,token=TOKEN3,extra={}){
+  return {
+    customerUid:uid,
+    orderId,
+    productKey:'tender',
+    productName:'Fresh Tender Coconut',
+    quantity:2,
+    unitPrice:55,
+    total:110,
+    status:'pending',
+    paymentLabel:'Cash on Delivery (COD)',
+    deliveryMethod:'Delivery Review',
+    deliveryEstimate:'Confirmed on WhatsApp',
+    estimatedTotal:'₹110 + delivery (confirmed later)',
+    destinationDisplay:'Jabalpur, Madhya Pradesh, India',
+    trackingToken:token,
+    source:'account_checkout',
+    createdAt:serverTimestamp(),
+    updatedAt:serverTimestamp(),
+    ...extra
+  };
+}
+
+const env=await initializeTestEnvironment({
+  projectId:PROJECT,
+  firestore:{rules:fs.readFileSync('firestore.rules','utf8')}
+});
+
+async function seed(path,data){
+  await env.withSecurityRulesDisabled(async ctx=>setDoc(doc(ctx.firestore(),path),data));
+}
+async function role(uid,email,roleName='Operations',active=true){
+  await seed(`adminRoles/${uid}`,{
+    uid,email,role:roleName,status:active?'Active':'Inactive',active,
+    inviteStatus:active?'Active':'Revoked'
+  });
+}
+async function seedCatalog(){
+  await seed('products/tender',{name:'Fresh Tender Coconut',price:55,minQty:1,stock:150,active:true,updatedAt:new Date()});
+  await seed('products/green',{name:'Green Round Coconut',price:55,minQty:1,stock:100,active:true,updatedAt:new Date()});
+  await seed('products/bulk',{name:'Bulk Pack 10+ pcs',price:45,minQty:10,stock:300,active:true,updatedAt:new Date()});
+}
+async function guestCheckout(db,orderId=ORDER,token=TOKEN,extraOrder={},extraTrack={}){
+  const b=writeBatch(db);
+  b.set(doc(db,'orders',orderId),baseOrder(orderId,token,extraOrder));
+  b.set(doc(db,'publicTracking',token),tracking(orderId,token,extraTrack));
+  return b.commit();
+}
+
+try{
+  await env.clearFirestore();
+  await seedCatalog();
+
+  const guest=env.unauthenticatedContext().firestore();
+  await assertSucceeds(guestCheckout(guest));
+  must((await getDoc(doc(guest,'publicTracking',TOKEN))).exists(),'Exact tracking token GET must remain public-readable');
+
+  await assertFails(guestCheckout(guest,ORDER2,TOKEN2,{unexpectedPrivateField:'blocked'}));
+  await assertFails(guestCheckout(guest,'NS-2026-RULES04','d'.repeat(48),{unitPrice:1,total:2}));
+  await assertFails(guestCheckout(guest,'NS-2026-RULES05','e'.repeat(48),{}, {phone:'private-data-must-never-project'}));
+
+  const orphanToken='f'.repeat(48);
+  await assertFails(setDoc(doc(guest,'publicTracking',orphanToken),tracking('NS-2026-ORPHAN1',orphanToken)));
+
+  const customerUid='customer-qa-1';
+  const customer=env.authenticatedContext(customerUid,{email:'customer@example.com',email_verified:true}).firestore();
+  const signedBatch=writeBatch(customer);
+  signedBatch.set(doc(customer,'orders',ORDER3),baseOrder(ORDER3,TOKEN3,{customerUid}));
+  signedBatch.set(doc(customer,'publicTracking',TOKEN3),tracking(ORDER3,TOKEN3));
+  signedBatch.set(doc(customer,'customerOrders',customerUid,'orders',ORDER3),customerProjection(customerUid));
+  await assertSucceeds(signedBatch.commit());
+
+  const activeUid='ops-active';
+  const activeEmail='ops.active@example.com';
+  await role(activeUid,activeEmail,'Operations',true);
+  const activeOps=env.authenticatedContext(activeUid,{email:activeEmail,email_verified:true}).firestore();
+  await assertSucceeds(getDoc(doc(activeOps,'orders',ORDER)));
+
+  const inactiveUid='ops-inactive';
+  const inactiveEmail='ops.inactive@example.com';
+  await role(inactiveUid,inactiveEmail,'Operations',false);
+  const inactiveOps=env.authenticatedContext(inactiveUid,{email:inactiveEmail,email_verified:true}).firestore();
+  await assertFails(getDoc(doc(inactiveOps,'orders',ORDER)));
+
+  const unverifiedUid='ops-unverified';
+  const unverifiedEmail='ops.unverified@example.com';
+  await role(unverifiedUid,unverifiedEmail,'Operations',true);
+  const unverifiedOps=env.authenticatedContext(unverifiedUid,{email:unverifiedEmail,email_verified:false}).firestore();
+  await assertFails(getDoc(doc(unverifiedOps,'orders',ORDER)));
+
+  const mismatchedUid='ops-email-mismatch';
+  await role(mismatchedUid,'expected@example.com','Operations',true);
+  const mismatched=env.authenticatedContext(mismatchedUid,{email:'other@example.com',email_verified:true}).firestore();
+  await assertFails(getDoc(doc(mismatched,'orders',ORDER)));
+
+  const contentUid='content-active';
+  const contentEmail='content@example.com';
+  await role(contentUid,contentEmail,'Content',true);
+  await seed('mediaAssets/MEDIA-QA',{logicalId:'MEDIA-QA',provider:'cloudinary'});
+  const content=env.authenticatedContext(contentUid,{email:contentEmail,email_verified:true}).firestore();
+  await assertSucceeds(getDoc(doc(content,'mediaAssets','MEDIA-QA')));
+
+  const adminUid='admin-active';
+  const adminEmail='admin@example.com';
+  await role(adminUid,adminEmail,'Admin',true);
+  const admin=env.authenticatedContext(adminUid,{email:adminEmail,email_verified:true}).firestore();
+  await assertSucceeds(setDoc(doc(admin,'adminAudit','audit-ok'),{
+    action:'QA contract check',target:'firestore.rules',actorUid:adminUid,actorEmail:adminEmail,timestamp:serverTimestamp(),source:'rules_qa'
+  }));
+  await assertFails(setDoc(doc(admin,'adminAudit','audit-spoof'),{
+    action:'Spoof attempt',target:'firestore.rules',actorUid:'someone-else',actorEmail:adminEmail,timestamp:serverTimestamp(),source:'rules_qa'
+  }));
+
+  await assertSucceeds(updateDoc(doc(activeOps,'products','tender'),{stock:149,updatedAt:serverTimestamp()}));
+  await assertFails(updateDoc(doc(activeOps,'products','tender'),{price:50,updatedAt:serverTimestamp()}));
+
+  // Operational status changes must update private order + sanitized tracking together.
+  const confirm=writeBatch(activeOps);
+  confirm.update(doc(activeOps,'orders',ORDER),{status:'confirmed',updatedAt:serverTimestamp()});
+  confirm.update(doc(activeOps,'publicTracking',TOKEN),{status:'confirmed',updatedAt:serverTimestamp()});
+  await assertSucceeds(confirm.commit());
+
+  const invalidJump=writeBatch(activeOps);
+  invalidJump.update(doc(activeOps,'orders',ORDER),{status:'delivered',updatedAt:serverTimestamp()});
+  invalidJump.update(doc(activeOps,'publicTracking',TOKEN),{status:'delivered',updatedAt:serverTimestamp()});
+  await assertFails(invalidJump.commit());
+
+  const owner=env.authenticatedContext(OWNER_UID,{email:OWNER_EMAIL,email_verified:true}).firestore();
+  await assertSucceeds(getDoc(doc(owner,'orders',ORDER)));
+  const ownerUnverified=env.authenticatedContext(OWNER_UID,{email:OWNER_EMAIL,email_verified:false}).firestore();
+  await assertFails(getDoc(doc(ownerUnverified,'orders',ORDER)));
+
+  console.log('FIRESTORE SECURITY CONTRACT QA: PASS');
+} finally {
+  await env.cleanup();
+}
