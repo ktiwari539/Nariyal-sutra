@@ -156,9 +156,10 @@ const cutoverBuilder=read('scripts/build-firestore-cutover-rules.mjs');
 has(cutoverBuilder,[
   'GENERATED CUTOVER RULESET',
   "legacy deliveryAddress",
-  "legacy public tracking OTP validation",
+  "legacy delivery coordinate metadata",
   "firestore.cutover.rules"
 ],'zero-downtime cutover builder');
+not(cutoverBuilder,["deliveryOTP','updatedAt","legacy public tracking OTP"],'minimal cutover builder');
 const cutoverConfig=JSON.parse(read('firebase.cutover.json'));
 must(cutoverConfig?.firestore?.rules==='firestore.cutover.rules','Cutover Firebase config does not point at generated compatibility rules');
 
