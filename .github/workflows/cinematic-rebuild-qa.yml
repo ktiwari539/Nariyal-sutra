@@ -21,6 +21,9 @@ jobs:
       - name: Netlify Dev publish contract QA
         run: node scripts/netlify-dev-contract-qa.mjs
         timeout-minutes: 3
+      - name: Admin role access contract QA
+        run: node scripts/admin-role-contract-qa.mjs
+        timeout-minutes: 3
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
