@@ -37,8 +37,11 @@ function customerProjection(uid,orderId,token){
 
 const strict=fs.readFileSync('firestore.rules','utf8'),cutover=fs.readFileSync('firestore.cutover.rules','utf8');
 must(cutover.includes('GENERATED CUTOVER RULESET'),'Cutover rules banner missing');
-must(cutover.includes("'customerUpdate','deliveryOTP','updatedAt'"),'Legacy tracking compatibility missing from cutover rules');
-must(!strict.includes("'customerUpdate','deliveryOTP','updatedAt'"),'Strict final rules accidentally retained legacy public OTP compatibility');
+must(cutover.includes("!d.keys().hasAny(['deliveryAddress'])"),'Legacy deliveryAddress compatibility missing');
+must(cutover.includes("!d.keys().hasAny(['deliveryLocationSource'])"),'Legacy location-source compatibility missing');
+must(cutover.includes("!d.keys().hasAny(['deliveryCoordinatesConfirmed'])"),'Legacy coordinate-confirmation compatibility missing');
+must(!cutover.includes("'customerUpdate','deliveryOTP','updatedAt'"),'Cutover rules widened the public tracking schema unnecessarily');
+must(!strict.includes("'customerUpdate','deliveryOTP','updatedAt'"),'Strict final rules accidentally expose private delivery OTP in tracking');
 
 const env=await initializeTestEnvironment({projectId:PROJECT,firestore:{rules:cutover}});
 async function seed(path,data){await env.withSecurityRulesDisabled(async ctx=>setDoc(doc(ctx.firestore(),path),data));}
@@ -47,9 +50,12 @@ try{
   await seed('products/tender',{name:'Fresh Tender Coconut',price:55,minQty:1,stock:150,active:true,updatedAt:new Date()});
   const guest=env.unauthenticatedContext().firestore();
 
-  // Existing September storefront: legacy private shape, then tracking projection in a second write.
+  // Existing September storefront: legacy private shape, then already-sanitized tracking in a second write.
   await assertSucceeds(setDoc(doc(guest,'orders',OLD_ORDER),legacyOrder(OLD_ORDER,TOKEN_OLD)));
-  await assertSucceeds(setDoc(doc(guest,'publicTracking',TOKEN_OLD),tracking(OLD_ORDER,TOKEN_OLD,{deliveryOTP:'123456'})));
+  await assertSucceeds(setDoc(doc(guest,'publicTracking',TOKEN_OLD),tracking(OLD_ORDER,TOKEN_OLD)));
+
+  // Even during cutover, private delivery OTP must never be accepted by public tracking.
+  await assertFails(setDoc(doc(guest,'publicTracking','4'.repeat(48)),tracking('NS-CUTOVER-OTP01','4'.repeat(48),{deliveryOTP:'123456'})));
 
   // New storefront: strict private shape + sanitized tracking projection atomically.
   const modern=writeBatch(guest);
@@ -57,14 +63,14 @@ try{
   modern.set(doc(guest,'publicTracking',TOKEN_NEW),tracking(NEW_ORDER,TOKEN_NEW));
   await assertSucceeds(modern.commit());
 
-  // Signed-in legacy checkout must remain usable during the short cutover window.
+  // Signed-in legacy checkout remains usable during the short cutover window.
   const uid='cutover-customer',customer=env.authenticatedContext(uid,{email:'cutover@example.com',email_verified:true}).firestore();
   await assertSucceeds(setDoc(doc(customer,'orders',USER_ORDER),legacyOrder(USER_ORDER,TOKEN_USER,{customerUid:uid})));
-  await assertSucceeds(setDoc(doc(customer,'publicTracking',TOKEN_USER),tracking(USER_ORDER,TOKEN_USER,{deliveryOTP:'654321'})));
+  await assertSucceeds(setDoc(doc(customer,'publicTracking',TOKEN_USER),tracking(USER_ORDER,TOKEN_USER)));
   await assertSucceeds(setDoc(doc(customer,'customerOrders',uid,'orders',USER_ORDER),customerProjection(uid,USER_ORDER,TOKEN_USER)));
 
-  // Cutover compatibility must not relax unrelated private-order schema validation.
-  await assertFails(setDoc(doc(guest,'orders','NS-CUTOVER-BAD01'),legacyOrder('NS-CUTOVER-BAD01','4'.repeat(48),{unexpectedPrivateField:'blocked'})));
+  // Compatibility must not relax unrelated private-order schema validation.
+  await assertFails(setDoc(doc(guest,'orders','NS-CUTOVER-BAD01'),legacyOrder('NS-CUTOVER-BAD01','5'.repeat(48),{unexpectedPrivateField:'blocked'})));
   console.log('FIRESTORE ZERO-DOWNTIME CUTOVER QA: PASS');
 } finally {
   await env.cleanup();
