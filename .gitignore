@@ -1,0 +1,4 @@
+node_modules/
+firestore.cutover.rules
+.firebase/
+firebase-debug.log*
