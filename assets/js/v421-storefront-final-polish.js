@@ -164,22 +164,40 @@ function addCinematicDepth(){
   return true;
 }
 
+/* Preserve the approved People rail visuals/motion; only make each card resolve to the
+   exact Admin-authored public profile when a person mapping exists. */
+function linkPeopleProfiles(){
+  if(!Store?.load)return;
+  let s;try{s=Store.load();}catch(_e){return;}
+  document.querySelectorAll('.ns-face-card[data-id]').forEach(card=>{
+    const id=card.dataset.id;
+    const m=Store.mediaById?.(s,id)||(s.media||[]).find(x=>x.id===id);
+    if(!m)return;
+    const person=m.personId||m.faceGroup||m.id;
+    if(!person)return;
+    card.href=`people-of-nariyal-sutra.html?person=${encodeURIComponent(person)}#people-moving`;
+    card.dataset.nsPersonLink=person;
+  });
+}
+
 function init(){
   installCinematicFinish();
   fixLegacyStoryMedia();
+  linkPeopleProfiles();
   if(!addCinematicDepth()){
     let tries=0;
     const timer=setInterval(()=>{
       fixLegacyStoryMedia();
+      linkPeopleProfiles();
       if(addCinematicDepth()||++tries>30)clearInterval(timer);
     },120);
   }
-  setTimeout(fixLegacyStoryMedia,700);
-  setTimeout(()=>{fixLegacyStoryMedia();addCinematicDepth();requestCinematicPhase();},1600);
+  setTimeout(()=>{fixLegacyStoryMedia();linkPeopleProfiles();},700);
+  setTimeout(()=>{fixLegacyStoryMedia();linkPeopleProfiles();addCinematicDepth();requestCinematicPhase();},1600);
   window.addEventListener('scroll',requestCinematicPhase,{passive:true});
   window.addEventListener('resize',requestCinematicPhase,{passive:true});
-  window.addEventListener('nsv421:change',()=>setTimeout(()=>{fixLegacyStoryMedia();requestCinematicPhase();},0));
-  window.addEventListener('nsv421:production-ready',()=>setTimeout(()=>{fixLegacyStoryMedia();requestCinematicPhase();},0));
+  window.addEventListener('nsv421:change',()=>setTimeout(()=>{fixLegacyStoryMedia();linkPeopleProfiles();requestCinematicPhase();},0));
+  window.addEventListener('nsv421:production-ready',()=>setTimeout(()=>{fixLegacyStoryMedia();linkPeopleProfiles();requestCinematicPhase();},0));
 }
 
 document.readyState==='loading'?document.addEventListener('DOMContentLoaded',init,{once:true}):init();
