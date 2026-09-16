@@ -144,9 +144,13 @@ has(deleteOtp,[
 ],'Owner delete/audit contract');
 
 for(const p of ['assets/js/admin-communication.js','assets/js/admin-v46-owner-order-otp.js','assets/js/admin-v50-delivery-contract.js'])has(read(p),["headers['x-firebase-appcheck']=appCheck"],p);
-const browserEmail=read('emailjs-config.js');
-has(browserEmail,["if(kind==='customer_status')throw serverError","typeof window.NS_GET_APP_CHECK_TOKEN==='function'","headers['x-firebase-appcheck']=appCheck"],'browser email contract');
-not(browserEmail,["arrived:"],'browser email contract');
+const clientEmail=read('emailjs-config.js');
+has(clientEmail,[
+  "typeof window.NS_GET_APP_CHECK_TOKEN==='function'",
+  "headers['x-firebase-appcheck']=appCheck",
+  "return {channel:'server',result:await serverSend(kind,data)}"
+],'server-only client email contract');
+not(clientEmail,["window.emailjs.send","browser-fallback","function browserSend","if(kind==='customer_status')throw serverError","arrived:"],'server-only client email contract');
 
 const cutoverBuilder=read('scripts/build-firestore-cutover-rules.mjs');
 has(cutoverBuilder,[
@@ -160,9 +164,8 @@ must(cutoverConfig?.firestore?.rules==='firestore.cutover.rules','Cutover Fireba
 
 const {TEMPLATE_FIELDS,completeTemplateParams,orderStatusCopy}=require('../netlify/functions/email-template-contract.js');
 must(TEMPLATE_FIELDS.length===35,'EmailJS canonical template contract field count changed without QA review');
-const browserFieldSource=browserEmail.match(/const TEMPLATE_FIELDS=Object\.freeze\(\[([\s\S]*?)\]\);/)?.[1]||'',browserFields=[...browserFieldSource.matchAll(/'([^']+)'/g)].map(x=>x[1]);
-must(JSON.stringify(browserFields)===JSON.stringify(TEMPLATE_FIELDS),'Browser and server EmailJS template fields diverged');
-must(browserEmail.includes('completeTemplateParams(params)'),'Browser fallback bypasses the completed EmailJS field contract');
+const clientFieldSource=clientEmail.match(/const TEMPLATE_FIELDS=Object\.freeze\(\[([\s\S]*?)\]\);/)?.[1]||'',clientFields=[...clientFieldSource.matchAll(/'([^']+)'/g)].map(x=>x[1]);
+must(JSON.stringify(clientFields)===JSON.stringify(TEMPLATE_FIELDS),'Client and server EmailJS template fields diverged');
 const completed=completeTemplateParams({to_email:'qa@example.com',email_subject:'QA',headline:'QA',status_message:'QA',email_kind:'qa'});
 for(const field of TEMPLATE_FIELDS)must(Object.hasOwn(completed,field),`EmailJS template contract omitted ${field}`);
 for(const status of ['pending','confirmed','preparing','ready_for_dispatch','out_for_delivery','delivered','cancelled']){
