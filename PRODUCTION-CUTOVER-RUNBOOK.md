@@ -7,6 +7,7 @@ This runbook is intentionally staged. No production step is executed until the O
 - Final application SHA must have a completely green Cinematic rebuild QA workflow.
 - `firestore.rules` is the final strict ruleset.
 - `firestore.cutover.rules` is generated, temporary compatibility only and must not remain deployed after the new storefront smoke passes.
+- The cutover rules relax only the three private delivery snapshot fields missing from the September storefront; public tracking remains on the final sanitized schema throughout the cutover.
 - App Check custom-backend enforcement stays OFF until the deployed browser obtains and sends valid tokens successfully.
 - Storefront remains available throughout the rules/site cutover. Admin mutating actions are paused during the short compatibility window.
 
@@ -25,14 +26,14 @@ This runbook is intentionally staged. No production step is executed until the O
 2. Generate the temporary compatibility rules:
    `node scripts/build-firestore-cutover-rules.mjs`
 3. Publish only the generated Firestore compatibility rules using `firebase.cutover.json`.
-   - Existing September storefront checkout remains accepted.
+   - Existing September storefront checkout remains accepted even though it lacks `deliveryAddress`, `deliveryLocationSource` and `deliveryCoordinatesConfirmed`.
    - New atomic checkout is also accepted.
-   - The compatibility allowance for the legacy public tracking OTP exists only for this short window.
+   - Public tracking stays sanitized; the compatibility rules do not re-open `deliveryOTP` or other private fields.
 4. Verify the currently-live storefront can still load catalog/tracking and submit only the approved controlled smoke request if production-data testing has been separately authorized.
 5. Deploy the approved final Netlify release.
 6. Smoke the new storefront/Admin without changing unrelated live data. Validate checkout projection, exact-token tracking, Customer 360, email function reachability and role gating using approved test records only.
 7. Publish strict final `firestore.rules` and `storage.rules` with the normal `firebase.json` configuration.
-8. Re-run the same smoke checks. Confirm new tracking documents contain no `deliveryOTP` and projections are atomic.
+8. Re-run the same smoke checks. Confirm tracking documents contain no `deliveryOTP` and projections are atomic.
 9. Resume Admin writes.
 
 ## App Check activation
