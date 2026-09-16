@@ -1,7 +1,7 @@
 /* Nariyal Sutra — transactional email layer.
-   Primary path: same-origin Netlify Function (private EmailJS key stays server-side).
-   Fallback path: EmailJS Browser SDK so an email attempt can still be made if the
-   function is unavailable. Orders/enquiries remain saved in Firestore regardless.
+   External email is server-only: every production send goes through the same-origin
+   Netlify Function, where private provider credentials and App Check enforcement live.
+   Orders/enquiries remain saved in Firestore even when notification delivery fails.
 */
 window.NS_EMAILJS_CONFIG = {
   enabled: true,
@@ -27,14 +27,8 @@ window.NS_EMAILJS_CONFIG = {
   const wait = ms => new Promise(r=>setTimeout(r,ms));
   function cfg(){ return window.NS_EMAILJS_CONFIG || {}; }
   function money(v){ return Number(v||0).toLocaleString('en-IN'); }
-  function browserReady(){ return !!(cfg().enabled && window.emailjs && cfg().publicKey && cfg().serviceId && cfg().templateId); }
-  function initBrowser(){
-    if(!browserReady()) return false;
-    if(!window.__NS_EMAILJS_INIT){ window.emailjs.init({publicKey:cfg().publicKey}); window.__NS_EMAILJS_INIT=true; }
-    return true;
-  }
-  function rateLabel(o){ return String(o.unitPrice||'') + '/pc' + (o.productKey==='bulk'?' (Bulk)':' (Retail)'); }
   function completeTemplateParams(input){const out={};for(const key of TEMPLATE_FIELDS)out[key]=input?.[key]===undefined||input?.[key]===null?'':String(input[key]);return out;}
+  function rateLabel(o){ return String(o.unitPrice||'') + '/pc' + (o.productKey==='bulk'?' (Bulk)':' (Retail)'); }
   function orderTrackingToken(o){ return String((o&&o.trackingToken)||((window.NS_DELIVERY_EXTRA||{}).trackingToken)||'').trim(); }
   function trackingUrl(o){ const token=orderTrackingToken(o); return token ? (cfg().siteUrl.replace(/\/$/,'')+'/track?t='+encodeURIComponent(token)) : (cfg().siteUrl.replace(/\/$/,'')+'/track'); }
   function orderBase(o){
@@ -77,17 +71,8 @@ window.NS_EMAILJS_CONFIG = {
       return body;
     }finally{clearTimeout(timer)}
   }
-  async function browserSend(params){
-    if(!initBrowser()) throw new Error('EmailJS Browser SDK is unavailable.');
-    return window.emailjs.send(cfg().serviceId,cfg().templateId,completeTemplateParams(params));
-  }
-  async function dispatch(kind,data,params){
-    try{return {channel:'server',result:await serverSend(kind,data)}}
-    catch(serverError){
-      if(kind==='customer_status')throw serverError;
-      try{return {channel:'browser-fallback',result:await browserSend(params)}}
-      catch(browserError){const e=new Error('Email could not be sent by server or browser fallback.');e.serverError=serverError;e.browserError=browserError;throw e}
-    }
+  async function dispatch(kind,data){
+    return {channel:'server',result:await serverSend(kind,data)};
   }
   async function settled(kind,promise){
     try{return {kind,status:'fulfilled',value:await promise}}
