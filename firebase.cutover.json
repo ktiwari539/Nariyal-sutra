@@ -1,0 +1,4 @@
+{
+  "firestore": { "rules": "firestore.cutover.rules" },
+  "storage": { "rules": "storage.rules" }
+}
