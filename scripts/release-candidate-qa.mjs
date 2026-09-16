@@ -14,7 +14,9 @@ function sourceContract(){
  if(!adminEntry.includes('admin-preview.html')||adminEntry.includes('admin-live-legacy.html'))fail('source','admin.html is not a clean Business Command Center entry');
  if(!adminPreview.includes('assets/js/v421-media-db.js'))fail('source','Business Command Center does not load media/runtime bootstrap');
  if(!mediaDb.includes('admin-v38-production.js')||!mediaDb.includes('v421-production-bridge.js'))fail('source','Business Command Center production scripts are not loaded');
- for(const token of ['admin-bcc-login.html','waitAuth()','adminRole(user)',"['Owner','Admin','Manager','Operations','Content','Support','Sales']",'nsProductionAdminGuard','uploadMedia','persistRemote'])if(!bridge.includes(token))fail('source',`production Admin bridge missing ${token}`);
+ for(const token of ['admin-bcc-login.html','waitAuth()','adminRole(user)',"const allowed=['Owner',...STAFF_ROLES]",'nsProductionAdminGuard','uploadMedia','persistRemote'])if(!bridge.includes(token))fail('source',`production Admin bridge missing ${token}`);
+ const staffRoleSource=bridge.match(/const STAFF_ROLES=\[([^\]]+)\]/)?.[1]||'',staffRoles=[...staffRoleSource.matchAll(/'([^']+)'/g)].map(x=>x[1]),effectiveRoles=['Owner',...staffRoles],expectedRoles=['Owner','Admin','Manager','Operations','Content','Support','Sales'];
+ if(JSON.stringify(effectiveRoles)!==JSON.stringify(expectedRoles))fail('source',`production Admin effective role contract changed: ${JSON.stringify(effectiveRoles)}`);
  if(!bridge.includes("const LOCAL=/^(localhost|127\\.0\\.0\\.1|\\[::1\\])$/i"))fail('source','production bridge local/production boundary is missing');
  if(!bridge.includes("const isAdmin=/admin-preview\\.html$/i"))fail('source','production bridge is not bound to approved Business Command Center');
  if(!v32.includes("cinematic:()=>$('#v421-cinematic-film-pro')"))fail('source','homepage sequencing does not target the approved professional cinematic');

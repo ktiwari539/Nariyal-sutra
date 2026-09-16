@@ -39,7 +39,7 @@
      intentionally a separate Firebase Console activation step after live smoke. */
   window.NS_APP_CHECK_READY=false;
   window.NS_APP_CHECK_STATUS=LOCAL?'local-disabled':(APP_CHECK_SITE_KEY?'configured-not-initialized':'awaiting-site-key');
-  var appCheckPromise=null;
+  var appCheckPromise=null,appCheckModule=null;
   window.NS_INIT_APP_CHECK=function(app){
     if(LOCAL){window.NS_APP_CHECK_STATUS='local-disabled';return Promise.resolve(null);}
     if(!APP_CHECK_SITE_KEY){window.NS_APP_CHECK_STATUS='awaiting-site-key';return Promise.resolve(null);}
@@ -47,6 +47,7 @@
     appCheckPromise=(async function(){
       try{
         var mod=await import('https://www.gstatic.com/firebasejs/12.18.0/firebase-app-check.js');
+        appCheckModule=mod;
         var instance=mod.initializeAppCheck(app,{provider:new mod.ReCaptchaEnterpriseProvider(APP_CHECK_SITE_KEY),isTokenAutoRefreshEnabled:true});
         window.NS_APP_CHECK_INSTANCE=instance;
         window.NS_APP_CHECK_READY=true;
@@ -69,6 +70,28 @@
       }
     })();
     return appCheckPromise;
+  };
+
+  /* Custom same-origin backends do not receive App Check automatically. Expose
+     a token helper so privileged Netlify requests can forward the attestation
+     to any Firestore REST calls they make. Missing production configuration is
+     reported as readiness state; a configured provider fails closed on errors. */
+  window.NS_GET_APP_CHECK_TOKEN=async function(){
+    if(LOCAL)return '';
+    if(!APP_CHECK_SITE_KEY)return '';
+    if(!window.NS_APP_CHECK_INSTANCE)throw new Error('App Check is configured but not initialized.');
+    var mod=appCheckModule||await import('https://www.gstatic.com/firebasejs/12.18.0/firebase-app-check.js');
+    appCheckModule=mod;
+    try{
+      var response=await mod.getToken(window.NS_APP_CHECK_INSTANCE,false),token=String(response&&response.token||'');
+      if(!token)throw new Error('App Check returned an empty token.');
+      window.NS_APP_CHECK_STATUS='token-ready';
+      return token;
+    }catch(e){
+      window.NS_APP_CHECK_STATUS='token-error';
+      window.NS_APP_CHECK_ERROR=String(e&&e.message||e);
+      throw e;
+    }
   };
 
   /* Admin does not run the homepage Firebase bootstrap, so when a site key is

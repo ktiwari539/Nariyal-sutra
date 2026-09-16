@@ -7,6 +7,7 @@ import {
 import {
   doc,
   getDoc,
+  deleteDoc,
   setDoc,
   updateDoc,
   writeBatch,
@@ -186,20 +187,30 @@ try{
   await seed('mediaAssets/MEDIA-QA',{logicalId:'MEDIA-QA',provider:'cloudinary'});
   const content=env.authenticatedContext(contentUid,{email:contentEmail,email_verified:true}).firestore();
   await assertSucceeds(getDoc(doc(content,'mediaAssets','MEDIA-QA')));
+  await assertSucceeds(setDoc(doc(content,'mediaAssets','MEDIA-NEW'),{
+    logicalId:'MEDIA-NEW',provider:'cloudinary',sourceSha256:'a'.repeat(64),updatedAt:serverTimestamp(),updatedBy:contentUid
+  }));
+  await assertFails(setDoc(doc(content,'mediaAssets','MEDIA-BAD'),{
+    logicalId:'MEDIA-BAD',provider:'unapproved-provider',sourceSha256:'not-a-hash'
+  }));
+  await assertFails(setDoc(doc(content,'mediaAssets','MEDIA-EXTRA'),{
+    logicalId:'MEDIA-EXTRA',provider:'firebase',sourceSha256:'b'.repeat(64),updatedAt:serverTimestamp(),updatedBy:contentUid,unreviewedField:true
+  }));
 
   const adminUid='admin-active';
   const adminEmail='admin@example.com';
   await role(adminUid,adminEmail,'Admin',true);
   const admin=env.authenticatedContext(adminUid,{email:adminEmail,email_verified:true}).firestore();
   await assertSucceeds(setDoc(doc(admin,'adminAudit','audit-ok'),{
-    action:'QA contract check',target:'firestore.rules',actorUid:adminUid,actorEmail:adminEmail,timestamp:serverTimestamp(),source:'rules_qa'
+    action:'QA contract check',target:'firestore.rules',actorUid:adminUid,actorEmail:adminEmail,actorRole:'Admin',timestamp:serverTimestamp(),source:'rules_qa'
   }));
   await assertFails(setDoc(doc(admin,'adminAudit','audit-spoof'),{
-    action:'Spoof attempt',target:'firestore.rules',actorUid:'someone-else',actorEmail:adminEmail,timestamp:serverTimestamp(),source:'rules_qa'
+    action:'Spoof attempt',target:'firestore.rules',actorUid:'someone-else',actorEmail:adminEmail,actorRole:'Owner',timestamp:serverTimestamp(),source:'rules_qa'
   }));
 
-  await assertSucceeds(updateDoc(doc(activeOps,'products','tender'),{stock:149,updatedAt:serverTimestamp()}));
-  await assertFails(updateDoc(doc(activeOps,'products','tender'),{price:50,updatedAt:serverTimestamp()}));
+  await assertSucceeds(updateDoc(doc(activeOps,'products','tender'),{stock:149,updatedAt:serverTimestamp(),updatedBy:activeUid}));
+  await assertFails(updateDoc(doc(activeOps,'products','green'),{stock:99,updatedAt:serverTimestamp()}));
+  await assertFails(updateDoc(doc(activeOps,'products','tender'),{price:50,updatedAt:serverTimestamp(),updatedBy:activeUid}));
 
   // Operational status changes must update private order + sanitized tracking together.
   const confirm=writeBatch(activeOps);
@@ -214,6 +225,11 @@ try{
 
   const owner=env.authenticatedContext(OWNER_UID,{email:OWNER_EMAIL,email_verified:true}).firestore();
   await assertSucceeds(getDoc(doc(owner,'orders',ORDER)));
+  await assertSucceeds(setDoc(doc(owner,'adminAudit','owner-delete-audit-shape'),{
+    eventType:'owner_order_hard_delete',actorUid:OWNER_UID,actorEmail:OWNER_EMAIL,actorRole:'Owner',timestamp:serverTimestamp(),
+    orderIds:[ORDER],count:1,otpVerified:true,source:'admin_owner_email_otp',cleanup:[{orderId:ORDER,orderDeleted:true}]
+  }));
+  await assertFails(deleteDoc(doc(owner,'products','tender')));
   const ownerUnverified=env.authenticatedContext(OWNER_UID,{email:OWNER_EMAIL,email_verified:false}).firestore();
   await assertFails(getDoc(doc(ownerUnverified,'orders',ORDER)));
 

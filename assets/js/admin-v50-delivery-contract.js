@@ -28,7 +28,10 @@ function normalizeStatusSelect(){
 async function sendStatusEmail(order,status,note){
  if(!order?.email||String(order.email).indexOf('@')<1)return {skipped:true};
  try{
-   const r=await fetch('/.netlify/functions/send-email',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({kind:'customer_status',data:{...order,status,statusNote:clean(note,500)}})});
+   const user=window.NSV421ProductionBridge?.user;if(!user)throw new Error('Admin authentication is required for status email.');
+   const token=await user.getIdToken(),appCheck=typeof window.NS_GET_APP_CHECK_TOKEN==='function'?await window.NS_GET_APP_CHECK_TOKEN():'';
+   const headers={'content-type':'application/json','authorization':'Bearer '+token};if(appCheck)headers['x-firebase-appcheck']=appCheck;
+   const r=await fetch('/.netlify/functions/send-email',{method:'POST',headers,body:JSON.stringify({kind:'customer_status',data:{...order,status,statusNote:clean(note,500)}})});
    const out=await r.json().catch(()=>({}));
    if(!r.ok)throw new Error(out.error||'Status email provider rejected request.');
    return {ok:true};

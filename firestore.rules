@@ -55,7 +55,8 @@ service cloud.firestore {
     function validProduct(productKey) {
       let d = request.resource.data;
       return productKey in ['tender','green','bulk']
-        && d.keys().hasOnly(['name','shortName','description','mode','price','minQty','stock','active','updatedAt'])
+        && d.keys().hasOnly(['name','shortName','description','mode','price','minQty','stock','active','updatedAt','updatedBy'])
+        && d.keys().hasAll(['name','price','minQty','stock','active','updatedAt','updatedBy'])
         && d.name is string && d.name.size() >= 2 && d.name.size() <= 120
         && (!d.keys().hasAny(['shortName']) || (d.shortName is string && d.shortName.size() <= 80))
         && (!d.keys().hasAny(['description']) || (d.description is string && d.description.size() <= 500))
@@ -64,7 +65,8 @@ service cloud.firestore {
         && d.minQty is int && d.minQty >= 1 && d.minQty <= 10000
         && d.stock is int && d.stock >= 0 && d.stock <= 10000000
         && d.active is bool
-        && d.updatedAt == request.time;
+        && d.updatedAt == request.time
+        && d.updatedBy == request.auth.uid;
     }
 
     function validOrderCreate() {
@@ -386,15 +388,28 @@ service cloud.firestore {
     function validAuditCreate() {
       let d = request.resource.data;
       return d.keys().hasOnly([
-          'eventType','action','target','details','actorUid','actorEmail','timestamp','orderIds','count','otpVerified','source','cleanup'
+          'eventType','action','target','details','actorUid','actorEmail','actorRole','timestamp','orderIds','count','otpVerified','source','cleanup'
         ])
         && d.actorUid == request.auth.uid
         && d.actorEmail is string && request.auth.token.email is string && d.actorEmail == request.auth.token.email
-        && d.timestamp is timestamp && d.timestamp <= request.time && d.timestamp >= request.time - duration.value(5,'m')
+        && d.actorRole == currentRole()
+        && d.timestamp == request.time
         && (!d.keys().hasAny(['eventType']) || (d.eventType is string && d.eventType.size() <= 100))
         && (!d.keys().hasAny(['action']) || (d.action is string && d.action.size() <= 160))
         && (!d.keys().hasAny(['target']) || (d.target is string && d.target.size() <= 300))
         && (!d.keys().hasAny(['source']) || (d.source is string && d.source.size() <= 100));
+    }
+
+    function validMediaAssetWrite(logicalId) {
+      let d = request.resource.data;
+      return d.keys().hasOnly(['logicalId','provider','sourceSha256','updatedAt','updatedBy'])
+        && d.keys().hasAll(['logicalId','provider','sourceSha256','updatedAt','updatedBy'])
+        && d.logicalId == logicalId
+        && d.logicalId is string && d.logicalId.size() >= 2 && d.logicalId.size() <= 180
+        && d.provider in ['cloudinary','firebase']
+        && d.sourceSha256 is string && d.sourceSha256.matches('^[0-9a-fA-F]{64}$')
+        && d.updatedAt == request.time
+        && d.updatedBy == request.auth.uid;
     }
 
     match /products/{productKey} {
@@ -402,8 +417,8 @@ service cloud.firestore {
       allow create: if isAdminManager() && validProduct(productKey);
       allow update: if (isAdminManager() && validProduct(productKey))
         || (hasRole(['Operations']) && validProduct(productKey)
-          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['stock','updatedAt']));
-      allow delete: if isOwner();
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['stock','updatedAt','updatedBy']));
+      allow delete: if false;
     }
 
     match /orders/{orderId} {
@@ -507,7 +522,7 @@ service cloud.firestore {
 
     match /mediaAssets/{logicalId} {
       allow get, list: if canContent();
-      allow create, update: if canContent() && request.resource.data.logicalId == logicalId;
+      allow create, update: if canContent() && validMediaAssetWrite(logicalId);
       allow delete: if false;
       match /versions/{versionId} {
         allow get, list: if canContent();

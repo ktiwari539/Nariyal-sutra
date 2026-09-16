@@ -18,6 +18,11 @@ window.NS_EMAILJS_CONFIG = {
 };
 
 (function(){
+  const TEMPLATE_FIELDS=Object.freeze([
+    'from_name','reply_to','to_email','email_subject','subject','preheader','headline','status_label','status_message','email_kind',
+    'show_order_details','show_tracking','detail_title','order_id','customer_name','buyer_name','email','phone','product_name','quantity',
+    'rate','total','payment','address','city','notes','order_date','site_url','admin_url','account_url','tracking_url','cta_text','cta_url','status','status_note'
+  ]);
   const sent = new Set();
   const wait = ms => new Promise(r=>setTimeout(r,ms));
   function cfg(){ return window.NS_EMAILJS_CONFIG || {}; }
@@ -29,6 +34,7 @@ window.NS_EMAILJS_CONFIG = {
     return true;
   }
   function rateLabel(o){ return String(o.unitPrice||'') + '/pc' + (o.productKey==='bulk'?' (Bulk)':' (Retail)'); }
+  function completeTemplateParams(input){const out={};for(const key of TEMPLATE_FIELDS)out[key]=input?.[key]===undefined||input?.[key]===null?'':String(input[key]);return out;}
   function orderTrackingToken(o){ return String((o&&o.trackingToken)||((window.NS_DELIVERY_EXTRA||{}).trackingToken)||'').trim(); }
   function trackingUrl(o){ const token=orderTrackingToken(o); return token ? (cfg().siteUrl.replace(/\/$/,'')+'/track?t='+encodeURIComponent(token)) : (cfg().siteUrl.replace(/\/$/,'')+'/track'); }
   function orderBase(o){
@@ -49,7 +55,6 @@ window.NS_EMAILJS_CONFIG = {
       preparing:{subject:'Order Preparing #'+o.orderId,preheader:'Your coconuts are being selected and packed.',headline:'Freshness in preparation',label:'Preparing',message:'Your coconuts are being selected and packed for fulfilment.'},
       ready_for_dispatch:{subject:'Ready for Dispatch #'+o.orderId,preheader:'Your order is packed and ready to leave.',headline:'Packed and ready',label:'Ready for dispatch',message:'Your order is packed and ready for dispatch. Delivery coordination will follow.'},
       out_for_delivery:{subject:'Out for Delivery #'+o.orderId,preheader:'Your Nariyal Sutra order is on the way.',headline:'Your coconuts are on the way',label:'Out for delivery',message:'Your order is out for delivery. Keep your phone available and share the delivery OTP only with the delivery agent at handover.'},
-      arrived:{subject:'Delivery Is Nearby #'+o.orderId,preheader:'Your Nariyal Sutra delivery is nearby.',headline:'Almost there',label:'Arrived nearby',message:'Your delivery is nearby. Please keep the delivery OTP private until handover.'},
       delivered:{subject:'Order Delivered #'+o.orderId,preheader:'Your Nariyal Sutra order is marked delivered.',headline:'Freshness delivered',label:'Delivered',message:'Your order is marked as delivered. Thank you for choosing Nariyal Sutra.'},
       cancelled:{subject:'Order Update #'+o.orderId,preheader:'An update about your Nariyal Sutra order.',headline:'An update on your order',label:'Cancelled',message:'We are unable to fulfil this order at this time.'+reason+' If a payment was already made, contact us on WhatsApp so we can resolve it.'}
     };
@@ -59,7 +64,14 @@ window.NS_EMAILJS_CONFIG = {
     if(!cfg().serverEndpoint) throw new Error('Server email endpoint is not configured.');
     const controller=new AbortController(); const timer=setTimeout(()=>controller.abort(),8000);
     try{
-      const res=await fetch(cfg().serverEndpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({kind,data}),signal:controller.signal});
+      const headers={'Content-Type':'application/json'};
+      if(kind==='customer_status'){
+        const user=window.NSV421ProductionBridge?.user;if(!user)throw new Error('Admin authentication is required for order-status email.');
+        headers.authorization='Bearer '+await user.getIdToken();
+        const appCheck=typeof window.NS_GET_APP_CHECK_TOKEN==='function'?await window.NS_GET_APP_CHECK_TOKEN():'';
+        if(appCheck)headers['x-firebase-appcheck']=appCheck;
+      }
+      const res=await fetch(cfg().serverEndpoint,{method:'POST',headers,body:JSON.stringify({kind,data}),signal:controller.signal});
       const body=await res.json().catch(()=>({}));
       if(!res.ok) throw new Error(body.error||('Email server returned '+res.status));
       return body;
@@ -67,11 +79,12 @@ window.NS_EMAILJS_CONFIG = {
   }
   async function browserSend(params){
     if(!initBrowser()) throw new Error('EmailJS Browser SDK is unavailable.');
-    return window.emailjs.send(cfg().serviceId,cfg().templateId,params);
+    return window.emailjs.send(cfg().serviceId,cfg().templateId,completeTemplateParams(params));
   }
   async function dispatch(kind,data,params){
     try{return {channel:'server',result:await serverSend(kind,data)}}
     catch(serverError){
+      if(kind==='customer_status')throw serverError;
       try{return {channel:'browser-fallback',result:await browserSend(params)}}
       catch(browserError){const e=new Error('Email could not be sent by server or browser fallback.');e.serverError=serverError;e.browserError=browserError;throw e}
     }

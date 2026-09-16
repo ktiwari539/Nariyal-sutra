@@ -1,4 +1,6 @@
 'use strict';
+const crypto=require('crypto');
+const {completeTemplateParams,orderStatusCopy}=require('./email-template-contract');
 const ALLOWED_KINDS=new Set(['customer_request','owner_order','customer_status','customer_inquiry','owner_inquiry']);
 const PUBLIC_KEY=process.env.EMAILJS_PUBLIC_KEY||'aDjTgmhSPrBeTpnOA';
 const SERVICE_ID=process.env.EMAILJS_SERVICE_ID||'service_c24xpf8';
@@ -7,18 +9,16 @@ const OWNER_EMAIL=process.env.NS_OWNER_EMAIL||'nariyalsutra@gmail.com';
 const SITE_URL=process.env.URL||'https://nariyal-sutra.netlify.app';
 const ADMIN_URL=SITE_URL.replace(/\/$/,'')+'/admin';
 const buckets=new Map();
-const STATUS_COPY={
- pending:{headline:'Order received',label:'Pending review',message:'Your order request is recorded and waiting for review.'},
- confirmed:{headline:'Order confirmed',label:'Confirmed',message:'Your order has been confirmed.'},
- preparing:{headline:'Your order is being prepared',label:'Preparing',message:'We are preparing your order for dispatch.'},
- ready_for_dispatch:{headline:'Ready for dispatch',label:'Ready for dispatch',message:'Your order is prepared and ready for dispatch.'},
- out_for_delivery:{headline:'Out for delivery',label:'Out for delivery',message:'Your order is on the way. Use the private tracking link for the latest delivery update.'},
- delivered:{headline:'Delivered',label:'Delivered',message:'Your order has been marked delivered.'},
- cancelled:{headline:'Order cancelled',label:'Cancelled',message:'Your order has been cancelled. Contact us if you need help with the next step.'}
-};
-function json(status,body){return {statusCode:status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store','access-control-allow-origin':SITE_URL,'vary':'Origin'},body:JSON.stringify(body)}}
+const STATUS_SET=new Set(['pending','confirmed','preparing','ready_for_dispatch','out_for_delivery','delivered','cancelled']);
+let certCache={expiresAt:0,certs:null};
+function json(status,body,origin){return {statusCode:status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store','access-control-allow-origin':origin||SITE_URL,'access-control-allow-methods':'POST, OPTIONS','access-control-allow-headers':'content-type, authorization, x-firebase-appcheck','vary':'Origin'},body:status===204?'':JSON.stringify(body)}}
 function allowedOrigin(v){if(!v)return false;try{const u=new URL(v);if(u.protocol!=='https:')return false;if(u.hostname==='nariyal-sutra.netlify.app')return true;if(u.hostname.endsWith('--nariyal-sutra.netlify.app'))return true;if(process.env.URL&&u.origin===new URL(process.env.URL).origin)return true;return false;}catch{return false}}
 function rateOk(ip){const now=Date.now(),key=String(ip||'unknown'),b=buckets.get(key)||[];const live=b.filter(x=>now-x<60000);if(live.length>=12)return false;live.push(now);buckets.set(key,live);return true;}
+function b64url(input){let s=String(input||'').replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';return Buffer.from(s,'base64');}
+async function googleCerts(){if(certCache.certs&&Date.now()<certCache.expiresAt)return certCache.certs;const r=await fetch('https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com');if(!r.ok)throw new Error('Firebase certificate lookup failed');const certs=await r.json(),cc=r.headers.get('cache-control')||'',maxAge=Number((cc.match(/max-age=(\d+)/)||[])[1]||1800);certCache={certs,expiresAt:Date.now()+Math.max(300,maxAge-60)*1000};return certs;}
+async function verifyFirebaseToken(token,projectId){const parts=String(token||'').split('.');if(parts.length!==3)throw new Error('Invalid Firebase token');let header,payload;try{header=JSON.parse(b64url(parts[0]).toString('utf8'));payload=JSON.parse(b64url(parts[1]).toString('utf8'));}catch(_){throw new Error('Invalid Firebase token');}if(header.alg!=='RS256'||!header.kid)throw new Error('Invalid Firebase token algorithm');const certs=await googleCerts(),cert=certs[header.kid];if(!cert)throw new Error('Unknown Firebase signing key');if(!crypto.verify('RSA-SHA256',Buffer.from(parts[0]+'.'+parts[1]),cert,b64url(parts[2])))throw new Error('Firebase token signature rejected');const now=Math.floor(Date.now()/1000);if(payload.aud!==projectId||payload.iss!==`https://securetoken.google.com/${projectId}`||!payload.sub||payload.sub.length>128||Number(payload.exp||0)<=now||Number(payload.iat||0)>now+60||Number(payload.auth_time||0)>now+60)throw new Error('Firebase token claims rejected');return payload;}
+function firebaseHeaders(token,appCheckToken){const headers={authorization:`Bearer ${token}`};if(appCheckToken)headers['X-Firebase-AppCheck']=appCheckToken;return headers;}
+async function adminRole(claims,token,appCheckToken,projectId,ownerUid,ownerEmail){const uid=String(claims.sub||''),email=String(claims.email||'').toLowerCase();if(claims.email_verified!==true||!email)return'';if(uid===ownerUid)return email===String(ownerEmail||'').toLowerCase()?'Owner':'';const url=`https://firestore.googleapis.com/v1/projects/${encodeURIComponent(projectId)}/databases/(default)/documents/adminRoles/${encodeURIComponent(uid)}`;const r=await fetch(url,{headers:firebaseHeaders(token,appCheckToken)});if(!r.ok)return'';const f=(await r.json())?.fields||{},role=String(f.role?.stringValue||''),status=String(f.status?.stringValue||''),mappedEmail=String(f.email?.stringValue||'').toLowerCase(),active=f.active?.booleanValue===true;return active&&status==='Active'&&mappedEmail===email&&['Admin','Manager','Operations','Content','Support','Sales'].includes(role)?role:'';}
 function money(v){return Number(v||0).toLocaleString('en-IN')}
 function hasTracking(d){return /^[0-9a-f]{48}$/i.test(String(d?.trackingToken||''))}
 function trackUrl(d){return hasTracking(d)?SITE_URL.replace(/\/$/,'')+'/track?t='+encodeURIComponent(d.trackingToken):''}
@@ -37,8 +37,8 @@ function params(kind,d){
    message=customer+' requested '+String(qty||0)+' × '+(product||'product')+' for ₹'+money(total)+'.';
    ctaText='Open Owner Dashboard';ctaUrl=ADMIN_URL;showOrder='1';detailTitle='Order summary';
  }else if(kind==='customer_status'){
-   const copy=STATUS_COPY[status]||STATUS_COPY.pending;
-   subject=copy.headline+' #'+id;headline=copy.headline;label=copy.label;message=d.statusNote||copy.message;
+   const copy=orderStatusCopy(status,id,d.statusNote);
+   subject=copy.subject;headline=copy.headline;label=copy.label;message=copy.message;
    ctaText=hasTracking(d)?'Track Your Order':'Visit Nariyal Sutra';ctaUrl=trackUrl(d)||SITE_URL;showOrder='1';showTracking=hasTracking(d)?'1':'';detailTitle='Order summary';
  }else if(kind==='customer_inquiry'){
    subject='Enquiry Received '+id;headline='Your enquiry is recorded';label='Reference '+id;
@@ -61,18 +61,25 @@ function params(kind,d){
  };
 }
 exports.handler=async function(event){
- if(event.httpMethod==='OPTIONS')return {statusCode:204,headers:{'access-control-allow-origin':SITE_URL,'access-control-allow-methods':'POST,OPTIONS','access-control-allow-headers':'content-type','vary':'Origin'},body:''};
- if(event.httpMethod!=='POST')return json(405,{error:'Method not allowed'});
- const origin=event.headers.origin||event.headers.Origin||event.headers.referer||event.headers.Referer||'';
+ const rawOrigin=event.headers?.origin||event.headers?.Origin||event.headers?.referer||event.headers?.Referer||'';let origin='';try{origin=new URL(rawOrigin).origin}catch(_){}
+ if(event.httpMethod==='OPTIONS')return allowedOrigin(origin)?json(204,{},origin):json(403,{error:'Origin not allowed'});
+ if(event.httpMethod!=='POST')return json(405,{error:'Method not allowed'},origin||undefined);
  if(!allowedOrigin(origin))return json(403,{error:'Origin not allowed'});
- const ct=String(event.headers['content-type']||event.headers['Content-Type']||'');if(!ct.includes('application/json'))return json(415,{error:'JSON content type required'});
- if(Number(event.headers['content-length']||0)>32768||String(event.body||'').length>32768)return json(413,{error:'Request too large'});
- const ip=(event.headers['x-nf-client-connection-ip']||event.headers['x-forwarded-for']||'').split(',')[0].trim();if(!rateOk(ip))return json(429,{error:'Too many requests'});
- let body;try{body=JSON.parse(event.body||'{}')}catch{return json(400,{error:'Invalid JSON'})}
- if(body.website||body.companyWebsite)return json(200,{ok:true});
- if(!ALLOWED_KINDS.has(body.kind))return json(400,{error:'Unsupported email kind'});
- if(body.kind==='customer_status'&&!STATUS_COPY[String(body.data?.status||'')])return json(400,{error:'Unsupported order status'});
- const privateKey=process.env.EMAILJS_PRIVATE_KEY;if(!privateKey)return json(503,{error:'Email provider private key is not configured'});
- const payload={service_id:SERVICE_ID,template_id:TEMPLATE_ID,user_id:PUBLIC_KEY,accessToken:privateKey,template_params:params(body.kind,body.data)};
- try{const r=await fetch('https://api.emailjs.com/api/v1.0/email/send',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)});const t=await r.text();if(!r.ok)return json(502,{error:'Email provider rejected request',providerStatus:r.status});return json(200,{ok:true,provider:'emailjs',result:t||'OK'});}catch(e){return json(502,{error:'Email provider unavailable'});}
+ const ct=String(event.headers['content-type']||event.headers['Content-Type']||'');if(!ct.includes('application/json'))return json(415,{error:'JSON content type required'},origin);
+ if(Number(event.headers['content-length']||0)>32768||String(event.body||'').length>32768)return json(413,{error:'Request too large'},origin);
+ const ip=(event.headers['x-nf-client-connection-ip']||event.headers['x-forwarded-for']||'').split(',')[0].trim();if(!rateOk(ip))return json(429,{error:'Too many requests'},origin);
+ let body;try{body=JSON.parse(event.body||'{}')}catch{return json(400,{error:'Invalid JSON'},origin)}
+ if(body.website||body.companyWebsite)return json(200,{ok:true},origin);
+ if(!ALLOWED_KINDS.has(body.kind))return json(400,{error:'Unsupported email kind'},origin);
+ if(body.kind==='customer_status'){
+  const status=String(body.data?.status||'').toLowerCase();if(!STATUS_SET.has(status)||!body.data?.orderId||!body.data?.email)return json(400,{error:'A valid order-status payload is required'},origin);
+  const projectId=process.env.FIREBASE_PROJECT_ID||'nariyal-sutra',ownerUid=process.env.NS_ADMIN_OWNER_UID||'9FjkrCMDstfVS1Ghu2LlA0skoAf2',authHeader=String(event.headers.authorization||event.headers.Authorization||''),token=authHeader.match(/^Bearer\s+(.+)$/i)?.[1]||'',appCheckToken=String(event.headers['x-firebase-appcheck']||event.headers['X-Firebase-AppCheck']||'');
+  if(!token)return json(401,{error:'Admin authentication required for order-status email'},origin);
+  let claims;try{claims=await verifyFirebaseToken(token,projectId);}catch(_){return json(401,{error:'Admin authentication could not be verified'},origin);}
+  const role=await adminRole(claims,token,appCheckToken,projectId,ownerUid,OWNER_EMAIL);if(!['Owner','Admin','Manager','Operations'].includes(role))return json(403,{error:'Verified, active fulfilment access is required for order-status email'},origin);
+ }
+ const privateKey=process.env.EMAILJS_PRIVATE_KEY;if(!privateKey)return json(503,{error:'Email provider private key is not configured'},origin);
+ let templateParams;try{templateParams=completeTemplateParams(params(body.kind,body.data));}catch(_){return json(400,{error:'Email template contract is incomplete'},origin);}
+ const payload={service_id:SERVICE_ID,template_id:TEMPLATE_ID,user_id:PUBLIC_KEY,accessToken:privateKey,template_params:templateParams};
+ try{const r=await fetch('https://api.emailjs.com/api/v1.0/email/send',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)});const t=await r.text();if(!r.ok)return json(502,{error:'Email provider rejected request',providerStatus:r.status},origin);return json(200,{ok:true,provider:'emailjs',result:t||'OK'},origin);}catch(e){return json(502,{error:'Email provider unavailable'},origin);}
 };
