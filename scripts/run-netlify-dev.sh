@@ -9,7 +9,5 @@ export npm_config_cache="${npm_config_cache:-/tmp/nariyal-npm-cache}"
 node scripts/prepare-netlify-dev.mjs
 
 exec npx --yes netlify-cli@latest dev \
-  --dir .netlify-dev \
   --context dev \
-  --skip-gitignore \
   --no-open
