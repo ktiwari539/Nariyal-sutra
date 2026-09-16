@@ -106,15 +106,27 @@ has(delivery,[
 ],'delivery contract');
 not(delivery,["'arrived'"],'delivery contract');
 
+const verifier=read('netlify/functions/app-check-verify.js');
+has(verifier,[
+  "https://firebaseappcheck.googleapis.com/v1/jwks",
+  "header.alg!=='RS256'",
+  "header.typ!=='JWT'",
+  "payload.iss!==`https://firebaseappcheck.googleapis.com/${projectNumber}`",
+  "aud.includes(`projects/${projectNumber}`)",
+  "String(payload.sub||'')!==appId",
+  "process.env.NS_APP_CHECK_REQUIRED"
+],'custom backend App Check verifier');
+
 for(const p of ['netlify/functions/media-sign-upload.js','netlify/functions/admin-communication-send.js']){
   const src=read(p);
-  has(src,["claims.email_verified!==true","status!=='Active'","active!==true","roleEmail!==email","headers['X-Firebase-AppCheck']=appCheckToken"],p);
+  has(src,["claims.email_verified!==true","status!=='Active'","active!==true","roleEmail!==email","verifyAppCheckRequest(event)","headers['X-Firebase-AppCheck']=appCheckToken"],p);
 }
 
 const email=read('netlify/functions/send-email.js');
 has(email,[
   "body.kind==='customer_status'",
   'verifyFirebaseToken',
+  'verifyAppCheckRequest(event)',
   'adminRole(claims,token,appCheckToken',
   'completeTemplateParams',
   "show_order_details:showOrder",
@@ -124,6 +136,7 @@ not(email,["Custom quote"],'transactional email');
 
 const deleteOtp=read('netlify/functions/order-delete-otp.js');
 has(deleteOtp,[
+  'verifyAppCheckRequest(event)',
   'completeTemplateParams',
   "actorRole:'Owner'",
   "setToServerValue:'REQUEST_TIME'",
@@ -132,8 +145,18 @@ has(deleteOtp,[
 
 for(const p of ['assets/js/admin-communication.js','assets/js/admin-v46-owner-order-otp.js','assets/js/admin-v50-delivery-contract.js'])has(read(p),["headers['x-firebase-appcheck']=appCheck"],p);
 const browserEmail=read('emailjs-config.js');
-has(browserEmail,["if(kind==='customer_status')throw serverError","headers['x-firebase-appcheck']=appCheck"],'browser email contract');
+has(browserEmail,["if(kind==='customer_status')throw serverError","typeof window.NS_GET_APP_CHECK_TOKEN==='function'","headers['x-firebase-appcheck']=appCheck"],'browser email contract');
 not(browserEmail,["arrived:"],'browser email contract');
+
+const cutoverBuilder=read('scripts/build-firestore-cutover-rules.mjs');
+has(cutoverBuilder,[
+  'GENERATED CUTOVER RULESET',
+  "legacy deliveryAddress",
+  "legacy public tracking OTP validation",
+  "firestore.cutover.rules"
+],'zero-downtime cutover builder');
+const cutoverConfig=JSON.parse(read('firebase.cutover.json'));
+must(cutoverConfig?.firestore?.rules==='firestore.cutover.rules','Cutover Firebase config does not point at generated compatibility rules');
 
 const {TEMPLATE_FIELDS,completeTemplateParams,orderStatusCopy}=require('../netlify/functions/email-template-contract.js');
 must(TEMPLATE_FIELDS.length===35,'EmailJS canonical template contract field count changed without QA review');
