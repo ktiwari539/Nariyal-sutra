@@ -65,11 +65,11 @@ window.NS_EMAILJS_CONFIG = {
     const controller=new AbortController(); const timer=setTimeout(()=>controller.abort(),8000);
     try{
       const headers={'Content-Type':'application/json'};
+      const appCheck=typeof window.NS_GET_APP_CHECK_TOKEN==='function'?await window.NS_GET_APP_CHECK_TOKEN():'';
+      if(appCheck)headers['x-firebase-appcheck']=appCheck;
       if(kind==='customer_status'){
         const user=window.NSV421ProductionBridge?.user;if(!user)throw new Error('Admin authentication is required for order-status email.');
         headers.authorization='Bearer '+await user.getIdToken();
-        const appCheck=typeof window.NS_GET_APP_CHECK_TOKEN==='function'?await window.NS_GET_APP_CHECK_TOKEN():'';
-        if(appCheck)headers['x-firebase-appcheck']=appCheck;
       }
       const res=await fetch(cfg().serverEndpoint,{method:'POST',headers,body:JSON.stringify({kind,data}),signal:controller.signal});
       const body=await res.json().catch(()=>({}));
