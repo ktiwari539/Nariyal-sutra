@@ -18,6 +18,9 @@ jobs:
       - name: Custom backend App Check verification QA
         run: node scripts/app-check-backend-qa.mjs
         timeout-minutes: 3
+      - name: Netlify Dev publish contract QA
+        run: node scripts/prepare-netlify-dev.mjs
+        timeout-minutes: 3
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
