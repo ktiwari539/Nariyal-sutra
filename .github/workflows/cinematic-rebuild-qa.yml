@@ -39,7 +39,7 @@ jobs:
         timeout-minutes: 10
   media-targeted:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - run: |
@@ -67,12 +67,15 @@ jobs:
       - name: Communication and Review Queue acceptance QA
         run: node scripts/admin-communication-review-qa.mjs
         timeout-minutes: 15
-      - name: Admin Command Center V2 QA
+      - name: Executive Business Command Center QA
         run: node scripts/admin-dashboard-v2-qa.mjs
         timeout-minutes: 15
-      - name: People profile Admin and public interaction QA
+      - name: Order lifecycle operations QA
+        run: node scripts/order-lifecycle-qa.mjs
+        timeout-minutes: 15
+      - name: People profile Admin to storefront QA
         run: node scripts/people-profile-qa.mjs
-        timeout-minutes: 12
+        timeout-minutes: 15
       - name: Checkout live-location synchronization QA
         run: node scripts/checkout-location-sync-qa.mjs
         timeout-minutes: 10
