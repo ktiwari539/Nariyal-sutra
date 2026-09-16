@@ -1,0 +1,24 @@
+import fs from 'node:fs';
+const must=(c,m)=>{if(!c)throw new Error(m)};
+const rules=fs.readFileSync('firestore.rules','utf8');
+const admin=fs.readFileSync('assets/js/admin-v21.js','utf8');
+const bridge=fs.readFileSync('assets/js/v421-production-bridge.js','utf8');
+const people=fs.readFileSync('assets/js/admin-v42-people-streams.js','utf8');
+const orderOps=fs.readFileSync('assets/js/admin-v44-order-operations.js','utf8');
+const exact=(source,re,msg)=>must(re.test(source),msg);
+
+exact(rules,/function canOrdersRead\(\) \{ return hasRole\(\['Owner','Admin','Manager','Operations','Support','Sales'\]\); \}/,'Order read roles changed');
+exact(rules,/function canOrdersWrite\(\) \{ return hasRole\(\['Owner','Admin','Manager','Operations'\]\); \}/,'Order write roles changed');
+exact(rules,/function canDeliveryRead\(\) \{ return hasRole\(\['Owner','Admin','Manager','Operations','Support','Sales'\]\); \}/,'Delivery read roles changed');
+exact(rules,/function canDeliveryWrite\(\) \{ return hasRole\(\['Owner','Admin','Manager','Operations'\]\); \}/,'Delivery write roles changed');
+exact(rules,/function canContent\(\) \{ return hasRole\(\['Owner','Admin','Manager','Content'\]\); \}/,'Content write roles changed');
+exact(rules,/function canCrmWrite\(\) \{ return hasRole\(\['Owner','Admin','Manager','Support','Sales'\]\); \}/,'CRM write roles changed');
+for(const role of ['Owner','Admin','Manager','Operations','Content','Support','Sales'])must(admin.includes(`${role}:`)||admin.includes(`'${role}'`),`Admin UI role missing ${role}`);
+must(/Owner:'\*', Admin:'\*'/.test(admin),'Owner/Admin full Admin UI access contract missing');
+must(/const STAFF_ROLES=\['Admin','Manager','Operations','Content','Support','Sales'\]/.test(bridge),'Production bridge staff role allowlist changed');
+must(/emailVerified/.test(bridge)&&/status:'Active'/.test(bridge)&&/active:true/.test(bridge),'Production bridge active/verified identity checks missing');
+must(/select\.disabled=true/.test(bridge),'Production role selector is not locked to verified identity');
+for(const role of ['Owner','Admin','Manager','Operations'])must(orderOps.includes(`'${role}'`),`Fulfilment role missing ${role}`);
+must(!orderOps.includes("MANAGE_ROLES=new Set(['Owner','Admin','Manager','Operations','Support")&&!orderOps.includes("MANAGE_ROLES=new Set(['Owner','Admin','Manager','Operations','Sales"),'Support/Sales accidentally gained fulfilment mutation rights');
+must(/\['Owner','Admin','Content'\]/.test(people),'People profile authoring roles changed');
+console.log('ADMIN ROLE ACCESS CONTRACT QA: PASS');
