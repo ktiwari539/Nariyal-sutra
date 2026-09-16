@@ -1,6 +1,7 @@
 'use strict';
 const crypto=require('crypto');
 const {completeTemplateParams,orderStatusCopy}=require('./email-template-contract');
+const {verifyAppCheckRequest}=require('./app-check-verify');
 const ALLOWED_KINDS=new Set(['customer_request','owner_order','customer_status','customer_inquiry','owner_inquiry']);
 const PUBLIC_KEY=process.env.EMAILJS_PUBLIC_KEY||'aDjTgmhSPrBeTpnOA';
 const SERVICE_ID=process.env.EMAILJS_SERVICE_ID||'service_c24xpf8';
@@ -71,9 +72,10 @@ exports.handler=async function(event){
  let body;try{body=JSON.parse(event.body||'{}')}catch{return json(400,{error:'Invalid JSON'},origin)}
  if(body.website||body.companyWebsite)return json(200,{ok:true},origin);
  if(!ALLOWED_KINDS.has(body.kind))return json(400,{error:'Unsupported email kind'},origin);
+ let appCheck;try{appCheck=await verifyAppCheckRequest(event);}catch(_){return json(401,{error:'App Check verification failed'},origin);}
  if(body.kind==='customer_status'){
   const status=String(body.data?.status||'').toLowerCase();if(!STATUS_SET.has(status)||!body.data?.orderId||!body.data?.email)return json(400,{error:'A valid order-status payload is required'},origin);
-  const projectId=process.env.FIREBASE_PROJECT_ID||'nariyal-sutra',ownerUid=process.env.NS_ADMIN_OWNER_UID||'9FjkrCMDstfVS1Ghu2LlA0skoAf2',authHeader=String(event.headers.authorization||event.headers.Authorization||''),token=authHeader.match(/^Bearer\s+(.+)$/i)?.[1]||'',appCheckToken=String(event.headers['x-firebase-appcheck']||event.headers['X-Firebase-AppCheck']||'');
+  const projectId=process.env.FIREBASE_PROJECT_ID||'nariyal-sutra',ownerUid=process.env.NS_ADMIN_OWNER_UID||'9FjkrCMDstfVS1Ghu2LlA0skoAf2',authHeader=String(event.headers.authorization||event.headers.Authorization||''),token=authHeader.match(/^Bearer\s+(.+)$/i)?.[1]||'',appCheckToken=appCheck.token;
   if(!token)return json(401,{error:'Admin authentication required for order-status email'},origin);
   let claims;try{claims=await verifyFirebaseToken(token,projectId);}catch(_){return json(401,{error:'Admin authentication could not be verified'},origin);}
   const role=await adminRole(claims,token,appCheckToken,projectId,ownerUid,OWNER_EMAIL);if(!['Owner','Admin','Manager','Operations'].includes(role))return json(403,{error:'Verified, active fulfilment access is required for order-status email'},origin);
