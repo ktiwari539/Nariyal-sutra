@@ -50,12 +50,23 @@ let headers=fs.readFileSync(devHeaders,'utf8');
 headers=headers.replace(/;\s*upgrade-insecure-requests\b/gi,'');
 fs.writeFileSync(devHeaders,headers);
 
+/* In local Dev, /admin must open the non-writing Business Command Center directly.
+   Production routing is intentionally left untouched. */
+const devRedirects=path.join(out,'_redirects');
+if(fs.existsSync(devRedirects)){
+  let redirects=fs.readFileSync(devRedirects,'utf8');
+  redirects=redirects
+    .replace(/^\/admin\s+\/admin\.html\s+200$/m,'/admin /admin-preview.html 200')
+    .replace(/^\/admin\/\s+\/admin\.html\s+200$/m,'/admin/ /admin-preview.html 200');
+  fs.writeFileSync(devRedirects,redirects);
+}
+
 const sourceHeaders=fs.readFileSync(path.join(root,'_headers'),'utf8');
 if(!/upgrade-insecure-requests/i.test(sourceHeaders)) throw new Error('Production _headers unexpectedly lost upgrade-insecure-requests');
 if(/upgrade-insecure-requests/i.test(headers)) throw new Error('Netlify Dev _headers still contains upgrade-insecure-requests');
 if(residual.length) throw new Error(`Netlify Dev output still references the production site origin: ${residual.slice(0,12).join(', ')}`);
-for(const required of ['index.html','admin.html','track.html']){
+for(const required of ['index.html','admin.html','admin-preview.html','admin-login.html','track.html','people-of-nariyal-sutra.html','assets/images/people-uploads/U002.png']){
   if(!fs.existsSync(path.join(out,required))) throw new Error(`Generated Netlify Dev output missing ${required}`);
 }
 
-console.log('NETLIFY DEV PREP: PASS',JSON.stringify({output:'.netlify-dev',rewrittenFiles,rewrittenRefs,productionHeadersPreserved:true,devUpgradeInsecureRequests:false}));
+console.log('NETLIFY DEV PREP: PASS',JSON.stringify({output:'.netlify-dev',rewrittenFiles,rewrittenRefs,productionHeadersPreserved:true,devUpgradeInsecureRequests:false,devAdminDirect:true,u002Present:true}));
