@@ -3,7 +3,6 @@ service cloud.firestore {
   match /databases/{database}/documents {
     function ownerUid() { return '9FjkrCMDstfVS1Ghu2LlA0skoAf2'; }
     function ownerEmail() { return 'nariyalsutra@gmail.com'; }
-
     function isSignedIn() { return request.auth != null; }
     function hasVerifiedEmail() {
       return isSignedIn()
@@ -13,16 +12,14 @@ service cloud.firestore {
     function isOwner() {
       return hasVerifiedEmail()
         && request.auth.uid == ownerUid()
-        && request.auth.token.email.lower() == ownerEmail();
+        && request.auth.token.email == ownerEmail();
     }
     function isSelf(uid) { return isSignedIn() && request.auth.uid == uid; }
 
     function adminRolePath(uid) {
       return /databases/$(database)/documents/adminRoles/$(uid);
     }
-    function activeRoleData() {
-      return get(adminRolePath(request.auth.uid)).data;
-    }
+    function activeRoleData() { return get(adminRolePath(request.auth.uid)).data; }
     function hasActiveRoleDocument() {
       return hasVerifiedEmail()
         && exists(adminRolePath(request.auth.uid))
@@ -30,13 +27,12 @@ service cloud.firestore {
         && activeRoleData().status == 'Active'
         && activeRoleData().active == true
         && activeRoleData().email is string
-        && activeRoleData().email.lower() == request.auth.token.email.lower();
+        && activeRoleData().email == request.auth.token.email;
     }
     function currentRole() {
       return isOwner() ? 'Owner' : (hasActiveRoleDocument() ? activeRoleData().role : '');
     }
     function hasRole(roles) { return currentRole() in roles; }
-
     function isAdminManager() { return hasRole(['Owner','Admin','Manager']); }
     function canOrdersRead() { return hasRole(['Owner','Admin','Manager','Operations','Support','Sales']); }
     function canOrdersWrite() { return hasRole(['Owner','Admin','Manager','Operations']); }
@@ -46,30 +42,15 @@ service cloud.firestore {
     function canDeliveryRead() { return hasRole(['Owner','Admin','Manager','Operations','Support','Sales']); }
     function canDeliveryWrite() { return hasRole(['Owner','Admin','Manager','Operations']); }
 
-    function productPath(key) {
-      return /databases/$(database)/documents/products/$(key);
-    }
-    function orderPath(orderId) {
-      return /databases/$(database)/documents/orders/$(orderId);
-    }
-    function trackingPath(token) {
-      return /databases/$(database)/documents/publicTracking/$(token);
-    }
-
+    function productPath(key) { return /databases/$(database)/documents/products/$(key); }
+    function orderPath(orderId) { return /databases/$(database)/documents/orders/$(orderId); }
+    function trackingPath(token) { return /databases/$(database)/documents/publicTracking/$(token); }
     function defaultPrice(key) { return key == 'bulk' ? 45 : 55; }
     function defaultMin(key) { return key == 'bulk' ? 10 : 1; }
-    function catalogPrice(key) {
-      return exists(productPath(key)) ? get(productPath(key)).data.price : defaultPrice(key);
-    }
-    function catalogMin(key) {
-      return exists(productPath(key)) ? get(productPath(key)).data.minQty : defaultMin(key);
-    }
-    function catalogActive(key) {
-      return exists(productPath(key)) ? get(productPath(key)).data.active == true : true;
-    }
-    function catalogStock(key) {
-      return exists(productPath(key)) ? get(productPath(key)).data.stock : 10000;
-    }
+    function catalogPrice(key) { return exists(productPath(key)) ? get(productPath(key)).data.price : defaultPrice(key); }
+    function catalogMin(key) { return exists(productPath(key)) ? get(productPath(key)).data.minQty : defaultMin(key); }
+    function catalogActive(key) { return exists(productPath(key)) ? get(productPath(key)).data.active == true : true; }
+    function catalogStock(key) { return exists(productPath(key)) ? get(productPath(key)).data.stock : 10000; }
 
     function validProduct(productKey) {
       let d = request.resource.data;
@@ -89,13 +70,10 @@ service cloud.firestore {
     function validOrderCreate() {
       let d = request.resource.data;
       return d.keys().hasOnly([
-          'orderId','customerName','phone','email','city','address','notes',
-          'productKey','productName','quantity','unitPrice','total',
-          'paymentType','paymentLabel','status','createdAt','updatedAt','source',
-          'country','state','pin','landmark','deliveryAddress','deliveryLat','deliveryLng','deliveryAccuracy',
-          'deliveryLocationSource','deliveryCoordinatesConfirmed','deliveryMethod','deliveryLabel',
-          'deliveryEtaMin','deliveryEtaMax','deliveryEta','isInternational','recurringPreference',
-          'trackingToken','deliveryOTP','qtyBand','customerUid'
+          'orderId','customerName','phone','email','city','address','notes','productKey','productName','quantity','unitPrice','total',
+          'paymentType','paymentLabel','status','createdAt','updatedAt','source','country','state','pin','landmark','deliveryAddress',
+          'deliveryLat','deliveryLng','deliveryAccuracy','deliveryLocationSource','deliveryCoordinatesConfirmed','deliveryMethod','deliveryLabel',
+          'deliveryEtaMin','deliveryEtaMax','deliveryEta','isInternational','recurringPreference','trackingToken','deliveryOTP','qtyBand','customerUid'
         ])
         && d.orderId is string && d.orderId.size() >= 8 && d.orderId.size() <= 40
         && d.customerName is string && d.customerName.size() >= 2 && d.customerName.size() <= 100
@@ -113,8 +91,7 @@ service cloud.firestore {
         && d.total is int && d.total == d.quantity * d.unitPrice
         && d.paymentType in ['cod','upi','card']
         && d.paymentLabel is string && d.paymentLabel.size() <= 80
-        && d.status == 'pending'
-        && d.source == 'website'
+        && d.status == 'pending' && d.source == 'website'
         && d.createdAt == request.time && d.updatedAt == request.time
         && d.country is string && d.country.size() <= 100
         && d.state is string && d.state.size() <= 100
@@ -137,10 +114,7 @@ service cloud.firestore {
         && d.deliveryOTP is string && d.deliveryOTP.matches('^[0-9]{6}$')
         && d.qtyBand in ['retail','value','small_event','mini_bulk','commercial','regional_bulk','wholesale']
         && (!d.keys().hasAny(['customerUid']) || (
-          isSignedIn()
-          && d.customerUid is string
-          && d.customerUid == request.auth.uid
-          && d.customerUid.size() <= 128
+          isSignedIn() && d.customerUid is string && d.customerUid == request.auth.uid && d.customerUid.size() <= 128
         ));
     }
 
@@ -158,7 +132,6 @@ service cloud.firestore {
     function validOrderAdminUpdate() {
       let d = request.resource.data;
       let before = resource.data;
-      let changed = d.diff(before).affectedKeys();
       return d.keys().hasOnly([
           'orderId','customerName','phone','email','city','address','notes','productKey','productName','quantity','unitPrice','total',
           'paymentType','paymentLabel','status','createdAt','updatedAt','source','country','state','pin','landmark','deliveryAddress',
@@ -166,40 +139,28 @@ service cloud.firestore {
           'deliveryEtaMin','deliveryEtaMax','deliveryEta','isInternational','recurringPreference','trackingToken','deliveryOTP','qtyBand','customerUid',
           'cancelledAt','cancelledBy','cancellationReason'
         ])
-        && changed.hasOnly([
-          'status','updatedAt','deliveryMethod','deliveryLabel','deliveryEtaMin','deliveryEtaMax','deliveryEta',
-          'deliveryLat','deliveryLng','deliveryAccuracy','deliveryLocationSource','deliveryCoordinatesConfirmed',
-          'cancelledAt','cancelledBy','cancellationReason'
+        && d.diff(before).affectedKeys().hasOnly([
+          'status','updatedAt','deliveryMethod','deliveryLabel','deliveryEtaMin','deliveryEtaMax','deliveryEta','deliveryLat','deliveryLng',
+          'deliveryAccuracy','deliveryLocationSource','deliveryCoordinatesConfirmed','cancelledAt','cancelledBy','cancellationReason'
         ])
-        && d.orderId == before.orderId
-        && d.trackingToken == before.trackingToken
-        && d.createdAt == before.createdAt
-        && d.source == before.source
+        && d.orderId == before.orderId && d.trackingToken == before.trackingToken && d.createdAt == before.createdAt && d.source == before.source
         && d.productKey == before.productKey && d.productName == before.productName
         && d.quantity == before.quantity && d.unitPrice == before.unitPrice && d.total == before.total
-        && d.customerName == before.customerName && d.phone == before.phone && d.email == before.email
-        && d.address == before.address
-        && validStatus(d.status) && validStatusTransition(before.status, d.status)
+        && d.customerName == before.customerName && d.phone == before.phone && d.email == before.email && d.address == before.address
+        && validStatus(d.status) && validStatusTransition(before.status,d.status)
         && d.updatedAt == request.time
-        && (
-          d.status != 'cancelled'
-          || (
-            d.cancelledAt == request.time
-            && d.cancelledBy == request.auth.uid
-            && d.cancellationReason is string
-            && d.cancellationReason.size() >= 1
-            && d.cancellationReason.size() <= 240
-          )
-        );
+        && (d.status != 'cancelled' || (
+          d.cancelledAt == request.time && d.cancelledBy == request.auth.uid
+          && d.cancellationReason is string && d.cancellationReason.size() >= 1 && d.cancellationReason.size() <= 240
+        ));
     }
 
     function validPublicTrackingFields(token) {
       let d = request.resource.data;
       return token.matches('^[0-9a-fA-F]{48}$')
         && d.keys().hasOnly([
-          'trackingToken','orderId','status','productName','quantity','deliveryMethod','deliveryEstimate','estimatedTotal',
-          'destinationDisplay','eta','deliveryPartnerName','deliveryPartnerPhone','deliveryPartnerPhotoRef','vehicle',
-          'locationLabel','lat','lng','customerUpdate','updatedAt'
+          'trackingToken','orderId','status','productName','quantity','deliveryMethod','deliveryEstimate','estimatedTotal','destinationDisplay',
+          'eta','deliveryPartnerName','deliveryPartnerPhone','deliveryPartnerPhotoRef','vehicle','locationLabel','lat','lng','customerUpdate','updatedAt'
         ])
         && d.trackingToken == token
         && d.orderId is string && d.orderId.size() >= 8 && d.orderId.size() <= 40
@@ -224,38 +185,29 @@ service cloud.firestore {
     function trackingMatchesOrderAfter() {
       let d = request.resource.data;
       let o = getAfter(orderPath(d.orderId)).data;
-      return o.trackingToken == d.trackingToken
-        && o.productName == d.productName
-        && o.quantity == d.quantity
-        && o.status == d.status;
+      return o.trackingToken == d.trackingToken && o.productName == d.productName && o.quantity == d.quantity && o.status == d.status;
     }
     function validPublicTrackingCreate(token) {
-      return request.resource.data.status == 'pending'
-        && validPublicTrackingFields(token)
-        && trackingMatchesOrderAfter();
+      return request.resource.data.status == 'pending' && validPublicTrackingFields(token) && trackingMatchesOrderAfter();
     }
     function validPublicTrackingUpdate(token) {
       let d = request.resource.data;
       let before = resource.data;
       return validPublicTrackingFields(token)
-        && d.trackingToken == before.trackingToken
-        && d.orderId == before.orderId
-        && d.productName == before.productName
-        && d.quantity == before.quantity
+        && d.trackingToken == before.trackingToken && d.orderId == before.orderId
+        && d.productName == before.productName && d.quantity == before.quantity
         && d.diff(before).affectedKeys().hasOnly([
           'status','deliveryMethod','deliveryEstimate','estimatedTotal','destinationDisplay','eta','deliveryPartnerName',
           'deliveryPartnerPhone','deliveryPartnerPhotoRef','vehicle','locationLabel','lat','lng','customerUpdate','updatedAt'
         ])
-        && validStatusTransition(before.status, d.status)
-        && trackingMatchesOrderAfter();
+        && validStatusTransition(before.status,d.status) && trackingMatchesOrderAfter();
     }
 
     function validInquiry() {
       let d = request.resource.data;
       return d.keys().hasOnly([
-          'inquiryId','role','inquiryType','inquiryTypeLabel','productPreference','frequency','packaging','name','phone','email',
-          'organization','quantity','requiredDate','destination','country','state','city','postalCode','preferredContact','message',
-          'status','createdAt','updatedAt','source'
+          'inquiryId','role','inquiryType','inquiryTypeLabel','productPreference','frequency','packaging','name','phone','email','organization',
+          'quantity','requiredDate','destination','country','state','city','postalCode','preferredContact','message','status','createdAt','updatedAt','source'
         ])
         && d.inquiryId is string && d.inquiryId.size() >= 10 && d.inquiryId.size() <= 50
         && d.role in ['buyer','supplier','partner','ambassador']
@@ -284,9 +236,9 @@ service cloud.firestore {
     function validCustomerProfileCreate(uid) {
       let d = request.resource.data;
       return d.keys().hasOnly([
-          'uid','email','contactEmail','emailVerified','phoneVerified','displayName','phone','photoURL','photoPath','preferredProduct',
-          'recurringPreference','telegramUsername','preferredChannel','notifyEmail','notifyWhatsapp','notifyTelegram',
-          'primaryCity','primaryState','primaryCountry','primaryPin','createdAt','updatedAt','lastLoginAt'
+          'uid','email','contactEmail','emailVerified','phoneVerified','displayName','phone','photoURL','photoPath','preferredProduct','recurringPreference',
+          'telegramUsername','preferredChannel','notifyEmail','notifyWhatsapp','notifyTelegram','primaryCity','primaryState','primaryCountry','primaryPin',
+          'createdAt','updatedAt','lastLoginAt'
         ])
         && d.uid == uid && d.uid is string && d.uid.size() <= 128
         && d.email is string && d.email.size() <= 160
@@ -298,8 +250,7 @@ service cloud.firestore {
           || (request.auth.token.phone_number is string && d.email == '' && d.phone == request.auth.token.phone_number))
         && d.displayName is string && d.displayName.size() <= 100
         && d.photoURL is string && d.photoURL.size() <= 700
-        && d.photoPath is string
-        && (d.photoPath == '' || d.photoPath == 'customer-profile-images/'+uid+'/avatar.webp')
+        && d.photoPath is string && (d.photoPath == '' || d.photoPath == 'customer-profile-images/'+uid+'/avatar.webp')
         && d.preferredProduct in ['','tender','green','bulk']
         && d.recurringPreference in ['onetime','weekly','fortnightly','monthly','flexible']
         && d.telegramUsername is string && d.telegramUsername.size() <= 64
@@ -314,9 +265,9 @@ service cloud.firestore {
     function validCustomerProfileUpdate(uid) {
       let d = request.resource.data;
       return d.keys().hasOnly([
-          'uid','email','contactEmail','emailVerified','phoneVerified','displayName','phone','photoURL','photoPath','preferredProduct',
-          'recurringPreference','telegramUsername','preferredChannel','notifyEmail','notifyWhatsapp','notifyTelegram',
-          'primaryCity','primaryState','primaryCountry','primaryPin','createdAt','updatedAt','lastLoginAt'
+          'uid','email','contactEmail','emailVerified','phoneVerified','displayName','phone','photoURL','photoPath','preferredProduct','recurringPreference',
+          'telegramUsername','preferredChannel','notifyEmail','notifyWhatsapp','notifyTelegram','primaryCity','primaryState','primaryCountry','primaryPin',
+          'createdAt','updatedAt','lastLoginAt'
         ])
         && d.uid == uid && d.email == resource.data.email
         && d.email is string && d.email.size() <= 160
@@ -326,8 +277,7 @@ service cloud.firestore {
         && d.displayName is string && d.displayName.size() <= 100
         && d.phone is string && d.phone.size() <= 24
         && d.photoURL is string && d.photoURL.size() <= 700
-        && d.photoPath is string
-        && (d.photoPath == '' || d.photoPath == 'customer-profile-images/'+uid+'/avatar.webp')
+        && d.photoPath is string && (d.photoPath == '' || d.photoPath == 'customer-profile-images/'+uid+'/avatar.webp')
         && d.preferredProduct in ['','tender','green','bulk']
         && d.recurringPreference in ['onetime','weekly','fortnightly','monthly','flexible']
         && d.telegramUsername is string && d.telegramUsername.size() <= 64
@@ -337,12 +287,11 @@ service cloud.firestore {
         && d.primaryState is string && d.primaryState.size() <= 100
         && d.primaryCountry is string && d.primaryCountry.size() <= 80
         && d.primaryPin is string && d.primaryPin.size() <= 24
-        && d.createdAt == resource.data.createdAt
-        && d.updatedAt == request.time
+        && d.createdAt == resource.data.createdAt && d.updatedAt == request.time
         && (d.lastLoginAt == resource.data.lastLoginAt || d.lastLoginAt == request.time);
     }
 
-    function validCustomerAddressCreate() {
+    function validCustomerAddressFields() {
       let d = request.resource.data;
       return d.keys().hasOnly(['label','recipientName','phone','address','city','state','country','pin','landmark','isDefault','createdAt','updatedAt'])
         && d.label is string && d.label.size() >= 2 && d.label.size() <= 40
@@ -354,14 +303,20 @@ service cloud.firestore {
         && d.country is string && d.country.size() >= 2 && d.country.size() <= 80
         && d.pin is string && d.pin.size() <= 24
         && d.landmark is string && d.landmark.size() <= 180
-        && d.isDefault is bool && d.createdAt == request.time && d.updatedAt == request.time;
+        && d.isDefault is bool;
+    }
+    function validCustomerAddressCreate() {
+      return validCustomerAddressFields()
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
     }
     function validCustomerAddressUpdate() {
-      return validCustomerAddressCreate()
-        && request.resource.data.createdAt == resource.data.createdAt;
+      return validCustomerAddressFields()
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.updatedAt == request.time;
     }
 
-    function validCustomerOrderFields(uid, orderId) {
+    function validCustomerOrderFields(uid,orderId) {
       let d = request.resource.data;
       return d.keys().hasOnly([
           'customerUid','orderId','productKey','productName','quantity','unitPrice','total','status','paymentLabel','deliveryMethod',
@@ -386,51 +341,35 @@ service cloud.firestore {
     function customerProjectionMatchesOrderAfter(orderId) {
       let d = request.resource.data;
       let o = getAfter(orderPath(orderId)).data;
-      return o.trackingToken == d.trackingToken
-        && o.productName == d.productName
-        && o.productKey == d.productKey
-        && o.quantity == d.quantity
-        && o.unitPrice == d.unitPrice
-        && o.total == d.total
-        && o.status == d.status;
+      return o.trackingToken == d.trackingToken && o.productName == d.productName && o.productKey == d.productKey
+        && o.quantity == d.quantity && o.unitPrice == d.unitPrice && o.total == d.total && o.status == d.status;
     }
-    function validCustomerOrderCreate(uid, orderId) {
+    function validCustomerOrderCreate(uid,orderId) {
       let d = request.resource.data;
-      return validCustomerOrderFields(uid, orderId)
-        && d.status == 'pending'
-        && d.createdAt == request.time && d.updatedAt == request.time
+      return validCustomerOrderFields(uid,orderId)
+        && d.status == 'pending' && d.createdAt == request.time && d.updatedAt == request.time
         && (
-          (d.source == 'account_checkout'
-            && isSelf(uid)
-            && getAfter(orderPath(orderId)).data.customerUid == uid
-            && customerProjectionMatchesOrderAfter(orderId))
-          || (d.source == 'claimed_tracking'
-            && isSelf(uid)
+          (d.source == 'account_checkout' && isSelf(uid)
+            && getAfter(orderPath(orderId)).data.customerUid == uid && customerProjectionMatchesOrderAfter(orderId))
+          || (d.source == 'claimed_tracking' && isSelf(uid)
             && get(trackingPath(d.trackingToken)).data.orderId == orderId
             && get(trackingPath(d.trackingToken)).data.productName == d.productName
             && get(trackingPath(d.trackingToken)).data.quantity == d.quantity)
           || (canOrdersWrite() && customerProjectionMatchesOrderAfter(orderId))
         );
     }
-    function validCustomerOrderAdminUpdate(uid, orderId) {
+    function validCustomerOrderAdminUpdate(uid,orderId) {
       let d = request.resource.data;
-      return validCustomerOrderFields(uid, orderId)
-        && d.createdAt == resource.data.createdAt
-        && d.updatedAt == request.time
-        && d.customerUid == resource.data.customerUid
-        && d.orderId == resource.data.orderId
-        && d.trackingToken == resource.data.trackingToken
-        && d.productKey == resource.data.productKey
-        && d.productName == resource.data.productName
-        && d.quantity == resource.data.quantity
-        && d.unitPrice == resource.data.unitPrice
-        && d.total == resource.data.total
-        && d.source == resource.data.source
+      return validCustomerOrderFields(uid,orderId)
+        && d.createdAt == resource.data.createdAt && d.updatedAt == request.time
+        && d.customerUid == resource.data.customerUid && d.orderId == resource.data.orderId
+        && d.trackingToken == resource.data.trackingToken && d.productKey == resource.data.productKey
+        && d.productName == resource.data.productName && d.quantity == resource.data.quantity
+        && d.unitPrice == resource.data.unitPrice && d.total == resource.data.total && d.source == resource.data.source
         && d.diff(resource.data).affectedKeys().hasOnly([
           'status','paymentLabel','deliveryMethod','deliveryEstimate','estimatedTotal','destinationDisplay','updatedAt'
         ])
-        && validStatusTransition(resource.data.status,d.status)
-        && customerProjectionMatchesOrderAfter(orderId);
+        && validStatusTransition(resource.data.status,d.status) && customerProjectionMatchesOrderAfter(orderId);
     }
 
     function validAdminRoleDoc(uid) {
@@ -439,25 +378,19 @@ service cloud.firestore {
         && (!d.keys().hasAny(['uid']) || d.uid == uid)
         && d.email is string && d.email.size() >= 3 && d.email.size() <= 160
         && d.role in ['Admin','Manager','Operations','Content','Support','Sales']
-        && d.status in ['Active','Inactive']
-        && d.active is bool
+        && d.status in ['Active','Inactive'] && d.active is bool
         && ((d.status == 'Active' && d.active == true) || (d.status == 'Inactive' && d.active == false))
         && (!d.keys().hasAny(['name']) || (d.name is string && d.name.size() <= 100))
         && (!d.keys().hasAny(['inviteStatus']) || d.inviteStatus in ['Active','Pending','Revoked']);
     }
-
     function validAuditCreate() {
       let d = request.resource.data;
       return d.keys().hasOnly([
           'eventType','action','target','details','actorUid','actorEmail','timestamp','orderIds','count','otpVerified','source','cleanup'
         ])
         && d.actorUid == request.auth.uid
-        && d.actorEmail is string
-        && request.auth.token.email is string
-        && d.actorEmail.lower() == request.auth.token.email.lower()
-        && d.timestamp is timestamp
-        && d.timestamp <= request.time
-        && d.timestamp >= request.time - duration.value(5,'m')
+        && d.actorEmail is string && request.auth.token.email is string && d.actorEmail == request.auth.token.email
+        && d.timestamp is timestamp && d.timestamp <= request.time && d.timestamp >= request.time - duration.value(5,'m')
         && (!d.keys().hasAny(['eventType']) || (d.eventType is string && d.eventType.size() <= 100))
         && (!d.keys().hasAny(['action']) || (d.action is string && d.action.size() <= 160))
         && (!d.keys().hasAny(['target']) || (d.target is string && d.target.size() <= 300))
@@ -487,7 +420,6 @@ service cloud.firestore {
       allow delete: if isAdminManager();
     }
 
-    // A 192-bit random token acts as the private capability URL. Exact GET only; LIST is denied.
     match /publicTracking/{token} {
       allow create: if validPublicTrackingCreate(token);
       allow get: if token.matches('^[0-9a-fA-F]{48}$');
@@ -502,7 +434,6 @@ service cloud.firestore {
       allow create: if isSelf(uid) && validCustomerProfileCreate(uid);
       allow update: if isSelf(uid) && validCustomerProfileUpdate(uid);
       allow delete: if false;
-
       match /addresses/{addressId} {
         allow get, list: if isSelf(uid) || canCustomersRead();
         allow create: if isSelf(uid) && validCustomerAddressCreate();
@@ -524,14 +455,12 @@ service cloud.firestore {
       allow delete: if isAdminManager();
     }
 
-    // Append-only audit. Actor identity and timestamp are bound to the authenticated request.
     match /adminAudit/{auditId} {
       allow get, list: if isAdminManager();
       allow create: if hasRole(['Owner','Admin','Manager','Operations','Content','Support','Sales']) && validAuditCreate();
       allow update, delete: if false;
     }
 
-    // Staff authorization fails closed unless verified email + Active status + active=true all agree.
     match /adminRoles/{uid} {
       allow get: if isSelf(uid) || isAdminManager();
       allow list: if isOwner();
@@ -570,20 +499,16 @@ service cloud.firestore {
         && request.resource.data.title is string && request.resource.data.title.size() >= 3 && request.resource.data.title.size() <= 100
         && request.resource.data.story is string && request.resource.data.story.size() >= 20 && request.resource.data.story.size() <= 1800
         && request.resource.data.publicationConsent is bool
-        && request.resource.data.createdAt == request.time
-        && request.resource.data.updatedAt == request.time;
+        && request.resource.data.createdAt == request.time && request.resource.data.updatedAt == request.time;
       allow get, list: if canContent() || (isSignedIn() && resource.data.uid == request.auth.uid);
       allow update: if canContent();
       allow delete: if isAdminManager();
     }
 
-    // Reads do not reference request.resource; write identity is bound to the document path.
     match /mediaAssets/{logicalId} {
       allow get, list: if canContent();
-      allow create, update: if canContent()
-        && request.resource.data.logicalId == logicalId;
+      allow create, update: if canContent() && request.resource.data.logicalId == logicalId;
       allow delete: if false;
-
       match /versions/{versionId} {
         allow get, list: if canContent();
         allow create: if canContent()
@@ -600,8 +525,6 @@ service cloud.firestore {
       allow create, update, delete: if false;
     }
 
-    match /{document=**} {
-      allow read, write: if false;
-    }
+    match /{document=**} { allow read, write: if false; }
   }
 }
