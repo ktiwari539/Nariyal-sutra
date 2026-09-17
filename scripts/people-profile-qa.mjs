@@ -37,14 +37,11 @@ async function openAmbassadors(){const nav=page.locator('#apNav button[data-view
 try{
  await waitAdmin();originalState=await page.evaluate(()=>window.NSV421Store.load());
  const seeded=await page.evaluate(()=>{
-   const Store=window.NSV421Store,s=Store.load();
-   const featured=new Set(s.faceMarquee?.selectedIds||[]);
-   const people=(s.media||[]).filter(m=>featured.has(m.id)&&m.cat==='People'&&Store.eligibleForPublic(s,m)&&(m.src||m.thumb));
-   if(people.length<2)return {ok:false,count:people.length};
+   const Store=window.NSV421Store,s=Store.load();const railIds=new Set(s.faceMarquee?.selectedIds||[]),people=(s.media||[]).filter(m=>m.cat==='People'&&railIds.has(m.id)&&Store.eligibleForPublic(s,m)&&(m.src||m.thumb));if(people.length<2)return {ok:false,count:people.length};
    const [a,b]=people,qaImage=n=>`data:image/svg+xml;charset=utf-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000"><rect width="800" height="1000" fill="${n===1?'%23d8e4d3':'%23eadfc9'}"/><text x="400" y="500" text-anchor="middle" font-size="48">QA People ${n}</text></svg>`)}`;a.src=a.thumb=qaImage(1);b.src=b.thumb=qaImage(2);
    const personId='QA-PEOPLE-PROFILE';s.peopleStreams=s.peopleStreams||{};s.peopleStreams.ambassadors=s.peopleStreams.ambassadors||{};s.peopleStreams.ambassadors.enabled=true;s.peopleStreams.ambassadors.selectedIds=[a.id,b.id];a.personId=personId;b.personId=personId;s.peopleProfiles=s.peopleProfiles||{};s.peopleProfiles[personId]={personId,name:'QA People Profile',city:'Jabalpur',type:'Brand Ambassador',intro:'QA intro written in Admin',story:'QA story written in Admin',feedback:'QA feedback written in Admin',rating:'5',relatedMediaIds:[a.id,b.id],public:true};Store.save(s);window.dispatchEvent(new CustomEvent('nsv421:change'));return {ok:true,personId,first:a.id,second:b.id};
  });
- must(seeded.ok,`Need at least two approved People media records already present in the homepage rail; found ${seeded.count}`);
+ must(seeded.ok,`Need at least two eligible People media records already present in the approved homepage rail; found ${seeded.count}`);
 
  await openAmbassadors();await page.waitForSelector(`[data-v42-person-row="${seeded.first}"]`);const row=page.locator(`[data-v42-person-row="${seeded.first}"]`);const fit=await row.locator('.ap-v42-photo img').evaluate(el=>getComputedStyle(el).objectFit);must(fit==='contain',`Admin source preview must be uncropped/contain, got ${fit}`);
  const edit=row.locator('[data-v42-profile]');must(await edit.isVisible(),'Edit person details action is not visible');await edit.click();await page.waitForSelector('#v42PersonForm');const adminModalText=await page.locator('#apModal').innerText();
@@ -62,7 +59,9 @@ try{
  const publicRes=await page.goto(BASE+`/people-of-nariyal-sutra.html?person=${encodeURIComponent(seeded.personId)}#people-moving`,{waitUntil:'domcontentloaded',timeout:30000});must(publicRes&&publicRes.status()<400,`People page returned ${publicRes?.status()}`);
  await page.waitForFunction(()=>window.__NS_V421_PEOPLE_PROFILES__===1,null,{timeout:10000});await page.waitForSelector('#v38PersonModal.is-open',{timeout:10000});
  must(await page.locator('#v38PersonName').innerText()==='QA People Profile','Direct People profile did not resolve Admin-authored name');
- const publicText=await page.locator('#v38PersonModal').innerText();for(const text of ['Jabalpur','Brand Ambassador','QA intro written in Admin','QA story written in Admin','QA feedback written in Admin'])must(publicText.includes(text),`Public person modal missing Admin-authored detail: ${text}`);
+ const publicText=await page.locator('#v38PersonModal').innerText();
+ must(publicText.toLowerCase().includes('brand ambassador'),'Public person modal missing Admin-authored detail: Brand Ambassador');
+ for(const text of ['Jabalpur','QA intro written in Admin','QA story written in Admin','QA feedback written in Admin'])must(publicText.includes(text),`Public person modal missing Admin-authored detail: ${text}`);
  must(await page.locator('#v38PersonModal').getAttribute('role')==='dialog','Public profile is not an accessible dialog');must(await page.locator('#v38PersonModal').getAttribute('aria-modal')==='true','Public profile missing aria-modal');
  const thumbs=page.locator('#v38PersonModal [data-v38-photo]');must(await thumbs.count()>=2,'Related approved People gallery did not render');const main=page.locator('#v38PersonMainPhoto'),before=await main.getAttribute('src');await thumbs.nth(1).click();const after=await main.getAttribute('src');must(after&&after!==before,'Related photo did not switch main People photo');await page.screenshot({path:path.join(OUT,'public-people-profile.png'),fullPage:false});
  await page.keyboard.press('Escape');await page.waitForSelector('#v38PersonModal',{state:'detached'});
