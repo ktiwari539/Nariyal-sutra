@@ -37,11 +37,14 @@ async function openAmbassadors(){const nav=page.locator('#apNav button[data-view
 try{
  await waitAdmin();originalState=await page.evaluate(()=>window.NSV421Store.load());
  const seeded=await page.evaluate(()=>{
-   const Store=window.NSV421Store,s=Store.load();const people=(s.media||[]).filter(m=>m.cat==='People'&&Store.eligibleForPublic(s,m)&&(m.src||m.thumb));if(people.length<2)return {ok:false,count:people.length};
+   const Store=window.NSV421Store,s=Store.load();
+   const featured=new Set(s.faceMarquee?.selectedIds||[]);
+   const people=(s.media||[]).filter(m=>featured.has(m.id)&&m.cat==='People'&&Store.eligibleForPublic(s,m)&&(m.src||m.thumb));
+   if(people.length<2)return {ok:false,count:people.length};
    const [a,b]=people,qaImage=n=>`data:image/svg+xml;charset=utf-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000"><rect width="800" height="1000" fill="${n===1?'%23d8e4d3':'%23eadfc9'}"/><text x="400" y="500" text-anchor="middle" font-size="48">QA People ${n}</text></svg>`)}`;a.src=a.thumb=qaImage(1);b.src=b.thumb=qaImage(2);
    const personId='QA-PEOPLE-PROFILE';s.peopleStreams=s.peopleStreams||{};s.peopleStreams.ambassadors=s.peopleStreams.ambassadors||{};s.peopleStreams.ambassadors.enabled=true;s.peopleStreams.ambassadors.selectedIds=[a.id,b.id];a.personId=personId;b.personId=personId;s.peopleProfiles=s.peopleProfiles||{};s.peopleProfiles[personId]={personId,name:'QA People Profile',city:'Jabalpur',type:'Brand Ambassador',intro:'QA intro written in Admin',story:'QA story written in Admin',feedback:'QA feedback written in Admin',rating:'5',relatedMediaIds:[a.id,b.id],public:true};Store.save(s);window.dispatchEvent(new CustomEvent('nsv421:change'));return {ok:true,personId,first:a.id,second:b.id};
  });
- must(seeded.ok,`Need at least two eligible People media records; found ${seeded.count}`);
+ must(seeded.ok,`Need at least two approved People media records already present in the homepage rail; found ${seeded.count}`);
 
  await openAmbassadors();await page.waitForSelector(`[data-v42-person-row="${seeded.first}"]`);const row=page.locator(`[data-v42-person-row="${seeded.first}"]`);const fit=await row.locator('.ap-v42-photo img').evaluate(el=>getComputedStyle(el).objectFit);must(fit==='contain',`Admin source preview must be uncropped/contain, got ${fit}`);
  const edit=row.locator('[data-v42-profile]');must(await edit.isVisible(),'Edit person details action is not visible');await edit.click();await page.waitForSelector('#v42PersonForm');const adminModalText=await page.locator('#apModal').innerText();
