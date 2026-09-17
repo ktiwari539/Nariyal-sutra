@@ -20,3 +20,22 @@
 }
 @media(max-width:620px){.v37-placement-grid,.v37-quick-grid{grid-template-columns:1fr}.v37-device.tablet,.v37-device.mobile{width:100%}.v37-device-tabs{display:none}.v37-place-actions{flex-direction:column}.v37-place-actions .ap-btn{width:100%}.ap-view[data-view="team"] .ap-head-actions{display:grid;grid-template-columns:1fr 1fr}.ap-view[data-view="team"] .ap-head-actions .ap-btn{width:100%}}
 @media(max-width:420px){.ap-view[data-view="team"] .ap-head-actions{grid-template-columns:1fr}}
+
+/* Executive dashboard responsive containment. Keep the command center dense on desktop,
+   but collapse before the fixed Admin sidebar makes two-column panels unreadable. */
+#nsDashboardV2{min-width:0;max-width:100%;overflow-x:clip}
+#nsDashboardV2 .ns-exec-hero,#nsDashboardV2 .ns-dash-search,#nsDashboardV2 .ns-dash-kpis,#nsDashboardV2 .ns-exec-main,#nsDashboardV2 .ns-order-pipeline,#nsDashboardV2 .ns-exec-grid,#nsDashboardV2 .ns-exec-foot,#nsDashboardV2 .ns-fulfil-grid,#nsDashboardV2 .ns-customer-grid,#nsDashboardV2 .ns-health-links,#nsDashboardV2 .ns-quick{min-width:0;max-width:100%}
+#nsDashboardV2 .ns-dash-search{grid-template-columns:minmax(0,1fr) auto}
+#nsDashboardV2 input,#nsDashboardV2 button,#nsDashboardV2 .ns-panel,#nsDashboardV2 .ns-kpi{min-width:0;max-width:100%;overflow-wrap:anywhere}
+#nsDashboardV2 .ns-fulfil-grid,#nsDashboardV2 .ns-customer-grid,#nsDashboardV2 .ns-health-links{grid-template-columns:repeat(3,minmax(0,1fr))}
+#nsDashboardV2 .ns-quick{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media(max-width:1180px){
+  #nsDashboardV2 .ns-exec-grid,#nsDashboardV2 .ns-exec-foot{grid-template-columns:minmax(0,1fr)!important}
+  #nsDashboardV2 .ns-quick{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(max-width:700px){
+  #nsDashboardV2 .ns-fulfil-grid,#nsDashboardV2 .ns-customer-grid,#nsDashboardV2 .ns-health-links{grid-template-columns:minmax(0,1fr)!important}
+  #nsDashboardV2 .ns-quick{grid-template-columns:minmax(0,1fr)!important}
+  #nsDashboardV2 .ns-dash-search{grid-template-columns:minmax(0,1fr)}
+  #nsDashboardV2 .ns-dash-search button{width:100%}
+}
