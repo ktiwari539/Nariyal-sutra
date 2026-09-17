@@ -79,9 +79,13 @@ has(bridge,[
 const login=read('admin-bcc-login.html');
 has(login,[
   'u?.emailVerified',
+  'sendEmailVerification',
+  'isConfiguredOwner&&!u.emailVerified',
+  'u.uid!==owner',
+  'Owner email verification sent to ',
   "x.status!=='Active'",
   'x.active!==true',
-  "String(x.email||'')!==String(u.email||'')",
+  'norm(x.email)!==norm(u.email)',
   'NS_INIT_APP_CHECK'
 ],'admin login');
 
