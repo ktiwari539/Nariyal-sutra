@@ -41,6 +41,41 @@ function tightenLayout(){
   document.querySelectorAll('section').forEach(sec=>{if(sec.hidden)return;const rect=sec.getBoundingClientRect();if(rect.height>900&&!sec.querySelector('img,video,canvas,iframe,form,.order-card,.faq-list,.story-stage,.cinema'))sec.classList.add('v30-tight-section');});
 }
 
-function init(){restoreIntroExperience();setTimeout(()=>{enrichRainVariety();addCutDroplets();tightenLayout();},120);}
+/* Preserve the approved People rail markup/motion. This only adds navigation from a
+   storefront face to the exact Admin-authored public profile for that person. */
+let peopleRailObserver=null,peopleRailTarget=null,peopleLinkRaf=0;
+function linkPeopleProfiles(){
+  peopleLinkRaf=0;
+  const Store=window.NSV421Store;if(!Store?.load)return 0;
+  let state;try{state=Store.load();}catch(_e){return 0;}
+  let linked=0;
+  document.querySelectorAll('.ns-face-card[data-id]').forEach(card=>{
+    const id=card.dataset.id;
+    const media=Store.mediaById?.(state,id)||(state.media||[]).find(x=>String(x.id)===String(id));
+    if(!media)return;
+    const person=media.personId||media.faceGroup||media.id;
+    if(!person)return;
+    const href=`people-of-nariyal-sutra.html?person=${encodeURIComponent(person)}#people-moving`;
+    if(card.getAttribute('href')!==href)card.setAttribute('href',href);
+    card.dataset.nsPersonLink=person;
+    linked++;
+  });
+  const rail=document.querySelector('#v421CustomerAmbassadorV1, #nsPeopleMarquee');
+  if(rail&&rail!==peopleRailTarget){
+    peopleRailObserver?.disconnect();peopleRailTarget=rail;
+    peopleRailObserver=new MutationObserver(()=>schedulePeopleLinks());
+    peopleRailObserver.observe(rail,{childList:true,subtree:true});
+  }
+  return linked;
+}
+function schedulePeopleLinks(){if(!peopleLinkRaf)peopleLinkRaf=requestAnimationFrame(linkPeopleProfiles);}
+function installPeopleProfileLinks(){
+  schedulePeopleLinks();
+  [120,350,800,1600,2800].forEach(ms=>setTimeout(schedulePeopleLinks,ms));
+  window.addEventListener('nsv421:change',schedulePeopleLinks);
+  window.addEventListener('nsv421:production-ready',schedulePeopleLinks);
+}
+
+function init(){restoreIntroExperience();installPeopleProfileLinks();setTimeout(()=>{enrichRainVariety();addCutDroplets();tightenLayout();schedulePeopleLinks();},120);}
 document.readyState==='loading'?document.addEventListener('DOMContentLoaded',init):init();
 })();
