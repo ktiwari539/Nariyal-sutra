@@ -11,7 +11,7 @@ const context=await browser.newContext({viewport:{width:1440,height:1000},servic
 const page=await context.newPage();
 const errors=[];const mutations=[];
 page.on('pageerror',e=>errors.push(String(e)));
-page.on('request',r=>{const u=r.url(),m=r.method();if(u.startsWith(BASE)||['GET','HEAD','OPTIONS'].includes(m))return;let benign=false;try{const x=new URL(u);benign=(x.hostname==='firestore.googleapis.com'&&/Firestore\/Listen\/channel$/.test(x.pathname))||x.hostname==='firebaseremoteconfig.googleapis.com'||x.hostname==='firebaseinstallations.googleapis.com'||x.hostname.endsWith('google-analytics.com');}catch{}if(!benign)mutations.push(`${m} ${u}`);});
+page.on('request',r=>{const u=r.url(),m=r.method();if(u.startsWith(BASE)||['GET','HEAD','OPTIONS'].includes(m))return;let benign=false;try{const x=new URL(u);benign=(x.hostname==='firestore.googleapis.com'&&/Firestore\/Listen\/channel$/.test(x.pathname))||x.hostname==='firebaseremoteconfig.googleapis.com'||x.hostname==='firebaseinstallations.googleapis.com'||x.hostname.endsWith('google-analytics.com')||(x.hostname==='www.googletagmanager.com'&&x.pathname==='/td');}catch{}if(!benign)mutations.push(`${m} ${u}`);});
 let original;
 async function overview(){await page.evaluate(()=>document.querySelector('#apNav button[data-view="overview"]')?.click());await page.waitForFunction(()=>document.querySelector('.ap-view[data-view="overview"]')?.classList.contains('is-active'));}
 try{
