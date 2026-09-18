@@ -1550,11 +1550,17 @@ body.ns-story-active .story-skip{display:block}.story-skip:hover{color:var(--gol
 
     if(adminCfg.recaptchaEnterpriseSiteKey){
       try{
-        appCheckMod.initializeAppCheck(app,{
-          provider:new appCheckMod.ReCaptchaEnterpriseProvider(adminCfg.recaptchaEnterpriseSiteKey),
-          isTokenAutoRefreshEnabled:true
-        });
-        window.NS_APP_CHECK_READY=true;
+        if(typeof window.NS_INIT_APP_CHECK==='function'){
+          await window.NS_INIT_APP_CHECK(app);
+        }else{
+          const appCheckInstance=appCheckMod.initializeAppCheck(app,{
+            provider:new appCheckMod.ReCaptchaEnterpriseProvider(adminCfg.recaptchaEnterpriseSiteKey),
+            isTokenAutoRefreshEnabled:true
+          });
+          window.NS_APP_CHECK_INSTANCE=appCheckInstance;
+          window.NS_APP_CHECK_READY=true;
+          window.NS_APP_CHECK_STATUS='initialized';
+        }
       }catch(_appCheckError){ console.warn('Firebase App Check not initialized.',_appCheckError); }
     }
 
@@ -2296,23 +2302,23 @@ body.ns-story-active .story-skip{display:block}.story-skip:hover{color:var(--gol
 <a class="btn-gold" href="people-of-nariyal-sutra.html">Explore People Stories</a>
 <a class="btn-outline" href="index.html?enquiry=ambassador#contact">Become a Nariyal Ambassador</a>
 </div>
-<p class="ns-people-note">People featured in editorial imagery are not presented as farmers, employees or facility owners unless that relationship is explicitly true.</p>
+<p class="ns-people-note">Featured photographs celebrate people connected with Nariyal Sutra. Roles and affiliations are stated only when they have been confirmed.</p>
 </div>
 </section>
 <section aria-labelledby="ns-face-title" class="ns-people-marquee" id="nsPeopleMarquee">
 <div class="ns-people-marquee-head">
-<div><small>People of Nariyal Sutra · Living portrait rail</small><h3 data-face-title="" id="ns-face-title">Faces around the <em>Nariyal Sutra story.</em></h3></div>
-<p data-face-sub="">A continuous full-picture ribbon of approved people and community imagery. Admin controls which images appear, their order, speed, direction, surfaces and homepage placement.</p>
+<div><small>People of Nariyal Sutra · Stories in motion</small><h3 data-face-title="" id="ns-face-title">Customers, collaborators and community voices <em>bringing the Nariyal Sutra story to life.</em></h3></div>
+<p data-face-sub="">A moving collection of customer, collaborator and community photographs, shared with care as part of the Nariyal Sutra journey.</p>
 </div>
 <div aria-label="People story portraits" class="ns-face-rows"></div>
-<div class="ns-people-marquee-foot"><span>Editorial imagery does not imply employment, farm ownership or family relationships unless explicitly stated.</span><a class="btn-outline" href="people-of-nariyal-sutra.html#v25PeopleStreams">Explore the people stories</a></div>
+<div class="ns-people-marquee-foot"><span>Names, roles and affiliations are shown only when they have been confirmed.</span><a class="btn-outline" href="people-of-nariyal-sutra.html#v25PeopleStreams">Explore the people stories</a></div>
 </section>
 <!-- ═══════════════ HOW TO ORDER ═══════════════ -->
 <section id="how-to-order" style="padding:100px 64px;background:linear-gradient(135deg,#0a1506,#060e03)">
 <div class="sec-hd r">
 <div class="sec-eyebrow"><div class="se-line"></div><span class="se-txt">How To Order</span><div class="se-line"></div></div>
 <h2 class="sec-title">Order in <em>4 Simple Steps</em></h2>
-<p class="sec-sub">Ordering is simple. Stock, serviceability and delivery timing are confirmed on WhatsApp before fulfilment.</p>
+<p class="sec-sub">Place a request from your location and we’ll confirm stock, serviceability and delivery timing before fulfilment. International and export requirements are reviewed through our Trade &amp; Supply Desk.</p>
 </div>
 <div class="hto-steps">
 <div class="hto-step r" style="transition-delay:.1s">
@@ -2419,7 +2425,7 @@ body.ns-story-active .story-skip{display:block}.story-skip:hover{color:var(--gol
 <div class="sec-hd r" style="margin-bottom:48px">
 <div class="sec-eyebrow"><div class="se-line"></div><span class="se-txt">Place Your Order</span><div class="se-line"></div></div>
 <h2 class="sec-title">Fresh to Your <em>Doorstep</em></h2>
-<p class="sec-sub">Fill in the form below and continue to WhatsApp. We’ll confirm stock, serviceability and delivery timing before fulfilment.</p>
+<p class="sec-sub">Order requests are welcome from supported locations across India, from local delivery to inter-state and larger commercial requirements. We confirm stock, serviceability, logistics and delivery timing before fulfilment. International requirements are handled through our Trade &amp; Supply Desk.</p>
 </div>
 <div aria-label="Order safeguards" class="order-trust-row r">
 <span>✓ Stock checked before fulfilment</span>

@@ -55,11 +55,11 @@ const defaults={
   {id:'U001',name:'Uploaded people reference U001',cat:'People',status:'Needs review',visible:false,publicAllowed:true,storyAllowed:true,homepageAllowed:false,brandFit:'Review',placement:'Library only',faceGroup:'U001',src:'assets/images/people-uploads/U001.jpeg',thumb:'assets/images/people-uploads/U001.jpeg',version:1,versions:[{version:1,src:'assets/images/people-uploads/U001.jpeg',at:'Bundled V26'}]},
   {id:'U002',name:'Uploaded people reference U002',cat:'People',status:'Needs review',visible:false,publicAllowed:true,storyAllowed:true,homepageAllowed:false,brandFit:'Review',placement:'Library only',faceGroup:'U002',src:'assets/images/people-uploads/U002.png',thumb:'assets/images/people-uploads/U002.png',version:1,versions:[{version:1,src:'assets/images/people-uploads/U002.png',at:'Bundled V26'}]}
  ],
- faceMarquee:{enabled:true,homepage:true,peoplePage:false,title:'People in motion · Nariyal Sutra stories',subtitle:'A continuous full-picture gallery of approved customer, collaborator and community photographs. Admin controls the images, order, speed, direction, surfaces and placement.',rows:2,speed:42,direction:'alternate',selectedIds:FEATURED_FACE_IDS.slice(),pauseOnHover:false,placement:'after-uses',background:'#061004',background2:'#020801',accent:'#d4a843',edgeFade:true,cardStyle:'full-frame'},
+ faceMarquee:{enabled:true,homepage:true,peoplePage:false,title:'People in motion · Nariyal Sutra stories',subtitle:'A moving collection of customer, collaborator and community photographs celebrating the people connected to Nariyal Sutra.',rows:2,speed:42,direction:'alternate',selectedIds:FEATURED_FACE_IDS.slice(),pauseOnHover:false,placement:'after-uses',background:'#061004',background2:'#020801',accent:'#d4a843',edgeFade:true,cardStyle:'full-frame'},
  peopleStreams:{
-  ambassadors:{enabled:true,title:'Brand Ambassadors',subtitle:'Curated ambassadors who have been explicitly approved for this public role. The label never implies employment.',speed:48,direction:'ltr',selectedIds:[],placement:'people-page'},
-  promoters:{enabled:true,title:'Brand Promoters & Community Voices',subtitle:'Approved promoters, collaborators and community voices presented as full-picture stories, not cropped face badges.',speed:54,direction:'rtl',selectedIds:[],placement:'people-page'},
-  community:{enabled:true,title:'Community Spotlight',subtitle:'Customer-submitted coconut moments appear here only after consent, review and Admin approval.',speed:50,direction:'ltr',selectedIds:[],placement:'people-page'}
+  ambassadors:{enabled:true,title:'Brand Ambassadors',subtitle:'Meet the Brand Ambassadors who represent and share the Nariyal Sutra story in their communities.',speed:48,direction:'ltr',selectedIds:[],placement:'people-page'},
+  promoters:{enabled:true,title:'Brand Promoters & Community Voices',subtitle:'Promoters, collaborators and community voices helping Nariyal Sutra reach new audiences and communities.',speed:54,direction:'rtl',selectedIds:[],placement:'people-page'},
+  community:{enabled:true,title:'Community Spotlight',subtitle:'Customer and community moments shared with permission, celebrating everyday experiences around fresh coconuts.',speed:50,direction:'ltr',selectedIds:[],placement:'people-page'}
  },
  harvest:{countEnabled:true,countTarget:100,countLabel:'coconuts moving through the harvest',rainEnabled:true,rainDensity:'adaptive'},
  sections:[
@@ -83,7 +83,7 @@ const defaults={
   {id:'contact',title:'Enquire / contact',page:'homepage',visible:true,order:18,protected:false,motion:'Commercial desk'}
  ],
  customSections:[
-  {id:'CS-PEOPLE',page:'homepage',title:'Moving People full-picture rail',subtitle:'A living editorial rail controlled from Admin.',template:'Portrait rail',visible:true,mediaIds:FEATURED_FACE_IDS.slice(0,18),motion:'Marquee',schedule:''}
+  {id:'CS-PEOPLE',page:'homepage',title:'Moving People full-picture rail',subtitle:'A living collection of people and stories connected to Nariyal Sutra.',template:'Portrait rail',visible:true,mediaIds:FEATURED_FACE_IDS.slice(0,18),motion:'Marquee',schedule:''}
  ],
  stories:[
   {id:'ST-PEOPLE',surface:'people',title:'People & community',subtitle:'Faces, moments and collaborators around the product',visible:true,order:1,layout:'portrait-rail',mediaIds:FEATURED_FACE_IDS.slice(0,12)},

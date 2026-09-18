@@ -54,12 +54,24 @@ window.NS_EMAILJS_CONFIG = {
     };
     return map[status]||map.pending;
   }
+  async function appCheckToken(){
+    if(typeof window.NS_GET_APP_CHECK_TOKEN!=='function') return '';
+    try{return await window.NS_GET_APP_CHECK_TOKEN();}
+    catch(firstError){
+      if(typeof window.NS_INIT_APP_CHECK!=='function')throw firstError;
+      const appMod=await import('https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js');
+      const apps=appMod.getApps();
+      if(!apps.length)throw firstError;
+      await window.NS_INIT_APP_CHECK(apps[0]);
+      return await window.NS_GET_APP_CHECK_TOKEN();
+    }
+  }
   async function serverSend(kind,data){
     if(!cfg().serverEndpoint) throw new Error('Server email endpoint is not configured.');
     const controller=new AbortController(); const timer=setTimeout(()=>controller.abort(),8000);
     try{
       const headers={'Content-Type':'application/json'};
-      const appCheck=typeof window.NS_GET_APP_CHECK_TOKEN==='function'?await window.NS_GET_APP_CHECK_TOKEN():'';
+      const appCheck=await appCheckToken();
       if(appCheck)headers['x-firebase-appcheck']=appCheck;
       if(kind==='customer_status'){
         const user=window.NSV421ProductionBridge?.user;if(!user)throw new Error('Admin authentication is required for order-status email.');
