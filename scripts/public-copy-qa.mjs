@@ -9,6 +9,11 @@ const pages=[
   'fresh-tender-coconut.html','freshness-first.html','green-coconut.html',
   'gujarat-coast.html','south-india-groves.html','supplier-partnership.html',
   'coconut-water.html','people-of-nariyal-sutra.html','privacy.html','track.html'
+  'Cinematic product study',
+  'Cinematic Product Study',
+  'same system can route',
+  'website does not promise a fixed delivery charge',
+  'Skip cinematic',
 ];
 
 const forbidden=[

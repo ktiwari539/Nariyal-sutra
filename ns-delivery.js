@@ -271,7 +271,7 @@ function injectDeliveryFields(){
       <div class="ns-handover-status" id="ns-handover-status"></div>
       <div class="ns-del-field" style="margin-top:10px">
         <label for="ns-handover-note">Handover note (optional)</label>
-        <input type="text" id="ns-handover-note" maxlength="240" placeholder="e.g. East entrance, call 15 minutes before arrival" oninput="nsHandoverInput()">
+        <input type="text" id="ns-handover-note" maxlength="240" placeholder="e.g. East entrance, call 15 minutes before arrival" oninput="nsHandoverNote()">
       </div>
     </div>
   </div>
@@ -484,6 +484,14 @@ function nsRenderHandoverPanel(){
 }
 
 window.nsSelectDelivery = function(id){
+  if(nsDelivery.handoverPointType!==id){
+    nsDelivery.handoverPointName='';
+    nsDelivery.handoverPointAddress='';
+    nsDelivery.handoverPointLat=null;
+    nsDelivery.handoverPointLng=null;
+    nsDelivery.handoverSearchSource='';
+    nsDelivery.handoverNote='';
+  }
   nsDelivery.selectedDelivery=id;
   nsDelivery.handoverPointType=id;
   document.querySelectorAll('.ns-del-opt').forEach(function(o){
@@ -497,12 +505,16 @@ window.nsSelectDelivery = function(id){
 
 window.nsHandoverInput=function(){
   nsDelivery.handoverPointName=((el('ns-handover-name')||{}).value||'').trim();
-  nsDelivery.handoverNote=((el('ns-handover-note')||{}).value||'').trim();
-  /* Manual edits supersede a previously selected search result. */
+  /* Manual name edits supersede a previously selected search result. */
   nsDelivery.handoverPointAddress='';
   nsDelivery.handoverPointLat=null;
   nsDelivery.handoverPointLng=null;
   nsDelivery.handoverSearchSource=nsDelivery.handoverPointName?'manual':'';
+  nsDelUpdateSummary();
+};
+
+window.nsHandoverNote=function(){
+  nsDelivery.handoverNote=((el('ns-handover-note')||{}).value||'').trim();
   nsDelUpdateSummary();
 };
 
