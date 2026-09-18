@@ -61,7 +61,7 @@ for(const file of textFiles){
   if(doubled.test(s))add('malformed-url',file,'duplicated production base URL');
 
   if(path.extname(file).toLowerCase()==='.html'){
-    const hardCodedSelfImages=[...s.matchAll(/<(?:img|source)\\b[^>]*https:\\/\\/nariyal-sutra\\.netlify\\.app\\/assets\\/images\\/[^>]*>/gi)];
+    const hardCodedSelfImages=[...s.matchAll(/<(?:img|source)\b[^>]*https:\/\/nariyal-sutra\.netlify\.app\/assets\/images\/[^>]*>/gi)];
     if(hardCodedSelfImages.length)add('cross-deploy-self-image',file,`${hardCodedSelfImages.length} customer-facing image tag(s) hard-code the production asset origin instead of the current deploy`);
     // Keep opening script tags but remove inline script bodies so JS string literals are not mistaken for markup refs.
     const markup=s.replace(/<script\b([^>]*)>[\s\S]*?<\/script>/gi,'<script$1></script>');
