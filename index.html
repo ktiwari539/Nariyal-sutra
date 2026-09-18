@@ -1571,7 +1571,9 @@ body.ns-story-active .story-skip{display:block}.story-skip:hover{color:var(--gol
     };
 
     window.NS_SAVE_INQUIRY=async function(inquiry){
-      const safe={...inquiry, createdAt:fsMod.serverTimestamp(), updatedAt:fsMod.serverTimestamp(), source:'website'};
+      let acquisition=null;
+      try{acquisition=window.NSAttribution?.read?.()||window.NS_ATTRIBUTION_CONTEXT||null;}catch(_attributionError){}
+      const safe={...inquiry, ...(acquisition&&Number(acquisition.version)===2?{acquisition}:{}), createdAt:fsMod.serverTimestamp(), updatedAt:fsMod.serverTimestamp(), source:'website'};
       await fsMod.setDoc(fsMod.doc(db,'inquiries',String(inquiry.inquiryId)),safe);
       return inquiry.inquiryId;
     };

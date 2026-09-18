@@ -8,7 +8,9 @@ if(!window.__NS_V421_VISUAL_RECOVERY__)loadOnce('/assets/js/v421-visual-recovery
 if(!window.__NS_V421_CONTENT_CONTROLS__)loadOnce('/assets/js/v421-content-controls.js','data-ns-content-controls');
 if(!/^(localhost|127\.0\.0\.1|\[::1\])$/i.test(location.hostname) && !window.__NS_V421_PRODUCTION_BRIDGE__)loadOnce('/assets/js/v421-production-bridge.js','data-ns-production-bridge');
 /* Retired cinematic runtimes are deliberately not loaded here. */
-if(file()==='index.html' && !window.NSAttribution)loadOnce('/assets/js/v421-attribution.js','data-ns-attribution');
+/* Capture the original landing source on every commerce/content entry page.
+   The checkout question itself still mounts only where #order exists. */
+if(!window.NSAttribution)loadOnce('/assets/js/v421-attribution.js','data-ns-attribution');
 if(file()==='index.html' && !window.__NS_V421_ACCOUNT_UI__)loadOnce('/assets/js/v421-account-ui.js','data-ns-account-ui');
 if(file()==='index.html' && /^(localhost|127\.0\.0\.1|\[::1\])$/i.test(location.hostname) && new URLSearchParams(location.search).get('accountPreview')==='1')loadOnce('/assets/js/v421-account-preview-stabilizer.js','data-ns-account-preview-stabilizer');
 if(file()==='people-of-nariyal-sutra.html'&&!window.__NS_V421_PEOPLE_PROFILES__)loadOnce('/assets/js/v38-people-profiles.js','data-ns-people-profiles');

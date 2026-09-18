@@ -19,6 +19,46 @@
   function clean(v,max){
     return String(v==null?'':v).trim().slice(0,max||500);
   }
+  function safeAttribution(){
+    var raw=null;
+    try{raw=window.NSAttribution?.read?.()||window.NS_ATTRIBUTION_CONTEXT||null;}catch(_e){}
+    if(!raw||Number(raw.version)!==2||!raw.firstTouch||!raw.lastTouch)return null;
+    var allowed=['direct','organic_search','paid_campaign','social','whatsapp','email','referral','other_unknown'];
+    function campaign(v,max){
+      var value=clean(v,max).replace(/[^A-Za-z0-9._ -]/g,'').replace(/\s+/g,' ').trim();
+      if(/@|\b(?:password|passwd|pwd|token|otp)\b/i.test(value)||/\d{7,}/.test(value))return '';
+      return value;
+    }
+    function touch(value){
+      value=value||{};
+      var classification=clean(value.classification,40);
+      if(!allowed.includes(classification))classification='other_unknown';
+      return {
+        classification:classification,
+        source:campaign(value.source,120),
+        medium:campaign(value.medium,120),
+        campaign:campaign(value.campaign,160),
+        content:campaign(value.content,160),
+        referrerHost:clean(value.referrerHost,253).toLowerCase().replace(/[^a-z0-9.-]/g,''),
+        landingPath:('/'+clean(value.landingPath,300).replace(/^\/+/, '').split(/[?#]/)[0]).slice(0,300),
+        capturedAtClient:clean(value.capturedAtClient,40)
+      };
+    }
+    var reported=clean(raw.reportedSource,80);
+    var reportedAllowed=['','google_search','ai_assistant','word_of_mouth','social_media','whatsapp_telegram','returning_customer','business_event_referral','other','prefer_not_to_say'];
+    if(!reportedAllowed.includes(reported))reported='';
+    return {
+      version:2,
+      reportedSource:reported,
+      reportedSourceLabel:clean(raw.reportedSourceLabel,120),
+      reportedDetail:clean(raw.reportedDetail,180),
+      firstTouch:touch(raw.firstTouch),
+      lastTouch:touch(raw.lastTouch),
+      sessionId:clean(raw.sessionId,64).replace(/[^A-Za-z0-9-]/g,''),
+      sessionStartedAtClient:clean(raw.sessionStartedAtClient,40),
+      capturedAtClient:clean(raw.capturedAtClient,40)
+    };
+  }
   function money(v){
     return '₹'+Number(v||0).toLocaleString('en-IN');
   }
@@ -48,6 +88,9 @@
       extra.deliveryCoordinatesConfirmed=hasNumber(extra.deliveryLat)&&hasNumber(extra.deliveryLng);
 
       var merged=Object.assign({},order,extra);
+      var acquisition=safeAttribution();
+      if(acquisition)merged.acquisition=acquisition;
+      else delete merged.acquisition;
       var token=clean(extra.trackingToken,48);
       if(!/^[0-9a-f]{48}$/i.test(token))throw new Error('Checkout tracking token is missing or invalid.');
 

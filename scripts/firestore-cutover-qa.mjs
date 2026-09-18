@@ -6,6 +6,10 @@ const PROJECT='nariyal-sutra';
 const TOKEN_OLD='1'.repeat(48),TOKEN_NEW='2'.repeat(48),TOKEN_USER='3'.repeat(48);
 const OLD_ORDER='NS-CUTOVER-OLD01',NEW_ORDER='NS-CUTOVER-NEW01',USER_ORDER='NS-CUTOVER-USER1';
 const must=(c,m)=>{if(!c)throw new Error(m)};
+function acquisition(){
+  const touch={classification:'social',source:'instagram',medium:'social',campaign:'wedding-season',content:'reel',referrerHost:'instagram.com',landingPath:'/coconut-events-hospitality.html',capturedAtClient:'2026-09-18T10:00:00.000Z'};
+  return {version:2,reportedSource:'social_media',reportedSourceLabel:'Social media',reportedDetail:'Instagram',firstTouch:{...touch},lastTouch:{...touch},sessionId:'123e4567-e89b-12d3-a456-426614174000',sessionStartedAtClient:'2026-09-18T10:00:00.000Z',capturedAtClient:'2026-09-18T10:02:00.000Z'};
+}
 function orderBase(orderId,token,extra={}){
   return {
     orderId,customerName:'Cutover QA',phone:'919876543210',email:'cutover@example.com',city:'Jabalpur',
@@ -21,7 +25,7 @@ function legacyOrder(orderId,token,extra={}){
   return orderBase(orderId,token,extra);
 }
 function modernOrder(orderId,token,extra={}){
-  return orderBase(orderId,token,{deliveryAddress:'893 Aman Nagar, New Ranjhi, Jabalpur 482011',deliveryLocationSource:'gps',deliveryCoordinatesConfirmed:true,...extra});
+  return orderBase(orderId,token,{deliveryAddress:'893 Aman Nagar, New Ranjhi, Jabalpur 482011',deliveryLocationSource:'gps',deliveryCoordinatesConfirmed:true,acquisition:acquisition(),...extra});
 }
 function tracking(orderId,token,extra={}){
   return {trackingToken:token,orderId,status:'pending',productName:'Fresh Tender Coconut',quantity:2,deliveryMethod:'Delivery Review',
@@ -71,6 +75,7 @@ try{
 
   // Compatibility must not relax unrelated private-order schema validation.
   await assertFails(setDoc(doc(guest,'orders','NS-CUTOVER-BAD01'),legacyOrder('NS-CUTOVER-BAD01','5'.repeat(48),{unexpectedPrivateField:'blocked'})));
+  await assertFails(setDoc(doc(guest,'orders','NS-CUTOVER-BAD02'),modernOrder('NS-CUTOVER-BAD02','6'.repeat(48),{acquisition:{...acquisition(),firstTouch:{...acquisition().firstTouch,referrerHost:'https://instagram.com/private'}}})));
   console.log('FIRESTORE ZERO-DOWNTIME CUTOVER QA: PASS');
 } finally {
   await env.cleanup();

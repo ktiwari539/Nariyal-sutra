@@ -25,7 +25,9 @@ has(order,[
   "doc(db,'customerOrders'",
   "window.NS_ORDER_PROJECTION_MODE='atomic-batch'",
   "deliveryLocationSource",
-  "deliveryCoordinatesConfirmed"
+  "deliveryCoordinatesConfirmed",
+  'function safeAttribution()',
+  'merged.acquisition=acquisition'
 ],'checkout projection');
 not(order,['NS_CUSTOMER_AFTER_ORDER_SAVED('],'checkout projection');
 
@@ -40,6 +42,9 @@ has(rules,[
   "'deliveryPreference'",
   "'handoverPointType'",
   "'handoverPointName'",
+  'function validAcquisitionTouch(touch)',
+  'function validAcquisition()',
+  "'acquisition'",
   'validPublicTrackingUpdate(token)',
   'validAuditCreate()',
   'd.actorRole == currentRole()',
@@ -84,10 +89,31 @@ has(bridge,[
 const orderOps=read('assets/js/admin-v44-order-operations.js');
 has(orderOps,[
   'data-ns-delivery-preference',
+  'data-ns-order-acquisition',
   'Customer preference',
   'Preferred handover point',
-  'handoverPointName'
+  'handoverPointName',
+  "['Landing page',landingLabel(first.landingPath)]",
+  "['Campaign',first.campaign||'—']"
 ],'Admin order delivery preference');
+
+const acquisition=read('assets/js/v421-attribution.js');
+has(acquisition,[
+  "const SESSION_KEY='ns-attribution-v2'",
+  'sessionStorage.setItem(SESSION_KEY',
+  'new URL(document.referrer).hostname',
+  'firstTouch:copyTouch(sessionAttribution.firstTouch)',
+  'lastTouch:copyTouch(sessionAttribution.lastTouch)'
+],'customer acquisition attribution');
+not(acquisition,['localStorage',"params.get('utm_term')",'landingReferrer'],'customer acquisition privacy boundary');
+
+const acquisitionAdmin=read('assets/js/v421-admin-attribution.js');
+has(acquisitionAdmin,[
+  "collection(db,'orders')",
+  "collection(db,'inquiries')",
+  'Acquired orders & enquiries by source',
+  'They are not website visitor, session or traffic totals.'
+],'Admin acquisition reporting');
 
 const operability=read('assets/js/admin-v45-operability.js');
 has(operability,[

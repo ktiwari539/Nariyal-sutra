@@ -18,6 +18,9 @@ jobs:
       - name: Delivery preference experience QA
         run: node scripts/delivery-preference-qa.mjs
         timeout-minutes: 3
+      - name: Customer acquisition attribution QA
+        run: node scripts/acquisition-attribution-qa.mjs
+        timeout-minutes: 3
       - name: Custom backend App Check verification QA
         run: node scripts/app-check-backend-qa.mjs
         timeout-minutes: 3
@@ -84,6 +87,9 @@ jobs:
         timeout-minutes: 15
       - name: Checkout live-location synchronization QA
         run: node scripts/checkout-location-sync-qa.mjs
+        timeout-minutes: 10
+      - name: Customer acquisition browser QA
+        run: node scripts/acquisition-attribution-browser-qa.mjs
         timeout-minutes: 10
   qa:
     needs: [firebase-contract, media-targeted]

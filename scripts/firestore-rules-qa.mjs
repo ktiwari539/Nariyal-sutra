@@ -25,6 +25,18 @@ const ORDER2='NS-2026-RULES02';
 const ORDER3='NS-2026-RULES03';
 const must=(c,m)=>{if(!c)throw new Error(m)};
 
+function acquisition(extra={}){
+  const touch={
+    classification:'organic_search',source:'google',medium:'organic',campaign:'wedding-season-2026',content:'homepage-hero',
+    referrerHost:'google.com',landingPath:'/fresh-tender-coconut.html',capturedAtClient:'2026-09-18T10:00:00.000Z'
+  };
+  return {
+    version:2,reportedSource:'google_search',reportedSourceLabel:'Google Search',reportedDetail:'',
+    firstTouch:{...touch},lastTouch:{...touch},sessionId:'123e4567-e89b-12d3-a456-426614174000',
+    sessionStartedAtClient:'2026-09-18T10:00:00.000Z',capturedAtClient:'2026-09-18T10:02:00.000Z',...extra
+  };
+}
+
 function baseOrder(orderId=ORDER,token=TOKEN,extra={}){
   return {
     orderId,
@@ -65,6 +77,7 @@ function baseOrder(orderId=ORDER,token=TOKEN,extra={}){
     trackingToken:token,
     deliveryOTP:'123456',
     qtyBand:'retail',
+    acquisition:acquisition(),
     ...extra
   };
 }
@@ -146,6 +159,18 @@ try{
   await assertFails(guestCheckout(guest,ORDER2,TOKEN2,{unexpectedPrivateField:'blocked'}));
   await assertFails(guestCheckout(guest,'NS-2026-RULES04','d'.repeat(48),{unitPrice:1,total:2}));
   await assertFails(guestCheckout(guest,'NS-2026-RULES05','e'.repeat(48),{}, {phone:'private-data-must-never-project'}));
+  await assertFails(guestCheckout(guest,'NS-2026-RULES06','6'.repeat(48),{acquisition:acquisition({firstTouch:{...acquisition().firstTouch,referrerHost:'https://google.com/search?q=private'}})}));
+  await assertFails(guestCheckout(guest,'NS-2026-RULES07','7'.repeat(48),{}, {acquisition:acquisition()}));
+
+  const inquiry={
+    inquiryId:'NSQ-2026-RULES01',role:'buyer',inquiryType:'bulk',inquiryTypeLabel:'Bulk 10+',productPreference:'tender',
+    frequency:'one_time',packaging:'recommend',name:'QA Buyer',phone:'919876543210',email:'buyer@example.com',organization:'',
+    quantity:50,requiredDate:'2026-10-01',destination:'Jabalpur, Madhya Pradesh, India',country:'India',state:'Madhya Pradesh',
+    city:'Jabalpur',postalCode:'482011',preferredContact:'telegram',telegramUsername:'qa_buyer',message:'Please share availability.',
+    status:'new',createdAt:serverTimestamp(),updatedAt:serverTimestamp(),source:'website',acquisition:acquisition()
+  };
+  await assertSucceeds(setDoc(doc(guest,'inquiries',inquiry.inquiryId),inquiry));
+  await assertFails(setDoc(doc(guest,'inquiries','NSQ-2026-RULES02'),{...inquiry,inquiryId:'NSQ-2026-RULES02',acquisition:acquisition({lastTouch:{...acquisition().lastTouch,landingPath:'/fresh.html?email=buyer@example.com'}})}));
 
   const orphanToken='f'.repeat(48);
   await assertFails(setDoc(doc(guest,'publicTracking',orphanToken),tracking('NS-2026-ORPHAN1',orphanToken)));

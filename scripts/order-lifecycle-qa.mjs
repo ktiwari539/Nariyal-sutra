@@ -39,7 +39,8 @@ try{
  original=await page.evaluate(()=>window.NSV421Store.load());
  await page.evaluate(ids=>{
    const S=window.NSV421Store,s=S.load();
-   const base=id=>({id,orderId:id,customer:'QA Lifecycle',product:'Fresh Tender Coconut',qty:2,quantity:2,payment:'COD',delivery:'pending',status:'pending',total:110,trackingToken:'a'.repeat(48),createdAt:new Date().toISOString()});
+   const touch={classification:'organic_search',source:'google',medium:'organic',campaign:'wedding-season',content:'hero',referrerHost:'google.com',landingPath:'/fresh-tender-coconut.html',capturedAtClient:new Date().toISOString()};
+   const base=id=>({id,orderId:id,customer:'QA Lifecycle',product:'Fresh Tender Coconut',qty:2,quantity:2,payment:'COD',delivery:'pending',status:'pending',total:110,trackingToken:'a'.repeat(48),createdAt:new Date().toISOString(),acquisition:{version:2,reportedSource:'google_search',reportedSourceLabel:'Google Search',reportedDetail:'',firstTouch:{...touch},lastTouch:{...touch}}});
    s.orders=[base(ids.owner),base(ids.cancel),base(ids.ops),base(ids.support),...(s.orders||[]).filter(o=>![ids.owner,ids.cancel,ids.ops,ids.support].includes(String(o.id||o.orderId)))];
    S.save(s);window.dispatchEvent(new CustomEvent('nsv421:change'));
  },ids);
@@ -73,6 +74,9 @@ try{
  await page.waitForSelector('#apOrdersBody tr',{timeout:5000});
  const supportRow=page.locator('#apOrdersBody tr').filter({hasText:ids.support}).first();must(await supportRow.count()===1,'Support QA order row missing');await supportRow.click();await sleep(120);
  await page.waitForSelector('#nsOrderOperations',{timeout:5000});
+ must(await page.locator('#nsOrderOperations [data-ns-order-acquisition]').count()===1,'Order detail does not show private acquisition context');
+ const acquisitionText=await page.locator('#nsOrderOperations [data-ns-order-acquisition]').innerText();
+ must(/Google Organic/.test(acquisitionText)&&/Fresh Tender Coconut/.test(acquisitionText)&&/wedding-season/.test(acquisitionText),'Order detail acquisition summary is incomplete');
  must(await page.locator('#nsOrderOperations .ns-order-readonly').count()===1,'Support order detail is not read-only');
  must(await page.locator('#nsOrderOperations [data-ns-order-next]').count()===0,'Support can see fulfilment mutation action');
  must(await page.locator('#nsOrderOperations [data-ns-order-cancel]').count()===0,'Support can see cancellation mutation action');
