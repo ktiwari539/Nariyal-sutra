@@ -83,8 +83,14 @@ has(bridge,[
   'NS_INIT_APP_CHECK',
   "loadScript('/assets/js/admin-v49-customer-live.js')",
   'handoverPointName:x.handoverPointName',
-  'deliveryPreference:x.deliveryPreference'
+  'deliveryPreference:x.deliveryPreference',
+  'Promise.allSettled(jobs)',
+  'loadCustomerRuntime().catch'
 ],'production bridge');
+not(bridge,[
+  "try{await loadScript('/admin-customer-directory.js');await loadScript('/assets/js/admin-v49-customer-live.js')",
+  "setTimeout(()=>location.replace(next),250)"
+],'Admin startup performance regression');
 
 const orderOps=read('assets/js/admin-v44-order-operations.js');
 has(orderOps,[

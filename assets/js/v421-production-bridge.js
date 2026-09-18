@@ -106,25 +106,36 @@ function orderFromDoc(d){const x=d.data()||{},createdAt=iso(x.createdAt),updated
 function profileFromDoc(d){const x=d.data()||{};return {...x,id:d.id,uid:x.uid||d.id,createdAt:iso(x.createdAt),updatedAt:iso(x.updatedAt),lastLoginAt:iso(x.lastLoginAt)};}
 async function syncOperationalData(){
  if(!isAdmin||!user)return;
- const s=scrubDemoOperational(originalLoad());let changed=false;
+ const started=performance.now(),s=scrubDemoOperational(originalLoad());let changed=false;
+ const jobs=[];
  if(CUSTOMER_ROLES.includes(role)){
-  try{const q=fsMod.query(fsMod.collection(db,'orders'),fsMod.orderBy('createdAt','desc'),fsMod.limit(500));const snap=await fsMod.getDocs(q);s.orders=snap.docs.map(orderFromDoc);changed=true;}catch(e){console.warn('[BCC] Orders sync unavailable',e);s.orders=[];changed=true;}
-  try{const snap=await fsMod.getDocs(fsMod.collection(db,'customers'));s.customerProfiles=snap.docs.map(profileFromDoc);changed=true;}catch(e){console.warn('[BCC] Customer profile sync unavailable',e);s.customerProfiles=[];changed=true;}
-  try{const snap=await fsMod.getDocs(fsMod.collection(db,'customerAdmin'));s.customerAdminRecords=snap.docs.map(d=>({id:d.id,personKey:d.id,...d.data()}));changed=true;}catch(e){console.warn('[BCC] Customer CRM metadata sync unavailable',e);s.customerAdminRecords=[];changed=true;}
+  jobs.push(
+   (async()=>{try{const q=fsMod.query(fsMod.collection(db,'orders'),fsMod.orderBy('createdAt','desc'),fsMod.limit(500));const snap=await fsMod.getDocs(q);s.orders=snap.docs.map(orderFromDoc);}catch(e){console.warn('[BCC] Orders sync unavailable',e);s.orders=[];}changed=true;})(),
+   (async()=>{try{const snap=await fsMod.getDocs(fsMod.collection(db,'customers'));s.customerProfiles=snap.docs.map(profileFromDoc);}catch(e){console.warn('[BCC] Customer profile sync unavailable',e);s.customerProfiles=[];}changed=true;})(),
+   (async()=>{try{const snap=await fsMod.getDocs(fsMod.collection(db,'customerAdmin'));s.customerAdminRecords=snap.docs.map(d=>({id:d.id,personKey:d.id,...d.data()}));}catch(e){console.warn('[BCC] Customer CRM metadata sync unavailable',e);s.customerAdminRecords=[];}changed=true;})()
+  );
  }else{
   s.orders=[];s.customerProfiles=[];s.customerAdminRecords=[];s.customer=emptyCustomer();changed=true;
  }
  if(CATALOG_ROLES.includes(role)){
-  try{const snap=await fsMod.getDocs(fsMod.collection(db,'products'));const by={};snap.forEach(d=>by[d.id]=d.data());const defs=[['TENDER','tender','Fresh Tender Coconut'],['GREEN','green','Green Round Coconut'],['BULK','bulk','Bulk Tender Coconut']];s.products=defs.map(([sku,key,name])=>{const p=by[key]||{};return {sku,name:p.name||name,shortName:p.shortName||'',description:p.description||'',retail:key==='bulk'?0:Number(p.price||0),bulk:Number(p.price||0),moq:Number(p.minQty||1),priceVisible:true,state:p.active===false?'Inactive':'Active'};});s.inventory=defs.map(([sku,key,name])=>{const p=by[key]||{};return {sku,name:p.name||name,node:'Live catalog',onHand:Number(p.stock||0),reserved:0,incoming:0,low:0,freshness:'Live Firestore stock',supplier:'Configured supply'};});changed=true;}catch(e){console.warn('[BCC] Catalog sync unavailable',e);}
+  jobs.push((async()=>{try{const snap=await fsMod.getDocs(fsMod.collection(db,'products'));const by={};snap.forEach(d=>by[d.id]=d.data());const defs=[['TENDER','tender','Fresh Tender Coconut'],['GREEN','green','Green Round Coconut'],['BULK','bulk','Bulk Tender Coconut']];s.products=defs.map(([sku,key,name])=>{const p=by[key]||{};return {sku,name:p.name||name,shortName:p.shortName||'',description:p.description||'',retail:key==='bulk'?0:Number(p.price||0),bulk:Number(p.price||0),moq:Number(p.minQty||1),priceVisible:true,state:p.active===false?'Inactive':'Active'};});s.inventory=defs.map(([sku,key,name])=>{const p=by[key]||{};return {sku,name:p.name||name,node:'Live catalog',onHand:Number(p.stock||0),reserved:0,incoming:0,low:0,freshness:'Live Firestore stock',supplier:'Configured supply'};});}catch(e){console.warn('[BCC] Catalog sync unavailable',e);}changed=true;})());
  }
  if(role==='Owner'){
-  try{const snap=await fsMod.getDocs(fsMod.collection(db,'adminRoles'));s.teamMembers=snap.docs.map(d=>{const x=d.data()||{},label=x.name||x.email||d.id;return {id:d.id,name:label,email:x.email||'',role:x.role||'Unassigned',status:x.status||'Inactive',active:x.active===true,inviteStatus:x.inviteStatus||'Active',source:'Firebase adminRoles'};});if(!s.teamMembers.some(x=>x.id===user.uid))s.teamMembers.unshift({id:user.uid,name:user.email||'Owner',email:user.email||'',role:'Owner',status:'Active',active:true,inviteStatus:'Active',source:'Firebase owner identity'});changed=true;}catch(e){console.warn('[BCC] Team role sync unavailable',e);s.teamMembers=[{id:user.uid,name:user.email||'Owner',email:user.email||'',role:'Owner',status:'Active',active:true,inviteStatus:'Active',source:'Firebase owner identity'}];changed=true;}
+  jobs.push((async()=>{try{const snap=await fsMod.getDocs(fsMod.collection(db,'adminRoles'));s.teamMembers=snap.docs.map(d=>{const x=d.data()||{},label=x.name||x.email||d.id;return {id:d.id,name:label,email:x.email||'',role:x.role||'Unassigned',status:x.status||'Inactive',active:x.active===true,inviteStatus:x.inviteStatus||'Active',source:'Firebase adminRoles'};});if(!s.teamMembers.some(x=>x.id===user.uid))s.teamMembers.unshift({id:user.uid,name:user.email||'Owner',email:user.email||'',role:'Owner',status:'Active',active:true,inviteStatus:'Active',source:'Firebase owner identity'});}catch(e){console.warn('[BCC] Team role sync unavailable',e);s.teamMembers=[{id:user.uid,name:user.email||'Owner',email:user.email||'',role:'Owner',status:'Active',active:true,inviteStatus:'Active',source:'Firebase owner identity'}];}changed=true;})());
  }else{s.teamMembers=[];changed=true;}
+ if(jobs.length)await Promise.allSettled(jobs);
  if(changed){
   scrubDemoOperational(s);originalSave(s);
   const rows=catalogRows(s);lastCatalogHash=safeHash(role==='Operations'?rows.map(r=>({key:r.key,stock:r.stock})):rows);
-  window.dispatchEvent(new CustomEvent('nsv421:operational-synced',{detail:{orders:(s.orders||[]).length,profiles:(s.customerProfiles||[]).length,role}}));
+  const durationMs=Math.round(performance.now()-started);
+  window.dispatchEvent(new CustomEvent('nsv421:operational-synced',{detail:{orders:(s.orders||[]).length,profiles:(s.customerProfiles||[]).length,role,durationMs}}));
  }
+}
+async function loadCustomerRuntime(){
+ const scripts=['/admin-customer-directory.js','/assets/js/admin-v49-customer-live.js'];
+ const results=await Promise.allSettled(scripts.map(src=>loadScript(src)));
+ results.forEach((result,i)=>{if(result.status==='rejected')console.warn('[BCC] Customer runtime unavailable',scripts[i],result.reason);});
+ window.dispatchEvent(new CustomEvent('nsv421:customer-runtime-ready'));
 }
 function watchPublic(){const ref=fsMod.doc(db,'publicStories','site-config');const unsub=fsMod.onSnapshot(ref,snap=>{if(!snap.exists())return;const data=snap.data();lastPublicHash=configHash(data);mergeIntoLocal([data]);},e=>console.warn('[Nariyal Sutra public config watch]',e));unsubs.push(unsub);}
 function identityDiagnostic(){return {role,uid:user?.uid||'',email:user?.email||'',emailVerified:!!user?.emailVerified,roleStatus:roleRecord?.status||'',roleActive:roleRecord?.active===true,roleSource:roleRecord?.source||'',ownerUid:window.NS_ADMIN_CONFIG?.ownerUid||'',ownerEmail:window.NS_ADMIN_CONFIG?.ownerEmail||'',isConfiguredOwner:!!user&&user.uid===(window.NS_ADMIN_CONFIG?.ownerUid||''),appCheckStatus:window.NS_APP_CHECK_STATUS||'unknown'};}
@@ -137,9 +148,9 @@ async function initAdmin(){
  let pub=null,priv=null;try{[pub,priv]=await Promise.all([readPublicOnce(),CONTENT_ROLES.includes(role)?readPrivateOnce():Promise.resolve(null)]);}catch(e){console.warn('[BCC] Remote config initial read failed',e);}
  if(pub||priv)mergeIntoLocal([pub,priv]);
  await syncOperationalData();
- try{await loadScript('/admin-customer-directory.js');await loadScript('/assets/js/admin-v49-customer-live.js');}catch(e){console.warn('[BCC] Customer 360 runtime unavailable',e);}
  setEnvironmentLabel();lockRole();remoteReady=true;watchPublic();lastPublicHash=pub?configHash(pub):'';lastPrivateHash=priv?configHash(priv):'';clearOverlay();
  resolveReady({mode:'admin',role,user,identity:identityDiagnostic()});window.dispatchEvent(new CustomEvent('nsv421:production-ready',{detail:{role,identity:identityDiagnostic()}}));
+ loadCustomerRuntime().catch(e=>console.warn('[BCC] Customer runtime bootstrap failed',e));
 }
 async function initPublic(){try{const data=await readPublicOnce();if(data)mergeIntoLocal([data]);watchPublic();remoteReady=true;resolveReady({mode:'public'});window.dispatchEvent(new CustomEvent('nsv421:production-ready',{detail:{mode:'public',appCheckStatus:window.NS_APP_CHECK_STATUS||'unknown'}}));}catch(e){console.warn('[Nariyal Sutra public config]',e);remoteReady=true;resolveReady({mode:'public',degraded:true});}}
 async function mediaSignRequest(meta={}){if(!isAdmin||!user)throw new Error('Admin authentication is required for media upload.');const token=await user.getIdToken(),appCheck=typeof window.NS_GET_APP_CHECK_TOKEN==='function'?await window.NS_GET_APP_CHECK_TOKEN():'';const headers={'content-type':'application/json','authorization':'Bearer '+token};if(appCheck)headers['x-firebase-appcheck']=appCheck;const sign=await fetch('/.netlify/functions/media-sign-upload',{method:'POST',headers,body:JSON.stringify({folder:meta.folder||'nariyal-sutra/media',public_id:meta.publicId||'',tags:meta.tags||'admin-upload',context:meta.context||''})});const signed=await sign.json().catch(()=>({}));if(!sign.ok){const err=new Error(signed.error||'Could not authorize media upload.');err.status=sign.status;throw err;}return signed;}

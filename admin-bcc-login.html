@@ -40,7 +40,7 @@ async function enter(u){
     }
     const r=await roleOf(u);
     if(!r){msg.className='msg err';msg.textContent='This verified account does not have active Business Command Center access.';await signOut(auth).catch(()=>{});return;}
-    msg.className='msg ok';msg.textContent='Authenticated as '+r+'. Opening Admin…';setTimeout(()=>location.replace(next),250);
+    msg.className='msg ok';msg.textContent='Authenticated as '+r+'. Opening Admin…';location.replace(next);
   })();
   try{return await entering;}finally{entering=null;}
 }
