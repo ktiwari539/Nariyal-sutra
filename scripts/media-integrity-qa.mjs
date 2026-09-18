@@ -18,7 +18,7 @@ try{
 const peopleRail=await home.evaluate(()=>[...document.querySelectorAll('#nsPeopleMarquee .ns-face-card img')].slice(0,16).map(img=>({id:img.dataset.id||'',src:new URL(img.currentSrc||img.src,location.href).pathname,fit:getComputedStyle(img).objectFit})));
 must(peopleRail.length>=4,'Homepage People full-picture rail did not render enough images '+JSON.stringify(peopleRail));
 must(peopleRail.every(x=>x.fit==='cover'),'Homepage People full-picture rail is not cover '+JSON.stringify(peopleRail));
-const bundledRail=peopleRail.filter(x=>/^G\\d{3}$/i.test(x.id));
+const bundledRail=peopleRail.filter(x=>/^G\d{3}$/i.test(x.id));
 must(bundledRail.length>=3,'Homepage People rail did not render bundled G media '+JSON.stringify(peopleRail));
 must(bundledRail.every(x=>x.src==='/assets/images/ambassadors/'+x.id+'.webp'),'Homepage People rail rendered thumbnails/noncanonical sources '+JSON.stringify(bundledRail));await noBroken(home,'Homepage');await home.screenshot({path:path.join(OUT,'homepage-media-diversity.png')});await home.close();
  const people=await open(c,'/people-of-nariyal-sutra.html','People');await people.waitForSelector('#v25PeopleStreams [data-stream="ambassadors"]',{timeout:8000});const ps=await people.evaluate(()=>{const s=document.querySelector('#v25PeopleStreams [data-stream="ambassadors"]'),cards=[...s?.querySelectorAll('[data-id]')||[]],track=s?.querySelector('.v25-story-track');return {cards:cards.length,ids:[...new Set(cards.map(x=>x.dataset.id))],track:!!track,overflow:s?getComputedStyle(s).overflowX:''}});must(ps.cards>=3&&ps.ids.length>=3,'People Ambassador stream incomplete');await noBroken(people,'People');await people.screenshot({path:path.join(OUT,'people-approved-campaign.png')});await people.close();
