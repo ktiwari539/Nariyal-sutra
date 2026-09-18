@@ -15,6 +15,9 @@ jobs:
       - name: Production Firebase integration contract QA
         run: node scripts/production-firebase-contract-qa.mjs
         timeout-minutes: 3
+      - name: Delivery preference experience QA
+        run: node scripts/delivery-preference-qa.mjs
+        timeout-minutes: 3
       - name: Custom backend App Check verification QA
         run: node scripts/app-check-backend-qa.mjs
         timeout-minutes: 3
