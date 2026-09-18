@@ -81,7 +81,7 @@ has(bridge,[
   'updatedBy:user.uid',
   "headers['x-firebase-appcheck']=appCheck",
   'NS_INIT_APP_CHECK',
-  "loadScript('/assets/js/admin-v49-customer-live.js')",
+  "'/assets/js/admin-v49-customer-live.js'",
   'handoverPointName:x.handoverPointName',
   'deliveryPreference:x.deliveryPreference',
   'Promise.allSettled(jobs)',
