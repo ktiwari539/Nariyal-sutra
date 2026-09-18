@@ -7,7 +7,7 @@ const must=(c,m)=>{if(!c)throw new Error(m)};
 const peopleCss=fs.readFileSync('assets/css/v25-public.css','utf8'),peopleJs=fs.readFileSync('assets/js/v25-public.js','utf8');
 must(peopleJs.includes('style="object-fit:cover;object-position:'),'People rail does not force full-frame cover rendering');
 must(!peopleJs.includes("fit=m.fit||'cover'")&&!peopleJs.includes("fit=m.fit||'contain'"),'People rail still allows stored media fit to letterbox public cards');
-must(peopleJs.includes("[m?.src,m?.thumb,`assets/images/ambassadors/${id}.webp`,`assets/images/ambassadors/thumbs/${id}.webp`"),'People rail must prefer the full source image before generated thumbnails');
+must(peopleJs.includes("bundled=/^G\\d{3}$/i.test(id)")&&peopleJs.includes("[bundled,m?.src,m?.thumb"),'People rail must prefer canonical bundled full images before remote or thumbnail sources');
 must(!peopleCss.includes('object-fit:contain!important'),'People rail CSS is still forcing contain over per-image fit');
 must(!peopleCss.includes('object-position:center!important'),'People rail CSS is still overriding per-image focal position');const server=spawn('python3',['-m','http.server','4206','--bind','127.0.0.1'],{stdio:'ignore'});await new Promise(r=>setTimeout(r,900));const browser=await chromium.launch({headless:true});
 const keys=['ambassadors','promoters','community'];
