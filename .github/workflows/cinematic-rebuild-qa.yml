@@ -90,6 +90,9 @@ jobs:
       - uses: actions/checkout@v4
       - run: node scripts/predeploy-audit.mjs
         timeout-minutes: 5
+      - name: Public copy professional QA
+        run: node scripts/public-copy-qa.mjs
+        timeout-minutes: 3
       - name: Admin operability gap QA
         run: node scripts/admin-operability-gap-qa.mjs
         timeout-minutes: 5

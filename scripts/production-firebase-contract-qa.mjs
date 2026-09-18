@@ -148,11 +148,24 @@ has(deleteOtp,[
 ],'Owner delete/audit contract');
 
 for(const p of ['assets/js/admin-communication.js','assets/js/admin-v46-owner-order-otp.js','assets/js/admin-v50-delivery-contract.js'])has(read(p),["headers['x-firebase-appcheck']=appCheck"],p);
+const storefront=read('index.html');
+has(storefront,[
+  "await window.NS_INIT_APP_CHECK(app)",
+  "window.NS_APP_CHECK_INSTANCE=appCheckInstance",
+  "window.NS_APP_CHECK_STATUS='initialized'"
+],'storefront shared App Check initialization');
+
 const clientEmail=read('emailjs-config.js');
 has(clientEmail,[
   "typeof window.NS_GET_APP_CHECK_TOKEN==='function'",
+  "async function appCheckToken()",
+  "await window.NS_INIT_APP_CHECK(apps[0])",
+  "const appCheck=await appCheckToken()",
   "headers['x-firebase-appcheck']=appCheck",
   "return {channel:'server',result:await serverSend(kind,data)}"
+],'server-only client email contract');
+not(clientEmail,[
+  "const appCheck=typeof window.NS_GET_APP_CHECK_TOKEN==='function'?await window.NS_GET_APP_CHECK_TOKEN():'';"
 ],'server-only client email contract');
 not(clientEmail,["window.emailjs.send","browser-fallback","function browserSend","if(kind==='customer_status')throw serverError","arrived:"],'server-only client email contract');
 
