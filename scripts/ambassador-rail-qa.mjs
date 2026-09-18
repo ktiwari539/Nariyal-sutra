@@ -6,6 +6,7 @@ const BASE='http://127.0.0.1:4206',OUT=path.join(process.cwd(),'qa-artifacts','a
 const must=(c,m)=>{if(!c)throw new Error(m)};
 const peopleCss=fs.readFileSync('assets/css/v25-public.css','utf8'),peopleJs=fs.readFileSync('assets/js/v25-public.js','utf8');
 must(peopleJs.includes("fit=m.fit||'cover'"),'People rail default image fit is not cover');
+must(peopleJs.includes("[m?.src,m?.thumb,`assets/images/ambassadors/${id}.webp`,`assets/images/ambassadors/thumbs/${id}.webp`"),'People rail must prefer the full source image before generated thumbnails');
 must(!peopleCss.includes('object-fit:contain!important'),'People rail CSS is still forcing contain over per-image fit');
 must(!peopleCss.includes('object-position:center!important'),'People rail CSS is still overriding per-image focal position');const server=spawn('python3',['-m','http.server','4206','--bind','127.0.0.1'],{stdio:'ignore'});await new Promise(r=>setTimeout(r,900));const browser=await chromium.launch({headless:true});
 const keys=['ambassadors','promoters','community'];
