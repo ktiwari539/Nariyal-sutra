@@ -157,7 +157,7 @@ has(storefront,[
 
 const clientEmail=read('emailjs-config.js');
 has(clientEmail,[
-  "typeof window.NS_GET_APP_CHECK_TOKEN==='function'",
+  "typeof window.NS_GET_APP_CHECK_TOKEN!=='function'",
   "async function appCheckToken()",
   "await window.NS_INIT_APP_CHECK(apps[0])",
   "const appCheck=await appCheckToken()",
