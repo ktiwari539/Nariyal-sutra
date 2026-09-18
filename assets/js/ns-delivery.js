@@ -1,6 +1,6 @@
 /**
  * ns-delivery.js  —  Nariyal Sutra Delivery & Tracking Module
- * Version: 1.0
+ * Version: 1.1
  *
  * RULES:
  * - All CSS class names prefixed .ns-del-* or .ns-hub-* or .ns-track-*
@@ -8,7 +8,7 @@
  * - Never modifies body, .hero, nav, img globally
  * - Injects after existing order form fields
  * - Patches placeOrder() non-destructively via wrapper
- * - All delivery rates shown as estimates / ranges only
+ * - Customer chooses a preferred handover method; availability and charges remain subject to confirmation
  */
 
 (function(){
@@ -659,8 +659,8 @@ function patchPlaceOrder(){
       handoverPointType:nsDelivery.handoverPointType||nsDelivery.selectedDelivery||'pending',
       handoverPointName:String(nsDelivery.handoverPointName||'').slice(0,180),
       handoverPointAddress:String(nsDelivery.handoverPointAddress||'').slice(0,300),
-      handoverPointLat:Number.isFinite(Number(nsDelivery.handoverPointLat))?Number(nsDelivery.handoverPointLat):null,
-      handoverPointLng:Number.isFinite(Number(nsDelivery.handoverPointLng))?Number(nsDelivery.handoverPointLng):null,
+      handoverPointLat:nsDelivery.handoverPointLat!==null&&nsDelivery.handoverPointLat!==''&&Number.isFinite(Number(nsDelivery.handoverPointLat))?Number(nsDelivery.handoverPointLat):null,
+      handoverPointLng:nsDelivery.handoverPointLng!==null&&nsDelivery.handoverPointLng!==''&&Number.isFinite(Number(nsDelivery.handoverPointLng))?Number(nsDelivery.handoverPointLng):null,
       handoverSearchSource:String(nsDelivery.handoverSearchSource||'').slice(0,40),
       handoverNote:String(nsDelivery.handoverNote||'').slice(0,240),
       isInternational:nsDelivery.isInternational,
@@ -670,11 +670,18 @@ function patchPlaceOrder(){
       qtyBand:qtyBand(q)
     };
 
-    /* Call original placeOrder */
+    /* Call original placeOrder. Prefer showing the Order Hub after the online
+       order projections commit; fall back to the visible confirmation modal if
+       storage is unavailable but the customer can still continue on WhatsApp. */
+    var hubShown=false;
+    var onCommitted=function(){hubShown=true;nsShowOrderHub();};
+    window.addEventListener('ns:order-projections-committed',onCommitted,{once:true});
     orig.apply(this, arguments);
-
-    /* Show Order Hub after a short delay */
-    setTimeout(function(){ nsShowOrderHub(); }, 1200);
+    setTimeout(function(){
+      if(hubShown)return;
+      var modal=el('confirmModal');
+      if(modal&&getComputedStyle(modal).display!=='none')nsShowOrderHub();
+    },1800);
   };
 }
 
@@ -731,7 +738,7 @@ function nsShowOrderHub(){
     (trackUrl?'<a class="ns-track-link" href="'+esc(trackUrl)+'" target="_blank" rel="noopener">Open private tracking link</a>':'<div style="font-size:11px;color:rgba(255,255,255,.42);line-height:1.6">Tracking activates after the online order record is saved. WhatsApp remains the confirmation channel.</div>')+
     '<div class="ns-hub-actions">'+
       '<button class="ns-hub-act primary" onclick="window.open(\'https://wa.me/919203831705\',\'_blank\',\'noopener\')">💬 WhatsApp Support</button>'+
-      '<button class="ns-hub-act" onclick="el(\'ns-order-hub-overlay\').classList.remove(\'open\')">Close</button>'+
+      '<button class="ns-hub-act" onclick="document.getElementById(\'ns-order-hub-overlay\').classList.remove(\'open\')">Close</button>'+
     '</div>';
 
   /* Try to pull order ID from confirmation modal */
