@@ -88,8 +88,7 @@ has(bridge,[
   'loadCustomerRuntime().catch'
 ],'production bridge');
 not(bridge,[
-  "try{await loadScript('/admin-customer-directory.js');await loadScript('/assets/js/admin-v49-customer-live.js')",
-  "setTimeout(()=>location.replace(next),250)"
+  "try{await loadScript('/admin-customer-directory.js');await loadScript('/assets/js/admin-v49-customer-live.js')"
 ],'Admin startup performance regression');
 
 const orderOps=read('assets/js/admin-v44-order-operations.js');
@@ -129,6 +128,7 @@ has(operability,[
 ],'Admin Delivery Hub handover preference');
 
 const login=read('admin-bcc-login.html');
+not(login,["setTimeout(()=>location.replace(next),250)"],'Admin login redirect delay regression');
 has(login,[
   'u?.emailVerified',
   'sendEmailVerification',
