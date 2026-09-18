@@ -76,8 +76,25 @@ has(bridge,[
   'updatedBy:user.uid',
   "headers['x-firebase-appcheck']=appCheck",
   'NS_INIT_APP_CHECK',
-  "loadScript('/assets/js/admin-v49-customer-live.js')"
+  "loadScript('/assets/js/admin-v49-customer-live.js')",
+  'handoverPointName:x.handoverPointName',
+  'deliveryPreference:x.deliveryPreference'
 ],'production bridge');
+
+const orderOps=read('assets/js/admin-v44-order-operations.js');
+has(orderOps,[
+  'data-ns-delivery-preference',
+  'Customer preference',
+  'Preferred handover point',
+  'handoverPointName'
+],'Admin order delivery preference');
+
+const operability=read('assets/js/admin-v45-operability.js');
+has(operability,[
+  "usesHandover=['pickup_hub','railway_station','bus_stop'].includes(pref)",
+  "'handoverPointLat'",
+  "'handoverPointAddress'"
+],'Admin Delivery Hub handover preference');
 
 const login=read('admin-bcc-login.html');
 has(login,[
