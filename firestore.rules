@@ -75,7 +75,7 @@ service cloud.firestore {
           'orderId','customerName','phone','email','city','address','notes','productKey','productName','quantity','unitPrice','total',
           'paymentType','paymentLabel','status','createdAt','updatedAt','source','country','state','pin','landmark','deliveryAddress',
           'deliveryLat','deliveryLng','deliveryAccuracy','deliveryLocationSource','deliveryCoordinatesConfirmed','deliveryMethod','deliveryLabel',
-          'deliveryEtaMin','deliveryEtaMax','deliveryEta','isInternational','recurringPreference','trackingToken','deliveryOTP','qtyBand','customerUid'
+          'deliveryEtaMin','deliveryEtaMax','deliveryEta','deliveryPreference','handoverPointType','handoverPointName','handoverPointAddress','handoverPointLat','handoverPointLng','handoverSearchSource','handoverNote','isInternational','recurringPreference','trackingToken','deliveryOTP','qtyBand','customerUid'
         ])
         && d.orderId is string && d.orderId.size() >= 8 && d.orderId.size() <= 40
         && d.customerName is string && d.customerName.size() >= 2 && d.customerName.size() <= 100
@@ -110,6 +110,14 @@ service cloud.firestore {
         && (d.deliveryEtaMin == null || d.deliveryEtaMin is number)
         && (d.deliveryEtaMax == null || d.deliveryEtaMax is number)
         && d.deliveryEta is string && d.deliveryEta.size() <= 120
+        && (!d.keys().hasAny(['deliveryPreference']) || d.deliveryPreference in ['door','pickup_hub','railway_station','bus_stop','trade'])
+        && (!d.keys().hasAny(['handoverPointType']) || d.handoverPointType in ['door','pickup_hub','railway_station','bus_stop','trade','pending'])
+        && (!d.keys().hasAny(['handoverPointName']) || (d.handoverPointName is string && d.handoverPointName.size() <= 180))
+        && (!d.keys().hasAny(['handoverPointAddress']) || (d.handoverPointAddress is string && d.handoverPointAddress.size() <= 300))
+        && (!d.keys().hasAny(['handoverPointLat']) || d.handoverPointLat == null || d.handoverPointLat is number)
+        && (!d.keys().hasAny(['handoverPointLng']) || d.handoverPointLng == null || d.handoverPointLng is number)
+        && (!d.keys().hasAny(['handoverSearchSource']) || (d.handoverSearchSource is string && d.handoverSearchSource.size() <= 40))
+        && (!d.keys().hasAny(['handoverNote']) || (d.handoverNote is string && d.handoverNote.size() <= 240))
         && d.isInternational is bool
         && d.recurringPreference in ['onetime','weekly','fortnightly','monthly','flexible']
         && d.trackingToken is string && d.trackingToken.matches('^[0-9a-fA-F]{48}$')
@@ -138,7 +146,7 @@ service cloud.firestore {
           'orderId','customerName','phone','email','city','address','notes','productKey','productName','quantity','unitPrice','total',
           'paymentType','paymentLabel','status','createdAt','updatedAt','source','country','state','pin','landmark','deliveryAddress',
           'deliveryLat','deliveryLng','deliveryAccuracy','deliveryLocationSource','deliveryCoordinatesConfirmed','deliveryMethod','deliveryLabel',
-          'deliveryEtaMin','deliveryEtaMax','deliveryEta','isInternational','recurringPreference','trackingToken','deliveryOTP','qtyBand','customerUid',
+          'deliveryEtaMin','deliveryEtaMax','deliveryEta','deliveryPreference','handoverPointType','handoverPointName','handoverPointAddress','handoverPointLat','handoverPointLng','handoverSearchSource','handoverNote','isInternational','recurringPreference','trackingToken','deliveryOTP','qtyBand','customerUid',
           'cancelledAt','cancelledBy','cancellationReason'
         ])
         && d.diff(before).affectedKeys().hasOnly([

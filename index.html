@@ -1896,7 +1896,7 @@ body.ns-story-active .story-skip{display:block}.story-skip:hover{color:var(--gol
 <div class="msr-head">
 <div class="msr-kicker">A three-scene coconut story · swipe</div>
 <h2>From grove to <em>fresh serve.</em></h2>
-<p>A lighter cinematic experience built specifically for phones — swipe through the harvest, cut and serve without the heavy desktop scroll effects.</p>
+<p>A streamlined mobile journey through harvest, preparation and serving — designed for quick, natural swiping.</p>
 </div>
 <div class="msr-track">
 <article class="msr-card"><img alt="Coconut grove harvest" src="https://nariyal-sutra.netlify.app/assets/images/nariyal-coconut-grove.webp"/><div class="msr-copy"><span>01 · THE GROVE</span><h3>It starts at the source.</h3><p>Fresh coconuts begin in tropical growing regions, selected around the requirement rather than treated as identical units.</p></div></article>
@@ -2105,7 +2105,7 @@ body.ns-story-active .story-skip{display:block}.story-skip:hover{color:var(--gol
 <div class="motion-fold-copy r">
 <div class="motion-fold-kicker"><span></span> Actual Coconut Motion</div>
 <h2 id="motion-fold-title">Fresh cut.<br/><em>Captured alive.</em></h2>
-<p>The real 72-frame coconut sequence now has its own space. It is shown at an intentional film size instead of covering the hospitality photograph.</p>
+<p>The real 72-frame coconut sequence now has its own space. The product stays clearly framed while the hospitality setting remains visible.</p>
 <div aria-label="Motion footage details" class="motion-fold-facts">
 <span><b>72</b> original frames</span>
 <span><b>4s</b> seamless loop</span>
@@ -2232,7 +2232,7 @@ body.ns-story-active .story-skip{display:block}.story-skip:hover{color:var(--gol
 <div class="gold-bar"></div>
 <p>Every coconut we deliver reflects India's coastal and tropical growing regions. We source from <strong style="color:rgba(255,255,255,.8)">Gujarat's coastal belt</strong> and <strong style="color:rgba(255,255,255,.8)">South India's tropical groves</strong>, selecting fresh coconuts for drinking quality, handling and presentation.</p>
 <p>Our sharp-cut method makes drinking effortless — just pick up and drink, the way nature intended. No straws needed. No mess. No preservatives. Just the purest coconut water straight from the source.</p>
-<div class="promise-story-note">Five different stories live below — each opens a different cinematic world.</div>
+<div class="promise-story-note">Explore five perspectives on Nariyal Sutra, from sourcing and freshness to people, hospitality and trade.</div>
 <div class="as-stats">
 <div><div class="ast-num">Farmer</div><div class="ast-lbl">Partner Sourcing</div></div>
 <div><div class="ast-num">Cut</div><div class="ast-lbl">Drink Ready</div></div>
@@ -2457,9 +2457,9 @@ body.ns-story-active .story-skip{display:block}.story-skip:hover{color:var(--gol
 <option data-active="true" data-min="10" data-mode="bulk" data-price="45" data-stock="300" value="bulk">Bulk Pack 10+ pcs (₹45/pc)</option>
 </select>
 </div>
-<div class="of full"><label for="oA">Delivery Address</label><textarea autocomplete="street-address" id="oA" placeholder="Full address — street, city, state, pincode, country" required=""></textarea></div>
+<div class="of full"><label for="oA">Address / locality for serviceability</label><textarea autocomplete="street-address" id="oA" placeholder="Street or locality, city, state, PIN/postal code, country" required=""></textarea></div>
 <div class="of full"><label for="oCity">City / Location</label><input autocomplete="address-level2" id="oCity" placeholder="e.g. Mumbai, Delhi, Pune..." type="text"/></div>
-<div class="of full"><label for="oX">Special Instructions (optional)</label><input id="oX" placeholder="e.g. Call before delivery, preferred time..." type="text"/></div>
+<div class="of full"><label for="oX">Order note (optional)</label><input id="oX" placeholder="e.g. Preferred time, access note, packing request..." type="text"/></div>
 </div>
 <!-- PAYMENT METHOD -->
 <div style="margin-bottom:28px">
@@ -2490,7 +2490,7 @@ body.ns-story-active .story-skip{display:block}.story-skip:hover{color:var(--gol
 </div>
 <button class="wa-btn" onclick="placeOrder()" type="button">📲 Continue to WhatsApp</button>
 <div class="form-privacy">Your contact and delivery details are used only to process your enquiry and order. Personal contact details are not sent as Google Analytics event parameters.</div>
-<div class="order-note">International enquiry? Email <a href="mailto:nariyalsutra@gmail.com" style="color:var(--gold);text-decoration:none">nariyalsutra@gmail.com</a> or continue through our smart enquiry desk.</div>
+<div class="order-note">International requirement? Use the Trade &amp; Supply Desk below or email <a href="mailto:nariyalsutra@gmail.com" style="color:var(--gold);text-decoration:none">nariyalsutra@gmail.com</a>.</div>
 </div>
 </div>
 </section>
@@ -3021,11 +3021,11 @@ function placeOrder(){
   if(document.getElementById('oWebsite') && document.getElementById('oWebsite').value){ return; }
   var lastSubmit=Number(sessionStorage.getItem('ns_last_submit')||0);
   if(Date.now()-lastSubmit<8000){ toast('Please wait a few seconds before sending another request'); return; }
-  if(!n||!p||!a){ toast('Please fill name, WhatsApp number and delivery address'); return; }
+  if(!n||!p||!a){ toast('Please fill your name, WhatsApp number and address / locality'); return; }
   var digits=p.replace(/\D/g,'');
   if(digits.length<10 || digits.length>15){ toast('Please enter a valid WhatsApp number'); document.getElementById('oP').focus(); return; }
   if(em && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)){ toast('Please enter a valid email or leave it blank'); document.getElementById('oEmail').focus(); return; }
-  if(a.length<10){ toast('Please enter a complete delivery address'); document.getElementById('oA').focus(); return; }
+  if(a.length<10){ toast('Please enter enough address or locality detail for us to check serviceability'); document.getElementById('oA').focus(); return; }
   var stock=productStock(prOpt),minQty=productMin(prOpt);
   if(prOpt && prOpt.dataset.active==='false'){toast('That product is currently unavailable');return;}
   if(q<minQty){toast('Minimum order for this product is '+minQty+' pieces');return;}
@@ -3037,6 +3037,8 @@ function placeOrder(){
   var deliveryExtra=window.NS_DELIVERY_EXTRA||{};
   var deliveryLine=deliveryExtra.deliveryLabel||deliveryExtra.deliveryMethod||'Confirm for address';
   var deliveryTiming=deliveryExtra.deliveryEta||'Confirmed on WhatsApp';
+  var handoverPoint=String(deliveryExtra.handoverPointName||'').trim();
+  var handoverNote=String(deliveryExtra.handoverNote||'').trim();
   var trackingToken=String(deliveryExtra.trackingToken||'');
   var trackingLink=/^[0-9a-f]{48}$/i.test(trackingToken)?(window.location.origin+'/track?t='+trackingToken):'';
   var customerAccountLink=window.location.origin+'/#account';
@@ -3048,8 +3050,10 @@ function placeOrder(){
     '\nRate: ₹'+price+'/pc ('+(ot==='bulk'?'Bulk 10+':'Retail')+')'+
     '\nProduct subtotal: ₹'+total.toLocaleString('en-IN')+
     '\nPayment: '+payLabel+
-    '\nDelivery: '+deliveryLine+' · '+deliveryTiming+
-    '\n\nDelivery Address:\n'+a+(x?'\n\nNote: '+x:'')+
+    '\nDelivery preference: '+deliveryLine+' · '+deliveryTiming+
+    (handoverPoint?'\nPreferred handover point: '+handoverPoint:'')+
+    (handoverNote?'\nHandover note: '+handoverNote:'')+
+    '\n\nAddress / locality reference:\n'+a+(x?'\n\nOrder note: '+x:'')+
     (trackingLink?'\n\nPrivate order tracking:\n'+trackingLink:'')+
     '\n\nMy Account (optional):\n'+customerAccountLink+
     '\n\n------------------------\nOrder via NariyalSutra.netlify.app'
@@ -3070,7 +3074,14 @@ function placeOrder(){
     total:total,
     paymentType:selectedPayment,
     paymentLabel:payLabel,
-    status:'pending'
+    status:'pending',
+    deliveryMethod:deliveryExtra.deliveryMethod||'',
+    deliveryLabel:deliveryExtra.deliveryLabel||'',
+    deliveryPreference:deliveryExtra.deliveryPreference||'',
+    handoverPointType:deliveryExtra.handoverPointType||'',
+    handoverPointName:deliveryExtra.handoverPointName||'',
+    handoverPointAddress:deliveryExtra.handoverPointAddress||'',
+    handoverNote:deliveryExtra.handoverNote||''
   };
   var saveStatusEl=document.getElementById('orderSaveStatus');
   var emailStatusEl=document.getElementById('emailStatus');
@@ -3107,7 +3118,9 @@ function placeOrder(){
     '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #edeade"><span style="color:#7a7a6a;font-size:13px">Quantity</span><span style="color:#1a1a15;font-weight:500">'+q+' pieces</span></div>'+
     '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #edeade"><span style="color:#7a7a6a;font-size:13px">Rate</span><span style="color:#1a1a15;font-weight:500">₹'+price+'/pc</span></div>'+
     '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #edeade"><span style="color:#7a7a6a;font-size:13px">Payment</span><span style="color:#1a1a15;font-weight:500">'+escapeHtml(payLabel)+'</span></div>'+
-    '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #edeade"><span style="color:#7a7a6a;font-size:13px">Deliver to</span><span style="color:#1a1a15;font-weight:500;max-width:220px;text-align:right;font-size:12px">'+escapeHtml(a.substring(0,60)+(a.length>60?'...':''))+'</span></div>'+
+    '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #edeade"><span style="color:#7a7a6a;font-size:13px">Delivery preference</span><span style="color:#1a1a15;font-weight:500;max-width:220px;text-align:right;font-size:12px">'+escapeHtml(deliveryLine)+'</span></div>'+
+    (handoverPoint?'<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #edeade"><span style="color:#7a7a6a;font-size:13px">Handover point</span><span style="color:#1a1a15;font-weight:500;max-width:220px;text-align:right;font-size:12px">'+escapeHtml(handoverPoint)+'</span></div>':'')+
+    '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #edeade"><span style="color:#7a7a6a;font-size:13px">Address / locality</span><span style="color:#1a1a15;font-weight:500;max-width:220px;text-align:right;font-size:12px">'+escapeHtml(a.substring(0,60)+(a.length>60?'...':''))+'</span></div>'+
     '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0 4px"><span style="color:#1a1a15;font-weight:600;font-size:15px">Product subtotal</span><span style="font-family:serif;font-size:26px;color:#2d6b1a;font-weight:700">₹'+total.toLocaleString('en-IN')+'</span></div>'+
     '</div>';
   var modal=document.getElementById('confirmModal');
@@ -3538,11 +3551,11 @@ function closeModal(){ document.getElementById('confirmModal').style.display='no
   addEventListener('scroll',request,{passive:true}); addEventListener('resize',request,{passive:true}); request();
 })();
 </script>
-<script defer="" src="https://nariyal-sutra.netlify.app/assets/js/v17-cinematic.js"></script>
+<script defer="" src="assets/js/v17-cinematic.js"></script>
 <script src="assets/js/v421-local-store.js"></script>
 <script defer="" src="ns-delivery.js"></script>
 <script crossorigin="" defer="" src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script defer="" src="https://nariyal-sutra.netlify.app/assets/js/ns-smart-location.js"></script>
+<script defer="" src="assets/js/ns-smart-location.js"></script>
 <script defer="" src="ns-order-patch.js"></script>
 <script defer="" src="customer-account.js"></script>
 <script src="assets/js/v20-review-fixes.js"></script>

@@ -37,6 +37,9 @@ has(rules,[
   "'deliveryAddress'",
   "'deliveryLocationSource'",
   "'deliveryCoordinatesConfirmed'",
+  "'deliveryPreference'",
+  "'handoverPointType'",
+  "'handoverPointName'",
   'validPublicTrackingUpdate(token)',
   'validAuditCreate()',
   'd.actorRole == currentRole()',
@@ -154,6 +157,17 @@ has(storefront,[
   "window.NS_APP_CHECK_INSTANCE=appCheckInstance",
   "window.NS_APP_CHECK_STATUS='initialized'"
 ],'storefront shared App Check initialization');
+
+const deliveryClient=read('ns-delivery.js');
+has(deliveryClient,[
+  "label:'Door Delivery'",
+  "label:'Pickup from Handover Hub'",
+  "label:'Railway Station Handover'",
+  "label:'Bus Stand / Stop Handover'",
+  'window.nsFindHandover=async function(kind)',
+  "handoverPointName:String(nsDelivery.handoverPointName||'').slice(0,180)",
+  "deliveryPreference:nsDelivery.selectedDelivery||'pending'"
+],'customer delivery preference contract');
 
 const clientEmail=read('emailjs-config.js');
 has(clientEmail,[

@@ -37,7 +37,12 @@ window.NS_EMAILJS_CONFIG = {
       order_id:o.orderId||'', customer_name:o.customerName||'Customer', buyer_name:o.customerName||'Customer',
       email:o.email||'', phone:o.phone||'', product_name:o.productName||'', quantity:String(o.quantity||0)+' pieces',
       rate:rateLabel(o), total:money(o.total), payment:o.paymentLabel||o.paymentType||'', address:o.address||'', city:o.city||'',
-      notes:o.notes||'None', order_date:new Date().toLocaleString('en-IN'), site_url:cfg().siteUrl, admin_url:cfg().adminUrl, account_url:cfg().accountUrl||cfg().siteUrl,
+      notes:[
+        o.notes||'',
+        o.deliveryLabel?'Delivery preference: '+o.deliveryLabel:'',
+        o.handoverPointName?'Preferred handover point: '+o.handoverPointName:'',
+        o.handoverNote?'Handover note: '+o.handoverNote:''
+      ].filter(Boolean).join(' · ')||'None', order_date:new Date().toLocaleString('en-IN'), site_url:cfg().siteUrl, admin_url:cfg().adminUrl, account_url:cfg().accountUrl||cfg().siteUrl,
       tracking_url:trackingUrl(o), status:o.status||'pending', status_note:o.statusNote||'—'
     };
   }

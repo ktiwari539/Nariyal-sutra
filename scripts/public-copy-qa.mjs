@@ -23,7 +23,12 @@ const forbidden=[
   'earlier build',
   'baked-in cinematic composite',
   'malformed rectangular cut composites',
-  'This page intentionally excludes private operational notes'
+  'This page intentionally excludes private operational notes',
+  'smart enquiry desk',
+  'Cinematic story selector',
+  'product-card template',
+  'current storefront focuses',
+  'generic stock assumptions'
 ];
 
 for(const page of pages){

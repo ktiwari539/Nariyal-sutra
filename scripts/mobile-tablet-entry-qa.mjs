@@ -9,7 +9,10 @@ fs.mkdirSync(OUT,{recursive:true});
 const must=(c,m)=>{if(!c)throw new Error(m)};
 
 const releaseJs=fs.readFileSync(path.join(process.cwd(),'assets/js/v36-public.js'),'utf8');
-must(releaseJs.includes('introDurationMs:3800'),'release runtime must keep the approved 3.8s intro contract');
+must(releaseJs.includes('introDurationMs:3800'),'release runtime must keep the desktop 3.8s intro contract');
+must(releaseJs.includes('mobileIntroDurationMs:MOBILE_INTRO_MS'),'release runtime must expose the shorter mobile intro contract');
+must(releaseJs.includes('const MOBILE_INTRO_MS=2400'),'mobile intro must stay responsive');
+must(releaseJs.includes('installMobileVideoGovernor'),'mobile runtime must pause offscreen video loops');
 must(releaseJs.includes("introAsset:'/assets/images/nariyal-coconut-grove.webp'"),'intro asset contract missing');
 must(releaseJs.includes("homepageHeroAsset:'/assets/images/nariyal-premium-hero.webp'"),'homepage hero asset contract missing');
 
