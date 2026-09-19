@@ -61,8 +61,10 @@ for(const file of textFiles){
   if(doubled.test(s))add('malformed-url',file,'duplicated production base URL');
 
   if(path.extname(file).toLowerCase()==='.html'){
-    const hardCodedSelfImages=[...s.matchAll(/<(?:img|source)\b[^>]*https:\/\/nariyal-sutra\.netlify\.app\/assets\/images\/[^>]*>/gi)];
-    if(hardCodedSelfImages.length)add('cross-deploy-self-image',file,`${hardCodedSelfImages.length} customer-facing image tag(s) hard-code the production asset origin instead of the current deploy`);
+    const productionAssetOrigin=/https:\/\/nariyal-sutra\.netlify\.app\/assets\/(?:images|video)\//i;
+    const runtimeTags=s.match(/<(?:img|source|video|link)\b[^>]*>/gi)||[];
+    const hardCodedRuntimeAssets=runtimeTags.filter(tag=>productionAssetOrigin.test(tag)&&(/^<(?:img|source|video)\b/i.test(tag)||(/^<link\b/i.test(tag)&&/\b(?:rel\s*=\s*["']preload["']|as\s*=\s*["']image["'])/i.test(tag))));
+    if(hardCodedRuntimeAssets.length)add('cross-deploy-runtime-asset',file,`${hardCodedRuntimeAssets.length} image, video-poster or preload tag(s) use the production asset origin instead of the current deploy`);
     // Keep opening script tags but remove inline script bodies so JS string literals are not mistaken for markup refs.
     const markup=s.replace(/<script\b([^>]*)>[\s\S]*?<\/script>/gi,'<script$1></script>');
     const tags=markup.match(/<(?:img|script|link|video|source|iframe)\b[^>]*>/gi)||[];
@@ -82,6 +84,8 @@ for(const file of textFiles){
   if(['.css','.html'].includes(path.extname(file).toLowerCase())){
     const cssUrl=/url\(\s*["']?([^"')]+)["']?\s*\)/gi;
     for(const m of s.matchAll(cssUrl))checkRef(file,m[1]);
+    const productionBackgrounds=[...s.matchAll(/url\(\s*["']?https:\/\/nariyal-sutra\.netlify\.app\/assets\/(?:images|video)\//gi)];
+    if(productionBackgrounds.length)add('cross-deploy-css-asset',file,`${productionBackgrounds.length} CSS background URL(s) use the production asset origin`);
   }
 }
 
