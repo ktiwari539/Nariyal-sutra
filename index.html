@@ -1493,6 +1493,7 @@ body.ns-story-active .story-skip{display:block}.story-skip:hover{color:var(--gol
 <script>
 (function(){
   const GA_ID='G-MXWV5S3CWY';
+  const TEST_ORIGIN=/^(localhost|127\.0\.0\.1|\[::1\]|[a-z0-9-]+--nariyal-sutra\.netlify\.app)$/i.test(location.hostname);
   window.__nsEventQueue=[];
   window.nsAnalyticsEvent=function(name,params){
     params=params||{};
@@ -1508,6 +1509,7 @@ body.ns-story-active .story-skip{display:block}.story-skip:hover{color:var(--gol
     q.forEach(function(x){ window.__nsAnalyticsDispatch(x[0],x[1]); });
   };
   window.__nsLoadGA4=function(){
+    if(TEST_ORIGIN)return;
     if(window.__nsGA4Loaded) return;
     window.__nsGA4Loaded=true;
     window.dataLayer=window.dataLayer||[];
@@ -1621,12 +1623,12 @@ body.ns-story-active .story-skip{display:block}.story-skip:hover{color:var(--gol
       if(!window.NS_CATALOG_LIVE) window.NS_CATALOG=defaultCatalog;
     }
 
-    if(await analyticsMod.isSupported()){
+    if(!TEST_ORIGIN&&await analyticsMod.isSupported()){
       const analytics=analyticsMod.getAnalytics(app);
       try{ perfMod.getPerformance(app); }catch(_e){}
       window.__nsAnalyticsDispatch=function(name,params){ analyticsMod.logEvent(analytics,name,params||{}); };
       window.__nsFlushAnalytics();
-    }else{ window.__nsLoadGA4(); }
+    }else if(!TEST_ORIGIN){ window.__nsLoadGA4(); }
   }catch(e){
     console.warn('Firebase initialization failed; using GA4 fallback and WhatsApp-only order flow.',e);
     window.__nsLoadGA4();
