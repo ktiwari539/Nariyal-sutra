@@ -68,7 +68,7 @@ video.ns-video-failed{display:none!important}
   .ns-people-marquee{overflow:hidden!important;padding:42px 0 38px!important;margin-bottom:42px!important}
   .ns-people-marquee-head{grid-template-columns:1fr!important;padding:0 22px!important;gap:16px!important}
   .ns-face-card,.ns-face-card:nth-child(3n+2),.ns-face-card:nth-child(3n){width:190px!important;height:280px!important;aspect-ratio:auto!important}
-  .ns-face-card img{object-fit:contain!important;object-position:center!important;padding:3px!important;background:#071204!important}
+  .ns-face-card img{object-fit:cover!important;object-position:center;padding:0!important;background:#071204!important}
   #order{padding-left:22px!important;padding-right:22px!important}
   .order-inner,.order-card,#ns-del-root,.ns-del-section,.ns-v21-address-map{width:100%!important;max-width:100%!important;min-width:0!important}
   #ns-del-root{grid-column:1/-1!important}
