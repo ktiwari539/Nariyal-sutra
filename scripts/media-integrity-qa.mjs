@@ -34,6 +34,7 @@ for(const [label,width,height] of [['desktop',1440,900],['tablet',820,1100],['mo
   must(cards.every(x=>Math.abs(x.width-x.cardWidth)<=3&&Math.abs(x.height-x.cardHeight)<=3),label+' People rail image does not fill card bounds: '+JSON.stringify(cards));
   const canonical=cards.filter(x=>/^G\d{3}$/i.test(x.id));
   must(canonical.length>=3&&canonical.every(x=>x.src==='/assets/images/ambassadors/'+x.id+'.webp'),label+' People rail uses wrong asset: '+JSON.stringify(cards));
+  await home.locator('#nsPeopleMarquee').screenshot({path:path.join(OUT,'homepage-people-'+label+'.png'),animations:'disabled'});
 }
 await home.setViewportSize({width:1440,height:900});await noBroken(home,'Homepage');await home.screenshot({path:path.join(OUT,'homepage-media-diversity.png')});await home.close();
  const people=await open(c,'/people-of-nariyal-sutra.html','People');await people.waitForSelector('#v25PeopleStreams [data-stream="ambassadors"]',{timeout:8000});const ps=await people.evaluate(()=>{const s=document.querySelector('#v25PeopleStreams [data-stream="ambassadors"]'),cards=[...s?.querySelectorAll('[data-id]')||[]],track=s?.querySelector('.v25-story-track');return {cards:cards.length,ids:[...new Set(cards.map(x=>x.dataset.id))],track:!!track,overflow:s?getComputedStyle(s).overflowX:''}});must(ps.cards>=3&&ps.ids.length>=3,'People Ambassador stream incomplete');await noBroken(people,'People');await people.screenshot({path:path.join(OUT,'people-approved-campaign.png')});await people.close();
