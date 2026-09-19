@@ -4,6 +4,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 const ROOT=process.cwd(),OUT=path.join(ROOT,'qa-artifacts','media-integrity'),BASE='http://127.0.0.1:4191';fs.mkdirSync(OUT,{recursive:true});const must=(c,m)=>{if(!c)throw new Error(m)},sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const homePeopleJs=fs.readFileSync(path.join(ROOT,'assets/js/v21-public.js'),'utf8'),homePeopleCss=fs.readFileSync(path.join(ROOT,'assets/css/v23-public.css'),'utf8'),peopleStreamJs=fs.readFileSync(path.join(ROOT,'assets/js/v25-public.js'),'utf8');
+const finalResponsiveCss=fs.readFileSync(path.join(ROOT,'assets/css/v36-public.css'),'utf8');
+must(!finalResponsiveCss.includes('.ns-face-card img{object-fit:contain!important'),'Final responsive stylesheet reintroduces contain');
+must(finalResponsiveCss.includes('.ns-face-card img{object-fit:cover!important'),'Final responsive stylesheet lacks full-frame cover');
 must(homePeopleJs.includes("first=bundledFaceSrc(id)||m.src||m.thumb||faceSrc(id)"),'Homepage People rail does not prefer canonical bundled full images');
 must(!homePeopleJs.includes('https://nariyal-sutra.netlify.app/assets/images/ambassadors/'),'Homepage People rail still depends on production-domain image fallback');
 must(homePeopleCss.includes('.ns-face-card img{object-fit:cover!important'),'Homepage People rail is not forced to full-frame cover');
@@ -20,7 +23,19 @@ must(peopleRail.length>=4,'Homepage People full-picture rail did not render enou
 must(peopleRail.every(x=>x.fit==='cover'),'Homepage People full-picture rail is not cover '+JSON.stringify(peopleRail));
 const bundledRail=peopleRail.filter(x=>/^G\d{3}$/i.test(x.id));
 must(bundledRail.length>=3,'Homepage People rail did not render bundled G media '+JSON.stringify(peopleRail));
-must(bundledRail.every(x=>x.src==='/assets/images/ambassadors/'+x.id+'.webp'),'Homepage People rail rendered thumbnails/noncanonical sources '+JSON.stringify(bundledRail));await noBroken(home,'Homepage');await home.screenshot({path:path.join(OUT,'homepage-media-diversity.png')});await home.close();
+must(bundledRail.every(x=>x.src==='/assets/images/ambassadors/'+x.id+'.webp'),'Homepage People rail rendered thumbnails/noncanonical sources '+JSON.stringify(bundledRail));
+for(const [label,width,height] of [['desktop',1440,900],['tablet',820,1100],['mobile',390,844]]){
+  await home.setViewportSize({width,height});
+  await home.waitForTimeout(350);
+  const cards=await home.evaluate(()=>[...document.querySelectorAll('#nsPeopleMarquee .ns-face-card img')].slice(0,20).map(img=>{const r=img.getBoundingClientRect(),parent=img.closest('.ns-face-card')?.getBoundingClientRect();return {id:img.dataset.id||'',src:new URL(img.currentSrc||img.src,location.href).pathname,fit:getComputedStyle(img).objectFit,pad:getComputedStyle(img).padding,width:r.width,height:r.height,cardWidth:parent?.width||0,cardHeight:parent?.height||0};}));
+  must(cards.length>=4,label+' People rail did not render four cards: '+JSON.stringify(cards));
+  must(cards.every(x=>x.fit==='cover'),label+' People rail reverted to contain: '+JSON.stringify(cards));
+  must(cards.every(x=>x.pad==='0px'),label+' People rail image has inner padding: '+JSON.stringify(cards));
+  must(cards.every(x=>Math.abs(x.width-x.cardWidth)<=3&&Math.abs(x.height-x.cardHeight)<=3),label+' People rail image does not fill card bounds: '+JSON.stringify(cards));
+  const canonical=cards.filter(x=>/^G\d{3}$/i.test(x.id));
+  must(canonical.length>=3&&canonical.every(x=>x.src==='/assets/images/ambassadors/'+x.id+'.webp'),label+' People rail uses wrong asset: '+JSON.stringify(cards));
+}
+await home.setViewportSize({width:1440,height:900});await noBroken(home,'Homepage');await home.screenshot({path:path.join(OUT,'homepage-media-diversity.png')});await home.close();
  const people=await open(c,'/people-of-nariyal-sutra.html','People');await people.waitForSelector('#v25PeopleStreams [data-stream="ambassadors"]',{timeout:8000});const ps=await people.evaluate(()=>{const s=document.querySelector('#v25PeopleStreams [data-stream="ambassadors"]'),cards=[...s?.querySelectorAll('[data-id]')||[]],track=s?.querySelector('.v25-story-track');return {cards:cards.length,ids:[...new Set(cards.map(x=>x.dataset.id))],track:!!track,overflow:s?getComputedStyle(s).overflowX:''}});must(ps.cards>=3&&ps.ids.length>=3,'People Ambassador stream incomplete');await noBroken(people,'People');await people.screenshot({path:path.join(OUT,'people-approved-campaign.png')});await people.close();
  const pages=[['/supplier-partnership.html','Supplier'],['/direct-farm.html','Direct sourcing'],['/coconut-water.html','Coconut water'],['/coconut-events-hospitality.html','Hospitality']];for(const [url,label] of pages){const p=await open(c,url,label);await noBroken(p,label);await p.close();}
  await c.close();console.log('MEDIA INVENTORY + VISUAL DIVERSITY QA: PASS');
