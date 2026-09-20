@@ -30,6 +30,16 @@ async function inspectMediaLayout(page,label){
  });
  must(result.rows.length>0,`${label}: no rendered media cards`);
  must(!result.overflow,`${label}: media view caused horizontal page overflow`);
+ // This catches the actual user-reported failure: a landscape card ending well
+ // above the neighboring portrait card, despite the thumbnail action tests passing.
+ // CSS Grid rows are equalized across the whole management library, not merely
+ // within a single image orientation or the currently visible viewport.
+ const reference=result.rows[0];
+ for(const row of result.rows){
+  must(Math.abs(row.card.width-reference.card.width)<=2,`${label}: ${row.id} card width ${row.card.width} differs from ${reference.id} (${reference.card.width})`);
+  must(Math.abs(row.card.height-reference.card.height)<=2,`${label}: ${row.id} card height ${row.card.height} differs from ${reference.id} (${reference.card.height})`);
+  must(row.visual&&reference.visual&&Math.abs(row.visual.height-reference.visual.height)<=2,`${label}: ${row.id} preview height differs from ${reference.id}`);
+ }
  let portrait=false,landscape=false;
  for(const row of result.rows){
   must(row.visual&&row.body,`${label}: ${row.id} missing visual/body`);
