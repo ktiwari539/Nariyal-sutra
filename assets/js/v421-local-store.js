@@ -1,14 +1,15 @@
 (function(){
 'use strict';
-const KEY='ns-v421-local-state-v27';
-const LEGACY_KEYS=['ns-v421-local-state-v26','ns-v421-local-state-v25','ns-v421-local-state-v23','ns-v421-local-state-v22','ns-v421-local-state-v21'];
-const SCHEMA=27;
+const KEY='ns-v421-local-state-v28';
+const LEGACY_KEYS=['ns-v421-local-state-v27','ns-v421-local-state-v26','ns-v421-local-state-v25','ns-v421-local-state-v23','ns-v421-local-state-v22','ns-v421-local-state-v21'];
+const SCHEMA=28;
 const PEOPLE_MEDIA_IDS=["G001","G002","G003","G004","G005","G006","G007","G008","G011","G012","G016","G021","G023","G024","G025","G026","G031","G034","G035","G036","G037","G039","G040","G041","G042","G044","G046","G047","G048","G049","G050","G051","G052","G055","G061","G064","G066","G067","G068","G069","G070","G072","G073","G074","G075","G077","G078"];
 const FEATURED_FACE_IDS=["G001","G002","G004","G005","G006","G007","G008","G011","G012","G025","G026","G031","G034","G035","G036","G039","G040","G041","G042","G044","G046","G049","G052","G055","G069","G072","G073","G074","G075","G077","G078"];
 const FACE_IDS=PEOPLE_MEDIA_IDS.slice();
 const alias={G020:'G011',G058:'G026'};
 function clone(v){return JSON.parse(JSON.stringify(v));}
 function now(){return new Date().toISOString();}
+function hoursFromNow(hours){return new Date(Date.now()+hours*60*60*1000).toISOString();}
 function faceMedia(id,i){const featured=FEATURED_FACE_IDS.includes(id);return {id,name:'People reference '+id,cat:'People',status:featured?'Approved':'Needs review',visible:featured,publicAllowed:true,storyAllowed:true,homepageAllowed:featured,brandFit:featured?'Strong':'Review',placement:featured?'People':'Library only',faceGroup:id,src:'assets/images/ambassadors/'+id+'.webp',thumb:'assets/images/ambassadors/thumbs/'+id+'.webp',version:1,versions:[{version:1,src:'assets/images/ambassadors/'+id+'.webp',at:'Bundled V26'}],order:i+1};}
 const defaults={
  schemaVersion:SCHEMA,
@@ -46,6 +47,15 @@ const defaults={
  communications:[
   {id:'COM-1',channel:'WhatsApp',audience:'Aarav Mehta',subject:'Delivery update',state:'Draft'},
   {id:'COM-2',channel:'Email',audience:'Blue Mango Café',subject:'Hospitality quote follow-up',state:'Draft'}
+ ],
+ followups:[
+  {id:'FU-DEMO-1',customerKey:'C-001',customerName:'Aarav Mehta',orderId:'NS-1048',reason:'Confirm recurring office-order quantity and delivery days',assignee:'Sales',assigneeUid:'',priority:'high',dueAt:hoursFromNow(2),status:'open',createdAt:now(),updatedAt:now(),source:'demo'},
+  {id:'FU-DEMO-2',customerKey:'guest:virar',customerName:'Guest · Virar',orderId:'',reason:'Confirm delivery serviceability and preferred handover point',assignee:'Support',assigneeUid:'',priority:'normal',dueAt:hoursFromNow(5),status:'open',createdAt:now(),updatedAt:now(),source:'demo'},
+  {id:'FU-DEMO-3',customerKey:'blue-mango-cafe',customerName:'Blue Mango Café',orderId:'',reason:'Prepare the hospitality supply quotation',assignee:'Sales',assigneeUid:'',priority:'opportunity',dueAt:hoursFromNow(26),status:'in_progress',createdAt:now(),updatedAt:now(),source:'demo'}
+ ],
+ followupEvents:[
+  {id:'FUE-DEMO-1',followupId:'FU-DEMO-1',action:'created',details:'Follow-up created for local workflow review.',actorEmail:'preview@nariyalsutra.local',actorRole:'Owner',createdAt:now(),source:'demo'},
+  {id:'FUE-DEMO-2',followupId:'FU-DEMO-3',action:'status_changed',details:'Status changed from Open to In progress.',actorEmail:'preview@nariyalsutra.local',actorRole:'Owner',createdAt:now(),source:'demo'}
  ],
  media:[
   {id:'M-ORIGIN-01',name:'Coastal coconut grove',cat:'Sourcing',status:'Approved',visible:true,publicAllowed:true,storyAllowed:true,homepageAllowed:true,brandFit:'Strong',placement:'Homepage',faceGroup:null,src:'assets/images/review/coastal-grove.png',thumb:'assets/images/review/coastal-grove.png',version:1,versions:[{version:1,src:'assets/images/review/coastal-grove.png',at:'V20 review'}]},
@@ -123,7 +133,7 @@ function reconcilePeople(s){
  return s;
 }
 function normalizeState(s){
- const arrayKeys=['products','inventory','warehouses','deliveryServices','orders','segments','communications','media','sections','customSections','stories','content','schedule','communitySubmissions','notificationQueue','teamMembers','tasks','audit'];
+ const arrayKeys=['products','inventory','warehouses','deliveryServices','orders','segments','communications','followups','followupEvents','media','sections','customSections','stories','content','schedule','communitySubmissions','notificationQueue','teamMembers','tasks','audit'];
  arrayKeys.forEach(k=>{if(!Array.isArray(s[k]))s[k]=clone(defaults[k]||[]);});
  const objectKeys=['deliveryLive','customer','faceMarquee','peopleStreams','harvest','staffPhotos','settings'];
  objectKeys.forEach(k=>{if(!s[k]||typeof s[k]!=='object'||Array.isArray(s[k]))s[k]=clone(defaults[k]||{});});

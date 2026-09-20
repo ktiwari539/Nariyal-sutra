@@ -27,6 +27,7 @@ function init(){
  loadOptional('assets/js/admin-v50-delivery-contract.js','data-ns-delivery-contract','__NS_V421_DELIVERY_CONTRACT__');
  loadOptional('assets/js/admin-v44-order-operations.js','data-ns-order-operations','__NS_V421_ORDER_OPERATIONS__');
  loadRequired('assets/js/admin-communication.js','data-ns-admin-communication',()=>window.NSV421CommunicationAdmin?.ready===true);
+ loadRequired('assets/js/admin-followups.js','data-ns-admin-followups',()=>window.NSV421Followups?.ready===true);
  loadOptional('assets/js/admin-dashboard-v2.js','data-ns-dashboard-v2','__NS_V421_ADMIN_DASHBOARD_V2__');
  loadOptional('assets/js/admin-v38-reviews-contract.js','data-ns-v38-contract','__NS_V421_ADMIN_V38_CONTRACT__');
  loadOptional('assets/js/admin-v48-action-contract.js','data-ns-v48-contract','__NS_V421_ADMIN_V48_ACTION_CONTRACT__');

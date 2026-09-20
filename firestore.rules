@@ -38,6 +38,8 @@ service cloud.firestore {
     function canOrdersWrite() { return hasRole(['Owner','Admin','Manager','Operations']); }
     function canCustomersRead() { return hasRole(['Owner','Admin','Manager','Operations','Support','Sales']); }
     function canCrmWrite() { return hasRole(['Owner','Admin','Manager','Support','Sales']); }
+    function canFollowupsRead() { return hasRole(['Owner','Admin','Manager','Operations','Support','Sales']); }
+    function canFollowupsWrite() { return hasRole(['Owner','Admin','Manager','Support','Sales']); }
     function canContent() { return hasRole(['Owner','Admin','Manager','Content']); }
     function canDeliveryRead() { return hasRole(['Owner','Admin','Manager','Operations','Support','Sales']); }
     function canDeliveryWrite() { return hasRole(['Owner','Admin','Manager','Operations']); }
@@ -428,6 +430,78 @@ service cloud.firestore {
         && (!d.keys().hasAny(['source']) || (d.source is string && d.source.size() <= 100));
     }
 
+    function followupPath(followupId) {
+      return /databases/$(database)/documents/followups/$(followupId);
+    }
+    function validFollowupStatusTransition(before, after) {
+      return before == after
+        || (before == 'open' && after in ['in_progress','completed','cancelled'])
+        || (before == 'in_progress' && after in ['open','completed','cancelled'])
+        || (before in ['completed','cancelled'] && after == 'open');
+    }
+    function validFollowupFields(followupId) {
+      let d = request.resource.data;
+      return d.keys().hasOnly([
+          'id','customerKey','customerName','orderId','reason','assignee','assigneeUid','priority','dueAt','status',
+          'createdAt','createdBy','createdByEmail','updatedAt','updatedBy','updatedByEmail','completedAt','completedBy'
+        ])
+        && d.keys().hasAll([
+          'id','customerKey','customerName','orderId','reason','assignee','assigneeUid','priority','dueAt','status',
+          'createdAt','createdBy','createdByEmail','updatedAt','updatedBy','updatedByEmail','completedAt','completedBy'
+        ])
+        && d.id == followupId && d.id is string && d.id.size() >= 3 && d.id.size() <= 128
+        && d.customerKey is string && d.customerKey.size() <= 128
+        && d.customerName is string && d.customerName.size() >= 1 && d.customerName.size() <= 160
+        && d.orderId is string && d.orderId.size() <= 80
+        && d.reason is string && d.reason.size() >= 1 && d.reason.size() <= 500
+        && d.assignee is string && d.assignee.size() >= 1 && d.assignee.size() <= 120
+        && d.assigneeUid is string && d.assigneeUid.size() <= 128
+        && d.priority in ['normal','high','urgent','opportunity']
+        && d.dueAt is timestamp
+        && d.status in ['open','in_progress','completed','cancelled']
+        && d.createdBy is string && d.createdBy.size() >= 1 && d.createdBy.size() <= 128
+        && d.createdByEmail is string && d.createdByEmail.size() <= 160
+        && d.updatedBy == request.auth.uid
+        && d.updatedByEmail == request.auth.token.email;
+    }
+    function validFollowupCreate(followupId) {
+      let d = request.resource.data;
+      return validFollowupFields(followupId)
+        && d.status == 'open' && d.createdAt == request.time && d.updatedAt == request.time
+        && d.createdBy == request.auth.uid && d.createdByEmail == request.auth.token.email
+        && d.completedAt == null && d.completedBy == '';
+    }
+    function validFollowupUpdate(followupId) {
+      let d = request.resource.data;
+      return validFollowupFields(followupId)
+        && d.createdAt == resource.data.createdAt && d.createdBy == resource.data.createdBy
+        && d.createdByEmail == resource.data.createdByEmail && d.updatedAt == request.time
+        && validFollowupStatusTransition(resource.data.status,d.status)
+        && d.diff(resource.data).affectedKeys().hasOnly([
+          'customerKey','customerName','orderId','reason','assignee','assigneeUid','priority','dueAt','status',
+          'updatedAt','updatedBy','updatedByEmail','completedAt','completedBy'
+        ])
+        && (
+          (d.status != 'completed' && d.completedAt == null && d.completedBy == '')
+          || (d.status == 'completed' && resource.data.status != 'completed'
+            && d.completedAt == request.time && d.completedBy == request.auth.uid)
+          || (d.status == 'completed' && resource.data.status == 'completed'
+            && d.completedAt == resource.data.completedAt && d.completedBy == resource.data.completedBy)
+        );
+    }
+    function validFollowupEventCreate(eventId) {
+      let d = request.resource.data;
+      return d.keys().hasOnly(['eventId','followupId','action','details','actorUid','actorEmail','actorRole','createdAt'])
+        && d.keys().hasAll(['eventId','followupId','action','details','actorUid','actorEmail','actorRole','createdAt'])
+        && d.eventId == eventId && d.eventId is string && d.eventId.size() >= 3 && d.eventId.size() <= 128
+        && d.followupId is string && d.followupId.size() >= 3 && d.followupId.size() <= 128
+        && d.action in ['created','updated','status_changed','reassigned','rescheduled']
+        && d.details is string && d.details.size() >= 1 && d.details.size() <= 500
+        && d.actorUid == request.auth.uid && d.actorEmail == request.auth.token.email
+        && d.actorRole == currentRole() && d.createdAt == request.time
+        && existsAfter(followupPath(d.followupId));
+    }
+
     function validMediaAssetWrite(logicalId) {
       let d = request.resource.data;
       return d.keys().hasOnly(['logicalId','provider','sourceSha256','updatedAt','updatedBy'])
@@ -496,6 +570,19 @@ service cloud.firestore {
       allow get, list: if canCustomersRead();
       allow create, update: if canCrmWrite();
       allow delete: if isAdminManager();
+    }
+
+    match /followups/{followupId} {
+      allow get, list: if canFollowupsRead();
+      allow create: if canFollowupsWrite() && validFollowupCreate(followupId);
+      allow update: if canFollowupsWrite() && validFollowupUpdate(followupId);
+      allow delete: if false;
+    }
+
+    match /followupEvents/{eventId} {
+      allow get, list: if canFollowupsRead();
+      allow create: if canFollowupsWrite() && validFollowupEventCreate(eventId);
+      allow update, delete: if false;
     }
 
     match /adminAudit/{auditId} {

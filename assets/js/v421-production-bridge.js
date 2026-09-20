@@ -11,6 +11,8 @@ const isAdmin=/admin-preview\.html$/i.test(location.pathname);
 const PUBLIC_KEYS=['sections','pageSequences','sectionMedia','sectionMediaLayout','media','faceMarquee','peopleStreams','harvest','customSections','stories','content','schedule','settings'];
 const PRIVATE_KEYS=['tasks','warehouses','deliveryServices','segments','communications','notificationQueue'];
 const CUSTOMER_ROLES=['Owner','Admin','Manager','Operations','Support','Sales'];
+const FOLLOWUP_READ_ROLES=['Owner','Admin','Manager','Operations','Support','Sales'];
+const FOLLOWUP_WRITE_ROLES=['Owner','Admin','Manager','Support','Sales'];
 const CATALOG_ROLES=['Owner','Admin','Manager','Operations'];
 const CONTENT_ROLES=['Owner','Admin','Manager','Content'];
 const STAFF_ROLES=['Admin','Manager','Operations','Content','Support','Sales'];
@@ -32,6 +34,8 @@ function scrubDemoOperational(s){
  s.orders=drop(s.orders,new Set(['NS-1048','NS-1047','NS-1046','NS-1042']));
  s.segments=drop(s.segments,new Set(['SEG-REPEAT','SEG-HOSP','SEG-DUE']));
  s.communications=drop(s.communications,new Set(['COM-1','COM-2']));
+ s.followups=drop(s.followups,new Set(['FU-DEMO-1','FU-DEMO-2','FU-DEMO-3']));
+ s.followupEvents=drop(s.followupEvents,new Set(['FUE-DEMO-1','FUE-DEMO-2']));
  s.tasks=drop(s.tasks,new Set(['TASK-1','TASK-2']));
  s.schedule=drop(s.schedule,new Set(['SCH-1']));
  s.content=drop(s.content,new Set(['CT-1','CT-2','CT-3']));
@@ -104,18 +108,30 @@ function queuePersist(s){pendingState=clone(s);clearTimeout(saveTimer);saveTimer
 Store.save=function(s){const out=originalSave(s);if(isAdmin)queuePersist(out);return out;};
 function orderFromDoc(d){const x=d.data()||{},createdAt=iso(x.createdAt),updatedAt=iso(x.updatedAt),status=String(x.status||'pending');return {id:x.orderId||d.id,orderId:x.orderId||d.id,customer:x.customerName||'Customer',customerName:x.customerName||'',email:x.email||'',phone:x.phone||'',city:x.city||'',state:x.state||'',country:x.country||'',pin:x.pin||'',address:x.address||'',product:x.productName||x.productKey||'Order',productName:x.productName||'',productKey:x.productKey||'',qty:Number(x.quantity||0),quantity:Number(x.quantity||0),unitPrice:Number(x.unitPrice||0),payment:x.paymentLabel||x.paymentType||'Awaiting',paymentLabel:x.paymentLabel||'',paymentType:x.paymentType||'',paymentStatus:x.paymentStatus||'',delivery:status.replaceAll('_',' '),status,total:Number(x.total||0),customerUid:x.customerUid||'',trackingToken:x.trackingToken||'',recurringPreference:x.recurringPreference||'',deliveryMethod:x.deliveryMethod||'',deliveryLabel:x.deliveryLabel||'',deliveryPreference:x.deliveryPreference||'',handoverPointType:x.handoverPointType||'',handoverPointName:x.handoverPointName||'',handoverPointAddress:x.handoverPointAddress||'',handoverPointLat:x.handoverPointLat??null,handoverPointLng:x.handoverPointLng??null,handoverSearchSource:x.handoverSearchSource||'',handoverNote:x.handoverNote||'',deliveryAddress:x.deliveryAddress||x.address||'',deliveryLat:x.deliveryLat??null,deliveryLng:x.deliveryLng??null,acquisition:x.acquisition||null,createdAt,updatedAt};}
 function profileFromDoc(d){const x=d.data()||{};return {...x,id:d.id,uid:x.uid||d.id,createdAt:iso(x.createdAt),updatedAt:iso(x.updatedAt),lastLoginAt:iso(x.lastLoginAt)};}
+function followupFromDoc(d){const x=d.data()||{};return {...x,id:x.id||d.id,dueAt:iso(x.dueAt),createdAt:iso(x.createdAt),updatedAt:iso(x.updatedAt),completedAt:iso(x.completedAt)};}
+function followupEventFromDoc(d){const x=d.data()||{};return {...x,id:x.eventId||d.id,eventId:x.eventId||d.id,createdAt:iso(x.createdAt)};}
+async function loadFollowupsInto(s){
+ if(!FOLLOWUP_READ_ROLES.includes(role)){s.followups=[];s.followupEvents=[];return;}
+ const [followups,events]=await Promise.all([
+  fsMod.getDocs(fsMod.collection(db,'followups')),
+  fsMod.getDocs(fsMod.collection(db,'followupEvents'))
+ ]);
+ s.followups=followups.docs.map(followupFromDoc);
+ s.followupEvents=events.docs.map(followupEventFromDoc);
+}
 async function syncOperationalData(){
  if(!isAdmin||!user)return;
  const started=performance.now(),s=scrubDemoOperational(originalLoad());let changed=false;
  const jobs=[];
  if(CUSTOMER_ROLES.includes(role)){
-  jobs.push(
+ jobs.push(
    (async()=>{try{const q=fsMod.query(fsMod.collection(db,'orders'),fsMod.orderBy('createdAt','desc'),fsMod.limit(500));const snap=await fsMod.getDocs(q);s.orders=snap.docs.map(orderFromDoc);}catch(e){console.warn('[BCC] Orders sync unavailable',e);s.orders=[];}changed=true;})(),
    (async()=>{try{const snap=await fsMod.getDocs(fsMod.collection(db,'customers'));s.customerProfiles=snap.docs.map(profileFromDoc);}catch(e){console.warn('[BCC] Customer profile sync unavailable',e);s.customerProfiles=[];}changed=true;})(),
-   (async()=>{try{const snap=await fsMod.getDocs(fsMod.collection(db,'customerAdmin'));s.customerAdminRecords=snap.docs.map(d=>({id:d.id,personKey:d.id,...d.data()}));}catch(e){console.warn('[BCC] Customer CRM metadata sync unavailable',e);s.customerAdminRecords=[];}changed=true;})()
+   (async()=>{try{const snap=await fsMod.getDocs(fsMod.collection(db,'customerAdmin'));s.customerAdminRecords=snap.docs.map(d=>({id:d.id,personKey:d.id,...d.data()}));}catch(e){console.warn('[BCC] Customer CRM metadata sync unavailable',e);s.customerAdminRecords=[];}changed=true;})(),
+   (async()=>{try{await loadFollowupsInto(s);}catch(e){console.warn('[BCC] Follow-ups sync unavailable',e);s.followups=[];s.followupEvents=[];}changed=true;})()
   );
  }else{
-  s.orders=[];s.customerProfiles=[];s.customerAdminRecords=[];s.customer=emptyCustomer();changed=true;
+  s.orders=[];s.customerProfiles=[];s.customerAdminRecords=[];s.followups=[];s.followupEvents=[];s.customer=emptyCustomer();changed=true;
  }
  if(CATALOG_ROLES.includes(role)){
   jobs.push((async()=>{try{const snap=await fsMod.getDocs(fsMod.collection(db,'products'));const by={};snap.forEach(d=>by[d.id]=d.data());const defs=[['TENDER','tender','Fresh Tender Coconut'],['GREEN','green','Green Round Coconut'],['BULK','bulk','Bulk Tender Coconut']];s.products=defs.map(([sku,key,name])=>{const p=by[key]||{};return {sku,name:p.name||name,shortName:p.shortName||'',description:p.description||'',retail:key==='bulk'?0:Number(p.price||0),bulk:Number(p.price||0),moq:Number(p.minQty||1),priceVisible:true,state:p.active===false?'Inactive':'Active'};});s.inventory=defs.map(([sku,key,name])=>{const p=by[key]||{};return {sku,name:p.name||name,node:'Live catalog',onHand:Number(p.stock||0),reserved:0,incoming:0,low:0,freshness:'Live Firestore stock',supplier:'Configured supply'};});}catch(e){console.warn('[BCC] Catalog sync unavailable',e);}changed=true;})());
@@ -130,6 +146,36 @@ async function syncOperationalData(){
   const durationMs=Math.round(performance.now()-started);
   window.dispatchEvent(new CustomEvent('nsv421:operational-synced',{detail:{orders:(s.orders||[]).length,profiles:(s.customerProfiles||[]).length,role,durationMs}}));
  }
+}
+async function refreshFollowups(){
+ if(!isAdmin||!user||!FOLLOWUP_READ_ROLES.includes(role))return originalLoad();
+ const s=scrubDemoOperational(originalLoad());await loadFollowupsInto(s);originalSave(s);
+ window.dispatchEvent(new CustomEvent('nsv421:followups-synced',{detail:{followups:s.followups.length,events:s.followupEvents.length,role}}));return s;
+}
+function watchFollowups(){
+ if(!isAdmin||!user||!FOLLOWUP_READ_ROLES.includes(role))return;
+ const apply=(key,convert)=>(snap=>{const s=scrubDemoOperational(originalLoad());s[key]=snap.docs.map(convert);originalSave(s);window.dispatchEvent(new CustomEvent('nsv421:followups-synced',{detail:{followups:(s.followups||[]).length,events:(s.followupEvents||[]).length,role}}));});
+ unsubs.push(fsMod.onSnapshot(fsMod.collection(db,'followups'),apply('followups',followupFromDoc),e=>console.warn('[BCC] Follow-ups watch unavailable',e)));
+ unsubs.push(fsMod.onSnapshot(fsMod.collection(db,'followupEvents'),apply('followupEvents',followupEventFromDoc),e=>console.warn('[BCC] Follow-up history watch unavailable',e)));
+}
+function cleanFollowupInput(input={}){
+ const trim=(v,n)=>String(v||'').trim().slice(0,n),status=String(input.status||'open'),priority=String(input.priority||'normal');
+ const due=new Date(input.dueAt);if(!trim(input.customerName,160)||!trim(input.reason,500)||!trim(input.assignee,120))throw new Error('Customer, next action and assignee are required.');
+ if(!Number.isFinite(due.getTime()))throw new Error('A valid due date is required.');
+ if(!['open','in_progress','completed','cancelled'].includes(status))throw new Error('Invalid follow-up status.');
+ if(!['normal','high','urgent','opportunity'].includes(priority))throw new Error('Invalid follow-up priority.');
+ return {id:trim(input.id,128),customerKey:trim(input.customerKey,128),customerName:trim(input.customerName,160),orderId:trim(input.orderId,80),reason:trim(input.reason,500),assignee:trim(input.assignee,120),assigneeUid:trim(input.assigneeUid,128),priority,due,status};
+}
+async function saveFollowup(input={}){
+ if(!isAdmin||!remoteReady||!user)throw new Error('Authenticated Admin connection is required.');
+ if(!FOLLOWUP_WRITE_ROLES.includes(role))throw new Error('This role has read-only access to follow-ups.');
+ const x=cleanFollowupInput(input),id=x.id||('FU-'+Date.now().toString(36).toUpperCase()+'-'+Math.random().toString(36).slice(2,7).toUpperCase()),ref=fsMod.doc(db,'followups',id),snap=await fsMod.getDoc(ref),before=snap.exists()?snap.data():null;
+ if(!before&&x.status!=='open')throw new Error('New follow-ups must start Open.');
+ const previousStatus=String(before?.status||''),email=String(user.email||''),payload={id,customerKey:x.customerKey,customerName:x.customerName,orderId:x.orderId,reason:x.reason,assignee:x.assignee,assigneeUid:x.assigneeUid,priority:x.priority,dueAt:fsMod.Timestamp.fromDate(x.due),status:x.status,createdAt:before?.createdAt||fsMod.serverTimestamp(),createdBy:before?.createdBy||user.uid,createdByEmail:before?.createdByEmail||email,updatedAt:fsMod.serverTimestamp(),updatedBy:user.uid,updatedByEmail:email,completedAt:x.status==='completed'?(previousStatus==='completed'&&before?.completedAt?before.completedAt:fsMod.serverTimestamp()):null,completedBy:x.status==='completed'?(previousStatus==='completed'&&before?.completedBy?before.completedBy:user.uid):''};
+ const action=!before?'created':previousStatus!==x.status?'status_changed':String(before.assignee||'')!==x.assignee?'reassigned':iso(before.dueAt)!==x.due.toISOString()?'rescheduled':'updated';
+ const details=action==='created'?'Follow-up created.':action==='status_changed'?`Status changed from ${previousStatus.replaceAll('_',' ')} to ${x.status.replaceAll('_',' ')}.`:action==='reassigned'?`Assignee changed from ${String(before.assignee||'Unassigned')} to ${x.assignee}.`:action==='rescheduled'?`Due date changed to ${x.due.toISOString()}.`:'Follow-up details updated.';
+ const eventId='FUE-'+Date.now().toString(36).toUpperCase()+'-'+Math.random().toString(36).slice(2,8).toUpperCase(),batch=fsMod.writeBatch(db);
+ batch.set(ref,payload);batch.set(fsMod.doc(db,'followupEvents',eventId),{eventId,followupId:id,action,details:details.slice(0,500),actorUid:user.uid,actorEmail:email,actorRole:role,createdAt:fsMod.serverTimestamp()});await batch.commit();await refreshFollowups();return {id,action};
 }
 async function loadCustomerRuntime(){
  const scripts=['/admin-customer-directory.js','/assets/js/admin-v49-customer-live.js'];
@@ -148,7 +194,7 @@ async function initAdmin(){
  let pub=null,priv=null;try{[pub,priv]=await Promise.all([readPublicOnce(),CONTENT_ROLES.includes(role)?readPrivateOnce():Promise.resolve(null)]);}catch(e){console.warn('[BCC] Remote config initial read failed',e);}
  if(pub||priv)mergeIntoLocal([pub,priv]);
  await syncOperationalData();
- setEnvironmentLabel();lockRole();remoteReady=true;watchPublic();lastPublicHash=pub?configHash(pub):'';lastPrivateHash=priv?configHash(priv):'';clearOverlay();
+ setEnvironmentLabel();lockRole();remoteReady=true;watchPublic();watchFollowups();lastPublicHash=pub?configHash(pub):'';lastPrivateHash=priv?configHash(priv):'';clearOverlay();
  resolveReady({mode:'admin',role,user,identity:identityDiagnostic()});window.dispatchEvent(new CustomEvent('nsv421:production-ready',{detail:{role,identity:identityDiagnostic()}}));
  loadCustomerRuntime().catch(e=>console.warn('[BCC] Customer runtime bootstrap failed',e));
 }
@@ -157,7 +203,7 @@ async function mediaSignRequest(meta={}){if(!isAdmin||!user)throw new Error('Adm
 async function checkMediaUpload(){try{const signed=await mediaSignRequest({publicId:'admin-preflight-'+Date.now(),tags:'preflight'});return {ok:true,role:signed.role||role,provider:'cloudinary',message:'Production media upload is configured.'};}catch(e){return {ok:false,status:e.status||0,role,message:String(e?.message||e)};}}
 async function uploadMedia(file,meta={}){const signed=await mediaSignRequest(meta);const fd=new FormData();fd.append('file',file);fd.append('api_key',signed.apiKey);fd.append('timestamp',String(signed.timestamp));fd.append('signature',signed.signature);fd.append('folder',signed.folder);if(signed.public_id)fd.append('public_id',signed.public_id);if(signed.tags)fd.append('tags',signed.tags);if(signed.context)fd.append('context',signed.context);const up=await fetch(`https://api.cloudinary.com/v1_1/${encodeURIComponent(signed.cloudName)}/image/upload`,{method:'POST',body:fd});const out=await up.json().catch(()=>({}));if(!up.ok||!out.secure_url)throw new Error(out.error?.message||'Cloudinary upload failed.');return out;}
 async function reload(){const parts=[await readPublicOnce()];if(isAdmin&&user&&CONTENT_ROLES.includes(role))parts.push(await readPrivateOnce());const s=mergeIntoLocal(parts);if(isAdmin)await syncOperationalData();return s;}
-window.NSV421ProductionBridge={ready,isProduction:true,isAdmin,get role(){return role},get user(){return user},get roleRecord(){return roleRecord?clone(roleRecord):null},identityDiagnostic,checkMediaUpload,persist:()=>Promise.all([persistRemote(originalLoad()),persistCatalog(originalLoad())]),reload,uploadMedia};
+window.NSV421ProductionBridge={ready,isProduction:true,isAdmin,get role(){return role},get user(){return user},get roleRecord(){return roleRecord?clone(roleRecord):null},identityDiagnostic,checkMediaUpload,persist:()=>Promise.all([persistRemote(originalLoad()),persistCatalog(originalLoad())]),reload,refreshFollowups,saveFollowup,uploadMedia};
 (async()=>{try{if(isAdmin)overlay('Connecting secure Business Command Center…');await ensureFirebase();if(isAdmin)await initAdmin();else await initPublic();}catch(e){console.error('[Nariyal Sutra production bridge]',e);if(isAdmin)showError(String(e?.message||e));resolveReady({error:String(e?.message||e)});}})();
 window.addEventListener('beforeunload',()=>unsubs.forEach(fn=>{try{fn();}catch(e){}}));
 })();

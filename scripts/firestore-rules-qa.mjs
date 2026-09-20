@@ -147,6 +147,17 @@ async function guestCheckout(db,orderId=ORDER,token=TOKEN,extraOrder={},extraTra
   b.set(doc(db,'publicTracking',token),tracking(orderId,token,extraTrack));
   return b.commit();
 }
+function followup(id,uid,email,extra={}){
+  return {
+    id,customerKey:'customer-qa-1',customerName:'QA Follow-up Customer',orderId:ORDER,reason:'Confirm recurring delivery requirements',
+    assignee:'Support',assigneeUid:uid,priority:'high',dueAt:new Date('2026-09-24T11:30:00.000Z'),status:'open',
+    createdAt:serverTimestamp(),createdBy:uid,createdByEmail:email,updatedAt:serverTimestamp(),updatedBy:uid,updatedByEmail:email,
+    completedAt:null,completedBy:'',...extra
+  };
+}
+function followupEvent(eventId,followupId,uid,email,roleName,action='created',extra={}){
+  return {eventId,followupId,action,details:'Follow-up QA event.',actorUid:uid,actorEmail:email,actorRole:roleName,createdAt:serverTimestamp(),...extra};
+}
 
 try{
   await env.clearFirestore();
@@ -206,11 +217,38 @@ try{
   const mismatched=env.authenticatedContext(mismatchedUid,{email:'other@example.com',email_verified:true}).firestore();
   await assertFails(getDoc(doc(mismatched,'orders',ORDER)));
 
+  const supportUid='support-followups';
+  const supportEmail='support.followups@example.com';
+  await role(supportUid,supportEmail,'Support',true);
+  const support=env.authenticatedContext(supportUid,{email:supportEmail,email_verified:true}).firestore();
+  const followupId='FU-RULES-01',createEventId='FUE-RULES-01',createFollowup=writeBatch(support);
+  createFollowup.set(doc(support,'followups',followupId),followup(followupId,supportUid,supportEmail));
+  createFollowup.set(doc(support,'followupEvents',createEventId),followupEvent(createEventId,followupId,supportUid,supportEmail,'Support'));
+  await assertSucceeds(createFollowup.commit());
+  await assertSucceeds(getDoc(doc(support,'followups',followupId)));
+
+  const salesUid='sales-followups';
+  const salesEmail='sales.followups@example.com';
+  await role(salesUid,salesEmail,'Sales',true);
+  const sales=env.authenticatedContext(salesUid,{email:salesEmail,email_verified:true}).firestore();
+  const completeEventId='FUE-RULES-02',completeFollowup=writeBatch(sales);
+  completeFollowup.update(doc(sales,'followups',followupId),{status:'completed',completedAt:serverTimestamp(),completedBy:salesUid,updatedAt:serverTimestamp(),updatedBy:salesUid,updatedByEmail:salesEmail});
+  completeFollowup.set(doc(sales,'followupEvents',completeEventId),followupEvent(completeEventId,followupId,salesUid,salesEmail,'Sales','status_changed'));
+  await assertSucceeds(completeFollowup.commit());
+
+  await assertSucceeds(getDoc(doc(activeOps,'followups',followupId)));
+  await assertSucceeds(getDoc(doc(activeOps,'followupEvents',createEventId)));
+  await assertFails(updateDoc(doc(activeOps,'followups',followupId),{reason:'Operations must remain read only',updatedAt:serverTimestamp(),updatedBy:activeUid,updatedByEmail:activeEmail}));
+  await assertFails(setDoc(doc(support,'followupEvents','FUE-RULES-SPOOF'),followupEvent('FUE-RULES-SPOOF',followupId,'someone-else',supportEmail,'Owner','updated')));
+  await assertFails(deleteDoc(doc(support,'followups',followupId)));
+
   const contentUid='content-active';
   const contentEmail='content@example.com';
   await role(contentUid,contentEmail,'Content',true);
   await seed('mediaAssets/MEDIA-QA',{logicalId:'MEDIA-QA',provider:'cloudinary'});
   const content=env.authenticatedContext(contentUid,{email:contentEmail,email_verified:true}).firestore();
+  await assertFails(getDoc(doc(content,'followups',followupId)));
+  await assertFails(getDoc(doc(content,'followupEvents',createEventId)));
   await assertSucceeds(getDoc(doc(content,'mediaAssets','MEDIA-QA')));
   await assertSucceeds(setDoc(doc(content,'mediaAssets','MEDIA-NEW'),{
     logicalId:'MEDIA-NEW',provider:'cloudinary',sourceSha256:'a'.repeat(64),updatedAt:serverTimestamp(),updatedBy:contentUid

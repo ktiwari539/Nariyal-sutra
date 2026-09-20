@@ -52,6 +52,11 @@ has(rules,[
   'validProduct(productKey)',
   'd.updatedBy == request.auth.uid',
   'validMediaAssetWrite(logicalId)',
+  'validFollowupCreate(followupId)',
+  'validFollowupUpdate(followupId)',
+  'validFollowupEventCreate(eventId)',
+  'match /followups/{followupId}',
+  'match /followupEvents/{eventId}',
   "d.keys().hasOnly(['logicalId','provider','sourceSha256','updatedAt','updatedBy'])",
   "d.keys().hasAll(['logicalId','provider','sourceSha256','updatedAt','updatedBy'])",
   'allow get, list: if canContent();',
@@ -85,7 +90,12 @@ has(bridge,[
   'handoverPointName:x.handoverPointName',
   'deliveryPreference:x.deliveryPreference',
   'Promise.allSettled(jobs)',
-  'loadCustomerRuntime().catch'
+  'loadCustomerRuntime().catch',
+  "fsMod.collection(db,'followups')",
+  "fsMod.collection(db,'followupEvents')",
+  'async function saveFollowup',
+  'watchFollowups()',
+  'FOLLOWUP_WRITE_ROLES'
 ],'production bridge');
 not(bridge,[
   "try{await loadScript('/admin-customer-directory.js');await loadScript('/assets/js/admin-v49-customer-live.js')"
@@ -150,6 +160,16 @@ has(customers,[
   'No production customers yet.'
 ],'Customer 360 live runtime');
 not(customers,['Aarav Mehta','aarav@example.com','NS-1042'],'Customer 360 live runtime');
+
+const followups=read('assets/js/admin-followups.js');
+has(followups,[
+  "const WRITE_ROLES=new Set(['Owner','Admin','Manager','Support','Sales'])",
+  "const READ_ROLES=new Set([...WRITE_ROLES,'Operations'])",
+  'bridge().saveFollowup',
+  'followupEvents',
+  'data-fu-history',
+  'data-fu-communication'
+],'Admin Follow-up runtime');
 
 const delivery=read('assets/js/admin-v50-delivery-contract.js');
 has(delivery,[

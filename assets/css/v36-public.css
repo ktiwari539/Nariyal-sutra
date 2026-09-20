@@ -70,6 +70,7 @@ video.ns-video-failed{display:none!important}
   .ns-face-card,.ns-face-card:nth-child(3n+2),.ns-face-card:nth-child(3n){width:190px!important;height:280px!important;aspect-ratio:auto!important}
   .ns-face-card img{object-fit:cover!important;object-position:center;padding:0!important;background:#071204!important}
   #order{padding-left:22px!important;padding-right:22px!important}
+  #order .ofields{grid-template-columns:minmax(0,1fr)!important;min-width:0!important}
   .order-inner,.order-card,#ns-del-root,.ns-del-section,.ns-v21-address-map{width:100%!important;max-width:100%!important;min-width:0!important}
   #ns-del-root{grid-column:1/-1!important}
   .ns-v21-map{height:300px!important;min-height:260px!important}

@@ -19,7 +19,7 @@ async function waitAdmin(page){
  await page.waitForTimeout(1400);
 }
 async function openNav(page,view,mobile=false){
- if(mobile){const btn=page.locator('#apMenuBtn');if(await btn.isVisible())await btn.click();await page.waitForTimeout(60);}
+ if(mobile){const btn=page.locator('#apMenuBtn');if(await btn.isVisible())await btn.click();await page.waitForTimeout(320);}
  const nav=page.locator(`#apNav button[data-view="${view}"]`);
  must(await nav.count()===1,`Missing nav button ${view}`);
  await nav.click({force:true});

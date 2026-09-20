@@ -30,6 +30,9 @@ jobs:
       - name: Admin role access contract QA
         run: node scripts/admin-role-contract-qa.mjs
         timeout-minutes: 3
+      - name: Admin Follow-up persistence and access contract QA
+        run: node scripts/admin-followup-contract-qa.mjs
+        timeout-minutes: 3
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -76,6 +79,9 @@ jobs:
       - name: Communication and Review Queue acceptance QA
         run: node scripts/admin-communication-review-qa.mjs
         timeout-minutes: 15
+      - name: Admin Follow-up workflow acceptance QA
+        run: node scripts/admin-followup-browser-qa.mjs
+        timeout-minutes: 12
       - name: Executive Business Command Center QA
         run: node scripts/admin-dashboard-v2-qa.mjs
         timeout-minutes: 15
