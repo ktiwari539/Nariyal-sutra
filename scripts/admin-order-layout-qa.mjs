@@ -17,6 +17,7 @@ try{
   const page=await context.newPage(),jsErrors=[];
   page.on('pageerror',e=>jsErrors.push(String(e)));
   await page.goto(BASE+'/admin.html',{waitUntil:'domcontentloaded',timeout:30000});
+  if(label==='mobile'){await page.locator('#apMenuBtn').click();await page.waitForTimeout(250);}
   await page.locator('#apNav button[data-view="orders"]').click();
   await page.waitForSelector('#apOrdersBody tr');
   await page.waitForSelector('#nsOrderOperations');
