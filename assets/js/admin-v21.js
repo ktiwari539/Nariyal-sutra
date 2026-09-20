@@ -74,7 +74,7 @@ function renderSegments(){
  for(const o of orders){
    const uid=String(o.customerUid||'').trim();
    const email=String(o.email||'').trim().toLowerCase();
-   const phone=String(o.phone||o.mobile||'').replace(/\\D/g,'');
+   const phone=String(o.phone||o.mobile||'').replace(/\D/g,'');
    const key=uid?'uid:'+uid:email?'email:'+email:phone.length>=10?'phone:'+phone:'';
    const orderId=String(o.orderId||o.id||'').trim();
    if(!key||!orderId)continue;
