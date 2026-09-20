@@ -72,6 +72,10 @@ async function inspectMediaLayout(page,label){
    }
   }
   const buttons=card.locator('.ap-media-body button:visible');
+  for(const control of ['[data-ma="toggle"]','[data-ma="place"]','[data-ma="state"]','.ap-v39-details']){
+   must(await card.locator(control).isVisible(),`${label}: ${id} essential Media action is hidden: ${control}`);
+  }
+  must(await buttons.count()>=4,`${label}: ${id} must show all four Media Library controls`);
   for(let j=0;j<await buttons.count();j++){
    const button=buttons.nth(j);
    await button.scrollIntoViewIfNeeded();
