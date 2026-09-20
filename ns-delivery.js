@@ -110,6 +110,7 @@ var CSS=`
 .ns-place-choice small{display:block;color:rgba(255,255,255,.58);margin-top:3px}
 .ns-place-distance{display:block;margin-top:6px;color:#f0cf84;font-weight:650;font-size:11px}
 .ns-handover-distance{display:block;margin-top:6px;color:#f0cf84;font-size:11px;line-height:1.45}
+.ns-place-distance[hidden],.ns-handover-distance[hidden]{display:none!important}
 .ns-handover-status{min-height:16px;margin-top:8px;font-size:10px;color:rgba(255,255,255,.48);line-height:1.5}
 .ns-handover-status.ok{color:#a8e89a}.ns-handover-status.warn{color:#f5d17e}.ns-handover-status.error{color:#ffb0a8}
 .ns-recurring-opts{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
@@ -259,6 +260,7 @@ function injectDeliveryFields(){
       <div class="ns-handover-actions" id="ns-handover-actions"></div>
       <div class="ns-place-results" id="ns-place-results"></div>
       <div class="ns-handover-status" id="ns-handover-status"></div>
+    <div class="ns-handover-distance" id="ns-handover-distance" aria-live="polite" hidden></div>
       <div class="ns-del-field" style="margin-top:10px">
         <label for="ns-handover-note">Handover note (optional)</label>
         <input type="text" id="ns-handover-note" maxlength="240" placeholder="e.g. East entrance, call 15 minutes before arrival" oninput="nsHandoverNote()">
@@ -566,6 +568,7 @@ window.nsSelectDelivery = function(id){
     if(state) state.textContent=card.classList.contains('selected')?'✓ Selected':'Select this option';
   });
   nsUpdateAddressPrompt();
+  nsUpdateDisplayedDistances();
   nsDelUpdateSummary();
 };
 
