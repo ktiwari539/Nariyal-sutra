@@ -33,13 +33,7 @@ async function inspectMediaLayout(page,label){
  let portrait=false,landscape=false;
  for(const row of result.rows){
   must(row.visual&&row.body,`${label}: ${row.id} missing visual/body`);
-  // A fixed 200–220px frame made portrait images appear zoomed/cropped, even when an earlier stylesheet used contain.
-  if(row.withinViewport&&row.nw&&row.nh&&row.imgRect){
-    const expectedHeight=row.imgRect.height*row.nw/row.nh;
-    must(Math.abs(expectedHeight-row.card.width)<4,`${label}: ${row.id} image no longer preserves the complete source ratio: ${JSON.stringify(row)}`);
-    must(Math.abs(row.imgRect.height-row.visual.height)<3,`${label}: ${row.id} image is clipped by a fixed-height frame: ${JSON.stringify(row)}`);
-    must(Math.abs(row.imgRect.height-row.card.width*row.nh/row.nw)<4,`${label}: ${row.id} thumbnail height must follow its natural aspect ratio`);
-  }
+  if(row.withinViewport&&row.visual.height>0)must(Math.abs(row.visual.height-row.card.width*.75)<4, `${label}: ${row.id} preview is not 4:3`);
   must(row.body.top>=row.visual.bottom-1,`${label}: ${row.id} body overlaps visual (${row.body.top} < ${row.visual.bottom})`);
   must(!row.imgRect||row.fit==='contain',`${label}: ${row.id} Admin thumbnail is cropped; expected object-fit: contain, got ${row.fit}`);
   if(row.withinViewport&&row.nw&&row.nh)must(row.imgRect.height>0.5*row.card.width*row.nh/row.nw,`${label}: ${row.id} still has an artificially short media frame`);
