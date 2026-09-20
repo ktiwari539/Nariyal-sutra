@@ -52,9 +52,19 @@ function notifications(){
  const items=[...q.map(x=>({t:x.subject||x.title||'Publication notice',m:x.channel||x.state||'Queued'})),...pending.map(x=>({t:x.title,m:'Content · '+x.state}))];
  modal('Notifications',items.length?items.length+' item(s) need attention':'Nothing pending',items.length?`<div class="ap-v35-history">${items.slice(0,30).map(x=>`<div><strong>${esc(x.t)}</strong><span>${esc(x.m)}</span></div>`).join('')}</div>`:'<div class="ap-v35-empty">No pending notifications.</div>');
 }
-function seoExport(){
- const rows=[{page:'/coconut-water',score:96,indexing:'Indexable'},{page:'/fresh-tender-coconut.html',score:93,indexing:'Indexable'},{page:'/green-coconut.html',score:91,indexing:'Indexable'},{page:'/people-of-nariyal-sutra.html',score:88,indexing:'Indexable'}];
- downloadCSV('nariyal-sutra-seo-audit-'+nowStamp()+'.csv',rows,['page','score','indexing']);toast('SEO audit exported.');
+async function seoExport(){
+ const pages=['/','/coconut-water','/fresh-tender-coconut.html','/green-coconut.html','/bulk-coconut-supply.html','/coconut-events-hospitality.html','/coconut-wholesale-export.html','/direct-farm.html','/about-nariyal-sutra.html','/people-of-nariyal-sutra.html','/delivery-policy.html','/privacy.html','/terms.html'];
+ const rows=await Promise.all(pages.map(async page=>{
+   try{
+     const response=await fetch(page,{cache:'no-store',credentials:'same-origin'});
+     if(!response.ok)return {page,httpStatus:response.status,title:'',description:'',canonical:'',robots:'',result:'HTTP error'};
+     const doc=new DOMParser().parseFromString(await response.text(),'text/html');
+     const meta=name=>doc.querySelector('meta[name="'+name+'"]')?.getAttribute('content')||'';
+     return {page,httpStatus:response.status,title:(doc.querySelector('title')?.textContent||'').trim(),description:meta('description'),canonical:doc.querySelector('link[rel="canonical"]')?.getAttribute('href')||'',robots:meta('robots'),result:'Page metadata retrieved'};
+   }catch(e){return {page,httpStatus:'',title:'',description:'',canonical:'',robots:'',result:'Fetch failed: '+String(e?.message||e).slice(0,120)};}
+ }));
+ downloadCSV('nariyal-sutra-page-metadata-'+nowStamp()+'.csv',rows,['page','httpStatus','title','description','canonical','robots','result']);
+ toast('Actual page metadata exported. Google Search Console measurements are not included.');
 }
 function report(type){
  const s=state();

@@ -48,6 +48,13 @@ async function desktopFunctional(){
  const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(String(e)));
  await waitAdmin(page);
  must(new URL(page.url()).pathname==='/admin.html',`Canonical Admin URL not applied: ${page.url()}`);
+ await openNav(page,'orders');
+ await page.locator('#apBrandOverview').click();
+ must(await page.locator('.ap-view[data-view="overview"].is-active').count()===1,'Brand click must return to Admin Overview without logging out');
+ must(await page.locator('#apOpenStore').getAttribute('target')==='_blank','Public website needs a separate new-tab action');
+ await openNav(page,'segments');
+ must(await page.locator('#apSegmentGrid [data-segment-kind="calculated"]').count()===1,'Source-derived segment missing');
+ must(!/\\b\\d+ customers\\b/.test(await page.locator('#apSegmentGrid [data-segment-kind="manual"]').allTextContents().then(x=>x.join(' '))),'Manual segment must not claim an unverified customer count');
  await navigationMatrix(page,'desktop',false);
 
  await openNav(page,'media');
