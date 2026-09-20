@@ -43,6 +43,22 @@ function enforceCardLayout(card){
  }
  if(img){
   for(const [k,v] of [['position','static'],['inset','auto'],['display','block'],['width','100%'],['height','auto'],['min-width','0'],['min-height','0'],['max-width','100%'],['max-height','none'],['margin','0'],['padding','0'],['object-fit','contain'],['object-position','center center'],['transform','none'],['z-index','0']])img.style.setProperty(k,v,'important');
+  // The browser can report a zero-height auto-sized media element after
+  // resizing a long/lazy gallery even after the image has decoded. Reserve
+  // its real ratio explicitly, not a guessed card height or a 4:3 crop.
+  const applyIntrinsicRatio=()=>{
+   const w=img.naturalWidth,h=img.naturalHeight;
+   if(!w||!h)return;
+   img.setAttribute('width',String(w));
+   img.setAttribute('height',String(h));
+   img.style.setProperty('aspect-ratio',w+' / '+h,'important');
+   visual?.style.setProperty('aspect-ratio',w+' / '+h,'important');
+  };
+  applyIntrinsicRatio();
+  if(!img.dataset.nsIntrinsicRatioBound){
+   img.dataset.nsIntrinsicRatioBound='1';
+   img.addEventListener('load',applyIntrinsicRatio);
+  }
  }
  if(body){for(const [k,v] of [['display','flex'],['flex','0 0 auto'],['flex-direction','column'],['min-width','0'],['position','relative'],['z-index','2'],['overflow','visible']])body.style.setProperty(k,v,'important')}
  const actions=$('.ap-media-actions',card);
