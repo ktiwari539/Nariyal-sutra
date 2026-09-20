@@ -47,3 +47,92 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}.ap-app{min-heig
 
 /* V17 role-aware preview */
 .ap-nav button[hidden],.ap-nav-title[hidden]{display:none!important}.ap-role-disabled{opacity:.45!important;cursor:not-allowed!important}.ap-role-note.is-show{display:block!important}.ap-session-pill strong,.ap-session-pill span{white-space:nowrap}
+
+
+/* Media Library acceptance: normalize the *base* card layout, even before late
+   Admin runtime styles finish loading. Portrait/landscape originals remain intact
+   inside equal 4:3 letterboxed frames; actions and metadata stay below the frame. */
+#apMediaGrid {
+  display:grid!important;
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr))!important;
+  grid-auto-rows:minmax(0,1fr)!important;
+  align-items:stretch!important;
+  gap:16px!important;
+}
+#apMediaGrid .ap-media {
+  display:flex!important;
+  flex-direction:column!important;
+  align-self:stretch!important;
+  height:100%!important;
+  min-width:0!important;
+  min-height:0!important;
+  box-sizing:border-box!important;
+  overflow:hidden!important;
+}
+#apMediaGrid .ap-media-img,
+#apMediaGrid .ap-media-visual {
+  position:relative!important;
+  display:block!important;
+  flex:0 0 auto!important;
+  width:100%!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  aspect-ratio:4 / 3!important;
+  overflow:hidden!important;
+  background:#eef1ea!important;
+}
+#apMediaGrid .ap-media-img > img,
+#apMediaGrid .ap-media-visual > img {
+  position:absolute!important;
+  inset:0!important;
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  min-width:0!important;
+  min-height:0!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  margin:0!important;
+  padding:0!important;
+  object-fit:contain!important;
+  object-position:center center!important;
+  transform:none!important;
+}
+#apMediaGrid .ap-media-body {
+  display:flex!important;
+  flex:1 1 auto!important;
+  flex-direction:column!important;
+  min-width:0!important;
+  min-height:0!important;
+  overflow:visible!important;
+}
+#apMediaGrid .ap-media-actions {
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:8px!important;
+  margin-top:auto!important;
+  padding-top:12px!important;
+}
+#apMediaGrid .ap-media-actions [data-ma="state"] {
+  grid-column:1 / -1!important;
+}
+#apMediaGrid .ap-media-actions button,
+#apMediaGrid .ap-v39-details {
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-width:0!important;
+  min-height:40px!important;
+  height:auto!important;
+  white-space:normal!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+}
+#apMediaGrid .ap-v39-details {
+  width:100%!important;
+  margin-top:8px!important;
+}
+@media(max-width:620px) {
+  #apMediaGrid {grid-template-columns:minmax(0,1fr)!important;}
+}
