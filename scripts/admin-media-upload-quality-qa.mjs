@@ -14,6 +14,7 @@ const browser=await chromium.launch({headless:true});
 async function inspectMediaLayout(page,label){
  await page.evaluate(()=>document.querySelector('#apNav button[data-view="media"]')?.click());
  await page.waitForSelector('#apMediaGrid .ap-media',{state:'visible',timeout:8000});
+ await page.waitForFunction(()=>window.__NS_V421_ADMIN_V43_MEDIA_GUIDANCE__===true&&[...document.querySelectorAll('#apMediaGrid .ap-media img')].some(img=>img.naturalWidth>0&&img.naturalHeight>0),null,{timeout:10000});
  await page.waitForTimeout(180);
  const result=await page.evaluate(()=>{
   const cards=[...document.querySelectorAll('#apMediaGrid .ap-media')].filter(c=>{const r=c.getBoundingClientRect();return r.width>0&&r.height>0;});
@@ -39,6 +40,7 @@ async function inspectMediaLayout(page,label){
   }
   must(row.body.top>=row.visual.bottom-1,`${label}: ${row.id} body overlaps visual (${row.body.top} < ${row.visual.bottom})`);
   must(!row.imgRect||row.fit==='contain',`${label}: ${row.id} Admin thumbnail is cropped; expected object-fit: contain, got ${row.fit}`);
+  if(row.nw&&row.nh)must(row.imgRect.height>0.5*row.card.width*row.nh/row.nw,`${label}: ${row.id} still has an artificially short media frame`);
   if(row.imgRect)must(row.imgRect.bottom<=row.visual.bottom+1&&row.imgRect.top>=row.visual.top-1,`${label}: ${row.id} image escaped visual bounds`);
   must(row.buttons.length>=1,`${label}: ${row.id} has no visible media action buttons`);
   for(const b of row.buttons)must(b.inside,`${label}: ${row.id} action escaped card: ${b.text}`);
