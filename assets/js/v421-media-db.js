@@ -68,10 +68,10 @@ if(!isAdmin)loadOnce('/assets/js/v421-content-controls.js','data-ns-content-cont
 if(isAdmin){
  if(!local&&!window.__NS_V421_PRODUCTION_BRIDGE__)loadOnce('/assets/js/v421-production-bridge.js','data-ns-production-bridge');
  loadOnce('/assets/js/admin-v38-production.js','data-ns-admin-v38');
- loadOnce('/assets/js/admin-v39-media-studio.js?v=20260920-full-image','data-ns-admin-v39');
+ loadOnce('/assets/js/admin-v39-media-studio.js?v=20260920-native-aspect','data-ns-admin-v39');
  loadOnce('/assets/js/admin-v40-owner-control.js','data-ns-admin-v40');
  loadOnce('/assets/js/admin-v40-media-quality-gate.js','data-ns-admin-media-quality');
  loadOnce('/assets/js/admin-v40-production-truth.js','data-ns-admin-production-truth');
- loadOnce('/assets/js/admin-v41-runtime-stability.js','data-ns-admin-runtime-stability');
+ loadOnce('/assets/js/admin-v41-runtime-stability.js?v=20260920-native-aspect','data-ns-admin-runtime-stability');
 }
 })();
