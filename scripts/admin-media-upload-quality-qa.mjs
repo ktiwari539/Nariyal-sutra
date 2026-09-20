@@ -22,7 +22,8 @@ async function inspectMediaLayout(page,label){
    const visual=card.querySelector('.ap-media-img'),body=card.querySelector('.ap-media-body'),img=visual?.querySelector('img'),cr=card.getBoundingClientRect(),vr=visual?.getBoundingClientRect(),br=body?.getBoundingClientRect();
    const buttons=[...(body?.querySelectorAll('button')||[])].filter(b=>{const s=getComputedStyle(b),r=b.getBoundingClientRect();return s.display!=='none'&&s.visibility!=='hidden'&&Number(s.opacity)>0&&r.width>0&&r.height>0;}).map(b=>{const r=b.getBoundingClientRect();return {text:(b.textContent||'').trim(),rect:{left:r.left,top:r.top,right:r.right,bottom:r.bottom,width:r.width,height:r.height},inside:r.left>=cr.left-1&&r.right<=cr.right+1&&r.top>=cr.top-1&&r.bottom<=cr.bottom+1};});
    const nw=img?.naturalWidth||0,nh=img?.naturalHeight||0;
-   return {id:card.dataset.id||'',card:{left:cr.left,top:cr.top,right:cr.right,bottom:cr.bottom,width:cr.width,height:cr.height},visual:vr&&{top:vr.top,bottom:vr.bottom,height:vr.height},body:br&&{top:br.top,bottom:br.bottom,height:br.height},buttons,nw,nh,fit:img?getComputedStyle(img).objectFit:null,portrait:nh>nw*1.15,landscape:nw>nh*1.15,imgRect:img?(()=>{const r=img.getBoundingClientRect();return {top:r.top,bottom:r.bottom,height:r.height}})():null};
+   const withinViewport=cr.bottom>0&&cr.top<innerHeight;
+   return {id:card.dataset.id||'',card:{left:cr.left,top:cr.top,right:cr.right,bottom:cr.bottom,width:cr.width,height:cr.height},visual:vr&&{top:vr.top,bottom:vr.bottom,height:vr.height},body:br&&{top:br.top,bottom:br.bottom,height:br.height},buttons,nw,nh,withinViewport,fit:img?getComputedStyle(img).objectFit:null,portrait:nh>nw*1.15,landscape:nw>nh*1.15,imgRect:img?(()=>{const r=img.getBoundingClientRect();return {top:r.top,bottom:r.bottom,height:r.height}})():null};
   });
   return {rows,overflow:document.documentElement.scrollWidth>innerWidth+2,viewportWidth:innerWidth};
  });
@@ -32,7 +33,7 @@ async function inspectMediaLayout(page,label){
  for(const row of result.rows){
   must(row.visual&&row.body,`${label}: ${row.id} missing visual/body`);
   // A fixed 200–220px frame made portrait images appear zoomed/cropped, even when an earlier stylesheet used contain.
-  if(row.nw&&row.nh&&row.imgRect){
+  if(row.withinViewport&&row.nw&&row.nh&&row.imgRect){
     const expectedHeight=row.imgRect.height*row.nw/row.nh;
     must(Math.abs(expectedHeight-row.card.width)<4,`${label}: ${row.id} image no longer preserves the complete source ratio: ${JSON.stringify(row)}`);
     must(Math.abs(row.imgRect.height-row.visual.height)<3,`${label}: ${row.id} image is clipped by a fixed-height frame: ${JSON.stringify(row)}`);
@@ -40,8 +41,8 @@ async function inspectMediaLayout(page,label){
   }
   must(row.body.top>=row.visual.bottom-1,`${label}: ${row.id} body overlaps visual (${row.body.top} < ${row.visual.bottom})`);
   must(!row.imgRect||row.fit==='contain',`${label}: ${row.id} Admin thumbnail is cropped; expected object-fit: contain, got ${row.fit}`);
-  if(row.nw&&row.nh)must(row.imgRect.height>0.5*row.card.width*row.nh/row.nw,`${label}: ${row.id} still has an artificially short media frame`);
-  if(row.imgRect)must(row.imgRect.bottom<=row.visual.bottom+1&&row.imgRect.top>=row.visual.top-1,`${label}: ${row.id} image escaped visual bounds`);
+  if(row.withinViewport&&row.nw&&row.nh)must(row.imgRect.height>0.5*row.card.width*row.nh/row.nw,`${label}: ${row.id} still has an artificially short media frame`);
+  if(row.withinViewport&&row.imgRect)must(row.imgRect.bottom<=row.visual.bottom+1&&row.imgRect.top>=row.visual.top-1,`${label}: ${row.id} image escaped visual bounds`);
   must(row.buttons.length>=1,`${label}: ${row.id} has no visible media action buttons`);
   for(const b of row.buttons)must(b.inside,`${label}: ${row.id} action escaped card: ${b.text}`);
   portrait||=row.portrait;landscape||=row.landscape;
@@ -55,6 +56,25 @@ async function inspectMediaLayout(page,label){
   const card=cards.nth(i);
   if(!await card.isVisible())continue;
   const id=await card.getAttribute('data-id')||`card-${i}`;
+  await card.scrollIntoViewIfNeeded();
+  const image=card.locator('.ap-media-img img');
+  if(await image.count()){
+   const check=await image.evaluate(async img=>{
+     if(!img.complete)await Promise.race([img.decode().catch(()=>{}),new Promise(done=>setTimeout(done,3500))]);
+     const visual=img.closest('.ap-media-img'),ir=img.getBoundingClientRect(),vr=visual.getBoundingClientRect(),width=img.naturalWidth,height=img.naturalHeight,style=getComputedStyle(img);
+     return {width,height,fit:style.objectFit,position:style.position,shownWidth:ir.width,shownHeight:ir.height,frameHeight:vr.height,frameWidth:vr.width};
+   });
+   if(check.width&&check.height){
+    const expected=check.shownWidth*check.height/check.width;
+    must(check.fit==='contain',`${label}: ${id} is cropped after scrolling into view: ${JSON.stringify(check)}`);
+    must(check.shownHeight>0&&check.frameHeight>0,`${label}: ${id} has no visible image frame: ${JSON.stringify(check)}`);
+    must(Math.abs(check.shownHeight-expected)<4,`${label}: ${id} image aspect ratio differs from its source: ${JSON.stringify(check)}`);
+    must(Math.abs(check.frameHeight-check.shownHeight)<4,`${label}: ${id} image is cut off by its frame: ${JSON.stringify(check)}`);
+   }else if(/^G00[2-7]$/.test(id))throw new Error(`${label}: ${id} reference image failed to load`);
+   if(id==='G002'||id==='G003'||id==='G004'||id==='G006'){
+    await card.screenshot({path:path.join(OUT,'media-full-'+label+'-'+id+'.png'),animations:'disabled'});
+   }
+  }
   const buttons=card.locator('.ap-media-body button:visible');
   for(let j=0;j<await buttons.count();j++){
    const button=buttons.nth(j);
