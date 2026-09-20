@@ -16,7 +16,7 @@ for(const token of [
   'publicTracking',
   'customerOrders',
   'MANAGE_ROLES',
-  'Cancellation never auto-refunds a paid order.',
+  'Cancelling a paid order does not automatically issue a refund.',
   'deleteTestOrder',
   'tx.delete(orderRef)',
   'data-ns-order-delete-test',
