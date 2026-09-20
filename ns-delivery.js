@@ -460,7 +460,8 @@ function nsDelShowOptions(){
   if(!optsSection||!optsList) return;
 
   var opts=deliveryEstimates(q, nsDelivery.isInternational);
-  optsSection.style.display='block';
+  /* A later checkout layout stylesheet forces this section to a two-column grid. Keep the four delivery cards across the full section, not inside its first column. */
+  optsSection.style.setProperty('display','block','important');
   if(!opts.some(function(o){return o.id===nsDelivery.selectedDelivery;})){
     nsDelivery.selectedDelivery=opts[0]?opts[0].id:null;
   }
