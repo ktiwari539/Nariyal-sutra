@@ -1,0 +1,68 @@
+/* V51: Orders workspace — full-width list, readable detail and deliberate action hierarchy. */
+.ap-view[data-view="orders"]{min-width:0}
+.ap-view[data-view="orders"] .ap-page-head{align-items:center}
+.ap-view[data-view="orders"] .ap-toolbar{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px}
+.ap-view[data-view="orders"] .ap-split{display:grid;grid-template-columns:minmax(0,1fr);align-items:start;gap:18px;min-width:0}
+.ap-view[data-view="orders"] .ap-table-wrap{align-self:start;width:100%;min-width:0;max-height:min(62vh,660px);overflow:auto;border-radius:16px;overscroll-behavior:contain}
+.ap-view[data-view="orders"] .ap-table{min-width:820px;table-layout:fixed}
+.ap-view[data-view="orders"] .ap-table th,.ap-view[data-view="orders"] .ap-table td{padding:14px 13px;font-size:12px;line-height:1.4;vertical-align:middle}
+.ap-view[data-view="orders"] .ap-table th{position:sticky;top:0;z-index:1;font-size:10px}
+.ap-view[data-view="orders"] .ap-table th:nth-child(1){width:15%}
+.ap-view[data-view="orders"] .ap-table th:nth-child(2){width:17%}
+.ap-view[data-view="orders"] .ap-table th:nth-child(3){width:21%}
+.ap-view[data-view="orders"] .ap-table th:nth-child(4){width:7%}
+.ap-view[data-view="orders"] .ap-table th:nth-child(5){width:12%}
+.ap-view[data-view="orders"] .ap-table th:nth-child(6){width:19%}
+.ap-view[data-view="orders"] .ap-table th:nth-child(7){width:9%}
+.ap-view[data-view="orders"] .ap-table tbody tr:focus-visible{outline:2px solid #327346;outline-offset:-2px}
+.ap-view[data-view="orders"] .ap-table tbody tr.is-selected{background:#edf5e9;box-shadow:inset 3px 0 #2f6c42}
+.ap-view[data-view="orders"] .ap-table .ap-order-id{font-weight:700;letter-spacing:-.015em;overflow-wrap:anywhere;color:#244231}
+.ap-view[data-view="orders"] .ap-table .ap-order-delivery{display:flex;flex-direction:column;align-items:flex-start;gap:4px}
+.ap-view[data-view="orders"] .ap-order-delivery strong{font-size:11px;color:#234432;font-weight:700}
+.ap-view[data-view="orders"] .ap-order-delivery small{font-size:10px;color:#68796c;line-height:1.4}
+.ap-view[data-view="orders"] #apOrderDetail{position:static;width:100%;min-width:0;max-width:none;align-self:start;padding:24px 26px;border:1px solid #d7e2d5;border-radius:17px;box-shadow:0 8px 26px rgba(20,52,29,.055)}
+#apOrderDetail .ap-order-detail-head{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:15px;margin-bottom:10px}
+#apOrderDetail .ap-order-detail-head h3{font-size:22px;line-height:1.2;margin:3px 0 5px;letter-spacing:-.018em}
+#apOrderDetail .ap-order-detail-head p{font-size:12px;margin:0}
+#apOrderDetail .ap-order-detail-head .ap-detail-eyebrow{text-transform:uppercase;letter-spacing:.14em;font-weight:700;font-size:10px;color:#66786b}
+#apOrderDetail .ap-order-detail-head .ap-status{font-size:11px;padding:7px 12px}
+#apOrderDetail .ap-divider{margin:14px 0}
+#apOrderDetail .ap-detail-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:12px}
+#apOrderDetail .ap-detail{min-width:0;padding:14px 15px;border:1px solid #e4ebe1;background:#f8faf6}
+#apOrderDetail .ap-detail label{font-size:10px;letter-spacing:.08em}
+#apOrderDetail .ap-detail span{font-size:13px;font-weight:650;line-height:1.45;overflow-wrap:anywhere}
+#apOrderDetail .ap-order-detail-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:12px 0 18px}
+#apOrderDetail .ap-order-detail-actions [data-go="delivery"]{border-color:#bccdbb;background:#f3f8ef;color:#21482d;min-height:42px}
+#apOrderDetail #nsOrderOperations{margin:18px 0 0;padding:20px 22px;border:1px solid #e1e8db;background:#f9fbf7;border-radius:14px;max-width:none}
+#apOrderDetail .ns-order-life-head{align-items:center}
+#apOrderDetail .ns-order-life-head strong{font-size:17px}
+#apOrderDetail .ns-order-life-head small{max-width:650px;font-size:11px;line-height:1.5;margin-top:5px}
+#apOrderDetail .ns-order-life-status{font-size:10px;padding:8px 12px;white-space:normal}
+#apOrderDetail .ns-order-life{grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin:18px 0}
+#apOrderDetail .ns-order-step{font-size:11px;line-height:1.4;min-width:0;min-height:58px;padding:14px 8px;display:grid;align-content:center;overflow-wrap:normal;word-break:normal}
+#apOrderDetail .ns-order-life-note{font-size:11px;line-height:1.6;margin:6px 0 14px}
+#apOrderDetail .ns-order-pref{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#apOrderDetail .ns-order-pref>div{padding:13px 15px;background:#fff}
+#apOrderDetail .ns-order-pref small{font-size:10px}
+#apOrderDetail .ns-order-pref strong{font-size:13px;overflow-wrap:anywhere}
+#apOrderDetail .ns-order-life-actions{align-items:center;gap:10px}
+#apOrderDetail .ns-order-life-actions .ap-btn{min-height:43px;padding:10px 16px}
+#apOrderDetail .ns-order-admin-tools{width:100%;margin-top:14px;border-top:1px solid #e0e6dc;padding-top:14px}
+#apOrderDetail .ns-order-admin-tools summary{cursor:pointer;color:#686d65;font-size:11px;font-weight:600}
+#apOrderDetail .ns-order-admin-tools .ap-btn{margin-top:12px}
+.ap-view[data-view="orders"] .ns-order-bulk{align-items:center;flex-wrap:wrap;padding:11px 14px;margin:0 0 14px;background:#f6f8f2;border-color:#d6e2d4}
+.ap-view[data-view="orders"] .ns-order-bulk code{font-size:10px}
+.ap-view[data-view="orders"] .ns-bulk-advanced{margin-left:auto}
+.ap-view[data-view="orders"] .ns-bulk-advanced summary{cursor:pointer;font-size:11px;color:#6c7269;text-align:right}
+.ap-view[data-view="orders"] .ns-bulk-advanced .ap-btn{margin-top:9px}
+@media(max-width:1050px){#apOrderDetail .ap-detail-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#apOrderDetail .ns-order-life{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:640px){
+ .ap-view[data-view="orders"] #apOrderDetail{padding:17px 14px}
+ .ap-view[data-view="orders"] .ap-page-head{align-items:flex-start}
+ #apOrderDetail .ap-detail-grid,#apOrderDetail .ns-order-pref{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #apOrderDetail #nsOrderOperations{padding:14px 12px}
+ #apOrderDetail .ns-order-life{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #apOrderDetail .ns-order-step{min-height:56px}
+ #apOrderDetail .ns-order-life-head{display:flex;flex-wrap:wrap}
+}
+@media(max-width:380px){#apOrderDetail .ap-detail-grid,#apOrderDetail .ns-order-pref{grid-template-columns:1fr}}
