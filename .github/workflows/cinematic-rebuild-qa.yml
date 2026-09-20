@@ -85,6 +85,9 @@ jobs:
       - name: People profile Admin to storefront QA
         run: node scripts/people-profile-qa.mjs
         timeout-minutes: 15
+      - name: Checkout delivery preference layout and interaction QA
+        run: node scripts/checkout-delivery-step-qa.mjs
+        timeout-minutes: 5
       - name: Checkout live-location synchronization QA
         run: node scripts/checkout-location-sync-qa.mjs
         timeout-minutes: 10
@@ -133,6 +136,10 @@ jobs:
         if: always()
         run: node scripts/responsive-site-qa.mjs
         timeout-minutes: 15
+      - name: Checkout delivery preference layout and interaction QA
+        if: always()
+        run: node scripts/checkout-delivery-step-qa.mjs
+        timeout-minutes: 5
       - name: Checkout live-location synchronization QA
         if: always()
         run: node scripts/checkout-location-sync-qa.mjs
