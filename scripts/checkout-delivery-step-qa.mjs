@@ -33,7 +33,7 @@ try{
     must(position.rootWidth<=position.orderWidth+3,size+' delivery section overflows order card: '+JSON.stringify(position));
     must(/receive your order/i.test(position.stepText),size+' delivery preference heading missing');
     must(await page.locator('#ns-opt-door').getAttribute('aria-pressed')==='true',size+' door default selection missing');
-    must(/delivery.+handover charge.*Confirmed after serviceability review/s.test(await page.locator('#ns-del-summary').textContent()),size+' summary misrepresents unknown delivery fees');
+    must(/delivery\s*\/\s*handover charge\s*:\s*Confirmed after serviceability review/is.test(await page.locator('#ns-del-summary').textContent()),size+' summary misrepresents unknown delivery fees');
     await page.locator('#ns-opt-railway_station').click();
     must(await page.locator('#ns-opt-railway_station').getAttribute('aria-pressed')==='true',size+' railway selection did not persist');
     must(await page.locator('#ns-opt-door').getAttribute('aria-pressed')==='false',size+' previous selection stayed active');
