@@ -130,7 +130,15 @@ var CSS=`
 #ns-del-root .ns-step-tag{display:inline-block;color:#dfbb67;font:700 10px/1.5 'Jost',sans-serif;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px}
 #ns-del-root .ns-step-heading{font:400 clamp(25px,3.2vw,35px)/1.16 'Playfair Display',Georgia,serif;color:#f8f4e7;margin:0 0 10px;letter-spacing:-.01em}
 #ns-del-root .ns-step-intro{font:400 13px/1.65 'Jost',sans-serif;color:rgba(255,255,255,.7);max-width:590px;margin:0 0 18px}
-#ns-del-root .ns-del-opts{gap:12px}
+#ns-del-root .ns-del-opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%;max-width:none;min-width:0;justify-self:stretch;align-items:stretch;gap:14px}
+#ns-del-root .ns-del-section.ns-del-choice{display:block;width:100%;min-width:0;box-sizing:border-box}
+#ns-del-root .ns-del-opt{box-sizing:border-box;min-width:0;width:100%;height:100%;min-height:126px;display:grid;grid-template-columns:42px minmax(0,1fr);align-content:start;align-items:start;padding:20px 44px 18px 18px}
+#ns-del-root .ns-del-opt-icon{grid-column:1;width:40px;height:40px}
+#ns-del-root .ns-del-opt-body{grid-column:2;min-width:0;overflow-wrap:anywhere}
+#ns-del-root .ns-del-opt-name{font-size:16px;line-height:1.35;margin:0 0 6px}
+#ns-del-root .ns-del-opt-desc{font-size:12px;line-height:1.55;max-width:45ch}
+#ns-del-root .ns-del-opt-state{margin-top:10px}
+@media(max-width:680px){#ns-del-root .ns-del-opts{grid-template-columns:minmax(0,1fr)}#ns-del-root .ns-del-opt{min-height:104px;padding:16px 42px 15px 14px}}
 #ns-del-root .ns-del-opt{position:relative;min-height:138px;border:1px solid rgba(236,207,138,.22);border-radius:13px;padding:20px 18px;align-items:flex-start;gap:12px;background:rgba(4,18,9,.54);overflow:hidden}
 #ns-del-root .ns-del-opt:hover{border-color:rgba(236,207,138,.65);background:rgba(236,207,138,.065);transform:translateY(-1px)}
 #ns-del-root .ns-del-opt:focus-visible{outline:2px solid #f4d17e;outline-offset:3px}
