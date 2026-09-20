@@ -107,7 +107,9 @@ var CSS=`
 .ns-place-results{display:grid;gap:7px;margin-top:10px}
 .ns-place-choice{width:100%;text-align:left;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.035);color:#fff;padding:11px 12px;cursor:pointer;font:400 11px/1.45 'Jost',sans-serif}
 .ns-place-choice:hover,.ns-place-choice:focus-visible{border-color:rgba(212,168,67,.48);background:rgba(212,168,67,.07)}
-.ns-place-choice small{display:block;color:rgba(255,255,255,.42);margin-top:3px}
+.ns-place-choice small{display:block;color:rgba(255,255,255,.58);margin-top:3px}
+.ns-place-distance{display:block;margin-top:6px;color:#f0cf84;font-weight:650;font-size:11px}
+.ns-handover-distance{display:block;margin-top:6px;color:#f0cf84;font-size:11px;line-height:1.45}
 .ns-handover-status{min-height:16px;margin-top:8px;font-size:10px;color:rgba(255,255,255,.48);line-height:1.5}
 .ns-handover-status.ok{color:#a8e89a}.ns-handover-status.warn{color:#f5d17e}.ns-handover-status.error{color:#ffb0a8}
 .ns-recurring-opts{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
@@ -574,6 +576,7 @@ window.nsHandoverInput=function(){
   nsDelivery.handoverPointLat=null;
   nsDelivery.handoverPointLng=null;
   nsDelivery.handoverSearchSource=nsDelivery.handoverPointName?'manual':'';
+  nsUpdateDisplayedDistances();
   nsDelUpdateSummary();
 };
 
@@ -587,10 +590,44 @@ function placeLabel(result){
   return name||String(result.name||'').trim()||'Selected location';
 }
 
+/* Straight-line (not road) distance, calculated locally only from an explicitly
+   selected checkout location and a returned handover-point coordinate. */
+function nsValidCoordinates(lat,lng){
+  return lat!==null&&lat!==undefined&&lat!==''&&lng!==null&&lng!==undefined&&lng!==''&&
+    Number.isFinite(Number(lat))&&Number.isFinite(Number(lng))&&
+    Math.abs(Number(lat))<=90&&Math.abs(Number(lng))<=180;
+}
+function nsStraightLineKm(lat,lng){
+  if(!nsValidCoordinates(nsDelivery.lat,nsDelivery.lng)||!nsValidCoordinates(lat,lng))return null;
+  var rad=Math.PI/180,a1=Number(nsDelivery.lat)*rad,a2=Number(lat)*rad,deltaLat=(Number(lat)-Number(nsDelivery.lat))*rad,deltaLng=(Number(lng)-Number(nsDelivery.lng))*rad;
+  var a=Math.sin(deltaLat/2)**2+Math.cos(a1)*Math.cos(a2)*Math.sin(deltaLng/2)**2;
+  return 12742*Math.asin(Math.min(1,Math.sqrt(a)));
+}
+function nsDistanceText(lat,lng){
+  var km=nsStraightLineKm(lat,lng);
+  return km===null?'':'Approx. '+(km<1?Math.round(km*1000/50)*50+' m':km.toFixed(1)+' km')+' straight-line · road distance may differ';
+}
+function nsUpdateDisplayedDistances(){
+  var results=el('ns-place-results'),items=results&&results._nsPlaces||[];
+  if(results)Array.from(results.querySelectorAll('[data-ns-place]')).forEach(function(button){
+    var idx=Number(button.dataset.nsPlace),point=items[idx],label=button.querySelector('.ns-place-distance');
+    if(label&&point){var value=nsDistanceText(point.lat,point.lon);label.textContent=value;label.hidden=!value;}
+  });
+  var selected=el('ns-handover-distance');
+  if(selected){
+    var text=nsDistanceText(nsDelivery.handoverPointLat,nsDelivery.handoverPointLng);
+    selected.textContent=text;selected.hidden=!text;
+  }
+}
+window.addEventListener('ns:location-updated',function(){
+  nsUpdateDisplayedDistances();
+  nsDelUpdateSummary();
+});
+
 window.nsFindHandover=async function(kind){
   var status=el('ns-handover-status'),results=el('ns-place-results');
   if(status){status.textContent=kind==='railway_station'?'Finding railway stations…':'Finding bus stands…';status.className='ns-handover-status';}
-  if(results)results.innerHTML='';
+  if(results){results.innerHTML='';results._nsPlaces=[];}
   try{
     var city=((el('oCity')||{}).value||nsDelivery.city||'').trim();
     var state=((el('ns-state')||{}).value||nsDelivery.state||'').trim();
@@ -618,9 +655,10 @@ window.nsFindHandover=async function(kind){
     if(results){
       results.innerHTML=items.slice(0,5).map(function(item,idx){
         var label=placeLabel(item),detail=String(item.display_name||'');
-        return '<button type="button" class="ns-place-choice" onclick="nsChooseHandover('+idx+')" data-ns-place="'+idx+'"><strong>'+esc(label)+'</strong><small>'+esc(detail)+'</small></button>';
+        return '<button type="button" class="ns-place-choice" onclick="nsChooseHandover('+idx+')" data-ns-place="'+idx+'"><strong>'+esc(label)+'</strong><small>'+esc(detail)+'</small><span class="ns-place-distance"'+(nsDistanceText(item.lat,item.lon)?'':' hidden')+'>'+esc(nsDistanceText(item.lat,item.lon))+'</span></button>';
       }).join('');
       results._nsPlaces=items.slice(0,5);
+      nsUpdateDisplayedDistances();
     }
     if(status){status.textContent='Choose the most convenient location below, or type another one manually.';status.className='ns-handover-status ok';}
   }catch(err){
@@ -638,8 +676,9 @@ window.nsChooseHandover=function(idx){
   nsDelivery.handoverPointLng=Number(item.lon);
   nsDelivery.handoverSearchSource='nominatim';
   var input=el('ns-handover-name');if(input)input.value=nsDelivery.handoverPointName;
-  if(results)results.innerHTML='';
+  if(results){results.innerHTML='';results._nsPlaces=[];}
   var status=el('ns-handover-status');if(status){status.textContent='✓ Preferred handover point selected. We will confirm feasibility and timing before fulfilment.';status.className='ns-handover-status ok';}
+  nsUpdateDisplayedDistances();
   nsDelUpdateSummary();
 };
 
@@ -690,6 +729,7 @@ function nsDelUpdateSummary(){
     'Products: <strong>₹'+subtotal.toLocaleString('en-IN')+'</strong> ('+q+' pieces)<br>'+
     (chosen?'Preferred handover: <strong>'+esc(chosen.label)+'</strong><br>':'')+
     (nsDelivery.handoverPointName?'Preferred point: <strong>'+esc(nsDelivery.handoverPointName)+'</strong><br>':'')+
+    (['railway_station','bus_stop'].includes(nsDelivery.selectedDelivery)&&nsDistanceText(nsDelivery.handoverPointLat,nsDelivery.handoverPointLng)?'Approx. distance to handover point: <strong>'+esc(nsDistanceText(nsDelivery.handoverPointLat,nsDelivery.handoverPointLng))+'</strong><br>':'')+
     'Order plan: <strong>'+esc(freq[nsDelivery.recurring]||'One-time order')+'</strong><br>'+
     'Delivery / handover charge: <strong>Confirmed after serviceability review</strong><br>'+
     '<small style="display:block;line-height:1.5;color:rgba(255,255,255,.57);margin-top:5px">₹'+subtotal.toLocaleString('en-IN')+' is the product subtotal, not a final delivery-inclusive price. Repeat selections do not create an automatic subscription.</small>';
