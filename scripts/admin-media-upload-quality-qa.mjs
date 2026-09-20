@@ -36,7 +36,7 @@ async function inspectMediaLayout(page,label){
   if(row.withinViewport&&row.visual.height>0)must(Math.abs(row.visual.height-row.card.width*.75)<4, `${label}: ${row.id} preview is not 4:3`);
   must(row.body.top>=row.visual.bottom-1,`${label}: ${row.id} body overlaps visual (${row.body.top} < ${row.visual.bottom})`);
   must(!row.imgRect||row.fit==='contain',`${label}: ${row.id} Admin thumbnail is cropped; expected object-fit: contain, got ${row.fit}`);
-  if(row.withinViewport&&row.nw&&row.nh)must(row.imgRect.height>0.5*row.card.width*row.nh/row.nw,`${label}: ${row.id} still has an artificially short media frame`);
+  if(row.withinViewport&&row.imgRect)must(Math.abs(row.imgRect.height-row.visual.height)<3,`${label}: ${row.id} image box must fill its preview frame`);
   if(row.withinViewport&&row.imgRect)must(row.imgRect.bottom<=row.visual.bottom+1&&row.imgRect.top>=row.visual.top-1,`${label}: ${row.id} image escaped visual bounds`);
   must(row.buttons.length>=1,`${label}: ${row.id} has no visible media action buttons`);
   for(const b of row.buttons)must(b.inside,`${label}: ${row.id} action escaped card: ${b.text}`);
