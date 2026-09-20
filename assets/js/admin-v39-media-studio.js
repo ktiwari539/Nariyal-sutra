@@ -6,13 +6,15 @@ const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelecto
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function canonicalizeAdminUrl(){if(!/\/admin-preview\.html$/i.test(location.pathname))return;setTimeout(()=>{if(!/\/admin-preview\.html$/i.test(location.pathname))return;try{history.replaceState(history.state,'',location.pathname.replace(/admin-preview\.html$/i,'admin.html')+location.search+location.hash);}catch(_e){}},1200);}
 function installStyle(){if($('#apV39MediaStyle'))return;const st=document.createElement('style');st.id='apV39MediaStyle';st.textContent=`
-#apMediaGrid{grid-template-columns:repeat(auto-fit,minmax(270px,1fr))!important;gap:16px!important;align-items:start!important}
-#apMediaGrid .ap-media,#apMediaGrid .ap-media-card{display:flex!important;flex-direction:column!important;min-width:0!important;overflow:hidden!important;isolation:isolate!important;border-color:rgba(212,168,67,.20)!important;box-shadow:0 12px 34px rgba(0,0,0,.16)}
+#apMediaGrid{grid-template-columns:repeat(auto-fit,minmax(270px,1fr))!important;gap:16px!important;align-items:stretch!important}
+#apMediaGrid .ap-media,#apMediaGrid .ap-media-card{display:flex!important;flex-direction:column!important;align-self:stretch!important;min-width:0!important;overflow:hidden!important;isolation:isolate!important;border-color:rgba(212,168,67,.20)!important;box-shadow:0 12px 34px rgba(0,0,0,.16)}
 #apMediaGrid .ap-media-card:hover{transform:translateY(-2px);border-color:rgba(212,168,67,.42)!important;box-shadow:0 18px 42px rgba(0,0,0,.24)}
-#apMediaGrid .ap-media-img,#apMediaGrid .ap-media-visual{display:block!important;position:relative!important;flex:0 0 auto!important;width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;aspect-ratio:auto!important;overflow:visible!important;contain:none!important;isolation:isolate!important;background:#eef1ea;cursor:zoom-in;z-index:0!important}
-#apMediaGrid .ap-media-img img,#apMediaGrid .ap-media-visual img{position:static!important;inset:auto!important;display:block!important;width:100%!important;height:auto!important;min-width:0!important;min-height:0!important;max-width:100%!important;max-height:none!important;margin:0!important;padding:0!important;object-fit:contain!important;object-position:center center!important;z-index:0!important;cursor:zoom-in}
-#apMediaGrid .ap-media-body{display:flex!important;flex:0 0 auto!important;flex-direction:column!important;min-width:0!important;position:relative!important;z-index:2!important;padding:14px!important;background:var(--panel,#f8f8f4)!important;overflow:visible!important}
-#apMediaGrid .ap-media-actions{display:flex!important;position:relative!important;z-index:3!important;flex-wrap:wrap!important;gap:8px!important;min-height:38px!important;visibility:visible!important;opacity:1!important}
+#apMediaGrid .ap-media-img,#apMediaGrid .ap-media-visual{display:block!important;position:relative!important;flex:0 0 auto!important;width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;aspect-ratio:4 / 3!important;overflow:hidden!important;contain:none!important;isolation:isolate!important;background:#eef1ea;cursor:zoom-in;z-index:0!important}
+#apMediaGrid .ap-media-img img,#apMediaGrid .ap-media-visual img{position:absolute!important;inset:0!important;display:block!important;width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;max-width:100%!important;max-height:100%!important;margin:0!important;padding:0!important;object-fit:contain!important;object-position:center center!important;z-index:0!important;cursor:zoom-in}
+#apMediaGrid .ap-media-body{display:flex!important;flex:1 1 auto!important;flex-direction:column!important;min-width:0!important;position:relative!important;z-index:2!important;padding:14px!important;background:var(--panel,#f8f8f4)!important;overflow:visible!important}
+#apMediaGrid .ap-media-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;position:relative!important;z-index:3!important;gap:8px!important;margin-top:auto!important;padding-top:12px!important;min-height:0!important;visibility:visible!important;opacity:1!important}
+#apMediaGrid .ap-media-actions [data-ma="state"]{grid-column:1 / -1!important}
+#apMediaGrid .ap-media-actions button,#apMediaGrid .ap-v39-details{display:flex!important;align-items:center!important;justify-content:center!important;min-width:0!important;min-height:40px!important;height:auto!important;white-space:normal!important;text-align:center!important;line-height:1.35!important;visibility:visible!important;opacity:1!important}
 #apMediaGrid .ap-media-actions .ap-btn,#apMediaGrid .ap-v39-details{position:relative!important;z-index:4!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important}
 .ap-v39-details{width:100%;margin-top:10px!important;justify-content:center!important}
 #apV39MediaInspector{position:fixed;inset:0;z-index:2147483000;background:rgba(1,8,4,.86);backdrop-filter:blur(16px);display:none;align-items:center;justify-content:center;padding:22px}
@@ -21,7 +23,7 @@ function installStyle(){if($('#apV39MediaStyle'))return;const st=document.create
 .ap-v39-editor{padding:24px;display:flex;flex-direction:column;gap:16px}.ap-v39-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.ap-v39-head h2{margin:0;font:500 30px/1.05 'Playfair Display',serif}.ap-v39-close{border:1px solid rgba(255,255,255,.16);background:transparent;color:white;width:34px;height:34px;cursor:pointer;font-size:22px}.ap-v39-id{font:700 10px/1 Inter,sans-serif;letter-spacing:.14em;color:#d4a843;text-transform:uppercase}.ap-v39-path{font:500 10px/1.5 ui-monospace,monospace;color:rgba(255,255,255,.48);word-break:break-all}
 .ap-v39-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}.ap-v39-field{display:flex;flex-direction:column;gap:6px}.ap-v39-field.wide{grid-column:1/-1}.ap-v39-field label{font:700 9px/1 Inter,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.58)}.ap-v39-field input,.ap-v39-field select,.ap-v39-field textarea{width:100%;box-sizing:border-box;border:1px solid rgba(255,255,255,.14);background:#0a1709;color:#fff;padding:10px 11px;font:500 12px/1.4 Inter,sans-serif}.ap-v39-field textarea{min-height:86px;resize:vertical}
 .ap-v39-checks{display:grid;grid-template-columns:1fr 1fr;gap:8px}.ap-v39-checks label{display:flex;gap:8px;align-items:center;padding:9px;border:1px solid rgba(255,255,255,.10);font-size:11px;color:rgba(255,255,255,.72)}.ap-v39-usage{display:flex;flex-wrap:wrap;gap:6px}.ap-v39-chip{padding:6px 8px;border:1px solid rgba(212,168,67,.18);background:rgba(212,168,67,.06);color:#e8cd80;font-size:10px}.ap-v39-empty{font-size:11px;color:rgba(255,255,255,.46)}.ap-v39-actions{display:flex;gap:8px;flex-wrap:wrap}.ap-v39-actions button{min-height:38px}.ap-v39-primary{background:#d4a843!important;color:#071107!important;border-color:#d4a843!important;font-weight:800!important}
-@media(max-width:860px){#apMediaGrid{grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr))!important}#apMediaGrid .ap-media-img,#apMediaGrid .ap-media-visual{flex-basis:auto!important;height:auto!important;min-height:0!important;max-height:none!important}#apMediaGrid .ap-media-img img,#apMediaGrid .ap-media-visual img{height:auto!important;max-height:none!important}.ap-v39-dialog{grid-template-columns:1fr}.ap-v39-preview{min-height:360px}.ap-v39-fields{grid-template-columns:1fr}.ap-v39-field.wide{grid-column:auto}}
+@media(max-width:860px){#apMediaGrid{grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr))!important}#apMediaGrid .ap-media-img,#apMediaGrid .ap-media-visual{flex-basis:auto!important;height:auto!important;min-height:0!important;max-height:none!important;aspect-ratio:4 / 3!important}#apMediaGrid .ap-media-img img,#apMediaGrid .ap-media-visual img{height:100%!important;max-height:100%!important}.ap-v39-dialog{grid-template-columns:1fr}.ap-v39-preview{min-height:360px}.ap-v39-fields{grid-template-columns:1fr}.ap-v39-field.wide{grid-column:auto}}
 `;document.head.appendChild(st);}
 function usageFor(s,id){const out=[];Object.entries(s.sectionMedia||{}).forEach(([k,v])=>{if(v===id)out.push('Section · '+k)});if((s.faceMarquee?.selectedIds||[]).includes(id))out.push('Homepage people rail');Object.entries(s.peopleStreams||{}).forEach(([k,v])=>{if((v?.selectedIds||[]).includes(id))out.push('People · '+k)});(s.customSections||[]).forEach(sec=>{if((sec.mediaIds||[]).includes(id))out.push('Custom section · '+(sec.title||sec.id))});(s.schedule||[]).forEach(item=>{if(item.mediaId===id)out.push('Schedule · '+(item.sectionId||item.id))});return [...new Set(out)];}
 function ensureInspector(){let root=$('#apV39MediaInspector');if(root)return root;root=document.createElement('div');root.id='apV39MediaInspector';root.setAttribute('role','dialog');root.setAttribute('aria-modal','true');root.setAttribute('aria-label','Media details');document.body.appendChild(root);root.addEventListener('click',e=>{if(e.target===root||e.target.closest('[data-v39-close]'))closeInspector()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&root.classList.contains('is-open'))closeInspector()});return root;}
@@ -30,39 +32,27 @@ function openInspector(id){const s=Store.load(),m=Store.mediaById(s,id);if(!m)re
 function enforceCardLayout(card){
  if(!card)return;
  const visual=$('.ap-media-img',card),body=$('.ap-media-body',card),img=visual?.querySelector('img');
- // A Media Library image is evidence, not a decorative crop. Let the source's
- // natural aspect ratio determine the frame height at each screen width.
- card.style.setProperty('display','flex','important');
- card.style.setProperty('flex-direction','column','important');
- card.style.setProperty('min-width','0','important');
- card.style.setProperty('min-height','0','important');
- card.style.setProperty('overflow','hidden','important');
+ // Uniform 4:3 management frames keep cards aligned. object-fit:contain
+ // preserves the *entire* original, including portrait and landscape shots.
+ for(const [k,v] of [['display','flex'],['flex-direction','column'],['align-self','stretch'],['min-width','0'],['min-height','0'],['overflow','hidden']])card.style.setProperty(k,v,'important');
  if(visual){
   visual.classList.add('ap-media-visual');
-  for(const [k,v] of [['position','relative'],['display','block'],['flex','0 0 auto'],['width','100%'],['height','auto'],['min-height','0'],['max-height','none'],['aspect-ratio','auto'],['overflow','visible'],['contain','none'],['z-index','0']])visual.style.setProperty(k,v,'important');
+  for(const [k,v] of [['position','relative'],['display','block'],['flex','0 0 auto'],['width','100%'],['height','auto'],['min-height','0'],['max-height','none'],['aspect-ratio','4 / 3'],['overflow','hidden'],['contain','none'],['z-index','0']])visual.style.setProperty(k,v,'important');
  }
  if(img){
-  for(const [k,v] of [['position','static'],['inset','auto'],['display','block'],['width','100%'],['height','auto'],['min-width','0'],['min-height','0'],['max-width','100%'],['max-height','none'],['margin','0'],['padding','0'],['object-fit','contain'],['object-position','center center'],['transform','none'],['z-index','0']])img.style.setProperty(k,v,'important');
-  // The browser can report a zero-height auto-sized media element after
-  // resizing a long/lazy gallery even after the image has decoded. Reserve
-  // its real ratio explicitly, not a guessed card height or a 4:3 crop.
-  const applyIntrinsicRatio=()=>{
+  for(const [k,v] of [['position','absolute'],['inset','0'],['display','block'],['width','100%'],['height','100%'],['min-width','0'],['min-height','0'],['max-width','100%'],['max-height','100%'],['aspect-ratio','auto'],['margin','0'],['padding','0'],['object-fit','contain'],['object-position','center center'],['transform','none'],['z-index','0']])img.style.setProperty(k,v,'important');
+  // Intrinsic attributes help reserve a source when an image is loading,
+  // without overriding the 4:3 containment box above.
+  const setIntrinsic=()=>{
    const w=img.naturalWidth,h=img.naturalHeight;
-   if(!w||!h)return;
-   img.setAttribute('width',String(w));
-   img.setAttribute('height',String(h));
-   img.style.setProperty('aspect-ratio',w+' / '+h,'important');
-   visual?.style.setProperty('aspect-ratio',w+' / '+h,'important');
+   if(w&&h){img.setAttribute('width',String(w));img.setAttribute('height',String(h));}
   };
-  applyIntrinsicRatio();
-  if(!img.dataset.nsIntrinsicRatioBound){
-   img.dataset.nsIntrinsicRatioBound='1';
-   img.addEventListener('load',applyIntrinsicRatio);
-  }
+  setIntrinsic();
+  if(!img.dataset.nsIntrinsicRatioBound){img.dataset.nsIntrinsicRatioBound='1';img.addEventListener('load',setIntrinsic);}
  }
- if(body){for(const [k,v] of [['display','flex'],['flex','0 0 auto'],['flex-direction','column'],['min-width','0'],['position','relative'],['z-index','2'],['overflow','visible']])body.style.setProperty(k,v,'important')}
+ if(body){for(const [k,v] of [['display','flex'],['flex','1 1 auto'],['flex-direction','column'],['min-width','0'],['position','relative'],['z-index','2'],['overflow','visible']])body.style.setProperty(k,v,'important')}
  const actions=$('.ap-media-actions',card);
- if(actions){for(const [k,v] of [['display','flex'],['position','relative'],['z-index','3'],['visibility','visible'],['opacity','1']])actions.style.setProperty(k,v,'important')}
+ if(actions){for(const [k,v] of [['display','grid'],['grid-template-columns','repeat(2,minmax(0,1fr))'],['position','relative'],['z-index','3'],['visibility','visible'],['opacity','1'],['min-height','0'],['margin-top','auto']])actions.style.setProperty(k,v,'important')}
 }
 function enhanceCards(){const grid=$('#apMediaGrid');if(!grid)return;$$('.ap-media',grid).forEach(card=>{const visual=$('.ap-media-img',card),id=card.dataset.id||visual?.dataset.id||$('.ap-media-id',card)?.textContent?.trim();if(!id)return;card.dataset.id=id;card.classList.add('ap-media-card');enforceCardLayout(card);const img=visual?.querySelector('img');if(img&&!img.dataset.v39Bound){img.dataset.v39Bound='1';img.title='Open large preview and edit details';img.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();openInspector(id)});img.addEventListener('load',()=>enforceCardLayout(card));img.addEventListener('error',()=>enforceCardLayout(card))}if(visual&&!visual.dataset.v39Bound){visual.dataset.v39Bound='1';visual.addEventListener('click',e=>{if(e.target.closest('button'))return;openInspector(id)})}const body=$('.ap-media-body',card);if(body&&!$('[data-v39-inspect]',card)){const b=document.createElement('button');b.type='button';b.className='ap-btn mini ap-v39-details';b.dataset.v39Inspect=id;b.textContent='View / edit details';b.onclick=e=>{e.preventDefault();e.stopPropagation();openInspector(id)};body.appendChild(b)}enforceCardLayout(card)});}
 function bind(){installStyle();canonicalizeAdminUrl();ensureInspector();enhanceCards();const grid=$('#apMediaGrid');if(grid)new MutationObserver(()=>enhanceCards()).observe(grid,{childList:true,subtree:true});document.addEventListener('click',e=>{if(e.target.closest?.('[data-view="media"]'))setTimeout(enhanceCards,80)});window.addEventListener('nsv421:change',()=>setTimeout(enhanceCards,100));addEventListener('resize',()=>requestAnimationFrame(enhanceCards),{passive:true});}
