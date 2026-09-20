@@ -11,7 +11,7 @@ function installUxStyle(){if($('#apV43UxFix'))return;const s=document.createElem
 #apMediaGrid .ap-media-visual{height:auto!important;min-height:0!important;max-height:none!important;flex:0 0 auto!important;overflow:hidden!important;position:relative!important;z-index:1!important;aspect-ratio:4 / 3!important}
 #apMediaGrid .ap-media-visual>img{width:100%!important;height:100%!important;max-height:100%!important;object-fit:contain!important;object-position:center center!important;display:block!important;position:absolute!important;inset:0!important;transform:none!important}
 #apMediaGrid .ap-media-body{display:flex!important;flex:1 1 auto!important;flex-direction:column!important;position:relative!important;z-index:2!important;min-height:0!important;overflow:visible!important;background:inherit!important}
-#apMediaGrid .ap-media-body .ap-v39-details{margin-top:auto!important;position:relative!important;z-index:3!important;pointer-events:auto!important}
+#apMediaGrid .ap-media-body .ap-v39-details{margin-top:8px!important;position:relative!important;z-index:3!important;pointer-events:auto!important}
 #apV40Ambassador{display:none!important}
 #apV42PeopleStreams{order:-10!important;border-color:rgba(212,168,67,.34)!important;box-shadow:0 10px 28px rgba(0,0,0,.12)!important}
 @media(max-width:620px){#apMediaGrid{grid-template-columns:1fr!important}#apMediaGrid .ap-media-card{min-height:0!important}#apMediaGrid .ap-media-visual{height:auto!important;min-height:0!important;max-height:none!important;aspect-ratio:4 / 3!important;flex-basis:auto!important}}
