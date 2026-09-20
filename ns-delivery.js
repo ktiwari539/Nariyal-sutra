@@ -6,7 +6,7 @@
  * - All CSS class names prefixed .ns-del-* or .ns-hub-* or .ns-track-*
  * - Never touches existing cinematic CSS/JS
  * - Never modifies body, .hero, nav, img globally
- * - Injects after existing order form fields
+ * - Inserts delivery choices after product selection, before address details
  * - Patches placeOrder() non-destructively via wrapper
  * - Customer chooses a preferred handover method; availability and charges remain subject to confirmation
  */
@@ -123,6 +123,47 @@ var CSS=`
   .ns-gps-btn,.ns-find-btn,.ns-recur-btn{min-height:44px;touch-action:manipulation}
 }
 
+/* Checkout delivery choice: a distinct step, not a list of uniform admin-style rows. */
+#ns-del-root{grid-column:1/-1;min-width:0;display:grid;gap:24px;margin:6px 0}
+#ns-del-root .ns-del-section{margin:0;padding:24px;border:1px solid rgba(212,168,67,.2);background:linear-gradient(145deg,rgba(212,168,67,.075),rgba(7,21,9,.48) 58%,rgba(255,255,255,.015));border-radius:18px}
+#ns-del-root .ns-del-section.ns-del-choice{border-color:rgba(212,168,67,.42);background:linear-gradient(120deg,rgba(212,168,67,.12),rgba(9,28,14,.75) 60%,rgba(255,255,255,.025));box-shadow:0 16px 44px rgba(0,0,0,.12)}
+#ns-del-root .ns-step-tag{display:inline-block;color:#dfbb67;font:700 10px/1.5 'Jost',sans-serif;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px}
+#ns-del-root .ns-step-heading{font:400 clamp(25px,3.2vw,35px)/1.16 'Playfair Display',Georgia,serif;color:#f8f4e7;margin:0 0 10px;letter-spacing:-.01em}
+#ns-del-root .ns-step-intro{font:400 13px/1.65 'Jost',sans-serif;color:rgba(255,255,255,.7);max-width:590px;margin:0 0 18px}
+#ns-del-root .ns-del-opts{gap:12px}
+#ns-del-root .ns-del-opt{position:relative;min-height:138px;border:1px solid rgba(236,207,138,.22);border-radius:13px;padding:20px 18px;align-items:flex-start;gap:12px;background:rgba(4,18,9,.54);overflow:hidden}
+#ns-del-root .ns-del-opt:hover{border-color:rgba(236,207,138,.65);background:rgba(236,207,138,.065);transform:translateY(-1px)}
+#ns-del-root .ns-del-opt:focus-visible{outline:2px solid #f4d17e;outline-offset:3px}
+#ns-del-root .ns-del-opt.selected{background:linear-gradient(120deg,rgba(221,182,90,.19),rgba(18,40,22,.8));border-color:#e0ba68;box-shadow:inset 0 0 0 1px rgba(224,186,104,.28)}
+#ns-del-root .ns-del-opt-icon{font-size:25px;line-height:1.2;display:grid;place-items:center;width:42px;height:42px;border-radius:10px;background:rgba(232,197,117,.13)}
+#ns-del-root .ns-del-opt-name{font-size:15px;letter-spacing:.1px;margin:2px 0 7px;font-weight:600}
+#ns-del-root .ns-del-opt-desc{font-size:12px;line-height:1.65;color:rgba(255,255,255,.7)}
+#ns-del-root .ns-del-opt-state{display:flex;align-items:center;gap:4px;margin-top:12px;color:rgba(255,255,255,.6);font-size:10px;font-weight:600;letter-spacing:.4px}
+#ns-del-root .ns-del-opt.selected .ns-del-opt-state{color:#f2d78f}
+#ns-del-root .ns-del-opt-check{position:absolute;top:13px;right:13px;width:19px;height:19px;border:1px solid rgba(224,186,104,.5);border-radius:50%;display:grid;place-items:center;color:transparent;font-size:12px}
+#ns-del-root .ns-del-opt.selected .ns-del-opt-check{background:#e6c476;color:#102015;border-color:#e6c476}
+#ns-del-root .ns-del-result{margin-top:15px;padding:13px 15px;border-left:3px solid #ddb66c;border-radius:0 8px 8px 0;background:rgba(221,182,108,.07);font:400 12px/1.55 'Jost',sans-serif;color:rgba(255,255,255,.75)}
+#ns-del-root .ns-del-result strong{color:#f2d78f}
+#ns-del-root .ns-del-result small{display:block;font-size:11px;color:rgba(255,255,255,.55);margin-top:4px}
+#ns-del-root .ns-recurring-opts{gap:9px}
+#ns-del-root .ns-recur-btn{border-radius:24px;letter-spacing:.2px;font-size:12px;padding:12px 16px;min-height:44px}
+#ns-del-root .ns-recur-btn.sel{background:rgba(218,179,90,.18);color:#f6db9f}
+#ns-del-root .ns-handover-panel{border-radius:10px;background:rgba(2,15,7,.5)}
+#ns-del-root .ns-del-field label{color:rgba(251,225,166,.82);font-size:10px;letter-spacing:1px}
+#ns-del-root .ns-del-field input,#ns-del-root .ns-del-field select{min-height:46px;border-radius:7px;background:rgba(0,0,0,.15);border-color:rgba(212,168,67,.35)}
+#ns-del-root .ns-del-field input:focus-visible,#ns-del-root .ns-del-field select:focus-visible{outline:2px solid #d4a843;outline-offset:2px}
+.ns-summary-box{grid-column:1/-1;border-radius:10px}
+#order .ofields>.of.full:has(#oA),#order .ofields>.of.full:has(#oCity){min-width:0}
+@media(max-width:680px){
+  #ns-del-root{gap:16px}
+  #ns-del-root .ns-del-section{padding:18px 14px;border-radius:12px}
+  #ns-del-root .ns-del-opt{min-height:106px;padding:17px 15px}
+  #ns-del-root .ns-del-opts{grid-template-columns:1fr}
+  #ns-del-root .ns-del-opt-desc{font-size:12px}
+  #ns-del-root .ns-del-opt-name{font-size:14px}
+  #ns-del-root .ns-del-opt-check{top:10px;right:10px}
+}
+
 /* Order Hub */
 .ns-hub-overlay{display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.85);backdrop-filter:blur(10px);align-items:center;justify-content:center;padding:16px}
 .ns-hub-overlay.open{display:flex}
@@ -179,9 +220,9 @@ window.NSDeliveryState=nsDelivery;
 
 /* ─── Inject delivery fields into order form ─── */
 function injectDeliveryFields(){
-  var oCity=el('oCity');
-  if(!oCity){ console.warn('[ns-delivery] oCity not found'); return; }
-  var wrapper=oCity.closest('.of.full');
+  var product=el('oPr');
+  if(!product){ console.warn('[ns-delivery] product selector not found'); return; }
+  var wrapper=product.closest('.of');
   if(!wrapper) return;
 
   /* Check if already injected */
@@ -190,9 +231,50 @@ function injectDeliveryFields(){
   var html=`
 <div id="ns-del-root">
 
-  <!-- Location section -->
-  <div class="ns-del-section">
-    <span class="ns-del-label">📍 Delivery Location</span>
+  <!-- Delivery preference: presented BEFORE location and address fields -->
+  <div class="ns-del-section ns-del-choice" id="ns-del-opts-section" aria-labelledby="ns-del-choice-title" style="display:none">
+    <span class="ns-step-tag">STEP 02 · YOUR DELIVERY PREFERENCE</span>
+    <h3 class="ns-step-heading" id="ns-del-choice-title">How would you like to receive your order?</h3>
+    <p class="ns-step-intro">Choose what is convenient for you. We will check availability, any additional charges and timing before confirming your order.</p>
+    <div class="ns-del-opts" id="ns-del-opts-list"></div>
+    <div class="ns-del-result" id="ns-del-choice-status" role="status" aria-live="polite"></div>
+
+    <div class="ns-handover-panel" id="ns-handover-panel">
+      <div class="ns-handover-title" id="ns-handover-title">Handover point</div>
+      <div class="ns-handover-help" id="ns-handover-help"></div>
+      <div class="ns-del-field">
+        <label for="ns-handover-name" id="ns-handover-label">Preferred point</label>
+        <input type="text" id="ns-handover-name" placeholder="Enter a station, stop or preferred area" oninput="nsHandoverInput()">
+      </div>
+      <div class="ns-handover-actions" id="ns-handover-actions"></div>
+      <div class="ns-place-results" id="ns-place-results"></div>
+      <div class="ns-handover-status" id="ns-handover-status"></div>
+      <div class="ns-del-field" style="margin-top:10px">
+        <label for="ns-handover-note">Handover note (optional)</label>
+        <input type="text" id="ns-handover-note" maxlength="240" placeholder="e.g. East entrance, call 15 minutes before arrival" oninput="nsHandoverNote()">
+      </div>
+    </div>
+  </div>
+
+  <!-- Optional recurring preference -->
+  <div class="ns-del-section ns-del-frequency">
+    <span class="ns-step-tag">YOUR ORDER PLAN · OPTIONAL</span>
+    <h3 class="ns-step-heading">Just once or regularly?</h3>
+    <p class="ns-step-intro">Planning regular coconut deliveries? Tell us how often you would like to order. This is only a preference — no automatic orders or payments.</p>
+    <div class="ns-recurring-opts">
+      <button type="button" class="ns-recur-btn sel" onclick="nsSetRecurring('onetime',this)">One time</button>
+      <button type="button" class="ns-recur-btn" onclick="nsSetRecurring('weekly',this)">Weekly</button>
+      <button type="button" class="ns-recur-btn" onclick="nsSetRecurring('fortnightly',this)">Every 2 weeks</button>
+      <button type="button" class="ns-recur-btn" onclick="nsSetRecurring('monthly',this)">Monthly</button>
+      <button type="button" class="ns-recur-btn" onclick="nsSetRecurring('flexible',this)">Regular / Flexible</button>
+    </div>
+  </div>
+
+  <!-- Location / serviceability details (after handover preference) -->
+  <div class="ns-del-section ns-del-location" id="ns-del-location-step">
+    <span class="ns-step-tag">STEP 03 · LOCATION DETAILS</span>
+    <h3 class="ns-step-heading">Where should we arrange it?</h3>
+    <p class="ns-step-intro" id="ns-address-help">Enter your delivery address or locality so we can check availability. You can refine your location with a map pin below.</p>
 
     <button type="button" class="ns-gps-btn" onclick="nsDelGPS()">
       📍 Use my current location
@@ -253,48 +335,16 @@ function injectDeliveryFields(){
     International orders are handled as a review process. Our team will contact you to confirm supply availability, freight, and a formal quote. No automatic delivery pricing applies for international shipments.
   </div>
 
-  <!-- Delivery preference -->
-  <div class="ns-del-section" id="ns-del-opts-section" style="display:none">
-    <span class="ns-del-label">🚚 How would you prefer to receive your order?</span>
-    <div class="ns-del-opts" id="ns-del-opts-list"></div>
-    <p class="ns-del-note">Choose your preferred handover method. Availability, delivery charges and timing are confirmed after we review the destination, quantity and logistics.</p>
-
-    <div class="ns-handover-panel" id="ns-handover-panel">
-      <div class="ns-handover-title" id="ns-handover-title">Handover point</div>
-      <div class="ns-handover-help" id="ns-handover-help"></div>
-      <div class="ns-del-field">
-        <label for="ns-handover-name" id="ns-handover-label">Preferred point</label>
-        <input type="text" id="ns-handover-name" placeholder="Enter a station, stop or preferred area" oninput="nsHandoverInput()">
-      </div>
-      <div class="ns-handover-actions" id="ns-handover-actions"></div>
-      <div class="ns-place-results" id="ns-place-results"></div>
-      <div class="ns-handover-status" id="ns-handover-status"></div>
-      <div class="ns-del-field" style="margin-top:10px">
-        <label for="ns-handover-note">Handover note (optional)</label>
-        <input type="text" id="ns-handover-note" maxlength="240" placeholder="e.g. East entrance, call 15 minutes before arrival" oninput="nsHandoverNote()">
-      </div>
-    </div>
-  </div>
-
-  <!-- Recurring preference -->
-  <div class="ns-del-section">
-    <span class="ns-del-label">🔁 Order Frequency</span>
-    <div class="ns-recurring-opts">
-      <button type="button" class="ns-recur-btn sel" onclick="nsSetRecurring('onetime',this)">One time</button>
-      <button type="button" class="ns-recur-btn" onclick="nsSetRecurring('weekly',this)">Weekly</button>
-      <button type="button" class="ns-recur-btn" onclick="nsSetRecurring('fortnightly',this)">Every 2 weeks</button>
-      <button type="button" class="ns-recur-btn" onclick="nsSetRecurring('monthly',this)">Monthly</button>
-      <button type="button" class="ns-recur-btn" onclick="nsSetRecurring('flexible',this)">Regular / Flexible</button>
-    </div>
-  </div>
-
   <!-- Delivery summary -->
   <div class="ns-summary-box" id="ns-del-summary" style="display:none"></div>
 
 </div>
 `;
-  /* Insert after the city field wrapper */
+  /* The choice step sits after product selection and BEFORE address/locality. */
   wrapper.insertAdjacentHTML('afterend', html);
+  /* Keep the live summary after the address and order note, before payment. */
+  var recap=el('ns-del-summary'),notes=el('oX')?.closest('.of.full');
+  if(recap&&notes) notes.insertAdjacentElement('afterend',recap);
   try{window.dispatchEvent(new CustomEvent('nsv21:delivery-fields-ready'));}catch(e){}
 }
 
@@ -412,15 +462,15 @@ function nsDelShowOptions(){
       '<div class="ns-del-opt-body">'+
         '<div class="ns-del-opt-name">'+esc(opt.label)+'</div>'+
         '<div class="ns-del-opt-desc">'+esc(opt.desc)+'</div>'+
+        '<span class="ns-del-opt-state" aria-hidden="true">'+(nsDelivery.selectedDelivery===opt.id?'✓ Selected':'Select this option')+'</span>'+
       '</div>'+
-      '<div class="ns-del-opt-price">'+
-        '<div class="ns-del-opt-range" style="font-size:12px">On confirmation</div>'+
-        '<div class="ns-del-opt-eta">'+esc(opt.eta)+'</div>'+
-      '</div>'+
+      '<span class="ns-del-opt-check" aria-hidden="true">✓</span>'+
+
     '</button>';
   }).join('');
 
   nsRenderHandoverPanel();
+  nsUpdateAddressPrompt();
   nsDelUpdateSummary();
 }
 
@@ -500,6 +550,11 @@ window.nsSelectDelivery = function(id){
     o.setAttribute('aria-pressed',on?'true':'false');
   });
   nsRenderHandoverPanel();
+  document.querySelectorAll('.ns-del-opt').forEach(function(card){
+    var state=card.querySelector('.ns-del-opt-state');
+    if(state) state.textContent=card.classList.contains('selected')?'✓ Selected':'Select this option';
+  });
+  nsUpdateAddressPrompt();
   nsDelUpdateSummary();
 };
 
@@ -594,29 +649,41 @@ window.nsSetRecurring = function(val, btn){
   nsDelivery.recurring=val;
   document.querySelectorAll('.ns-recur-btn').forEach(function(b){b.classList.remove('sel');});
   if(btn) btn.classList.add('sel');
+  nsDelUpdateSummary();
 };
+
+
+/* A collection request still needs the customer's locality to check feasibility;
+   never imply they must supply the handover point's street address. */
+function nsUpdateAddressPrompt(){
+  var label=document.querySelector('label[for="oA"]'),address=el('oA'),help=el('ns-address-help');
+  var collection=['pickup_hub','railway_station','bus_stop'].includes(nsDelivery.selectedDelivery);
+  if(label)label.textContent=collection?'Your locality / contact address for serviceability':nsDelivery.isInternational?'Destination / contact address for trade review':'Address / locality for serviceability';
+  if(address)address.placeholder=collection?'Your locality, city, state and PIN code (not the pickup-point address)':nsDelivery.isInternational?'Destination city, region, country and contact address':'House / street or locality, city, state and PIN code';
+  if(help)help.textContent=collection?'Tell us your area or contact address for serviceability. Your chosen handover point will be confirmed separately before you travel.':nsDelivery.isInternational?'Provide the destination and your contact address for a formal trade quote.': 'Provide your delivery address or locality. We will confirm the delivery slot and charges before fulfilment.';
+}
 
 /* ─── Summary ─── */
 function nsDelUpdateSummary(){
   var summaryEl=el('ns-del-summary');
-  if(!summaryEl) return;
+  if(!summaryEl)return;
   var q=parseInt((el('oQ')||{}).value)||1;
   var price=typeof getCurrentPrice==='function'?getCurrentPrice():(window.ot==='bulk'?45:55);
   var subtotal=q*price;
-  var opts=deliveryEstimates(q, nsDelivery.isInternational);
+  var opts=deliveryEstimates(q,nsDelivery.isInternational);
   var chosen=opts.find(function(o){return o.id===nsDelivery.selectedDelivery;});
-  var delivLine=chosen?(chosen.rangeMin!==null?'₹'+chosen.rangeMin+'–₹'+chosen.rangeMax+' ('+chosen.note+')':'On confirmation'):'—';
-  var totalLine=chosen&&chosen.rangeMin!==null?'₹'+(subtotal+chosen.rangeMin)+' – ₹'+(subtotal+chosen.rangeMax)+' (estimate)':'₹'+subtotal.toLocaleString('en-IN')+' + delivery (confirmed later)';
-
+  var freq={onetime:'One-time order',weekly:'Weekly (preference)',fortnightly:'Every 2 weeks (preference)',monthly:'Monthly (preference)',flexible:'Flexible repeat order (preference)'};
+  var choiceStatus=el('ns-del-choice-status');
+  if(choiceStatus)choiceStatus.innerHTML='<strong>✓ '+esc(chosen?.label||'Preferred method')+' selected</strong><small>Availability, charges and timing will be confirmed before your order is accepted.'+(nsDelivery.isInternational?' International requests are reviewed by our Trade Desk.':'')+'</small>';
   summaryEl.style.display='block';
   summaryEl.innerHTML=
-    '<strong>Order Summary</strong><br>'+
-    'Product subtotal: <strong>₹'+subtotal.toLocaleString('en-IN')+'</strong><br>'+
+    '<strong>Your request at a glance</strong><br>'+
+    'Products: <strong>₹'+subtotal.toLocaleString('en-IN')+'</strong> ('+q+' pieces)<br>'+
     (chosen?'Preferred handover: <strong>'+esc(chosen.label)+'</strong><br>':'')+
     (nsDelivery.handoverPointName?'Preferred point: <strong>'+esc(nsDelivery.handoverPointName)+'</strong><br>':'')+
-    'Delivery charge: <strong>'+esc(delivLine)+'</strong><br>'+
-    'Order total: <strong>'+esc(totalLine)+'</strong><br>'+
-    (chosen&&chosen.eta?'Timing: <strong>'+esc(chosen.eta)+'</strong>':'');
+    'Order plan: <strong>'+esc(freq[nsDelivery.recurring]||'One-time order')+'</strong><br>'+
+    'Delivery / handover charge: <strong>Confirmed after serviceability review</strong><br>'+
+    '<small style="display:block;line-height:1.5;color:rgba(255,255,255,.57);margin-top:5px">₹'+subtotal.toLocaleString('en-IN')+' is the product subtotal, not a final delivery-inclusive price. Repeat selections do not create an automatic subscription.</small>';
 }
 
 /* ─── Patch placeOrder to include delivery data ─── */
