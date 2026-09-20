@@ -67,6 +67,9 @@ jobs:
       - name: Admin media upload quality QA
         run: node scripts/admin-media-upload-quality-qa.mjs
         timeout-minutes: 12
+      - name: Admin Orders responsive layout QA
+        run: node scripts/admin-order-layout-qa.mjs
+        timeout-minutes: 5
       - name: Owner order delete OTP QA
         run: node scripts/admin-owner-order-otp-qa.mjs
         timeout-minutes: 12
@@ -162,6 +165,10 @@ jobs:
         if: always()
         run: node scripts/admin-owner-control-qa.mjs
         timeout-minutes: 12
+      - name: Admin Orders responsive layout QA
+        if: always()
+        run: node scripts/admin-order-layout-qa.mjs
+        timeout-minutes: 5
       - name: Owner order delete OTP QA
         if: always()
         run: node scripts/admin-owner-order-otp-qa.mjs
