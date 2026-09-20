@@ -21,7 +21,7 @@ async function inspectMediaLayout(page,label){
    const visual=card.querySelector('.ap-media-img'),body=card.querySelector('.ap-media-body'),img=visual?.querySelector('img'),cr=card.getBoundingClientRect(),vr=visual?.getBoundingClientRect(),br=body?.getBoundingClientRect();
    const buttons=[...(body?.querySelectorAll('button')||[])].filter(b=>{const s=getComputedStyle(b),r=b.getBoundingClientRect();return s.display!=='none'&&s.visibility!=='hidden'&&Number(s.opacity)>0&&r.width>0&&r.height>0;}).map(b=>{const r=b.getBoundingClientRect();return {text:(b.textContent||'').trim(),rect:{left:r.left,top:r.top,right:r.right,bottom:r.bottom,width:r.width,height:r.height},inside:r.left>=cr.left-1&&r.right<=cr.right+1&&r.top>=cr.top-1&&r.bottom<=cr.bottom+1};});
    const nw=img?.naturalWidth||0,nh=img?.naturalHeight||0;
-   return {id:card.dataset.id||'',card:{left:cr.left,top:cr.top,right:cr.right,bottom:cr.bottom,width:cr.width,height:cr.height},visual:vr&&{top:vr.top,bottom:vr.bottom,height:vr.height},body:br&&{top:br.top,bottom:br.bottom,height:br.height},buttons,nw,nh,portrait:nh>nw*1.15,landscape:nw>nh*1.15,imgRect:img?(()=>{const r=img.getBoundingClientRect();return {top:r.top,bottom:r.bottom,height:r.height}})():null};
+   return {id:card.dataset.id||'',card:{left:cr.left,top:cr.top,right:cr.right,bottom:cr.bottom,width:cr.width,height:cr.height},visual:vr&&{top:vr.top,bottom:vr.bottom,height:vr.height},body:br&&{top:br.top,bottom:br.bottom,height:br.height},buttons,nw,nh,fit:img?getComputedStyle(img).objectFit:null,portrait:nh>nw*1.15,landscape:nw>nh*1.15,imgRect:img?(()=>{const r=img.getBoundingClientRect();return {top:r.top,bottom:r.bottom,height:r.height}})():null};
   });
   return {rows,overflow:document.documentElement.scrollWidth>innerWidth+2,viewportWidth:innerWidth};
  });
@@ -33,6 +33,7 @@ async function inspectMediaLayout(page,label){
   const expected=result.viewportWidth<=860?200:220;
   must(Math.abs(row.visual.height-expected)<=2,`${label}: ${row.id} visual escaped bounded height ${row.visual.height} expected ${expected}`);
   must(row.body.top>=row.visual.bottom-1,`${label}: ${row.id} body overlaps visual (${row.body.top} < ${row.visual.bottom})`);
+  must(!row.imgRect||row.fit==='contain',`${label}: ${row.id} Admin thumbnail is cropped; expected object-fit: contain, got ${row.fit}`);
   if(row.imgRect)must(row.imgRect.bottom<=row.visual.bottom+1&&row.imgRect.top>=row.visual.top-1,`${label}: ${row.id} image escaped visual bounds`);
   must(row.buttons.length>=1,`${label}: ${row.id} has no visible media action buttons`);
   for(const b of row.buttons)must(b.inside,`${label}: ${row.id} action escaped card: ${b.text}`);
