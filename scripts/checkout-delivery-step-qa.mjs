@@ -35,7 +35,9 @@ try{
       const section=document.querySelector('#ns-del-opts-section'),list=document.querySelector('#ns-del-opts-list');
       const cards=[...list.querySelectorAll('.ns-del-opt')];
       const rect=e=>{const r=e.getBoundingClientRect();return {width:r.width,height:r.height,left:r.left,right:r.right};};
-      return {section:rect(section),list:rect(list),cards:cards.map(rect),columns:getComputedStyle(list).gridTemplateColumns,viewport:innerWidth};
+      const computed=el=>{const s=getComputedStyle(el);return {display:s.display,width:s.width,maxWidth:s.maxWidth,minWidth:s.minWidth,grid:s.gridTemplateColumns,justifySelf:s.justifySelf,boxSizing:s.boxSizing,flex:s.flex,position:s.position}};
+      const ancestors=[];let el=list;while(el&&ancestors.length<5){ancestors.push({tag:el.tagName,id:el.id,classes:el.className,rect:rect(el),computed:computed(el)});el=el.parentElement;}
+      return {section:rect(section),list:rect(list),cards:cards.map(rect),columns:getComputedStyle(list).gridTemplateColumns,viewport:innerWidth,ancestors};
     });
     console.log('CHECKOUT DELIVERY CARD LAYOUT '+size+': '+JSON.stringify(layout));
     must(layout.list.width>=layout.section.width-56,size+' delivery options do not fill the full panel: '+JSON.stringify(layout));
