@@ -90,7 +90,7 @@ function renderSegments(){
  $('#apRepeatSegmentOrders')?.addEventListener('click',()=>{
    const items=repeat.map(group=>`<div class="ap-list-item"><div><strong>${esc(group.name)}</strong><span>${group.orderIds.size} recorded orders</span></div><div>${[...group.orderIds].map(id=>`<button class="ap-btn mini" type="button" data-seg-order-id="${esc(id)}">${esc(id)}</button>`).join(' ')}</div></div>`).join('');
    modal('Repeat order contacts','Derived from the currently loaded private order records',`<div class="ap-list">${items||'<div class="ap-empty">No repeat order contacts were identified.</div>'}</div>`);
-   $('#apModalBody [data-seg-order-id]').forEach(btn=>btn.addEventListener('click',()=>{
+   $$('#apModalBody [data-seg-order-id]').forEach(btn=>btn.addEventListener('click',()=>{
      const id=btn.dataset.segOrderId;
      closeModal();openView('orders');
      const search=$('#apOrderSearch');if(search){search.value=id;search.dispatchEvent(new Event('input',{bubbles:true}));}
