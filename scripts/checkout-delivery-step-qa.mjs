@@ -51,6 +51,32 @@ try{
     must(await page.locator('#ns-opt-door').getAttribute('aria-pressed')==='false',size+' previous selection stayed active');
     must(await page.locator('#ns-handover-panel').evaluate(el=>el.classList.contains('show')),size+' railway station details not displayed');
     must(/locality|contact address/i.test(await page.locator('label[for="oA"]').textContent()),size+' pickup still requests handover-point address');
+    /* Distance must appear only when the customer location and candidate's coordinates exist.
+       Route responses are mocked: no hosted traffic or real place requests during CI. */
+    const noCoords=await page.evaluate(()=>{
+      const state=window.NSDeliveryState;state.lat=null;state.lng=null;
+      window.dispatchEvent(new CustomEvent('ns:location-updated',{detail:{...state}}));
+      return document.querySelector('#ns-handover-distance')?.textContent||'';
+    });
+    must(!noCoords,size+' must not invent a distance before customer location is known');
+    await page.route(/https:\/\/nominatim\.openstreetmap\.org\/search\?/,async route=>{
+      await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify([
+        {lat:'23.19150',lon:'79.98640',display_name:'QA Station Alpha, Jabalpur, India'},
+        {lat:'23.20150',lon:'79.98640',display_name:'QA Station Beta, Jabalpur, India'}
+      ])});
+    });
+    await page.evaluate(()=>{const state=window.NSDeliveryState;state.lat=23.1815;state.lng=79.9864;state.accuracy=35;window.dispatchEvent(new CustomEvent('ns:location-updated',{detail:{...state}}));});
+    await page.evaluate(()=>window.nsFindHandover('railway_station'));
+    await page.waitForSelector('#ns-place-results [data-ns-place="0"]',{state:'visible'});
+    const firstDistance=(await page.locator('#ns-place-results [data-ns-place="0"] .ns-place-distance').textContent())||'';
+    must(/Approx\.\s+1\.1\s+km\s+straight-line/i.test(firstDistance)&&/road distance may differ/i.test(firstDistance),size+' place listing must show accurate, qualified straight-line distance: '+firstDistance);
+    await page.locator('#ns-place-results [data-ns-place="0"]').click();
+    must(/Approx\.\s+1\.1\s+km\s+straight-line/i.test(await page.locator('#ns-del-summary').textContent()),size+' chosen handover distance missing from order summary');
+    must(/Approx\.\s+1\.1\s+km\s+straight-line/i.test(await page.locator('#ns-handover-distance').textContent()),size+' chosen handover distance missing beside handover choice');
+    await page.locator('#ns-handover-name').fill('Manual station with no known coordinates');
+    must(!/Approx\.\s+1\.1\s+km/.test(await page.locator('#ns-del-summary').textContent()),size+' manual handover name must not inherit stale coordinates');
+    must(await page.locator('#ns-handover-distance').isHidden(),size+' manual handover name must hide stale distance');
+    await page.evaluate(()=>{const state=window.NSDeliveryState;state.lat=null;state.lng=null;window.dispatchEvent(new CustomEvent('ns:location-updated',{detail:{...state}}));});
     await page.locator('#ns-handover-name').fill('Jabalpur Junction');
     must(/Jabalpur Junction/.test(await page.locator('#ns-del-summary').textContent()),size+' preferred railway station missing from summary');
     await page.locator('.ns-recur-btn[onclick*="weekly"]').click();
