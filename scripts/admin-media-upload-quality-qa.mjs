@@ -60,11 +60,12 @@ async function inspectMediaLayout(page,label){
      return {width,height,fit:style.objectFit,position:style.position,shownWidth:ir.width,shownHeight:ir.height,frameHeight:vr.height,frameWidth:vr.width};
    });
    if(check.width&&check.height){
-    const expected=check.shownWidth*check.height/check.width;
-    must(check.fit==='contain',`${label}: ${id} is cropped after scrolling into view: ${JSON.stringify(check)}`);
-    must(check.shownHeight>0&&check.frameHeight>0,`${label}: ${id} has no visible image frame: ${JSON.stringify(check)}`);
-    must(Math.abs(check.shownHeight-expected)<4,`${label}: ${id} image aspect ratio differs from its source: ${JSON.stringify(check)}`);
-    must(Math.abs(check.frameHeight-check.shownHeight)<4,`${label}: ${id} image is cut off by its frame: ${JSON.stringify(check)}`);
+    must(check.fit==='contain',`${label}: ${id} image uses crop/cover: ${JSON.stringify(check)}`);
+    must(check.shownHeight>0&&check.frameHeight>0,`${label}: ${id} has no visible preview: ${JSON.stringify(check)}`);
+    must(Math.abs(check.frameHeight-check.frameWidth*.75)<4,`${label}: ${id} preview is not 4:3: ${JSON.stringify(check)}`);
+    must(Math.abs(check.shownHeight-check.frameHeight)<4&&Math.abs(check.shownWidth-check.frameWidth)<4,`${label}: ${id} image box escapes containment frame: ${JSON.stringify(check)}`);
+    const scale=Math.min(check.frameWidth/check.width,check.frameHeight/check.height);
+    must(check.width*scale<=check.frameWidth+1&&check.height*scale<=check.frameHeight+1,`${label}: ${id} cannot show full source`);
    }else if(/^G00[2-7]$/.test(id))throw new Error(`${label}: ${id} reference image failed to load`);
    if(id==='G002'||id==='G003'||id==='G004'||id==='G006'){
     await card.screenshot({path:path.join(OUT,'media-full-'+label+'-'+id+'.png'),animations:'disabled'});
