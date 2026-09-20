@@ -31,6 +31,16 @@ try{
     must(position.product<position.delivery&&position.delivery<position.address&&position.address<position.city,size+' delivery must follow product and precede address: '+JSON.stringify(position));
     must(position.notes<position.summary,size+' order summary must follow the address and note: '+JSON.stringify(position));
     must(position.rootWidth<=position.orderWidth+3,size+' delivery section overflows order card: '+JSON.stringify(position));
+    const layout=await page.evaluate(()=>{
+      const section=document.querySelector('#ns-del-opts-section'),list=document.querySelector('#ns-del-opts-list');
+      const cards=[...list.querySelectorAll('.ns-del-opt')];
+      const rect=e=>{const r=e.getBoundingClientRect();return {width:r.width,height:r.height,left:r.left,right:r.right};};
+      return {section:rect(section),list:rect(list),cards:cards.map(rect),columns:getComputedStyle(list).gridTemplateColumns,viewport:innerWidth};
+    });
+    console.log('CHECKOUT DELIVERY CARD LAYOUT '+size+': '+JSON.stringify(layout));
+    must(layout.list.width>=layout.section.width-56,size+' delivery options do not fill the full panel: '+JSON.stringify(layout));
+    must(layout.cards.every(x=>x.width>=Math.min(240,layout.list.width*.42)),size+' delivery cards are too narrow: '+JSON.stringify(layout));
+    must(layout.cards.every(x=>x.right<=layout.section.right+2),size+' delivery cards overflow the panel: '+JSON.stringify(layout));
     must(/receive your order/i.test(position.stepText),size+' delivery preference heading missing');
     must(await page.locator('#ns-opt-door').getAttribute('aria-pressed')==='true',size+' door default selection missing');
     must(/delivery\s*\/\s*handover charge\s*:\s*Confirmed after serviceability review/is.test(await page.locator('#ns-del-summary').textContent()),size+' summary misrepresents unknown delivery fees');
