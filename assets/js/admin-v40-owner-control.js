@@ -6,14 +6,14 @@ const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelecto
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const TARGETS=[
  {id:'homepage-hero',name:'Homepage hero',page:'Homepage',url:'/',desc:'Main product/lifestyle hero',def:'/assets/images/nariyal-premium-hero.webp'},
- {id:'homepage-brand',name:'Brand moment',page:'Homepage',url:'/#brand-moment',desc:'Immersive brand background',def:'/assets/images/review/coastal-grove.png'},
- {id:'homepage-harvest-1',name:'Harvest film · frame 1',page:'Homepage',url:'/#harvest-film',desc:'First harvest editorial frame',def:'/assets/images/review/coastal-grove.png'},
- {id:'homepage-harvest-2',name:'Harvest film · frame 2',page:'Homepage',url:'/#harvest-film',desc:'Second harvest editorial frame',def:'/assets/images/review/backwater-grove.png'},
+ {id:'homepage-brand',name:'Brand moment',page:'Homepage',url:'/#brand-moment',desc:'Immersive brand background',def:'/assets/images/review/coastal-grove.webp'},
+ {id:'homepage-harvest-1',name:'Harvest film · frame 1',page:'Homepage',url:'/#harvest-film',desc:'First harvest editorial frame',def:'/assets/images/review/coastal-grove.webp'},
+ {id:'homepage-harvest-2',name:'Harvest film · frame 2',page:'Homepage',url:'/#harvest-film',desc:'Second harvest editorial frame',def:'/assets/images/review/backwater-grove.webp'},
  {id:'homepage-harvest-3',name:'Harvest film · frame 3',page:'Homepage',url:'/#harvest-film',desc:'Third harvest editorial frame',def:'/assets/images/nariyal-product-collection.webp'},
- {id:'homepage-people-teaser',name:'People teaser',page:'Homepage',url:'/#people-of-nariyal',desc:'People editorial image',def:'/assets/images/review/coastal-grove.png'},
- {id:'homepage-cinematic-grove',name:'Cinematic grove',page:'Homepage',url:'/#v421-cinematic-film-pro',desc:'Cinematic background',def:'/assets/images/review/coastal-grove.png'},
- {id:'homepage-cinematic-canopy',name:'Cinematic canopy',page:'Homepage',url:'/#v421-cinematic-film-pro',desc:'Cinematic upper canopy',def:'/assets/images/review/backwater-grove.png'},
- {id:'people-hero',name:'People page hero',page:'People',url:'/people-of-nariyal-sutra.html',desc:'People hero',def:'/assets/images/review/coastal-grove.png'},
+ {id:'homepage-people-teaser',name:'People teaser',page:'Homepage',url:'/#people-of-nariyal',desc:'People editorial image',def:'/assets/images/review/coastal-grove.webp'},
+ {id:'homepage-cinematic-grove',name:'Cinematic grove',page:'Homepage',url:'/#v421-cinematic-film-pro',desc:'Cinematic background',def:'/assets/images/review/coastal-grove.webp'},
+ {id:'homepage-cinematic-canopy',name:'Cinematic canopy',page:'Homepage',url:'/#v421-cinematic-film-pro',desc:'Cinematic upper canopy',def:'/assets/images/review/backwater-grove.webp'},
+ {id:'people-hero',name:'People page hero',page:'People',url:'/people-of-nariyal-sutra.html',desc:'People hero',def:'/assets/images/review/coastal-grove.webp'},
  {id:'fresh-tender-hero',name:'Fresh tender page hero',page:'Fresh Tender',url:'/fresh-tender-coconut.html',desc:'Fresh tender hero',def:'/assets/images/nariyal-premium-hero.webp'},
  {id:'green-hero',name:'Green coconut page hero',page:'Green Coconut',url:'/green-coconut.html',desc:'Green coconut hero',def:'/assets/images/green-round-coconut.jpg'},
  {id:'bulk-hero',name:'Bulk supply page hero',page:'Bulk Supply',url:'/bulk-coconut-supply.html',desc:'Bulk supply hero',def:'/assets/images/nariyal-product-collection.webp'}

@@ -15,8 +15,8 @@ const defaults={
   {name:'MMR partner node',ownership:'Partner-operated',city:'Virar / Mumbai Metropolitan Region'}
  ],
  media:[
-  {id:'M-ORIGIN-01',name:'Coastal coconut grove',status:'Approved',visible:true,placement:'Homepage',src:'assets/images/review/coastal-grove.png'},
-  {id:'M-ORIGIN-02',name:'Backwater coconut grove',status:'Approved',visible:true,placement:'Sourcing',src:'assets/images/review/backwater-grove.png'},
+  {id:'M-ORIGIN-01',name:'Coastal coconut grove',status:'Approved',visible:true,placement:'Homepage',src:'assets/images/review/coastal-grove.webp'},
+  {id:'M-ORIGIN-02',name:'Backwater coconut grove',status:'Approved',visible:true,placement:'Sourcing',src:'assets/images/review/backwater-grove.webp'},
   {id:'M-LIVE-01',name:'Protected coconut hero',status:'Approved',visible:true,placement:'Product',src:'/assets/images/story-coconut-hero.png'}
  ],
  sections:[

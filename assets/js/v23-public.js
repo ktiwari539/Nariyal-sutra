@@ -8,7 +8,7 @@ async function mediaURL(s,id){const m=Store&&Store.mediaById(s,id);if(!m)return 
 function realisticIntro(){
  const intro=$('#jungle-intro'); if(!intro) return;
  const shots=$$('.ji-cinema-shot',intro);
- const srcs=['assets/images/review/coastal-grove.png','assets/images/review/backwater-grove.png','assets/images/nariyal-coconut-grove.webp'];
+ const srcs=['assets/images/review/coastal-grove.webp','assets/images/review/backwater-grove.webp','assets/images/nariyal-coconut-grove.webp'];
  shots.forEach((img,i)=>{img.src=srcs[i%srcs.length];img.removeAttribute('height');img.removeAttribute('width');});
  const status=$('.ji-film-status span',intro); if(status)status.textContent='COAST · BACKWATER · GROVE';
 }

@@ -7,13 +7,13 @@ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const TARGETS=[
  ['homepage-hero','Homepage hero','Main product/lifestyle hero','/assets/images/nariyal-premium-hero.webp'],
  ['homepage-brand','Brand moment','Immersive brand background','/assets/images/website-media/ws010-coast-sunset-grove.webp'],
- ['homepage-harvest-1','Harvest film · frame 1','First harvest editorial frame','/assets/images/review/coastal-grove.png'],
+ ['homepage-harvest-1','Harvest film · frame 1','First harvest editorial frame','/assets/images/review/coastal-grove.webp'],
  ['homepage-harvest-2','Harvest film · frame 2','Second harvest editorial frame','/assets/images/website-media/ws005-field-harvest-workers.webp'],
  ['homepage-harvest-3','Harvest film · frame 3','Third harvest editorial frame','/assets/images/website-media/ws006-tender-coconut-basket.webp'],
  ['homepage-people-teaser','People teaser','People of Nariyal Sutra editorial image','/assets/images/ambassadors/G001.webp'],
- ['homepage-cinematic-grove','Cinematic grove','Professional cinematic background','/assets/images/review/coastal-grove.png'],
- ['homepage-cinematic-canopy','Cinematic canopy','Professional cinematic upper canopy','/assets/images/review/coastal-grove.png'],
- ['people-hero','People page hero','People of Nariyal Sutra hero','/assets/images/review/coastal-grove.png'],
+ ['homepage-cinematic-grove','Cinematic grove','Professional cinematic background','/assets/images/review/coastal-grove.webp'],
+ ['homepage-cinematic-canopy','Cinematic canopy','Professional cinematic upper canopy','/assets/images/review/coastal-grove.webp'],
+ ['people-hero','People page hero','People of Nariyal Sutra hero','/assets/images/review/coastal-grove.webp'],
  ['fresh-tender-hero','Fresh tender page hero','Fresh tender coconut hero','/assets/images/nariyal-premium-hero.webp'],
  ['green-hero','Green coconut page hero','Green coconut hero','/assets/images/green-round-coconut.jpg'],
  ['bulk-hero','Bulk supply page hero','Bulk supply hero','/assets/images/nariyal-product-collection.webp']

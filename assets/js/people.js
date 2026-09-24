@@ -28,10 +28,10 @@ function init(){
     const selectedId=s.sectionMedia&&s.sectionMedia['people-hero'];
     const selected=selectedId?byAnyId(selectedId):null;
     const selectedAllowed=selected&&(!Store||Store.eligibleForPublic(s,selected))&&largeReady(selected);
-    const src=selectedAllowed?(selected.src||selected.thumb):'assets/images/review/coastal-grove.png';
+    const src=selectedAllowed?(selected.src||selected.thumb):'assets/images/review/coastal-grove.webp';
     hero.src=src;
     if(selectedAllowed&&selected.localBlobKey)hero.setAttribute('data-local-blob-key',selected.localBlobKey);else hero.removeAttribute('data-local-blob-key');
-    hero.onerror=()=>{hero.onerror=null;hero.src='assets/images/review/coastal-grove.png';hero.removeAttribute('data-local-blob-key');};
+    hero.onerror=()=>{hero.onerror=null;hero.src='assets/images/review/coastal-grove.webp';hero.removeAttribute('data-local-blob-key');};
   }
   if(MediaDB&&MediaDB.hydrate)MediaDB.hydrate(document);
 }

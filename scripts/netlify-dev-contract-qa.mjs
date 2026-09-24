@@ -24,7 +24,7 @@ if(!/upgrade-insecure-requests/i.test(sourceHeaders))throw new Error('Production
 if(/upgrade-insecure-requests/i.test(devHeaders))throw new Error('Generated Dev CSP still forces HTTPS on localhost');
 if(/https?:\/\/(?:[a-f0-9]{20,}--)?nariyal-sutra\.netlify\.app\/assets\//i.test(devIndex))throw new Error('Generated Dev index still depends on production runtime assets');
 if(!/^\/admin\s+\/admin-preview\.html\s+200$/m.test(devRedirects))throw new Error('Netlify Dev /admin route does not open admin-preview.html directly');
-if(!/people-uploads\/U002\.png/.test(peopleCss))throw new Error('People feature header is not wired to U002');
+if(!/people-uploads\/U002\.webp/.test(peopleCss))throw new Error('People feature header is not wired to the optimized U002 asset');
 
 for(const rel of [
   'index.html',
@@ -41,7 +41,8 @@ for(const rel of [
   'assets/images/story-coconut-hero.png',
   'assets/images/story-coconut-body-cut.png',
   'assets/images/story-coconut-cap-cut.png',
-  'assets/images/people-uploads/U002.png'
+  'assets/images/people-uploads/U002.png',
+  'assets/images/people-uploads/U002.webp'
 ]){
   if(!fs.existsSync(path.join(devRoot,rel)))throw new Error(`Generated Dev publish tree missing ${rel}`);
 }

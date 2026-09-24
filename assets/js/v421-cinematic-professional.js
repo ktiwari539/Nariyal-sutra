@@ -114,10 +114,10 @@ function build(){
     film.id=ID;
     film.setAttribute('aria-label','Cinematic coconut harvest, cut and water sequence');
     film.innerHTML=`<div class="nspro-stage">
-      <img class="nspro-bg" src="/assets/images/review/coastal-grove.png" alt="Coconut palms beside the coast">
+      <img class="nspro-bg" src="/assets/images/review/coastal-grove.webp" alt="Coconut palms beside the coast">
       <div class="nspro-grade"></div>
       <div class="nspro-rain" aria-hidden="true"></div>
-      <img class="nspro-canopy-photo" src="/assets/images/review/coastal-grove.png" alt="" aria-hidden="true">
+      <img class="nspro-canopy-photo" src="/assets/images/review/coastal-grove.webp" alt="" aria-hidden="true">
       <div class="nspro-canopy-shade"></div>
       <div class="nspro-copy"><div class="nspro-kicker">Nariyal Sutra · Harvest Film</div><h2>The grove lets go.<em>One coconut stays.</em></h2><p>Fresh coconuts fall through the palms in depth. One moves into focus, is opened in one clean motion, and the water takes over the frame.</p></div>
       <div class="nspro-focus-ring" aria-hidden="true"></div>

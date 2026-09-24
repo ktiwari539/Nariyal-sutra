@@ -1490,38 +1490,7 @@ body.ns-story-active .story-skip{display:block}.story-skip:hover{color:var(--gol
 }
 </style>
 <!-- ANALYTICS — Google Analytics + optional Firebase Analytics / Performance -->
-<script>
-(function(){
-  const GA_ID='G-MXWV5S3CWY';
-  const TEST_ORIGIN=/^(localhost|127\.0\.0\.1|\[::1\]|[a-z0-9-]+--nariyal-sutra\.netlify\.app)$/i.test(location.hostname);
-  window.__nsEventQueue=[];
-  window.nsAnalyticsEvent=function(name,params){
-    params=params||{};
-    if(window.__nsAnalyticsDispatch){ window.__nsAnalyticsDispatch(name,params); }
-    else{ window.__nsEventQueue.push([name,params]); }
-  };
-  window.trackEvent=function(action,category,label){
-    window.nsAnalyticsEvent(action,{event_category:category||'site',event_label:label||''});
-  };
-  window.__nsFlushAnalytics=function(){
-    if(!window.__nsAnalyticsDispatch) return;
-    const q=window.__nsEventQueue.splice(0);
-    q.forEach(function(x){ window.__nsAnalyticsDispatch(x[0],x[1]); });
-  };
-  window.__nsLoadGA4=function(){
-    if(TEST_ORIGIN)return;
-    if(window.__nsGA4Loaded) return;
-    window.__nsGA4Loaded=true;
-    window.dataLayer=window.dataLayer||[];
-    window.gtag=window.gtag||function(){dataLayer.push(arguments);};
-    const s=document.createElement('script');s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id='+encodeURIComponent(GA_ID);document.head.appendChild(s);
-    gtag('js',new Date());
-    gtag('config',GA_ID,{send_page_view:true});
-    window.__nsAnalyticsDispatch=function(name,params){gtag('event',name,params||{});};
-    window.__nsFlushAnalytics();
-  };
-})();
-</script>
+<script src="assets/js/homepage-analytics.js"></script>
 <script defer="" src="firebase-config.js"></script>
 <script defer="" src="emailjs-config.js"></script>
 <script defer="" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
@@ -1650,7 +1619,6 @@ body.ns-story-active .story-skip{display:block}.story-skip:hover{color:var(--gol
 @media(max-width:820px){.ns-people-teaser{grid-template-columns:1fr}.ns-people-visual{min-height:330px}.ns-people-copy{padding:30px 22px 34px}}
 </style>
 <link href="assets/css/v20-review-fixes.css" rel="stylesheet"/>
-<link crossorigin="" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet"/>
 <link href="assets/css/v21-public.css" rel="stylesheet"/>
 <link href="assets/css/v23-public.css" rel="stylesheet"/><link href="assets/css/v25-public.css" rel="stylesheet"/><link href="assets/css/v27-public.css" rel="stylesheet"/>
 <link rel="stylesheet" href="assets/css/v28-public.css"><link rel="stylesheet" href="assets/css/v29-public.css"><link href="assets/css/v30-public.css" rel="stylesheet"/><link href="assets/css/v31-public.css" rel="stylesheet"/><link href="assets/css/v32-public.css" rel="stylesheet"/><link href="assets/css/v33-public.css" rel="stylesheet"/><link href="assets/css/v36-public.css" rel="stylesheet"/>
@@ -1665,8 +1633,8 @@ body.ns-story-active .story-skip{display:block}.story-skip:hover{color:var(--gol
 <div class="ji-sky"></div>
 <!-- V16 film wash: real photography changes underneath the ORIGINAL jungle illustration. -->
 <div aria-hidden="true" class="ji-cinematic-wash">
-<img alt="" class="ji-cinema-shot is-active" decoding="async" height="900" src="assets/images/review/coastal-grove.png" width="1600"/>
-<img alt="" class="ji-cinema-shot" decoding="async" height="900" src="assets/images/review/backwater-grove.png" width="1600"/>
+<img alt="" class="ji-cinema-shot is-active" decoding="async" height="900" src="assets/images/review/coastal-grove.webp" width="1600"/>
+<img alt="" class="ji-cinema-shot" decoding="async" height="900" src="assets/images/review/backwater-grove.webp" width="1600"/>
 <img alt="" class="ji-cinema-shot" decoding="async" height="900" src="assets/images/nariyal-coconut-grove.webp" width="1600"/>
 </div>
 <div aria-hidden="true" class="ji-letterbox top"></div>
@@ -2248,11 +2216,11 @@ body.ns-story-active .story-skip{display:block}.story-skip:hover{color:var(--gol
 
 <div aria-label="Explore Nariyal Sutra story worlds" class="promise-portals r">
 <a class="promise-portal coast" href="gujarat-coast.html">
-<img alt="Gujarat Coast sourcing story at Madhavpur" decoding="async" loading="lazy" src="assets/images/review/coastal-grove.png"/>
+<img alt="Gujarat Coast sourcing story at Madhavpur" decoding="async" loading="lazy" src="assets/images/review/coastal-grove.webp"/>
 <span>01 · COAST</span><h3>Gujarat Coast</h3><p>Warm coastal sourcing story.</p><b>ENTER WORLD ↗</b>
 </a>
 <a class="promise-portal grove" href="south-india-groves.html">
-<img alt="South India coconut canopy story" decoding="async" loading="lazy" src="assets/images/review/backwater-grove.png"/>
+<img alt="South India coconut canopy story" decoding="async" loading="lazy" src="assets/images/review/backwater-grove.webp"/>
 <span>02 · CANOPY</span><h3>South India</h3><p>Step inside a layered grove.</p><b>ENTER WORLD ↗</b>
 </a>
 <a class="promise-portal farm" href="direct-farm.html">
@@ -3558,7 +3526,6 @@ function closeModal(){ document.getElementById('confirmModal').style.display='no
 <script defer="" src="assets/js/v17-cinematic.js"></script>
 <script src="assets/js/v421-local-store.js"></script>
 <script defer="" src="ns-delivery.js"></script>
-<script crossorigin="" defer="" src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script defer="" src="assets/js/ns-smart-location.js"></script>
 <script defer="" src="ns-order-patch.js"></script>
 <script defer="" src="customer-account.js"></script>
