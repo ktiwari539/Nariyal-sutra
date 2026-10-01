@@ -14,11 +14,11 @@
  --ns-nav:rgba(250,247,236,.96);--ns-field:#fffef9;--ns-focus:#206d45;
 }
 :root[data-ns-theme="coastal-premium"]{
- color-scheme:dark;--ns-page:#071711;--ns-section:#0b2118;--ns-surface:#10291e;--ns-surface-2:#173426;
- --ns-primary:#15452f;--ns-secondary:#2d6c50;--ns-accent:#c7a15c;--ns-accent-soft:#e7cf9a;
- --ns-heading:#fff8ea;--ns-body:#eee5d4;--ns-muted:#b7b3a6;--ns-link:#e7cf9a;
- --ns-border:rgba(211,178,111,.26);--ns-radius:12px;--ns-shadow:0 30px 80px rgba(0,0,0,.34);
- --ns-nav:rgba(7,23,17,.96);--ns-field:#0c2017;--ns-focus:#e7cf9a;
+ color-scheme:dark;--ns-page:#041820;--ns-section:#082a34;--ns-surface:#0c3440;--ns-surface-2:#154957;
+ --ns-primary:#0c5261;--ns-secondary:#52a6a6;--ns-accent:#ddb66d;--ns-accent-soft:#f1d7a5;
+ --ns-heading:#fff9ec;--ns-body:#e8f0ec;--ns-muted:#a9c3c2;--ns-link:#f1d7a5;
+ --ns-border:rgba(117,190,190,.3);--ns-radius:16px 3px 16px 3px;--ns-shadow:0 28px 70px rgba(0,10,17,.42);
+ --ns-nav:rgba(4,24,32,.96);--ns-field:#082731;--ns-focus:#f1d7a5;
 }
 html[data-ns-theme] body{background:var(--ns-page)!important;color:var(--ns-body)!important}
 html[data-ns-theme] :where(h1,h2,h3,h4,.logo-name,.w-brand strong,.sp-brand strong){color:var(--ns-heading)}
@@ -44,9 +44,16 @@ html[data-ns-theme="fresh-grove"] :where(.pc-desc,.sec-sub,.pc-per,.pcard-copy,.
 html[data-ns-theme="fresh-grove"] :where(.pc-btn,.po-btn){border-color:var(--ns-secondary)!important;color:var(--ns-primary)!important;background:#f7f3e6!important}
 html[data-ns-theme="fresh-grove"] .collection-rail{border-color:var(--ns-border)!important}
 html[data-ns-theme="coastal-premium"] :where(.product-card,.price-card,.use-card,.story-card,.world-card,.sp-card,.order-card,.checkout-card,.faq-item){background:linear-gradient(145deg,var(--ns-surface),var(--ns-surface-2))!important}
-html[data-ns-theme="coastal-premium"] :where(#collection,#price-list,#how-to-order,#coconut-uses,#order,#contact,.faq-section){background:linear-gradient(180deg,var(--ns-page),var(--ns-section),var(--ns-page))!important}
-html[data-ns-theme="coastal-premium"] :where(.pc,.price-card,.why-card,.hto-step,.use-card,.ci,.order-card){background:linear-gradient(145deg,var(--ns-surface),var(--ns-surface-2))!important;border-color:var(--ns-border)!important;box-shadow:var(--ns-shadow);border-radius:var(--ns-radius)}
-html[data-ns-theme="coastal-premium"] :where(h1,h2,.w-hero-copy h1,.sp-hero h1){letter-spacing:-.025em}
+html[data-ns-theme="coastal-premium"] :where(#collection,#how-to-order,#order,.faq-section){background:radial-gradient(circle at 15% 0,rgba(82,166,166,.14),transparent 36%),linear-gradient(180deg,#041820,#082a34)!important}
+html[data-ns-theme="coastal-premium"] :where(#price-list,#coconut-uses,#contact){background:linear-gradient(135deg,#0b313c 0%,#041820 58%,#092832 100%)!important}
+html[data-ns-theme="coastal-premium"] :where(.pc,.price-card,.why-card,.hto-step,.use-card,.ci,.order-card){background:linear-gradient(145deg,rgba(12,52,64,.97),rgba(21,73,87,.92))!important;border:1px solid var(--ns-border)!important;border-top:3px solid var(--ns-accent)!important;box-shadow:var(--ns-shadow);border-radius:var(--ns-radius)}
+html[data-ns-theme="coastal-premium"] :where(.pc-btn,.po-btn){background:rgba(4,24,32,.55)!important;border-color:var(--ns-secondary)!important;color:var(--ns-accent-soft)!important}
+html[data-ns-theme="coastal-premium"] :where(.price-card.featured,.order-card){box-shadow:0 0 0 1px rgba(221,182,109,.45),var(--ns-shadow)}
+html[data-ns-theme="coastal-premium"] :where(.sec-title,.pc-name,.pcard-title,.order-card h2){color:var(--ns-heading)!important;letter-spacing:-.025em}
+html[data-ns-theme="coastal-premium"] :where(.eyebrow,.kicker,.w-kicker,.logo-tag){color:var(--ns-secondary)!important}
+html[data-ns-theme="coastal-premium"] :where(.order-card input,.order-card select,.order-card textarea){background:#062630!important;border-color:rgba(117,190,190,.42)!important}
+html[data-ns-theme="coastal-premium"] footer{background:#031219!important;border-top:1px solid var(--ns-border)}
+html[data-ns-theme="coastal-premium"] :where(h1,h2,.w-hero-copy h1,.sp-hero h1){letter-spacing:-.035em}
 html[data-ns-theme="coastal-premium"] :where(img){border-color:var(--ns-border)}
 @media(max-width:760px){html[data-ns-theme] :where(.product-card,.price-card,.use-card,.story-card,.world-card,.sp-card){border-radius:min(var(--ns-radius),12px)}html[data-ns-theme] :where(button,.btn,.w-btn){min-height:44px}}
 @media(prefers-reduced-motion:reduce){html[data-ns-theme] *{scroll-behavior:auto}}
