@@ -7,6 +7,32 @@ concurrency:
   group: cinematic-rebuild-qa-${{ github.ref }}
   cancel-in-progress: true
 jobs:
+  themes-pricing-water:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Authoritative pricing races
+        run: node scripts/price-sync-qa.mjs
+      - name: Four themes and contrast
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/ns-theme-http.log 2>&1 &
+          node scripts/themes-qa.mjs
+      - name: Price loading and checkout
+        if: always()
+        run: node scripts/price-browser-qa.mjs
+      - name: Private packaged-water preview
+        if: always()
+        run: node scripts/water-formats-qa.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: theme-price-water-evidence
+          path: qa-artifacts/
+          retention-days: 14
   firebase-contract:
     runs-on: ubuntu-latest
     timeout-minutes: 25

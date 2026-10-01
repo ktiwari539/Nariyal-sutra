@@ -47,7 +47,10 @@ async function saveStaffPhoto(file){
 }
 
 function toast(msg){const e=$('#apToast');if(!e)return;e.textContent=msg;e.classList.add('is-show');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('is-show'),2200);}
-function save(action,target){Store.audit(state,action,target);Store.save(state);renderAll(false);toast(action);}
+async function save(action,target){Store.audit(state,action,target);Store.save(state);renderAll(false);
+ if(action==='Product updated'&&window.NSV421ProductionBridge?.isProduction){toast('Saving product to live catalog…');try{await window.NSV421ProductionBridge.persist();toast('Product saved to live catalog.');}catch(e){toast('Save failed — customer catalog was not confirmed. Retry the product save.');}return;}
+ toast(action);
+}
 function can(role,view){return rolePerms[role]==='*'||(rolePerms[role]||[]).includes(view);}
 function currentRole(){return $('#apRole')?.value||'Owner';}
 function modal(title,sub,body){$('#apModalTitle').textContent=title;$('#apModalSub').textContent=sub||'';$('#apModalBody').innerHTML=body;$('#apModal').classList.add('is-open');}

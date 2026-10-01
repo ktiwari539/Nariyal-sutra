@@ -2,6 +2,8 @@
 
 <html lang="en">
 <head>
+<script src="assets/js/live-catalog.js"></script>
+<link rel="stylesheet" href="assets/css/water-formats.css"><script src="assets/js/water-formats.js"></script>
 <meta charset="utf-8"/>
 <meta content="v42.1-v36-admin-runtime-fast-harvest-2026-09-09" name="nariyal-build"/>
 <meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
@@ -1549,48 +1551,7 @@ body.ns-story-active .story-skip{display:block}.story-skip:hover{color:var(--gol
       return inquiry.inquiryId;
     };
 
-    const defaultCatalog=window.NS_DEFAULT_PRODUCTS||{};
-    function publishCatalog(snap,source){
-      const live={};
-      snap.forEach(function(d){live[d.id]={id:d.id,...d.data()};});
-      const merged={...defaultCatalog,...live};
-      window.NS_CATALOG=merged;
-      window.NS_CATALOG_LIVE=true;
-      window.NS_CATALOG_SOURCE=source||'live';
-      window.dispatchEvent(new CustomEvent('ns:catalog',{detail:{catalog:merged,live:true,source:window.NS_CATALOG_SOURCE}}));
-    }
-    try{
-      /* Get an authoritative server snapshot first so a stale fallback can never win the race. */
-      try{
-        const serverSnap=await fsMod.getDocsFromServer(fsMod.collection(db,'products'));
-        publishCatalog(serverSnap,'server');
-      }catch(_serverCatalogError){ console.warn('Initial server catalog read unavailable; realtime listener will retry.',_serverCatalogError); }
-      window.NS_REFRESH_CATALOG=async function(reason){
-        try{
-          const snap=await fsMod.getDocsFromServer(fsMod.collection(db,'products'));
-          publishCatalog(snap,reason||'server-refresh');
-          return true;
-        }catch(err){console.warn('Catalog refresh failed.',err);return false;}
-      };
-      try{
-        const bc=new BroadcastChannel('ns-catalog');
-        bc.addEventListener('message',function(e){if(e.data&&e.data.type==='refresh')window.NS_REFRESH_CATALOG('admin-broadcast')});
-      }catch(_bc){}
-      window.addEventListener('storage',function(e){if(e.key==='ns_catalog_version')window.NS_REFRESH_CATALOG('admin-storage')});
-      window.addEventListener('pageshow',function(){window.NS_REFRESH_CATALOG('pageshow')});
-      document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')window.NS_REFRESH_CATALOG('tab-visible')});
-      fsMod.onSnapshot(fsMod.collection(db,'products'),{includeMetadataChanges:true},function(snap){
-        publishCatalog(snap,snap.metadata&&snap.metadata.fromCache?'cache':'realtime');
-      },function(err){
-        console.warn('Live product catalog unavailable.',err);
-        if(!window.NS_CATALOG_LIVE){
-          window.NS_CATALOG=defaultCatalog;
-          window.dispatchEvent(new CustomEvent('ns:catalog',{detail:{catalog:defaultCatalog,live:false,source:'fallback'}}));
-        }
-      });
-    }catch(_catalogError){
-      if(!window.NS_CATALOG_LIVE) window.NS_CATALOG=defaultCatalog;
-    }
+    window.NSLiveCatalog.connect(fsMod,db);
 
     if(!TEST_ORIGIN&&await analyticsMod.isSupported()){
       const analytics=analyticsMod.getAnalytics(app);
@@ -1807,9 +1768,9 @@ body.ns-story-active .story-skip{display:block}.story-skip:hover{color:var(--gol
 </div>
 <div class="hero-price">
 <div class="live-price-kicker"><i></i> Current pricing</div>
-<div class="hp-num">₹<span data-price-value="tender">55</span></div><div class="hp-lbl">Tender Coconut · Retail</div>
+<div class="hp-num">₹<span data-price-value="tender">—</span></div><div class="hp-lbl">Tender Coconut · Retail</div>
 <div class="hp-div"></div>
-<div class="hp-bulk">₹<span data-price-value="bulk">45</span></div><div class="hp-lbl">Bulk <span data-min-value="bulk">10</span>+ Pieces</div>
+<div class="hp-bulk">₹<span data-price-value="bulk">—</span></div><div class="hp-lbl">Bulk <span data-min-value="bulk">10</span>+ Pieces</div>
 </div>
 <div class="hero-scroll"><div class="hs-line"></div><span class="hs-txt">Scroll</span></div>
 </section>
@@ -1953,7 +1914,7 @@ body.ns-story-active .story-skip{display:block}.story-skip:hover{color:var(--gol
 <span class="ti">📱 WhatsApp Orders <span class="td"></span></span>
 </div></div>
 <!-- ═══════════════ COLLECTION ═══════════════ -->
-<section id="collection" style="padding:120px 64px;background:linear-gradient(180deg,#060e03 0%,#0a1506 50%,#060e03 100%)">
+<section id="collection" style="padding:120px 64px;background:var(--ns-section)">
 <div class="sec-hd r">
 <div class="sec-eyebrow"><div class="se-line"></div><span class="se-txt">Our Collection</span><div class="se-line"></div></div>
 <h2 class="sec-title">Choose Your <em>Fresh Coconut</em></h2>
@@ -1971,14 +1932,14 @@ body.ns-story-active .story-skip{display:block}.story-skip:hover{color:var(--gol
 <div class="pc-name" data-product-name="tender">Fresh Tender Coconut</div>
 <div class="pc-desc" data-product-desc="tender">Sharp-cut &amp; drink-ready. Sweet, crisp coconut water with natural tender flesh. Freshness-first sourcing and handling.</div>
 <div class="pc-foot">
-<div><div class="pc-price"><sup>₹</sup><span data-price-value="tender">55</span></div><div class="pc-per" data-price-note="tender">Per piece · retail</div></div>
+<div><div class="pc-price"><sup>₹</sup><span data-price-value="tender">—</span></div><div class="pc-per" data-price-note="tender">Per piece · retail</div></div>
 <button class="pc-btn" onclick="event.stopPropagation();pickByKey('tender')">Order →</button>
 </div>
 </div>
 <div class="pc-num">01</div>
 <div class="pc-overlay">
 <div class="po-name">Fresh Tender Coconut</div>
-<div class="po-price">₹<span data-price-value="tender">55</span></div><div class="po-per" data-price-note="tender">Per piece · retail</div>
+<div class="po-price">₹<span data-price-value="tender">—</span></div><div class="po-per" data-price-note="tender">Per piece · retail</div>
 <button class="po-btn" onclick="event.stopPropagation();pickByKey('tender')">Order Now</button>
 </div>
 </div>
@@ -1993,14 +1954,14 @@ body.ns-story-active .story-skip{display:block}.story-skip:hover{color:var(--gol
 <div class="pc-name" data-product-name="green">Green Round Coconut</div>
 <div class="pc-desc" data-product-desc="green">Full round premium young coconut. Ideal for gifting, events and premium serves, with natural variation in size and water volume.</div>
 <div class="pc-foot">
-<div><div class="pc-price"><sup>₹</sup><span data-price-value="green">55</span></div><div class="pc-per" data-price-note="green">Per piece · premium</div></div>
+<div><div class="pc-price"><sup>₹</sup><span data-price-value="green">—</span></div><div class="pc-per" data-price-note="green">Per piece · premium</div></div>
 <button class="pc-btn" onclick="event.stopPropagation();pickByKey('green')">Order →</button>
 </div>
 </div>
 <div class="pc-num">02</div>
 <div class="pc-overlay">
 <div class="po-name">Green Round Coconut</div>
-<div class="po-price">₹<span data-price-value="green">55</span></div><div class="po-per" data-price-note="green">Per piece · premium</div>
+<div class="po-price">₹<span data-price-value="green">—</span></div><div class="po-per" data-price-note="green">Per piece · premium</div>
 <button class="po-btn" onclick="event.stopPropagation();pickByKey('green')">Order Now</button>
 </div>
 </div>
@@ -2015,14 +1976,14 @@ body.ns-story-active .story-skip{display:block}.story-skip:hover{color:var(--gol
 <div class="pc-name" data-product-name="bulk">Bulk Pack (10+ pcs)</div>
 <div class="pc-desc" data-product-desc="bulk">Bulk pricing for events, cafes, offices and resellers. Minimum quantity and available varieties are managed live from our current stock.</div>
 <div class="pc-foot">
-<div><div class="pc-price"><sup>₹</sup><span data-price-value="bulk">45</span></div><div class="pc-per" data-price-note="bulk">Per piece · min 10 pcs</div></div>
+<div><div class="pc-price"><sup>₹</sup><span data-price-value="bulk">—</span></div><div class="pc-per" data-price-note="bulk">Per piece · min 10 pcs</div></div>
 <button class="pc-btn" onclick="event.stopPropagation();pickByKey('bulk')">Order →</button>
 </div>
 </div>
 <div class="pc-num">03</div>
 <div class="pc-overlay">
 <div class="po-name">Bulk Pack (10+ pcs)</div>
-<div class="po-price">₹<span data-price-value="bulk">45</span><span style="font-size:20px">/pc</span></div><div class="po-per" data-price-note="bulk">Minimum 10 pieces</div>
+<div class="po-price">₹<span data-price-value="bulk">—</span><span style="font-size:20px">/pc</span></div><div class="po-per" data-price-note="bulk">Minimum 10 pieces</div>
 <button class="po-btn" onclick="event.stopPropagation();pickByKey('bulk')">Order Now</button>
 </div>
 </div>
@@ -2101,7 +2062,7 @@ body.ns-story-active .story-skip{display:block}.story-skip:hover{color:var(--gol
 <div class="ben r" style="transition-delay:.2s"><span class="ben-icon">🌿</span><div class="ben-title">Zero Additives</div><div class="ben-desc">100% pure, nothing added</div></div>
 <div class="ben r" style="transition-delay:.3s"><span class="ben-icon">🌍</span><div class="ben-title">Export Enquiries</div><div class="ben-desc">Packaging and logistics quoted by requirement</div></div>
 <div class="ben r" style="transition-delay:.4s"><span class="ben-icon">⚡</span><div class="ben-title">Packed Fresh</div><div class="ben-desc">Freshness-first handling</div></div>
-<div class="ben r" style="transition-delay:.5s"><span class="ben-icon">📦</span><div class="ben-title">Bulk Discounts</div><div class="ben-desc">₹<span data-price-value="bulk">45</span>/pc for <span data-min-value="bulk">10</span>+ orders</div></div>
+<div class="ben r" style="transition-delay:.5s"><span class="ben-icon">📦</span><div class="ben-title">Bulk Discounts</div><div class="ben-desc">₹<span data-price-value="bulk">—</span>/pc for <span data-min-value="bulk">10</span>+ orders</div></div>
 </div>
 <!-- ═══════════════ PRODUCT QUALITY NOTES ═══════════════ -->
 <div aria-labelledby="quality-title" class="nutrition">
@@ -2120,8 +2081,8 @@ body.ns-story-active .story-skip{display:block}.story-skip:hover{color:var(--gol
 <tr><td>Water volume</td><td>Approx. 350 ml; varies naturally</td></tr>
 <tr><td>Added sugar</td><td>None</td></tr>
 <tr><td>Concentrates</td><td>None for whole coconuts</td></tr>
-<tr><td>Retail price</td><td>₹<span data-price-value="tender">55</span> / piece</td></tr>
-<tr><td>Bulk price</td><td>₹<span data-price-value="bulk">45</span> / piece · min <span data-min-value="bulk">10</span></td></tr>
+<tr><td>Retail price</td><td>₹<span data-price-value="tender">—</span> / piece</td></tr>
+<tr><td>Bulk price</td><td>₹<span data-price-value="bulk">—</span> / piece · min <span data-min-value="bulk">10</span></td></tr>
 <tr><td>Delivery timing</td><td>Confirmed by location</td></tr>
 </tbody>
 </table>
@@ -2129,7 +2090,7 @@ body.ns-story-active .story-skip{display:block}.story-skip:hover{color:var(--gol
 </div>
 </div>
 <!-- ═══════════════ PRICE LIST ═══════════════ -->
-<section id="price-list" style="padding:100px 64px;background:#060e03">
+<section id="price-list" style="padding:100px 64px;background:var(--ns-section)">
 <div class="sec-hd r">
 <div class="sec-eyebrow"><div class="se-line"></div><span class="se-txt">Pricing</span><div class="se-line"></div></div>
 <h2 class="sec-title">Simple, <em>Transparent Pricing</em></h2>
@@ -2139,7 +2100,7 @@ body.ns-story-active .story-skip{display:block}.story-skip:hover{color:var(--gol
 <div class="price-card r">
 <span class="pcard-icon">🥥</span>
 <div class="pcard-name">Retail Single</div>
-<div class="pcard-price"><sup>₹</sup><span data-price-value="tender">55</span></div>
+<div class="pcard-price"><sup>₹</sup><span data-price-value="tender">—</span></div>
 <div class="pcard-per">Per Piece</div>
 <ul class="pcard-features">
 <li>Sharp-cut &amp; drink-ready</li>
@@ -2153,7 +2114,7 @@ body.ns-story-active .story-skip{display:block}.story-skip:hover{color:var(--gol
 <div class="price-card featured r" style="transition-delay:.15s">
 <span class="pcard-icon">📦</span>
 <div class="pcard-name">Bulk Order</div>
-<div class="pcard-price"><sup>₹</sup><span data-price-value="bulk">45</span></div>
+<div class="pcard-price"><sup>₹</sup><span data-price-value="bulk">—</span></div>
 <div class="pcard-per" data-price-note="bulk">Per Piece (Min 10)</div>
 <ul class="pcard-features">
 <li>Save ₹10 per coconut</li>
@@ -2181,7 +2142,7 @@ body.ns-story-active .story-skip{display:block}.story-skip:hover{color:var(--gol
 </div>
 </section>
 <!-- ═══════════════ OUR STORY ═══════════════ -->
-<section id="our-story" style="padding:120px 64px;background:linear-gradient(135deg,#060e03 0%,#0a1506 100%)">
+<section id="our-story" style="padding:120px 64px;background:var(--ns-section)">
 <div class="sec-hd r">
 <div class="sec-eyebrow"><div class="se-line"></div><span class="se-txt">Our Story</span><div class="se-line"></div></div>
 <h2 class="sec-title">Rooted in India's<br/><em>Finest Coconut Regions</em></h2>
@@ -2193,16 +2154,16 @@ body.ns-story-active .story-skip{display:block}.story-skip:hover{color:var(--gol
 <div class="sv-ring"></div><div class="sv-ring2"></div>
 <img alt="Freshly harvested coconuts in a sunlit Indian coconut grove" class="sv-img" decoding="async" height="933" loading="lazy" src="/assets/images/nariyal-coconut-grove.webp" width="1400"/>
 <div class="sv-badge">
-<div class="svb-num">₹<span data-price-value="tender">55</span></div><div class="svb-lbl">Retail Per Piece</div>
+<div class="svb-num">₹<span data-price-value="tender">—</span></div><div class="svb-lbl">Retail Per Piece</div>
 <div class="svb-div"></div>
-<div class="svb-num" style="font-size:30px">₹<span data-price-value="bulk">45</span></div><div class="svb-lbl">Bulk <span data-min-value="bulk">10</span>+ Pieces</div>
+<div class="svb-num" style="font-size:30px">₹<span data-price-value="bulk">—</span></div><div class="svb-lbl">Bulk <span data-min-value="bulk">10</span>+ Pieces</div>
 </div>
 </div>
 <div class="story-text rr">
 <div class="tag">The Nariyal Sutra Promise</div>
 <h2>More than a coconut —<br/>it's a <em>ritual.</em></h2>
 <div class="gold-bar"></div>
-<p>Every coconut we deliver reflects India's coastal and tropical growing regions. We source from <strong style="color:rgba(255,255,255,.8)">Gujarat's coastal belt</strong> and <strong style="color:rgba(255,255,255,.8)">South India's tropical groves</strong>, selecting fresh coconuts for drinking quality, handling and presentation.</p>
+<p>Every coconut we deliver reflects India's coastal and tropical growing regions. We source from <strong style="color:var(--ns-muted)">Gujarat's coastal belt</strong> and <strong style="color:var(--ns-muted)">South India's tropical groves</strong>, selecting fresh coconuts for drinking quality, handling and presentation.</p>
 <p>Our sharp-cut method makes drinking effortless — just pick up and drink, the way nature intended. No straws needed. No mess. No preservatives. Just the purest coconut water straight from the source.</p>
 <div class="promise-story-note">Explore five perspectives on Nariyal Sutra, from sourcing and freshness to people, hospitality and trade.</div>
 <div class="as-stats">
@@ -2286,7 +2247,7 @@ body.ns-story-active .story-skip{display:block}.story-skip:hover{color:var(--gol
 <div class="ns-people-marquee-foot"><span>Names, roles and affiliations are shown only when they have been confirmed.</span><a class="btn-outline" href="people-of-nariyal-sutra.html#v25PeopleStreams">Explore the people stories</a></div>
 </section>
 <!-- ═══════════════ HOW TO ORDER ═══════════════ -->
-<section id="how-to-order" style="padding:100px 64px;background:linear-gradient(135deg,#0a1506,#060e03)">
+<section id="how-to-order" style="padding:100px 64px;background:var(--ns-section)">
 <div class="sec-hd r">
 <div class="sec-eyebrow"><div class="se-line"></div><span class="se-txt">How To Order</span><div class="se-line"></div></div>
 <h2 class="sec-title">Order in <em>4 Simple Steps</em></h2>
@@ -2323,7 +2284,7 @@ body.ns-story-active .story-skip{display:block}.story-skip:hover{color:var(--gol
 </div>
 </section>
 <!-- ═══════════════ COCONUT USES ═══════════════ -->
-<section id="coconut-uses" style="padding:100px 64px;background:#060e03">
+<section id="coconut-uses" style="padding:100px 64px;background:var(--ns-section)">
 <div class="sec-hd r">
 <div class="sec-eyebrow"><div class="se-line"></div><span class="se-txt">Coconut Uses</span><div class="se-line"></div></div>
 <h2 class="sec-title">One Coconut,<br/><em>Infinite Uses</em></h2>
@@ -2384,7 +2345,7 @@ body.ns-story-active .story-skip{display:block}.story-skip:hover{color:var(--gol
 <p class="sec-sub">The essentials customers usually need before confirming an order.</p>
 </div>
 <div class="faq-list">
-<details><summary>What is the minimum bulk order?</summary><p>Bulk pricing starts at <span data-min-value="bulk">10</span> pieces. The live bulk rate is ₹<span data-price-value="bulk">45</span> per coconut.</p></details>
+<details><summary>What is the minimum bulk order?</summary><p>Bulk pricing starts at <span data-min-value="bulk">10</span> pieces. The live bulk rate is ₹<span data-price-value="bulk">—</span> per coconut.</p></details>
 <details><summary>How is delivery timing confirmed?</summary><p>Delivery depends on your location, stock and order size. Send the order request and we confirm serviceability and timing on WhatsApp before fulfilment.</p></details>
 <details><summary>How can I pay?</summary><p>Cash on Delivery may be available for supported orders. Verified UPI details or a secure card/netbanking payment link are shared only after the order is confirmed.</p></details>
 <details><summary>Do you handle wholesale or export enquiries?</summary><p>Yes. Large-volume and export enquiries receive a custom quote based on quantity, packaging, destination and logistics requirements.</p></details>
@@ -2392,7 +2353,7 @@ body.ns-story-active .story-skip{display:block}.story-skip:hover{color:var(--gol
 </div>
 </section>
 <!-- ═══════════════ ORDER FORM ═══════════════ -->
-<section id="order" style="padding:120px 64px;background:linear-gradient(180deg,#060e03,#0a1506)">
+<section id="order" style="padding:120px 64px;background:var(--ns-section)">
 <div class="order-inner">
 <div class="sec-hd r" style="margin-bottom:48px">
 <div class="sec-eyebrow"><div class="se-line"></div><span class="se-txt">Place Your Order</span><div class="se-line"></div></div>
@@ -2406,13 +2367,13 @@ body.ns-story-active .story-skip{display:block}.story-skip:hover{color:var(--gol
 </div>
 <div class="order-card r">
 <div class="type-row">
-<button class="topt on" data-retail-toggle="" id="tS" onclick="setT('single')">🥥 Retail from ₹55/pc</button>
-<button class="topt" data-bulk-toggle="" id="tB" onclick="setT('bulk')">📦 Bulk 10+ — ₹45/pc</button>
+<button class="topt on" data-retail-toggle="" id="tS" onclick="setT('single')">🥥 Retail · price pending</button>
+<button class="topt" data-bulk-toggle="" id="tB" onclick="setT('bulk')">📦 Bulk · price pending</button>
 </div>
 <div class="ofields">
 <div class="of"><label for="oN">Full Name</label><input autocomplete="name" id="oN" placeholder="Your full name" required="" type="text"/></div>
 <div class="of"><label for="oP">WhatsApp Number</label><input autocomplete="tel" id="oP" inputmode="tel" placeholder="+91 XXXXX XXXXX" required="" type="tel"/></div>
-<div class="of full"><label for="oEmail">Email <span style="color:rgba(255,255,255,0.35);font-size:10px">(optional — for receipt)</span></label><input autocomplete="email" id="oEmail" inputmode="email" placeholder="your@email.com" type="email"/></div>
+<div class="of full"><label for="oEmail">Email <span style="color:var(--ns-muted);font-size:10px">(optional — for receipt)</span></label><input autocomplete="email" id="oEmail" inputmode="email" placeholder="your@email.com" type="email"/></div>
 <div aria-hidden="true" class="of" style="position:absolute;left:0;top:0;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);opacity:0;pointer-events:none"><label for="oWebsite">Website</label><input autocomplete="off" id="oWebsite" tabindex="-1" type="text"/></div>
 <div class="of">
 <label for="oQ">Quantity (pieces)</label>
@@ -2424,9 +2385,9 @@ body.ns-story-active .story-skip{display:block}.story-skip:hover{color:var(--gol
 </div>
 <div class="of"><label for="oPr">Product Type</label>
 <select id="oPr" onchange="syncProductSelection()">
-<option data-active="true" data-min="1" data-mode="single" data-price="55" data-stock="150" value="tender">Fresh Tender Coconut — Sharp-Cut (₹55)</option>
-<option data-active="true" data-min="1" data-mode="single" data-price="55" data-stock="100" value="green">Green Round Coconut — Premium (₹55)</option>
-<option data-active="true" data-min="10" data-mode="bulk" data-price="45" data-stock="300" value="bulk">Bulk Pack 10+ pcs (₹45/pc)</option>
+<option data-active="true" data-min="1" data-mode="single" data-price="" data-stock="150" value="tender">Fresh Tender Coconut — Sharp-Cut — price pending</option>
+<option data-active="true" data-min="1" data-mode="single" data-price="" data-stock="100" value="green">Green Round Coconut — Premium — price pending</option>
+<option data-active="true" data-min="10" data-mode="bulk" data-price="" data-stock="300" value="bulk">Bulk Pack 10+ pcs — price pending</option>
 </select>
 </div>
 <div class="of full"><label for="oA">Address / locality for serviceability</label><textarea autocomplete="street-address" id="oA" placeholder="Street or locality, city, state, PIN/postal code, country" required=""></textarea></div>
@@ -2438,27 +2399,27 @@ body.ns-story-active .story-skip{display:block}.story-skip:hover{color:var(--gol
 <div style="font-size:9px;letter-spacing:4px;text-transform:uppercase;color:rgba(212,168,67,0.65);margin-bottom:14px">Payment Method</div>
 <div aria-label="Payment method" class="payment-grid" id="paymentOptions" role="group">
 <button aria-pressed="true" class="pay-opt" id="pay-cod" onclick="selPay('cod')" type="button">
-<div class="pay-icon" style="font-size:22px;margin-bottom:6px">💵</div><div><div style="font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase">Cash on Delivery</div><div style="font-size:10px;color:rgba(255,255,255,.45);margin-top:3px">Pay when delivered</div></div>
+<div class="pay-icon" style="font-size:22px;margin-bottom:6px">💵</div><div><div style="font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase">Cash on Delivery</div><div style="font-size:10px;color:var(--ns-muted);margin-top:3px">Pay when delivered</div></div>
 </button>
 <button aria-pressed="false" class="pay-opt" id="pay-upi" onclick="selPay('upi')" type="button">
-<div class="pay-icon" style="font-size:22px;margin-bottom:6px">📱</div><div><div style="font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase">UPI / GPay</div><div style="font-size:10px;color:rgba(255,255,255,.45);margin-top:3px">Verified details after confirmation</div></div>
+<div class="pay-icon" style="font-size:22px;margin-bottom:6px">📱</div><div><div style="font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase">UPI / GPay</div><div style="font-size:10px;color:var(--ns-muted);margin-top:3px">Verified details after confirmation</div></div>
 </button>
 <button aria-pressed="false" class="pay-opt" id="pay-card" onclick="selPay('card')" type="button">
-<div class="pay-icon" style="font-size:22px;margin-bottom:6px">💳</div><div><div style="font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase">Card / NetBanking</div><div style="font-size:10px;color:rgba(255,255,255,.45);margin-top:3px">Secure link after confirmation</div></div>
+<div class="pay-icon" style="font-size:22px;margin-bottom:6px">💳</div><div><div style="font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase">Card / NetBanking</div><div style="font-size:10px;color:var(--ns-muted);margin-top:3px">Secure link after confirmation</div></div>
 </button>
 </div>
 <!-- UPI extra info -->
 <div id="upi-info" style="display:none;margin-top:12px;background:rgba(212,168,67,0.06);border:1px solid rgba(212,168,67,0.2);padding:14px 18px;border-radius:4px">
-<div style="font-size:12px;color:rgba(255,255,255,0.66)">For safety, verified UPI payment details are shared on WhatsApp only after stock and delivery are confirmed.</div>
+<div style="font-size:12px;color:var(--ns-muted)">For safety, verified UPI payment details are shared on WhatsApp only after stock and delivery are confirmed.</div>
 </div>
 <!-- Card info -->
 <div id="card-info" style="display:none;margin-top:12px;background:rgba(212,168,67,0.06);border:1px solid rgba(212,168,67,0.2);padding:14px 18px;border-radius:4px">
-<div style="font-size:12px;color:rgba(255,255,255,0.6)">We'll send a secure payment link on WhatsApp after order confirmation.</div>
+<div style="font-size:12px;color:var(--ns-muted)">We'll send a secure payment link on WhatsApp after order confirmation.</div>
 </div>
 </div>
 <div class="price-show">
-<div><div class="ps-lbl">Product Subtotal</div><div class="ps-note" id="pNote">1 coconut × ₹55</div></div>
-<div class="ps-amt" id="pAmt">₹55</div>
+<div><div class="ps-lbl">Product Subtotal</div><div class="ps-note" id="pNote">Loading current price…</div></div>
+<div class="ps-amt" id="pAmt">—</div>
 </div>
 <button class="wa-btn" onclick="placeOrder()" type="button">📲 Continue to WhatsApp</button>
 <div class="form-privacy">Your contact and delivery details are used only to process your enquiry and order. Personal contact details are not sent as Google Analytics event parameters.</div>
@@ -2526,9 +2487,9 @@ body.ns-story-active .story-skip{display:block}.story-skip:hover{color:var(--gol
 <p id="eBriefBody">Choose a requirement, quantity and destination. We’ll keep this summary updated as you go.</p>
 </div>
 <div class="enquiry-direct enquiry-direct-3">
-<div class="ci"><span class="ci-icon">📱</span><div class="ci-lbl">WhatsApp</div><div class="ci-val"><a href="https://wa.me/919203831705" rel="noopener" target="_blank">+91 9203831705</a><br/><span style="color:rgba(255,255,255,.35)">Fast commercial follow-up</span></div></div>
+<div class="ci"><span class="ci-icon">📱</span><div class="ci-lbl">WhatsApp</div><div class="ci-val"><a href="https://wa.me/919203831705" rel="noopener" target="_blank">+91 9203831705</a><br/><span style="color:var(--ns-muted)">Fast commercial follow-up</span></div></div>
 <div class="ci v28-telegram-contact"><span class="ci-icon">✈️</span><div class="ci-lbl">Telegram</div><div class="ci-val"><a href="https://t.me/krishna31" rel="noopener" target="_blank">@krishna31</a><small>Direct Telegram contact</small></div></div>
-<div class="ci"><span class="ci-icon">✉️</span><div class="ci-lbl">Email</div><div class="ci-val"><a href="mailto:nariyalsutra@gmail.com">nariyalsutra@gmail.com</a><br/><span style="color:rgba(255,255,255,.35)">Specs, trade and documentation</span></div></div>
+<div class="ci"><span class="ci-icon">✉️</span><div class="ci-lbl">Email</div><div class="ci-val"><a href="mailto:nariyalsutra@gmail.com">nariyalsutra@gmail.com</a><br/><span style="color:var(--ns-muted)">Specs, trade and documentation</span></div></div>
 </div>
 </aside>
 <form class="enquiry-form enquiry-form-v32" id="enquiryForm" novalidate="">
@@ -2545,7 +2506,7 @@ body.ns-story-active .story-skip{display:block}.story-skip:hover{color:var(--gol
 </div>
 <div class="ef"><label for="eFrequency">Frequency</label><select id="eFrequency"><option value="one_time">One-time</option><option value="weekly">Weekly</option><option value="fortnightly">Every 2 weeks</option><option value="monthly">Monthly</option><option value="flexible">Regular / flexible</option></select></div>
 <div class="ef"><label for="ePackaging">Packaging / serving</label><select id="ePackaging"><option value="recommend">Recommend for me</option><option value="whole">Whole coconuts</option><option value="sharp_cut">Sharp-cut / serve-ready</option><option value="event">Event serving setup</option><option value="bulk">Bulk commercial packing</option><option value="export">Export / trade packaging</option></select></div>
-<div class="ef"><label for="eDate">Required by <span style="color:rgba(255,255,255,.28)">(optional)</span></label><input id="eDate" type="date"/></div>
+<div class="ef"><label for="eDate">Required by <span style="color:var(--ns-muted)">(optional)</span></label><input id="eDate" type="date"/></div>
 </div>
 <div class="enquiry-step"><span>02</span><div><b>Destination</b><small>Country → state → city, with postal-code autofill where supported.</small></div></div>
 <div class="enquiry-fields">
@@ -2557,16 +2518,16 @@ body.ns-story-active .story-skip{display:block}.story-skip:hover{color:var(--gol
 <input autocomplete="postal-code" id="ePostal" maxlength="14" placeholder="Enter PIN / ZIP"/>
 <small class="postal-status" id="ePostalStatus">Enter a postal code to try smart location fill.</small>
 </div>
-<div class="ef full"><label for="eDestination">Venue / delivery address <span style="color:rgba(255,255,255,.28)">(optional)</span></label><input autocomplete="street-address" id="eDestination" maxlength="180" placeholder="Venue, building, landmark or full address"/></div>
+<div class="ef full"><label for="eDestination">Venue / delivery address <span style="color:var(--ns-muted)">(optional)</span></label><input autocomplete="street-address" id="eDestination" maxlength="180" placeholder="Venue, building, landmark or full address"/></div>
 </div>
 <div class="enquiry-step"><span>03</span><div><b>Contact</b><small>Where should we send the quote or callback?</small></div></div>
 <div class="enquiry-fields">
 <div class="ef"><label for="eName">Name</label><input autocomplete="name" id="eName" maxlength="100" placeholder="Your name" required=""/></div>
 <div class="ef"><label for="ePhone">WhatsApp number</label><input autocomplete="tel" id="ePhone" inputmode="tel" maxlength="24" placeholder="+91..." required=""/></div>
-<div class="ef"><label for="eEmail">Email <span style="color:rgba(255,255,255,.28)">(optional)</span></label><input autocomplete="email" id="eEmail" maxlength="160" placeholder="name@company.com" type="email"/></div>
-<div class="ef"><label for="eOrg">Company / Event / Farm <span style="color:rgba(255,255,255,.28)">(optional)</span></label><input id="eOrg" maxlength="120" placeholder="Company, venue, farm or event"/></div>
+<div class="ef"><label for="eEmail">Email <span style="color:var(--ns-muted)">(optional)</span></label><input autocomplete="email" id="eEmail" maxlength="160" placeholder="name@company.com" type="email"/></div>
+<div class="ef"><label for="eOrg">Company / Event / Farm <span style="color:var(--ns-muted)">(optional)</span></label><input id="eOrg" maxlength="120" placeholder="Company, venue, farm or event"/></div>
 <div class="ef"><label for="ePref">Preferred reply</label><select id="ePref"><option value="whatsapp">WhatsApp</option><option value="email">Email</option><option value="phone">Phone call</option><option value="telegram">Telegram</option></select></div>
-<div class="ef"><label for="eTelegram">Telegram username <span style="color:rgba(255,255,255,.28)">(optional)</span></label><input id="eTelegram" maxlength="80" placeholder="@username"/><small style="display:block;margin-top:5px;color:rgba(255,255,255,.35)">Enter your Telegram username if you want us to reply there. You can also message @krishna31 directly.</small></div>
+<div class="ef"><label for="eTelegram">Telegram username <span style="color:var(--ns-muted)">(optional)</span></label><input id="eTelegram" maxlength="80" placeholder="@username"/><small style="display:block;margin-top:5px;color:var(--ns-muted)">Enter your Telegram username if you want us to reply there. You can also message @krishna31 directly.</small></div>
 
 <div class="ef full"><label for="eMessage">Anything else?</label><textarea id="eMessage" maxlength="1200" placeholder="Packaging, variety, delivery window, farm capacity, documentation, logistics or anything else that will help us respond accurately."></textarea></div>
 </div>
@@ -2613,7 +2574,7 @@ body.ns-story-active .story-skip{display:block}.story-skip:hover{color:var(--gol
 <a href="https://t.me/krishna31" target="_blank" rel="noopener">Telegram: @krishna31</a>
 <a href="mailto:nariyalsutra@gmail.com">nariyalsutra@gmail.com</a>
 <a href="#contact">India delivery · export enquiries</a>
-<span style="display:block;margin-top:8px;font-size:10px;line-height:1.65;color:rgba(255,255,255,.26)">GSTIN 23AOZPT4685H1Z1<br/>Registered: Jabalpur, Madhya Pradesh<br/>Head Office: Virar, Mumbai MMR</span>
+<span style="display:block;margin-top:8px;font-size:10px;line-height:1.65;color:var(--ns-muted)">GSTIN 23AOZPT4685H1Z1<br/>Registered: Jabalpur, Madhya Pradesh<br/>Head Office: Virar, Mumbai MMR</span>
 </div>
 </div>
 <div class="footer-bottom">
@@ -2629,7 +2590,7 @@ body.ns-story-active .story-skip{display:block}.story-skip:hover{color:var(--gol
 </footer>
 <!-- STICKY BAR (mobile) -->
 <div class="sticky-bar">
-<div><div style="font-size:13px;font-weight:600">Nariyal Sutra</div><div style="font-size:11px;color:var(--gold)">₹<span data-price-value="tender">55</span>/pc · Bulk ₹<span data-price-value="bulk">45</span></div></div>
+<div><div style="font-size:13px;font-weight:600">Nariyal Sutra</div><div style="font-size:11px;color:var(--gold)">₹<span data-price-value="tender">—</span>/pc · Bulk ₹<span data-price-value="bulk">—</span></div></div>
 <button class="btn-gold" onclick="go('order')" style="padding:11px 22px;font-size:10px">Order Now</button>
 </div>
 <div class="toast" id="toast"></div>
@@ -2935,14 +2896,16 @@ function syncProductSelection(){
   if(q){q.min=String(min);q.max=String(stock);q.value=Math.min(stock,Math.max(min,parseInt(q.value)||min));}
   calc();
 }
-function getCurrentPrice(){ var opt=currentProduct(); return opt?Number(opt.dataset.price||0):(ot==='bulk'?45:55); }
+function getCurrentPrice(){ return window.NSLiveCatalog.price(currentProduct()?.value); }
 function getCurrentTotal(){ var q=parseInt(document.getElementById('oQ')?.value)||1; return q*getCurrentPrice(); }
 function calc(){
+  if(getCurrentPrice()===null){document.getElementById('pAmt').textContent='—';document.getElementById('pNote').textContent=window.NSLiveCatalog.status==='loading'?'Loading current price…':'Current price unavailable. Please retry.';return;}
   var q=parseInt(document.getElementById('oQ').value)||1,p=getCurrentPrice(),opt=currentProduct(),stock=productStock(opt);
   document.getElementById('pAmt').textContent='₹'+(q*p).toLocaleString('en-IN');
   document.getElementById('pNote').textContent=q+' coconut'+(q>1?'s':'')+' × ₹'+p+(stock<999999?' · '+stock+' available':'');
 }
 function pick(name,price,type){
+  if(window.NSLiveCatalog.status!=='ready'){toast('Please wait for current pricing');return;}
   var pr=document.getElementById('oPr');
   var key=name.toLowerCase().includes('green')?'green':name.toLowerCase().includes('bulk')?'bulk':'tender';
   if(pr)pr.value=key;
@@ -2953,7 +2916,7 @@ function pick(name,price,type){
   go('order'); toast('Selected: '+name+' · ₹'+price+'/pc');
 }
 function pickByKey(key){
-  var item=(window.NS_CATALOG||window.NS_DEFAULT_PRODUCTS||{})[key];
+  var item=window.NSLiveCatalog.catalog[key];
   if(!item)return;
   var pr=document.getElementById('oPr');if(pr)pr.value=key;
   syncProductSelection();
@@ -2981,6 +2944,7 @@ function makeOrderId(){
 function escapeHtml(value){return String(value??'').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c];});}
 
 function placeOrder(){
+  if(getCurrentPrice()===null){toast('Current price unavailable. Please retry before ordering.');return;}
   var n=document.getElementById('oN').value.trim();
   var p=document.getElementById('oP').value.trim();
   var emEl=document.getElementById('oEmail'); var em=emEl?emEl.value.trim():'';
@@ -3298,44 +3262,8 @@ function closeModal(){ document.getElementById('confirmModal').style.display='no
 <!-- Owner dashboard removed from production: use Firebase / Google Analytics for telemetry and a secure authenticated backend for order administration. -->
 </div><!-- end #main-site -->
 <script>
-/* Live Firestore catalog: prices, stock, availability and checkout sync. */
-(function(){
-  var defaults=window.NS_DEFAULT_PRODUCTS||{};
-  window.NS_CATALOG=window.NS_CATALOG||defaults;
-  function stockState(item){
-    var n=Number(item.stock||0),min=Number(item.minQty||1);
-    if(item.active===false||n<=0)return {text:'Sold out',cls:'out'};
-    if(n<=Math.max(min*2,12))return {text:'Low stock',cls:'low'};
-    return {text:'In stock',cls:''};
-  }
-  function apply(detail){
-    if(detail&&detail.live===false&&window.NS_CATALOG_LIVE)return;
-    var catalog=(detail&&detail.catalog)||window.NS_CATALOG||defaults;
-    window.NS_CATALOG=catalog;
-    var live=document.getElementById('catalogLive');
-    if(live){live.classList.toggle('offline',detail&&detail.live===false);live.lastChild.nodeValue=(detail&&detail.live===false)?' Standard pricing':' Current availability';live.title='';}
-    ['tender','green','bulk'].forEach(function(key){
-      var item=catalog[key]||defaults[key];if(!item)return;
-      document.querySelectorAll('[data-price-value="'+key+'"]').forEach(function(el){el.textContent=Number(item.price||0).toLocaleString('en-IN')});
-      document.querySelectorAll('[data-min-value="'+key+'"]').forEach(function(el){el.textContent=Number(item.minQty||1)});
-      document.querySelectorAll('[data-product-name="'+key+'"]').forEach(function(el){el.textContent=item.shortName||item.name||key});
-      document.querySelectorAll('[data-product-desc="'+key+'"]').forEach(function(el){if(item.description)el.textContent=item.description});
-      document.querySelectorAll('[data-price-note="'+key+'"]').forEach(function(el){el.textContent=item.mode==='bulk'?'Per piece · min '+Number(item.minQty||10)+' pcs':'Per piece · '+(key==='green'?'premium':'retail')});
-      var pill=document.querySelector('[data-stock-pill="'+key+'"]'),state=stockState(item);
-      if(pill){pill.textContent=state.text;pill.classList.remove('low','out');if(state.cls)pill.classList.add(state.cls);}
-      var card=document.querySelector('[data-product-card="'+key+'"]');if(card)card.classList.toggle('is-sold-out',state.cls==='out');
-      var select=document.getElementById('oPr');if(select){var opt=[].slice.call(select.options).find(function(o){return o.value===key});if(opt){opt.dataset.price=String(Number(item.price||0));opt.dataset.min=String(Number(item.minQty||1));opt.dataset.stock=String(Math.max(0,Number(item.stock||0)));opt.dataset.active=String(item.active!==false);opt.dataset.mode=item.mode||'single';opt.textContent=(item.name||item.shortName||key)+' (₹'+Number(item.price||0)+'/pc)'+(item.active===false?' — unavailable':'');opt.disabled=item.active===false||Number(item.stock||0)<=0;}}
-    });
-    var retail=[catalog.tender,catalog.green].filter(Boolean).filter(function(x){return x.active!==false}).map(function(x){return Number(x.price||0)});var retailPrice=retail.length?Math.min.apply(null,retail):55;
-    var bulk=catalog.bulk||defaults.bulk||{};
-    var rt=document.querySelector('[data-retail-toggle]');if(rt)rt.textContent='🥥 Retail from ₹'+retailPrice+'/pc';
-    var bt=document.querySelector('[data-bulk-toggle]');if(bt)bt.textContent='📦 Bulk '+Number(bulk.minQty||10)+'+ — ₹'+Number(bulk.price||45)+'/pc';
-    try{syncProductSelection();}catch(_e){}
-  }
-  window.NS_APPLY_CATALOG=apply;
-  window.addEventListener('ns:catalog',function(e){apply(e.detail)});
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){if(!window.NS_CATALOG_LIVE)apply({catalog:defaults,live:false,source:'fallback'})});else if(!window.NS_CATALOG_LIVE)apply({catalog:defaults,live:false,source:'fallback'});
-})();
+/* Customer prices are rendered only by NSLiveCatalog. */
+window.NSLiveCatalog.render();
 </script>
 <script>
 /* Cinematic product interactions: pointer depth on desktop, viewport activation on touch. */

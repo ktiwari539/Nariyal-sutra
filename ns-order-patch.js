@@ -113,7 +113,7 @@
       var now=fsMod.serverTimestamp();
       var privateDoc=Object.assign({},merged,{createdAt:now,updatedAt:now,source:'website'});
       var dest=[merged.city,merged.state,merged.country].filter(Boolean).join(', ');
-      var subtotal=Number(merged.total||((merged.quantity||1)*(merged.unitPrice||55))||0);
+      var subtotal=Number(merged.total||((merged.quantity||1)*(merged.unitPrice||0))||0);
       var delivMin=extra.deliveryEtaMin;
       var delivMax=extra.deliveryEtaMax;
       var estimatedTotal=delivMin!=null&&delivMax!=null

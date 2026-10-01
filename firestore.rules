@@ -604,6 +604,43 @@ service cloud.firestore {
       allow delete: if isAdminManager();
     }
 
+    // Draft formats are isolated from public content/config and existing role permissions.
+    function validWaterProduct(p) {
+      return p.keys().hasOnly(['id','name','size','packageType','description','image','secondaryImage','price','availability','badge'])
+        && p.name is string && p.name.size() > 0 && p.name.size() <= 160
+        && p.id is string && p.id.size() <= 80
+        && p.size in [300,500] && p.packageType in ['Glass','Bottle']
+        && p.description is string && p.description.size() > 0 && p.description.size() <= 2000
+        && p.image is string && p.image.size() > 0 && p.image.size() <= 2000
+        && p.image.matches('^(assets/images/.*|https://.*)$')
+        && p.secondaryImage is string && p.secondaryImage.size() <= 2000
+        && p.badge is string && p.badge.size() <= 100
+        && p.price is number && p.price > 0 && p.price < 100000
+        && p.availability in ['Available','Pre-order'];
+    }
+    function validWaterPublication(d) {
+      return d.keys().hasOnly(['status','placement','products','publishedAt'])
+        && d.status == 'published'
+        && d.placement in ['after-collection','after-pricing','before-how-to-order']
+        && d.publishedAt == request.time
+        && d.products is list && d.products.size() > 0 && d.products.size() <= 4
+        && validWaterProduct(d.products[0])
+        && (d.products.size() < 2 || validWaterProduct(d.products[1]))
+        && (d.products.size() < 3 || validWaterProduct(d.products[2]))
+        && (d.products.size() < 4 || validWaterProduct(d.products[3]));
+    }
+    match /waterWorkspaces/{id} {
+      allow read, delete: if hasRole(['Owner','Admin']);
+      allow create, update: if hasRole(['Owner','Admin'])
+        && request.resource.data.workspace.status in ['draft','review']
+        && request.resource.data.updatedBy == request.auth.uid;
+    }
+    match /publicWaterFormats/{id} {
+      allow get: if id == 'current' && (!exists(/databases/$(database)/documents/publicWaterFormats/current) || resource.data.status == 'published');
+      allow create, update: if id == 'current' && hasRole(['Owner','Admin']) && validWaterPublication(request.resource.data);
+      allow delete: if hasRole(['Owner','Admin']);
+    }
+
     match /contentStories/{storyId} {
       allow get, list, create, update: if canContent();
       allow delete: if isAdminManager();

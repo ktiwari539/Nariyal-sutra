@@ -1,0 +1,19 @@
+import vm from 'node:vm';import fs from 'node:fs';import assert from 'node:assert/strict';
+const source=fs.readFileSync('assets/js/live-catalog.js','utf8'),checks=[];
+const context={window:null,document:{documentElement:{dataset:{}},readyState:'loading',addEventListener(){},querySelector(){return null},querySelectorAll(){return []},getElementById(){return null}},location:{pathname:'/'},addEventListener(){},setTimeout(){},CustomEvent:class{constructor(type,init){Object.assign(this,{type,...init})}},dispatchEvent(){},console};context.window=context;vm.createContext(context);vm.runInContext(source,context);const c=context.NSLiveCatalog;
+const ok=(name,condition)=>{assert.ok(condition,name);checks.push(name);};
+function snap(price,stamp=1000,metadata={fromCache:false,hasPendingWrites:false}){return{metadata,forEach(fn){for(const key of ['tender','green','bulk'])fn({id:key,data:()=>({price,stock:100,active:true,minQty:key==='bulk'?10:1,updatedAt:{seconds:stamp}})});}};}
+ok('Initial authoritative price is absent',c.price('tender')===null);
+ok('Cached snapshot cannot become current',c.accept(snap(55,1000,{fromCache:true}))===false&&c.price('tender')===null);
+ok('Server price replaces loading state',c.accept(snap(87))&&c.price('tender')===87);
+ok('Cache cannot downgrade server price',!c.accept(snap(55,2000,{fromCache:true}))&&c.price('tender')===87);
+ok('Older server version cannot downgrade price',!c.accept(snap(55,900))&&c.price('tender')===87);
+ok('Uncommitted snapshot cannot become current',!c.accept(snap(55,3000,{hasPendingWrites:true}))&&c.price('tender')===87);
+ok('Newer authoritative price accepted',c.accept(snap(93,2000))&&c.price('tender')===93);
+let listener;const reads=[];c.connect({collection:()=>({}),onSnapshot(_r,_o,fn){listener=fn;},getDocsFromServer:()=>new Promise(resolve=>reads.push(resolve))},{});
+listener(snap(101,3000));reads[0](snap(93,2000));await Promise.resolve();await Promise.resolve();ok('In-flight read cannot overwrite a newer listener',c.price('tender')===101);
+const r1=c.refresh(),r2=c.refresh();reads[2](snap(109,4000));await r2;reads[1](snap(102,3500));await r1;ok('Out-of-order read completion cannot overwrite latest request',c.price('tender')===109);
+c.unavailable();ok('Failure clears purchasable prices instead of falling back',c.price('tender')===null&&c.status==='unavailable');
+const html=fs.readFileSync('index.html','utf8');ok('No hard-coded initial price values',!/<span data-price-value="[^"]+">\d/.test(html));ok('No hard-coded checkout option price',!/data-price="(?:55|45)"/.test(html));ok('No bundled fallback rendering',!html.includes('catalog:defaults')&&!html.includes('merged={...defaultCatalog'));
+for(const name of ['fresh-tender-coconut.html','green-coconut.html'])ok(`${name} has no static SEO price`,!fs.readFileSync(name,'utf8').includes('"price":"55"'));
+fs.mkdirSync('qa-artifacts/price-sync',{recursive:true});fs.writeFileSync('qa-artifacts/price-sync/state-results.json',JSON.stringify({ok:true,checks},null,2));console.log(`Price sync state QA PASS (${checks.length} assertions)`);

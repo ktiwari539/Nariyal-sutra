@@ -10,3 +10,8 @@
   publish = ".netlify-dev"
   port = 8888
   autoLaunch = false
+
+# This review branch is CI-only until the Owner explicitly approves deployment.
+[context."feature/storefront-themes"]
+  ignore = "exit 0"
+  command = "node -e \"throw new Error('Review branch: deployment is disabled')\""

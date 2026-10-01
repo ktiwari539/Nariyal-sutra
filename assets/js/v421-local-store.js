@@ -3,7 +3,7 @@
 const KEY='ns-v421-local-state-v28';
 const LEGACY_KEYS=['ns-v421-local-state-v27','ns-v421-local-state-v26','ns-v421-local-state-v25','ns-v421-local-state-v23','ns-v421-local-state-v22','ns-v421-local-state-v21'];
 const SCHEMA=28;
-const THEME_IDS=['nariyal-signature','fresh-grove','coastal-premium'];
+const THEME_IDS=['nariyal-signature','fresh-grove','coastal-premium','golden-harvest'];
 const PEOPLE_MEDIA_IDS=["G001","G002","G003","G004","G005","G006","G007","G008","G011","G012","G016","G021","G023","G024","G025","G026","G031","G034","G035","G036","G037","G039","G040","G041","G042","G044","G046","G047","G048","G049","G050","G051","G052","G055","G061","G064","G066","G067","G068","G069","G070","G072","G073","G074","G075","G077","G078"];
 const FEATURED_FACE_IDS=["G001","G002","G004","G005","G006","G007","G008","G011","G012","G025","G026","G031","G034","G035","G036","G039","G040","G041","G042","G044","G046","G049","G052","G055","G069","G072","G073","G074","G075","G077","G078"];
 const FACE_IDS=PEOPLE_MEDIA_IDS.slice();

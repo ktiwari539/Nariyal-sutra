@@ -4,6 +4,7 @@ const FALLBACK='nariyal-signature';
 const THEMES={
  'nariyal-signature':{name:'Nariyal Signature',description:'The approved deep-forest storefront with premium dark surfaces, cream typography and restrained gold accents.'},
  'fresh-grove':{name:'Fresh Grove',description:'A bright botanical storefront with airy spacing, farm-fresh framing and natural green details.'},
+ 'golden-harvest':{name:'Golden Harvest',description:'Warm ivory, coconut gold and earth tones for considered celebrations and seasonal hospitality.'},
  'coastal-premium':{name:'Coastal Premium',description:'A refined oceanic editorial storefront with deep teal surfaces, sand accents and framed photography.'}
 };
 const valid=id=>Object.prototype.hasOwnProperty.call(THEMES,id)?id:FALLBACK;
@@ -36,10 +37,10 @@ function requestedPreview(){try{const id=new URLSearchParams(location.search).ge
 function config(){try{return window.NSV421Store?.load?.()?.themeConfig||{};}catch(_){return {};}}
 function apply(){
  const preview=requestedPreview(),result=resolve(config()),id=preview||result.id,root=document.documentElement;
- root.dataset.nsTheme=id;root.dataset.nsThemeMode=preview?'preview':result.source;root.style.colorScheme=id==='fresh-grove'?'light':'dark';
+ root.dataset.nsTheme=id;root.dataset.nsThemeMode=preview?'preview':result.source;root.style.colorScheme=['fresh-grove','golden-harvest'].includes(id)?'light':'dark';
  window.NSStorefrontTheme={id,mode:root.dataset.nsThemeMode,isPreview:!!preview,themes:THEMES,fallback:FALLBACK,result,apply,resolve,active,nextChange,valid};
  window.dispatchEvent(new CustomEvent('ns:theme-applied',{detail:{id,preview:!!preview,source:root.dataset.nsThemeMode}}));
 }
 window.NSThemeResolver={themes:THEMES,fallback:FALLBACK,valid,active,resolve,nextChange,parts};
-apply();window.addEventListener('nsv421:change',apply);window.addEventListener('nsv421:production-ready',apply);
+apply();setInterval(apply,30000);window.addEventListener('nsv421:change',apply);window.addEventListener('nsv421:production-ready',apply);
 })();
