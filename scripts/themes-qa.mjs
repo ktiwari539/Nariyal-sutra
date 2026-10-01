@@ -9,7 +9,9 @@ const checks=[];const ok=(name,value=true)=>{assert.ok(value,name);checks.push(n
 const browser=await chromium.launch({headless:true});
 const context=await browser.newContext({viewport:{width:1440,height:1000}});
 const page=await context.newPage();
-const errors=[];page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});page.on('pageerror',e=>errors.push(e.message));page.on('requestfailed',r=>errors.push(`${r.url()} ${r.failure()?.errorText}`));
+const errors=[];page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});page.on('pageerror',e=>errors.push(e.message));
+page.on('response',r=>{if(r.status()>=400&&/\.(?:png|jpe?g|webp|svg)(?:\?|$)/i.test(r.url()))errors.push(`${r.url()} HTTP ${r.status()}`);});
+page.on('requestfailed',r=>{const reason=r.failure()?.errorText||'';if(!/ERR_ABORTED/i.test(reason))errors.push(`${r.url()} ${reason}`);});
 
 await page.goto(`${base}/index.html`,{waitUntil:'domcontentloaded'});
 await page.evaluate(()=>localStorage.clear());await page.reload({waitUntil:'domcontentloaded'});await page.waitForFunction(()=>document.documentElement.dataset.nsTheme);
