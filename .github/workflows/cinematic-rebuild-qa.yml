@@ -114,6 +114,11 @@ jobs:
       - name: Pre-release optimization contracts
         run: node scripts/pre-release-optimization-qa.mjs
         timeout-minutes: 3
+      - name: Install Playwright browser QA dependency
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+        timeout-minutes: 15
       - name: Storefront Themes contracts and visual evidence
         run: |
           python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/nariyal-themes-http.log 2>&1 &
@@ -131,10 +136,6 @@ jobs:
       - name: Campaign image binary signatures
         run: node scripts/campaign-asset-diagnostics.mjs
         timeout-minutes: 5
-      - run: |
-          npm install --no-save --no-package-lock playwright@1.55.0
-          npx playwright install --with-deps chromium
-        timeout-minutes: 15
       - name: Capture supplied media recovery candidates
         run: node scripts/media-recovery-contact-sheet.mjs
         timeout-minutes: 10
