@@ -1,0 +1,52 @@
+/* Storefront Themes owns presentation tokens only. Business data, layout order and cinematic behavior remain untouched. */
+:root{
+ --ns-page:#060e03;--ns-section:#071304;--ns-surface:#0d1d09;--ns-surface-2:#12270c;
+ --ns-primary:#1e4010;--ns-secondary:#2d6b1a;--ns-accent:#d4a843;--ns-accent-soft:#f5d17e;
+ --ns-heading:#fdf7e8;--ns-body:#f8f1df;--ns-muted:rgba(255,255,255,.62);--ns-link:#f5d17e;
+ --ns-border:rgba(212,168,67,.22);--ns-radius:2px;--ns-shadow:0 24px 70px rgba(0,0,0,.3);
+ --ns-nav:rgba(6,14,3,.97);--ns-field:#0b1907;--ns-focus:#f5d17e;
+}
+:root[data-ns-theme="fresh-grove"]{
+ color-scheme:light;--ns-page:#f7f1df;--ns-section:#fffaf0;--ns-surface:#fffdf7;--ns-surface-2:#edf3e6;
+ --ns-primary:#17452b;--ns-secondary:#31734a;--ns-accent:#b9802f;--ns-accent-soft:#d8ac61;
+ --ns-heading:#173824;--ns-body:#304837;--ns-muted:#647268;--ns-link:#1d6640;
+ --ns-border:rgba(32,84,52,.18);--ns-radius:18px;--ns-shadow:0 18px 45px rgba(31,70,42,.11);
+ --ns-nav:rgba(250,247,236,.96);--ns-field:#fffef9;--ns-focus:#206d45;
+}
+:root[data-ns-theme="coastal-premium"]{
+ color-scheme:dark;--ns-page:#071711;--ns-section:#0b2118;--ns-surface:#10291e;--ns-surface-2:#173426;
+ --ns-primary:#15452f;--ns-secondary:#2d6c50;--ns-accent:#c7a15c;--ns-accent-soft:#e7cf9a;
+ --ns-heading:#fff8ea;--ns-body:#eee5d4;--ns-muted:#b7b3a6;--ns-link:#e7cf9a;
+ --ns-border:rgba(211,178,111,.26);--ns-radius:12px;--ns-shadow:0 30px 80px rgba(0,0,0,.34);
+ --ns-nav:rgba(7,23,17,.96);--ns-field:#0c2017;--ns-focus:#e7cf9a;
+}
+html[data-ns-theme] body{background:var(--ns-page)!important;color:var(--ns-body)!important}
+html[data-ns-theme] :where(h1,h2,h3,h4,.logo-name,.w-brand strong,.sp-brand strong){color:var(--ns-heading)}
+html[data-ns-theme] :where(p,li,.muted){color:var(--ns-muted)}
+html[data-ns-theme] :where(a:not(.btn-gold):not(.nav-cta):not(.w-btn.primary):not(.sp-order)){text-decoration-color:color-mix(in srgb,var(--ns-link) 45%,transparent)}
+html[data-ns-theme] :where(a,button,input,select,textarea):focus-visible{outline:3px solid var(--ns-focus)!important;outline-offset:3px!important}
+html[data-ns-theme] :where(.btn-gold,.nav-cta,.w-btn.primary,.sp-order,.btn.gold){background:var(--ns-accent)!important;color:#102217!important;box-shadow:0 10px 30px color-mix(in srgb,var(--ns-accent) 25%,transparent)}
+html[data-ns-theme] :where(input,select,textarea){background:var(--ns-field);color:var(--ns-body);border-color:var(--ns-border)}
+html[data-ns-theme] :where(.product-card,.price-card,.use-card,.story-card,.w-card,.world-card,.sp-card,.order-card,.checkout-card,.faq-item){border-color:var(--ns-border)!important;box-shadow:var(--ns-shadow);border-radius:var(--ns-radius)}
+html[data-ns-theme] :where(nav.solid,.w-nav,.sp-nav){background:var(--ns-nav)!important;border-color:var(--ns-border)!important}
+html[data-ns-theme="fresh-grove"] :where(nav.solid,.w-nav,.sp-nav) :where(a,button,.logo-name,.w-brand strong,.sp-brand strong){color:var(--ns-heading)!important}
+html[data-ns-theme="fresh-grove"] :where(.dropdown,.drop-sub){background:#f8f4e8!important;border-color:var(--ns-accent)!important}
+html[data-ns-theme="fresh-grove"] :where(.dropdown a,.drop-sub a,.drop-group-title){color:var(--ns-body)!important;border-color:var(--ns-border)!important}
+html[data-ns-theme="fresh-grove"] :where(section:not(.hero):not(.w-hero):not(.sp-hero),footer){background-color:var(--ns-section)}
+html[data-ns-theme="fresh-grove"] :where(.product-card,.price-card,.use-card,.story-card,.world-card,.sp-card,.order-card,.checkout-card,.faq-item){background:var(--ns-surface)!important;color:var(--ns-body)!important}
+html[data-ns-theme="fresh-grove"] :where(.eyebrow,.kicker,.w-kicker,.logo-tag){color:var(--ns-secondary)!important}
+html[data-ns-theme="fresh-grove"] :where(.hero,.w-hero,.sp-hero,.people-hero) :where(h1,h2,h3,p),html[data-ns-theme="fresh-grove"] nav:not(.solid) .logo-name{color:#fffaf0!important}
+html[data-ns-theme="fresh-grove"] :where(.hero,.w-hero,.sp-hero,.people-hero) :where(p){color:rgba(255,250,240,.78)!important}
+html[data-ns-theme="fresh-grove"] :where(#collection,#price-list,#how-to-order,#coconut-uses,#order,#contact,.faq-section){background:var(--ns-section)!important;color:var(--ns-body)!important}
+html[data-ns-theme="fresh-grove"] :where(.pc,.price-card,.why-card,.hto-step,.use-card,.ci,.order-card){background:var(--ns-surface)!important;border-color:var(--ns-border)!important;box-shadow:var(--ns-shadow);border-radius:var(--ns-radius)}
+html[data-ns-theme="fresh-grove"] :where(.pc-name,.sec-title,.pcard-title,.why-card h3,.hto-step h3,.use-card h3,.order-card h2){color:var(--ns-heading)!important}
+html[data-ns-theme="fresh-grove"] :where(.pc-desc,.sec-sub,.pc-per,.pcard-copy,.hto-desc,.use-card li,.collection-rail span){color:var(--ns-muted)!important}
+html[data-ns-theme="fresh-grove"] :where(.pc-btn,.po-btn){border-color:var(--ns-secondary)!important;color:var(--ns-primary)!important;background:#f7f3e6!important}
+html[data-ns-theme="fresh-grove"] .collection-rail{border-color:var(--ns-border)!important}
+html[data-ns-theme="coastal-premium"] :where(.product-card,.price-card,.use-card,.story-card,.world-card,.sp-card,.order-card,.checkout-card,.faq-item){background:linear-gradient(145deg,var(--ns-surface),var(--ns-surface-2))!important}
+html[data-ns-theme="coastal-premium"] :where(#collection,#price-list,#how-to-order,#coconut-uses,#order,#contact,.faq-section){background:linear-gradient(180deg,var(--ns-page),var(--ns-section),var(--ns-page))!important}
+html[data-ns-theme="coastal-premium"] :where(.pc,.price-card,.why-card,.hto-step,.use-card,.ci,.order-card){background:linear-gradient(145deg,var(--ns-surface),var(--ns-surface-2))!important;border-color:var(--ns-border)!important;box-shadow:var(--ns-shadow);border-radius:var(--ns-radius)}
+html[data-ns-theme="coastal-premium"] :where(h1,h2,.w-hero-copy h1,.sp-hero h1){letter-spacing:-.025em}
+html[data-ns-theme="coastal-premium"] :where(img){border-color:var(--ns-border)}
+@media(max-width:760px){html[data-ns-theme] :where(.product-card,.price-card,.use-card,.story-card,.world-card,.sp-card){border-radius:min(var(--ns-radius),12px)}html[data-ns-theme] :where(button,.btn,.w-btn){min-height:44px}}
+@media(prefers-reduced-motion:reduce){html[data-ns-theme] *{scroll-behavior:auto}}

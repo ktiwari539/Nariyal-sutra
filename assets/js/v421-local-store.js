@@ -3,6 +3,7 @@
 const KEY='ns-v421-local-state-v28';
 const LEGACY_KEYS=['ns-v421-local-state-v27','ns-v421-local-state-v26','ns-v421-local-state-v25','ns-v421-local-state-v23','ns-v421-local-state-v22','ns-v421-local-state-v21'];
 const SCHEMA=28;
+const THEME_IDS=['nariyal-signature','fresh-grove','coastal-premium'];
 const PEOPLE_MEDIA_IDS=["G001","G002","G003","G004","G005","G006","G007","G008","G011","G012","G016","G021","G023","G024","G025","G026","G031","G034","G035","G036","G037","G039","G040","G041","G042","G044","G046","G047","G048","G049","G050","G051","G052","G055","G061","G064","G066","G067","G068","G069","G070","G072","G073","G074","G075","G077","G078"];
 const FEATURED_FACE_IDS=["G001","G002","G004","G005","G006","G007","G008","G011","G012","G025","G026","G031","G034","G035","G036","G039","G040","G041","G042","G044","G046","G049","G052","G055","G069","G072","G073","G074","G075","G077","G078"];
 const FACE_IDS=PEOPLE_MEDIA_IDS.slice();
@@ -13,6 +14,7 @@ function hoursFromNow(hours){return new Date(Date.now()+hours*60*60*1000).toISOS
 function faceMedia(id,i){const featured=FEATURED_FACE_IDS.includes(id);return {id,name:'People reference '+id,cat:'People',status:featured?'Approved':'Needs review',visible:featured,publicAllowed:true,storyAllowed:true,homepageAllowed:featured,brandFit:featured?'Strong':'Review',placement:featured?'People':'Library only',faceGroup:id,src:'assets/images/ambassadors/'+id+'.webp',thumb:'assets/images/ambassadors/thumbs/'+id+'.webp',version:1,versions:[{version:1,src:'assets/images/ambassadors/'+id+'.webp',at:'Bundled V26'}],order:i+1};}
 const defaults={
  schemaVersion:SCHEMA,
+ themeConfig:{publishedTheme:'nariyal-signature',draftTheme:null,previousPublishedTheme:null,publishedAt:null,publishedBy:null},
  products:[
   {sku:'TENDER',name:'Fresh Tender Coconut',retail:55,bulk:45,moq:10,priceVisible:true,state:'Active'},
   {sku:'GREEN',name:'Green Round Coconut',retail:55,bulk:48,moq:10,priceVisible:true,state:'Active'},
@@ -135,9 +137,14 @@ function reconcilePeople(s){
 function normalizeState(s){
  const arrayKeys=['products','inventory','warehouses','deliveryServices','orders','segments','communications','followups','followupEvents','media','sections','customSections','stories','content','schedule','communitySubmissions','notificationQueue','teamMembers','tasks','audit'];
  arrayKeys.forEach(k=>{if(!Array.isArray(s[k]))s[k]=clone(defaults[k]||[]);});
- const objectKeys=['deliveryLive','customer','faceMarquee','peopleStreams','harvest','staffPhotos','settings'];
+ const objectKeys=['deliveryLive','customer','faceMarquee','peopleStreams','harvest','staffPhotos','settings','themeConfig'];
  objectKeys.forEach(k=>{if(!s[k]||typeof s[k]!=='object'||Array.isArray(s[k]))s[k]=clone(defaults[k]||{});});
  if(!Array.isArray(s.faceMarquee.selectedIds))s.faceMarquee.selectedIds=clone(defaults.faceMarquee.selectedIds||[]);
+ const cfg=s.themeConfig||{};
+ if(!THEME_IDS.includes(cfg.publishedTheme))cfg.publishedTheme='nariyal-signature';
+ if(cfg.draftTheme!==null&&!THEME_IDS.includes(cfg.draftTheme))cfg.draftTheme=null;
+ if(cfg.previousPublishedTheme!==null&&!THEME_IDS.includes(cfg.previousPublishedTheme))cfg.previousPublishedTheme=null;
+ s.themeConfig=cfg;
  return s;
 }
 function load(){try{let raw=localStorage.getItem(KEY);if(!raw){for(const k of LEGACY_KEYS){const legacy=localStorage.getItem(k);if(legacy){raw=legacy;break;}}}if(!raw)return reconcilePeople(normalizeState(clone(defaults)));return reconcilePeople(normalizeState(merge(defaults,JSON.parse(raw))));}catch(e){return reconcilePeople(normalizeState(clone(defaults)));}}
@@ -149,5 +156,9 @@ function eligibleForPublic(s,m){return !!(m&&m.visible&&m.publicAllowed!==false&
 function setSession(x){try{sessionStorage.setItem('ns_v10_admin_session',JSON.stringify(x||{}));}catch(e){}}
 function getSession(){try{return JSON.parse(sessionStorage.getItem('ns_v10_admin_session')||'null');}catch(e){return null;}}
 function publicFaces(s){const cfg=s.faceMarquee||{},seen=new Set();return (cfg.selectedIds||[]).map(id=>mediaById(s,id)).filter(m=>{if(!eligibleForPublic(s,m)||seen.has(m.id))return false;seen.add(m.id);return true;});}
-window.NSV421Store={KEY,SCHEMA,FACE_IDS,PEOPLE_MEDIA_IDS,FEATURED_FACE_IDS,defaults,load,save,reset,audit,mediaById,eligibleForPublic,setSession,getSession,publicFaces,resolveAlias:id=>alias[id]||id};
+window.NSV421Store={KEY,SCHEMA,THEME_IDS,FACE_IDS,PEOPLE_MEDIA_IDS,FEATURED_FACE_IDS,defaults,load,save,reset,audit,mediaById,eligibleForPublic,setSession,getSession,publicFaces,resolveAlias:id=>alias[id]||id};
+if(!/admin(?:-|\.|\/)/i.test(location.pathname)){
+ const css=document.createElement('link');css.rel='stylesheet';css.href='assets/css/storefront-themes.css';css.dataset.nsThemeAsset='styles';document.head.appendChild(css);
+ const js=document.createElement('script');js.src='assets/js/storefront-theme-runtime.js';js.defer=true;js.dataset.nsThemeAsset='runtime';document.head.appendChild(js);
+}
 })();

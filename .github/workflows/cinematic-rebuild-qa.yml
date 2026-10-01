@@ -1,7 +1,7 @@
 name: Cinematic rebuild QA
 on:
   push:
-    branches: [fix/cinematic-real-sequence-20260911, improvement/pre-release-optimization]
+    branches: [fix/cinematic-real-sequence-20260911, improvement/pre-release-optimization, feature/storefront-themes]
   workflow_dispatch:
 concurrency:
   group: cinematic-rebuild-qa-${{ github.ref }}
@@ -114,6 +114,14 @@ jobs:
       - name: Pre-release optimization contracts
         run: node scripts/pre-release-optimization-qa.mjs
         timeout-minutes: 3
+      - name: Storefront Themes contracts and visual evidence
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/nariyal-themes-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID || true' EXIT
+          sleep 2
+          node scripts/themes-qa.mjs
+        timeout-minutes: 12
       - name: Public copy professional QA
         run: node scripts/public-copy-qa.mjs
         timeout-minutes: 3
