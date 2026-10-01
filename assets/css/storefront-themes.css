@@ -78,3 +78,14 @@ html[data-ns-theme] #ns-del-root :is(.ns-del-result,.ns-del-choice-status,.ns-de
 html[data-ns-theme] #ns-del-root :is(.ns-del-result small,.ns-del-summary small,.ns-del-choice-status small){color:var(--ns-muted)}
 html[data-ns-theme] :is(.ns-place-choice,.ns-handover-input){background:var(--ns-field);color:var(--ns-body)}
 html[data-ns-theme] :is(.ns-place-choice small,.ns-handover-distance){color:var(--ns-muted)}
+/* Keep dynamically styled controls on their active theme's paired surface. */
+html[data-ns-theme] #collection :is(.pc-btn,.po-btn),
+html[data-ns-theme] #order button:not(.btn-gold):not(.topt.on):not(.sel),
+html[data-ns-theme] :is(#people-of-nariyal,#harvest-film) .btn-outline{background:var(--ns-surface-2)!important;color:var(--ns-body)!important;border-color:var(--ns-border)!important}
+html[data-ns-theme] footer small{color:var(--ns-muted)!important}
+html[data-ns-theme] #collection .po-btn{background:var(--ns-cta)!important;color:var(--ns-cta-ink)!important}
+html[data-ns-theme] #order .ns-del-opt-state{color:inherit!important}
+html[data-ns-theme] nav{background:var(--ns-nav)!important}
+html[data-ns-theme] nav a{color:var(--ns-heading)!important}
+html[data-ns-theme] nav button,html[data-ns-theme] nav button span{color:var(--ns-heading)!important}
+html[data-ns-theme] nav .nav-cta{color:var(--ns-cta-ink)!important;background:var(--ns-cta)!important}
