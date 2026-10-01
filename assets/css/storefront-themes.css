@@ -20,15 +20,14 @@
  --ns-border:rgba(117,190,190,.3);--ns-radius:16px 3px 16px 3px;--ns-shadow:0 28px 70px rgba(0,10,17,.42);
  --ns-nav:rgba(4,24,32,.96);--ns-field:#082731;--ns-focus:#f1d7a5;
 }
-html[data-ns-theme] body{background:var(--ns-page)!important;color:var(--ns-body)!important}
-html[data-ns-theme] :where(h1,h2,h3,h4,.logo-name,.w-brand strong,.sp-brand strong){color:var(--ns-heading)}
-html[data-ns-theme] :where(p,li,.muted){color:var(--ns-muted)}
-html[data-ns-theme] :where(a:not(.btn-gold):not(.nav-cta):not(.w-btn.primary):not(.sp-order)){text-decoration-color:color-mix(in srgb,var(--ns-link) 45%,transparent)}
-html[data-ns-theme] :where(a,button,input,select,textarea):focus-visible{outline:3px solid var(--ns-focus)!important;outline-offset:3px!important}
-html[data-ns-theme] :where(.btn-gold,.nav-cta,.w-btn.primary,.sp-order,.btn.gold){background:var(--ns-accent)!important;color:#102217!important;box-shadow:0 10px 30px color-mix(in srgb,var(--ns-accent) 25%,transparent)}
-html[data-ns-theme] :where(input,select,textarea){background:var(--ns-field);color:var(--ns-body);border-color:var(--ns-border)}
-html[data-ns-theme] :where(.product-card,.price-card,.use-card,.story-card,.w-card,.world-card,.sp-card,.order-card,.checkout-card,.faq-item){border-color:var(--ns-border)!important;box-shadow:var(--ns-shadow);border-radius:var(--ns-radius)}
-html[data-ns-theme] :where(nav.solid,.w-nav,.sp-nav){background:var(--ns-nav)!important;border-color:var(--ns-border)!important}
+html[data-ns-theme]:not([data-ns-theme="nariyal-signature"]) body{background:var(--ns-page)!important;color:var(--ns-body)!important}
+html[data-ns-theme]:not([data-ns-theme="nariyal-signature"]) :where(h1,h2,h3,h4,.logo-name,.w-brand strong,.sp-brand strong){color:var(--ns-heading)}
+html[data-ns-theme]:not([data-ns-theme="nariyal-signature"]) :where(a:not(.btn-gold):not(.nav-cta):not(.w-btn.primary):not(.sp-order)){text-decoration-color:color-mix(in srgb,var(--ns-link) 45%,transparent)}
+html[data-ns-theme]:not([data-ns-theme="nariyal-signature"]) :where(a,button,input,select,textarea):focus-visible{outline:3px solid var(--ns-focus)!important;outline-offset:3px!important}
+html[data-ns-theme]:not([data-ns-theme="nariyal-signature"]) :where(.btn-gold,.nav-cta,.w-btn.primary,.sp-order,.btn.gold){background:var(--ns-accent)!important;color:#102217!important;box-shadow:0 10px 30px color-mix(in srgb,var(--ns-accent) 25%,transparent)}
+html[data-ns-theme]:not([data-ns-theme="nariyal-signature"]) :where(input,select,textarea){background:var(--ns-field);color:var(--ns-body);border-color:var(--ns-border)}
+html[data-ns-theme]:not([data-ns-theme="nariyal-signature"]) :where(.product-card,.price-card,.use-card,.story-card,.w-card,.world-card,.sp-card,.order-card,.checkout-card,.faq-item){border-color:var(--ns-border)!important;box-shadow:var(--ns-shadow);border-radius:var(--ns-radius)}
+html[data-ns-theme]:not([data-ns-theme="nariyal-signature"]) :where(nav.solid,.w-nav,.sp-nav){background:var(--ns-nav)!important;border-color:var(--ns-border)!important}
 html[data-ns-theme="fresh-grove"] :where(nav.solid,.w-nav,.sp-nav) :where(a,button,.logo-name,.w-brand strong,.sp-brand strong){color:var(--ns-heading)!important}
 html[data-ns-theme="fresh-grove"] :where(.dropdown,.drop-sub){background:#f8f4e8!important;border-color:var(--ns-accent)!important}
 html[data-ns-theme="fresh-grove"] :where(.dropdown a,.drop-sub a,.drop-group-title){color:var(--ns-body)!important;border-color:var(--ns-border)!important}
@@ -36,6 +35,7 @@ html[data-ns-theme="fresh-grove"] :where(section:not(.hero):not(.w-hero):not(.sp
 html[data-ns-theme="fresh-grove"] :where(.product-card,.price-card,.use-card,.story-card,.world-card,.sp-card,.order-card,.checkout-card,.faq-item){background:var(--ns-surface)!important;color:var(--ns-body)!important}
 html[data-ns-theme="fresh-grove"] :where(.eyebrow,.kicker,.w-kicker,.logo-tag){color:var(--ns-secondary)!important}
 html[data-ns-theme="fresh-grove"] :where(.hero,.w-hero,.sp-hero,.people-hero) :where(h1,h2,h3,p),html[data-ns-theme="fresh-grove"] nav:not(.solid) .logo-name{color:#fffaf0!important}
+html[data-ns-theme="fresh-grove"] nav:not(.solid) .nav-brand{color:#fffaf0!important}
 html[data-ns-theme="fresh-grove"] :where(.hero,.w-hero,.sp-hero,.people-hero) :where(p){color:rgba(255,250,240,.78)!important}
 html[data-ns-theme="fresh-grove"] :where(#collection,#price-list,#how-to-order,#coconut-uses,#order,#contact,.faq-section){background:var(--ns-section)!important;color:var(--ns-body)!important}
 html[data-ns-theme="fresh-grove"] :where(.pc,.price-card,.why-card,.hto-step,.use-card,.ci,.order-card){background:var(--ns-surface)!important;border-color:var(--ns-border)!important;box-shadow:var(--ns-shadow);border-radius:var(--ns-radius)}
@@ -55,5 +55,62 @@ html[data-ns-theme="coastal-premium"] :where(.order-card input,.order-card selec
 html[data-ns-theme="coastal-premium"] footer{background:#031219!important;border-top:1px solid var(--ns-border)}
 html[data-ns-theme="coastal-premium"] :where(h1,h2,.w-hero-copy h1,.sp-hero h1){letter-spacing:-.035em}
 html[data-ns-theme="coastal-premium"] :where(img){border-color:var(--ns-border)}
-@media(max-width:760px){html[data-ns-theme] :where(.product-card,.price-card,.use-card,.story-card,.world-card,.sp-card){border-radius:min(var(--ns-radius),12px)}html[data-ns-theme] :where(button,.btn,.w-btn){min-height:44px}}
-@media(prefers-reduced-motion:reduce){html[data-ns-theme] *{scroll-behavior:auto}}
+/* Explicit component ownership keeps legacy white/dark declarations from leaking across themes. */
+html[data-ns-theme="fresh-grove"] :where(#collection,#price-list,#our-story,#how-to-order,#coconut-uses,#faq,#order,#contact,.ns-people-teaser,.ns-people-marquee,.brand-moment,.cinema,.motion-fold){color:var(--ns-body)}
+html[data-ns-theme="fresh-grove"] :where(.sec-title,.pc-name,.pcard-title,.why-card h3,.hto-step h3,.use-card h3,.faq-q,.order-card h2,.footer-brand,.footer-col h4,.ns-people-teaser h2,.ns-people-marquee h2){color:var(--ns-heading)!important}
+html[data-ns-theme="fresh-grove"] :where(.sec-sub,.pc-desc,.pc-per,.pcard-copy,.why-card p,.hto-desc,.use-card li,.faq-a,.order-card p,.order-card label,.order-note,.collection-rail span,.footer-desc,.footer-col a,.footer-bottom,.ns-people-teaser p,.ns-people-marquee p,.film-copy p,.motion-fold p){color:#56695d!important}
+html[data-ns-theme="fresh-grove"] :where(.pc-price,.pcard-price,.po-price,.stat-num,.price-show strong){color:#885817!important}
+html[data-ns-theme="fresh-grove"] :where(.tag,.badge,.pc-badge,.eyebrow,.kicker,.section-kicker,.live-price-kicker){color:#17452b!important;background:#deead9;border-color:#a8c2ad}
+html[data-ns-theme="fresh-grove"] :where(#our-story,.brand-moment,.cinema,.motion-fold,.ns-people-teaser,.ns-people-marquee){background:linear-gradient(180deg,#f1f5e9,#fffaf0)!important;border-block:1px solid rgba(32,84,52,.14)}
+html[data-ns-theme="fresh-grove"] :where(.pc,.price-card,.why-card,.hto-step,.use-card,.ci,.order-card,.faq-item){transition:transform .24s ease,box-shadow .24s ease}
+html[data-ns-theme="fresh-grove"] :where(.pc,.why-card,.hto-step,.use-card,.ci){border-top:4px solid #7fa780!important}
+html[data-ns-theme="fresh-grove"] :where(.pc-img,img.product-img,.story-image){border-radius:14px 14px 5px 5px;filter:saturate(.94) contrast(.98)}
+html[data-ns-theme="fresh-grove"] :where(.pc-btn,.po-btn,.faq-q){font-weight:700;letter-spacing:.08em}
+html[data-ns-theme="fresh-grove"] :where(.order-card,.checkout-card){background:#fffdf7!important;border:1px solid rgba(32,84,52,.22)!important}
+html[data-ns-theme="fresh-grove"] :where(input,select,textarea)::placeholder{color:#718078;opacity:1}
+html[data-ns-theme="fresh-grove"] :where(input,select,textarea):disabled{background:#e6eadf!important;color:#657168!important;opacity:1}
+html[data-ns-theme="fresh-grove"] :where(button,a).disabled,html[data-ns-theme="fresh-grove"] :where(button,a):disabled{color:#69756d!important;background:#e2e7dd!important;border-color:#c3cbc2!important;opacity:1}
+html[data-ns-theme="fresh-grove"] :where(.error,.field-error,.validation-error,[role="alert"]){color:#8b2f2f!important}
+html[data-ns-theme="fresh-grove"] :where(.success,.field-success){color:#17613a!important}
+html[data-ns-theme="fresh-grove"] footer{background:#e5eddf!important;border-top:1px solid rgba(32,84,52,.2)}
+html[data-ns-theme="fresh-grove"] :where(.image-caption,figcaption,.story-caption,.film-caption){color:#43584a!important;background:rgba(255,253,247,.92)}
+html[data-ns-theme="fresh-grove"] :where(.people-card,.story-card) :where(h3,strong){color:#fffaf0!important}
+html[data-ns-theme="fresh-grove"] :where(.people-card,.story-card) :where(p,span,small){color:rgba(255,250,240,.84)!important}
+/* Fresh Grove component pairs: every light surface owns its foreground instead of inheriting legacy dark-theme text. */
+html[data-ns-theme="fresh-grove"] :where(.sec-eyebrow,.sec-eyebrow .se-txt,.enquiry-kicker,.footer-col h4,.footer-brand span){color:#765018!important}
+html[data-ns-theme="fresh-grove"] :where(.price-card .pcard-features li,.price-card .pcard-per,.faq-list details p,.form-privacy,.order-trust-row span){color:#485d4e!important}
+html[data-ns-theme="fresh-grove"] :where(.price-card .btn-outline,.topt,.pay-opt,.ns-del-opt,.ns-find-btn,.ns-gps-btn){background:#f3f5ec!important;color:#294b35!important;border-color:#9daf9f!important}
+html[data-ns-theme="fresh-grove"] :where(.price-card .btn-outline:hover,.pay-opt:hover,.ns-del-opt:hover){background:#e4edde!important;color:#173824!important;border-color:#31734a!important}
+html[data-ns-theme="fresh-grove"] :where(.topt.on,.pay-opt[aria-pressed="true"],.nav-cta,.account-btn,.nsacct-trigger,.nsacct-trigger span){background:#b9802f!important;color:#102217!important;border-color:#8e5f1d!important}
+html[data-ns-theme="fresh-grove"] nav :where(.nsacct-trigger,.nsacct-trigger span){color:#07150d!important}
+html[data-ns-theme="fresh-grove"] nav #nsacct-trigger,html[data-ns-theme="fresh-grove"] nav #nsacct-trigger span{color:#07150d!important;opacity:1!important}
+html[data-ns-theme="fresh-grove"] :where(.order-card .of label,.order-card .ps-lbl,.order-card .ps-note,.order-card .order-note,.order-card .form-privacy,.order-card small){color:#526359!important}
+html[data-ns-theme="fresh-grove"] .order-card label span{color:#66766c!important}
+html[data-ns-theme="fresh-grove"] .order-card a{color:#1d6640!important}
+html[data-ns-theme="fresh-grove"] :where(.ns-v21-address-map,.ns-del-section){background:#edf3e6!important;border-color:#a8bca9!important;color:#304837!important}
+html[data-ns-theme="fresh-grove"] :where(.ns-step-tag,.ns-step-heading,.ns-del-opt-state,.ns-del-opt-title,.ns-del-opt-copy,.ns-discovery-help){color:#365441!important}
+html[data-ns-theme="fresh-grove"] :where(.ns-recur-btn,.ns-del-opt){background:#f3f5ec!important;color:#294b35!important;border-color:#9daf9f!important}
+html[data-ns-theme="fresh-grove"] :where(.ns-recur-btn.sel,.ns-del-opt.selected){background:#dce9d6!important;color:#173824!important;border-color:#31734a!important}
+html[data-ns-theme="fresh-grove"] :where(.ns-v21-map-head strong,.ns-v21-map-head span,.ns-v21-map-status){color:#405649!important}
+html[data-ns-theme="fresh-grove"] :where(.ns-v21-map-tools input,.ns-v21-map-tools button){background:#fffdf7!important;color:#294b35!important;border-color:#9daf9f!important}
+html[data-ns-theme="fresh-grove"] :where(.world-card,.story-card,.promise-portal){background:#07170d!important;color:#fffaf0!important}
+html[data-ns-theme="fresh-grove"] :where(.world-card,.story-card,.promise-portal) :where(h3,p,small,b,span){color:#fffaf0!important}
+html[data-ns-theme="fresh-grove"] :where(.sv-badge,.sv-badge span){color:#fffaf0!important}
+html[data-ns-theme="fresh-grove"] footer :where(.footer-desc,.footer-col a,.footer-bottom,.flinks a,small,span){color:#455b4b!important}
+html[data-ns-theme="coastal-premium"] :where(.sec-sub,.pc-desc,.pc-per,.pcard-copy,.why-card p,.hto-desc,.use-card li,.faq-a,.order-card p,.order-card label,.order-note,.collection-rail span,.footer-desc,.footer-col a,.footer-bottom,.ns-people-teaser p,.ns-people-marquee p){color:var(--ns-muted)!important}
+html[data-ns-theme="coastal-premium"] :where(.pc-price,.pcard-price,.po-price,.stat-num,.price-show strong){color:var(--ns-accent)!important}
+html[data-ns-theme="coastal-premium"] :where(.tag,.badge,.pc-badge,.eyebrow,.kicker,.section-kicker,.live-price-kicker){color:#d9f0ed!important;background:rgba(82,166,166,.16);border-color:rgba(117,190,190,.42)}
+html[data-ns-theme="coastal-premium"] :where(.ns-people-teaser,.ns-people-marquee,.brand-moment,.cinema,.motion-fold){background:linear-gradient(120deg,#03151c,#0b3540)!important;border-block:1px solid rgba(117,190,190,.25)}
+html[data-ns-theme="coastal-premium"] :where(.pc-img,img.product-img,.story-image){border-radius:13px 2px 13px 2px;box-shadow:0 14px 36px rgba(0,8,14,.34);filter:saturate(.88) contrast(1.05)}
+html[data-ns-theme="coastal-premium"] :where(.pc-btn,.po-btn,.btn-gold,.nav-cta){letter-spacing:.14em;text-transform:uppercase}
+html[data-ns-theme="coastal-premium"] :where(input,select,textarea)::placeholder{color:#91adad;opacity:1}
+html[data-ns-theme="coastal-premium"] :where(input,select,textarea):disabled{background:#102f37!important;color:#9ab0ae!important;opacity:1}
+html[data-ns-theme="coastal-premium"] :where(button,a).disabled,html[data-ns-theme="coastal-premium"] :where(button,a):disabled{color:#a8b7b4!important;background:#17343b!important;border-color:#45656a!important;opacity:1}
+html[data-ns-theme="coastal-premium"] :where(.error,.field-error,.validation-error,[role="alert"]){color:#ffb7aa!important}
+html[data-ns-theme="coastal-premium"] :where(.success,.field-success){color:#a7e2c2!important}
+html[data-ns-theme="coastal-premium"] :where(.image-caption,figcaption,.story-caption,.film-caption){color:#e0eeeb!important;background:rgba(3,18,25,.9)}
+html[data-ns-theme="coastal-premium"] :where(.sv-badge,.sv-badge span){color:#fff9ec!important}
+html[data-ns-theme="coastal-premium"] footer :where(.footer-desc,.footer-col a,.footer-bottom,.flinks a,small,span){color:#b8cecb!important}
+@media(hover:hover){html[data-ns-theme="fresh-grove"] :where(.pc,.price-card,.why-card,.use-card):hover{transform:translateY(-5px);box-shadow:0 24px 50px rgba(31,70,42,.16)}html[data-ns-theme="coastal-premium"] :where(.pc,.price-card,.why-card,.use-card):hover{transform:translateY(-4px);border-top-color:var(--ns-accent-soft)!important}}
+@media(max-width:760px){html[data-ns-theme]:not([data-ns-theme="nariyal-signature"]) :where(.product-card,.price-card,.use-card,.story-card,.world-card,.sp-card){border-radius:min(var(--ns-radius),12px)}html[data-ns-theme]:not([data-ns-theme="nariyal-signature"]) :where(button,.btn,.w-btn){min-height:44px}}
+@media(prefers-reduced-motion:reduce){html[data-ns-theme]:not([data-ns-theme="nariyal-signature"]) *{scroll-behavior:auto}}

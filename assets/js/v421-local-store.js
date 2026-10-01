@@ -14,7 +14,7 @@ function hoursFromNow(hours){return new Date(Date.now()+hours*60*60*1000).toISOS
 function faceMedia(id,i){const featured=FEATURED_FACE_IDS.includes(id);return {id,name:'People reference '+id,cat:'People',status:featured?'Approved':'Needs review',visible:featured,publicAllowed:true,storyAllowed:true,homepageAllowed:featured,brandFit:featured?'Strong':'Review',placement:featured?'People':'Library only',faceGroup:id,src:'assets/images/ambassadors/'+id+'.webp',thumb:'assets/images/ambassadors/thumbs/'+id+'.webp',version:1,versions:[{version:1,src:'assets/images/ambassadors/'+id+'.webp',at:'Bundled V26'}],order:i+1};}
 const defaults={
  schemaVersion:SCHEMA,
- themeConfig:{publishedTheme:'nariyal-signature',draftTheme:null,previousPublishedTheme:null,publishedAt:null,publishedBy:null},
+ themeConfig:{publishedTheme:'nariyal-signature',draftTheme:null,previousPublishedTheme:null,publishedAt:null,publishedBy:null,businessTimezone:'Asia/Kolkata',schedules:[],manualOverride:null},
  products:[
   {sku:'TENDER',name:'Fresh Tender Coconut',retail:55,bulk:45,moq:10,priceVisible:true,state:'Active'},
   {sku:'GREEN',name:'Green Round Coconut',retail:55,bulk:48,moq:10,priceVisible:true,state:'Active'},
@@ -144,6 +144,10 @@ function normalizeState(s){
  if(!THEME_IDS.includes(cfg.publishedTheme))cfg.publishedTheme='nariyal-signature';
  if(cfg.draftTheme!==null&&!THEME_IDS.includes(cfg.draftTheme))cfg.draftTheme=null;
  if(cfg.previousPublishedTheme!==null&&!THEME_IDS.includes(cfg.previousPublishedTheme))cfg.previousPublishedTheme=null;
+ if(typeof cfg.businessTimezone!=='string'||!cfg.businessTimezone)cfg.businessTimezone='Asia/Kolkata';
+ if(!Array.isArray(cfg.schedules))cfg.schedules=[];
+ cfg.schedules=cfg.schedules.filter(x=>x&&typeof x==='object'&&THEME_IDS.includes(x.themeId)).map(x=>({...x,enabled:x.enabled!==false,daysOfWeek:Array.isArray(x.daysOfWeek)?x.daysOfWeek.filter(d=>Number.isInteger(d)&&d>=0&&d<=6):[]}));
+ if(cfg.manualOverride&&(!THEME_IDS.includes(cfg.manualOverride.themeId)||cfg.manualOverride.active===false))cfg.manualOverride=null;
  s.themeConfig=cfg;
  return s;
 }
