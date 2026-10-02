@@ -7,6 +7,28 @@ concurrency:
   group: cinematic-rebuild-qa-${{ github.ref }}
   cancel-in-progress: true
 jobs:
+  auth-experience:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Shared auth UI and isolated authorization regression
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/ns-auth-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null' EXIT
+          node scripts/auth-experience-qa.mjs
+          node scripts/production-firebase-contract-qa.mjs
+          node scripts/admin-role-contract-qa.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: auth-experience-evidence
+          path: qa-artifacts/auth/
+          retention-days: 14
   themes-pricing-water:
     runs-on: ubuntu-latest
     timeout-minutes: 25
