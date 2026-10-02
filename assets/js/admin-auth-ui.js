@@ -1,7 +1,7 @@
 (function () {
   'use strict';
   var root=document.getElementById('ns-admin-auth'), content=root.innerHTML;
-  root.innerHTML='<header class="ns-auth-header">'+NSAuthShell.brand()+'<a href="/index.html">Back to the storefront ↗</a></header>'+NSAuthShell.markup('admin',content,'signin');
+  if(!root.querySelector('.ns-auth-shell'))root.innerHTML='<header class="ns-auth-header">'+NSAuthShell.brand()+'<a href="/index.html">Back to the storefront ↗</a></header>'+NSAuthShell.markup('admin',content,'signin');
   NSAuthShell.enhance(root);
   document.getElementById('forgot').addEventListener('click',function () { setMode('reset'); });
   document.getElementById('ns-admin-back').addEventListener('click',function () { setMode('signin'); });

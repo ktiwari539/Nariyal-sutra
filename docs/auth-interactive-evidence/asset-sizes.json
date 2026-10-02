@@ -1,0 +1,22 @@
+{
+  "assets/js/auth-shell.js": {
+    "bytes": 9325,
+    "gzip_bytes": 3332
+  },
+  "assets/js/auth-theme.js": {
+    "bytes": 1846,
+    "gzip_bytes": 901
+  },
+  "assets/css/auth-shell.css": {
+    "bytes": 26863,
+    "gzip_bytes": 6297
+  },
+  "assets/images/brand/auth-nariyal.svg": {
+    "bytes": 22224,
+    "gzip_bytes": 5136
+  },
+  "assets/images/brand/auth-nariyal-young.svg": {
+    "bytes": 22224,
+    "gzip_bytes": 5137
+  }
+}

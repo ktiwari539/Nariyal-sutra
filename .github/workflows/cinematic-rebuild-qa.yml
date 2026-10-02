@@ -20,14 +20,21 @@ jobs:
           python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/ns-auth-http.log 2>&1 &
           server_pid=$!
           trap 'kill "$server_pid" 2>/dev/null' EXIT
+          node scripts/render-admin-auth.mjs
+          git diff --exit-code -- admin-bcc-login.html admin-login.html
           node scripts/auth-experience-qa.mjs
+          node scripts/auth-theme-contract-qa.mjs
+          node scripts/auth-interactive-qa.mjs
+          node scripts/auth-composition-qa.mjs
           node scripts/production-firebase-contract-qa.mjs
           node scripts/admin-role-contract-qa.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: auth-experience-evidence
-          path: qa-artifacts/auth/
+          path: |
+            qa-artifacts/auth/
+            qa-artifacts/auth-interactive/
           retention-days: 14
   themes-pricing-water:
     runs-on: ubuntu-latest

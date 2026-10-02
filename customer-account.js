@@ -192,6 +192,7 @@
     return '<div class="nsacct-phone-card"><div class="nsacct-kicker">Phone OTP</div><b style="font-size:13px">Sign in without a password.</b><p class="nsacct-mini" style="margin-top:7px">For Indian numbers you can enter a 10-digit mobile number; we will use +91 automatically.</p><form class="nsacct-form" id="nsacct-phone-send"><div class="nsacct-field"><label for="nsacct-phone-number">Mobile number</label><input id="nsacct-phone-number" type="tel" autocomplete="tel" maxlength="24" required placeholder="+91 98765 43210"></div><div class="nsacct-field"><label for="nsacct-phone-name">Full name <span style="opacity:.55">(first time only)</span></label><input id="nsacct-phone-name" type="text" autocomplete="name" maxlength="100" placeholder="Your name"></div><div id="nsacct-recaptcha"></div><button class="nsacct-btn primary" type="submit">Send OTP</button><button class="nsacct-btn ghost" type="button" data-nsacct-action="phone-reset">Use email instead</button></form></div>';
   }
   function changeAuthMode(mode){
+    if(byId('nsacct-body')?.querySelector('form[aria-busy="true"]'))return;
     var current=byId('nsacct-login-email')||byId('nsacct-signup-email')||byId('nsacct-reset-email');
     if(current)state.authEmail=current.value;
     state.authTab=mode;state.phoneStage='';render();
@@ -299,6 +300,7 @@
     state.authReady=true;state.authError='';state.user=user||null;state.profile=null;state.addresses=[];state.orders=[];cleanupSubs();
     window.NS_CUSTOMER_CONTEXT={ready:true,uid:user?user.uid:'',user:user||null,profile:null};
     if(user){
+      window.NSAuthShell?.signal(byId('nsacct-body'),'success');
       try{await ensureProfile(user)}catch(e){console.warn('[customer-account] profile load failed:',e);showDeferredMessage('Your sign-in succeeded, but profile details could not be loaded yet. You can still shop and order.', 'warn')}
       subscribeAddresses();subscribeOrders();prefillCheckout(false);analytics('customer_account_ready',{email_verified:!!user.emailVerified});try{if(sessionStorage.getItem('nsacct_auth_return')){sessionStorage.removeItem('nsacct_auth_return');setTimeout(openDrawer,80)}}catch(e){}
     }
@@ -359,7 +361,7 @@
     else if(e.target.id==='nsacct-address'){e.preventDefault();await saveAddress(e.target)}
     else if(e.target.id==='nsacct-claim'){e.preventDefault();await claimGuestOrder(e.target)}
   }
-  function setBusy(form,busy){var btn=form&&form.querySelector('button[type="submit"]');if(btn){if(!btn.dataset.label)btn.dataset.label=btn.textContent;btn.disabled=busy;btn.textContent=busy?'Please wait…':btn.dataset.label}}
+  function setBusy(form,busy){if(form){form.setAttribute('aria-busy',String(busy));window.NSAuthShell?.signal(form.closest('.ns-auth-shell'),busy?'loading':'idle');}var btn=form&&form.querySelector('button[type="submit"]');if(btn){if(!btn.dataset.label)btn.dataset.label=btn.textContent;btn.disabled=busy;btn.textContent=busy?'Please wait…':btn.dataset.label}}
   function normalizePhone(v){
     var raw=clean(v,30),d=digits(raw);
     if(d.length===10)return '+91'+d;

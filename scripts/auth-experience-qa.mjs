@@ -29,7 +29,7 @@ const brand=await p.locator('.ns-auth-brand').innerHTML();
 ok('Customer sound defaults off with no audio context',await p.locator('[data-auth-sound]').getAttribute('aria-pressed')==='false'&&await p.evaluate(()=>__soundCalls.length===0));
 await shot(p,'customer-desktop-signin');
 await p.locator('#nsacct-login-email').fill('qa@example.com');await p.locator('[data-nsacct-auth-tab="signup"]').click();
-ok('State transition has a bounded entry animation',await p.locator('.ns-auth-stage').evaluate(e=>getComputedStyle(e).animationName)==='nsAuthEnter');
+ok('State transition has a bounded diagonal panel reveal',await p.locator('.ns-auth-stage').evaluate(e=>getComputedStyle(e).animationName)==='nsAuthPanelReveal');
 ok('Focus moves to new state heading',await p.locator('.ns-auth-title').evaluate(e=>e===document.activeElement));
 ok('Email survives auth-state change',await p.locator('#nsacct-signup-email').inputValue()==='qa@example.com');
 await shot(p,'customer-desktop-create');
@@ -69,6 +69,8 @@ const reduced=await context({reducedMotion:'reduce'}),rp=await customer(reduced)
 const success=await context(),sp=await customer(success);
 await sp.locator('#nsacct-login-email').fill('customer@example.com');await sp.locator('#nsacct-login-password').fill('Synthetic-test-123');await sp.locator('#nsacct-signin button[type=submit]').click();await sp.waitForFunction(()=>NS_CUSTOMER_CONTEXT?.uid==='qa-customer');
 ok('Successful customer login retains the signed-in account drawer',await sp.locator('.nsacct-userhead').count()===1&&!await sp.locator('#nsacct-panel').evaluate(e=>e.classList.contains('ns-auth-panel')));
+ok('Success acknowledgement survives the signed-in render without delaying access',await sp.locator('#nsacct-panel').evaluate(e=>e.classList.contains('ns-auth-acknowledged')));
+await sp.screenshot({path:out+'/success-acknowledgement.png'});
 await success.close();
 // Read real computed foreground/background pairs to catch conflicts from storefront CSS.
 async function contrast(page){return page.evaluate(()=>{

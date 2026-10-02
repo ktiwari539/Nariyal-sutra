@@ -1,4 +1,4 @@
-/* One deliberately scoped brand system, independent of storefront theme selection. */
+/* Shared auth controls and theme-aware composition; no authentication behavior lives in CSS. */
 .ns-auth-page{margin:0;min-height:100svh;background:#0a2019;color:#173c30;font-family:Arial,sans-serif;padding:32px 28px;box-sizing:border-box}
 .ns-auth-page::before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at 20% 20%,#2a514735,transparent 55%)}
 .ns-auth-page>main{position:relative;width:min(1120px,100%);margin:auto}
@@ -78,3 +78,178 @@
 .ns-auth-context-label{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 html #nsacct-panel.ns-auth-panel input::placeholder{color:#667264;opacity:1}
 html #nsacct-panel.ns-auth-panel .nsacct-brand{text-shadow:none}
+
+/* Interactive edition: stable columns, four distinct art directions. */
+.ns-auth-page{background:#eeeae0}
+html[data-auth-theme="nariyal-signature"] .ns-auth-page{background:#0c211b}
+html[data-auth-theme="fresh-grove"] .ns-auth-page{background:#e9efe3}
+html[data-auth-theme="coastal-premium"] .ns-auth-page{background:#0f3037}
+html[data-auth-theme="golden-harvest"] .ns-auth-page{background:#ede3d3}
+html[data-auth-theme="fresh-grove"] .ns-auth-header :is(a,strong,span),html[data-auth-theme="golden-harvest"] .ns-auth-header :is(a,strong,span){color:#263f30}
+.ns-auth-shell{position:relative;--auth-art:#103c2f;--auth-accent:#dfc594;--auth-form:#faf8ef;grid-template-columns:44% 56%;background:var(--auth-form);min-height:710px}
+.ns-auth-art{padding:44px 40px 29px;min-height:680px;background:var(--auth-art);isolation:isolate}
+.ns-auth-art::after{z-index:-1;background:radial-gradient(ellipse at 25% 55%,#b8c79916,transparent 65%),linear-gradient(145deg,#214b3a00,#061c19b3)}
+.ns-auth-art-copy{flex:none;z-index:2}
+.ns-auth-eyebrow{margin-bottom:24px;font-size:9px;letter-spacing:3px;color:#eedab1}
+.ns-auth-art h2{font-size:38px;line-height:1.12;margin-bottom:16px;letter-spacing:-.9px}
+.ns-auth-art h2 em{color:#e9d2a6}
+.ns-auth-art p{font-size:12px;line-height:1.8;max-width:270px;color:#e7e9db}
+.ns-auth-art-foot{margin-top:auto;font-size:10px;letter-spacing:.1px;color:#e7e9db;padding-top:18px;z-index:2}
+.ns-auth-content{position:relative;background:var(--auth-form);padding:27px 48px 30px;z-index:2}
+.ns-auth-topline{margin-bottom:38px}
+.ns-auth-stage{min-width:0}
+#nsacct-panel.ns-auth-panel .ns-auth-shell{min-height:680px}
+#nsacct-panel.ns-auth-panel .nsacct-head{padding:21px 30px}
+#nsacct-panel.ns-auth-panel .ns-auth-content{padding-top:22px}
+.ns-auth-shell .nsacct-msg:empty{display:none}
+.ns-nariyal-scene{position:relative;flex:none;align-self:center;width:min(360px,115%);height:335px;margin:7px -25px -5px;pointer-events:none;user-select:none;z-index:1}
+.ns-nariyal-object{position:absolute;inset:0;transform-origin:50% 73%;transition:transform 700ms cubic-bezier(.22,.7,.2,1)}
+.ns-nariyal-object>img,.ns-nariyal-face{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.ns-nariyal-young{display:none}
+.ns-nariyal-object>img{filter:drop-shadow(12px 19px 16px #0003)}
+.ns-nariyal-fallback{position:absolute;inset:13% 13% 12%;border-radius:48% 49% 46% 45%;background:radial-gradient(circle at 30% 22%,#c3a678,#675038 60%,#252c20);display:none}
+.ns-nariyal-orbit{position:absolute;inset:1% -3%;border:1px solid #e2d4ac24;border-radius:50%;transform:rotate(-24deg) scaleY(.87)}
+.ns-nariyal-light{position:absolute;inset:16% 23% 35% 12%;border-radius:50%;background:radial-gradient(ellipse,#ffe3a529,transparent 66%);opacity:.2;animation:nsNariyalLight 16s ease-in-out infinite;mix-blend-mode:screen}
+.ns-nariyal-caption{position:absolute;bottom:-6px;left:0;right:0;text-align:center;font:9px/1.4 Arial,sans-serif;letter-spacing:2.2px;text-transform:uppercase;color:#d7d7ba}
+.ns-nariyal-eyes{transform-box:fill-box;transform-origin:center;animation:nsNariyalBlink 11s linear infinite;transition:transform 220ms ease,opacity 180ms}
+.ns-nariyal-lids{opacity:0;transition:opacity 180ms}
+.ns-nariyal-glint{transition:transform 600ms ease}
+.ns-auth-shell[data-nariyal-pose="email"] .ns-nariyal-glint{transform:translate(5px,1px)}
+.ns-auth-shell[data-nariyal-pose="email"] .ns-nariyal-object{transform:rotate(1deg)}
+.ns-auth-shell[data-nariyal-pose="privacy"] .ns-nariyal-eyes{animation:none;transform:scaleY(.04);opacity:0}
+.ns-auth-shell[data-nariyal-pose="privacy"] .ns-nariyal-lids{opacity:1}
+.ns-auth-shell[data-nariyal-pose="privacy"] .ns-nariyal-object{transform:rotate(-3deg) translateX(-3px)}
+.ns-auth-shell[data-nariyal-pose="peek"] .ns-nariyal-eyes{animation:none;transform:scaleY(.45)}
+.ns-auth-shell[data-auth-feedback="error"] .ns-nariyal-object{transform:rotate(-2deg)}
+.ns-auth-shell[data-auth-feedback="loading"] .ns-auth-primary,.ns-auth-shell[data-auth-feedback="loading"] .nsacct-btn.primary{background:#425b4a}
+.ns-auth-shell[data-auth-feedback="success"] .ns-nariyal-light{animation:nsNariyalAcknowledge 600ms ease-out both}
+.ns-auth-shell[data-auth-context="admin"] .ns-nariyal-scene{width:300px;height:300px}
+.ns-auth-shell[data-auth-context="admin"] .ns-nariyal-light{animation:none}
+.ns-auth-shell[data-auth-context="admin"][data-nariyal-pose="privacy"] .ns-nariyal-object{transform:rotate(-1deg)}
+.ns-auth-shell[data-auth-context="admin"][data-nariyal-pose="email"] .ns-nariyal-object{transform:none}
+.ns-auth-shell[data-auth-context="admin"][data-auth-feedback="success"] .ns-nariyal-light{animation:nsNariyalAcknowledge 350ms ease-out both}
+.ns-auth-shell[data-nariyal-asset="fallback"] .ns-nariyal-object>img,.ns-auth-shell[data-nariyal-asset="fallback"] .ns-nariyal-face{display:none}
+.ns-auth-shell[data-nariyal-asset="fallback"] .ns-nariyal-fallback{display:block}
+@keyframes nsNariyalBlink{0%,42%,44%,100%{transform:scaleY(1)}43%{transform:scaleY(.05)}}
+@keyframes nsNariyalLight{0%,100%{opacity:.2}50%{opacity:.55}}
+@keyframes nsNariyalAcknowledge{0%{opacity:.2}45%{opacity:1}100%{opacity:.3}}
+/* A full-card diagonal sweep, accompanied by a clipped panel reveal and a quiet object turn. */
+.ns-auth-sweep-track{position:absolute;inset:0;overflow:hidden;z-index:4;pointer-events:none}
+.ns-auth-sweep{position:absolute;inset:-25% -40%;z-index:4;pointer-events:none;visibility:hidden;background:linear-gradient(105deg,transparent 8%,var(--auth-art) 8.2%,var(--auth-art) 75%,var(--auth-accent) 75.1%,var(--auth-accent) 75.3%,transparent 75.5%);transform:translateX(-120%)}
+.ns-auth-transition .ns-auth-sweep{visibility:visible;animation:nsAuthSweep 820ms cubic-bezier(.65,0,.25,1) both}
+.ns-auth-transition[data-auth-state="signin"] .ns-auth-sweep{animation-name:nsAuthSweepBack}
+.ns-auth-transition .ns-auth-stage{animation:nsAuthPanelReveal 820ms cubic-bezier(.4,0,.2,1) both}
+.ns-auth-transition .ns-nariyal-scene{animation:nsNariyalTurn 820ms cubic-bezier(.4,0,.2,1) both}
+@keyframes nsAuthSweep{0%{transform:translateX(-120%)}100%{transform:translateX(120%)}}
+@keyframes nsAuthSweepBack{0%{transform:translateX(120%)}100%{transform:translateX(-120%)}}
+@keyframes nsAuthPanelReveal{0%,24%{clip-path:polygon(0 0,0 0,0 100%,0 100%);transform:translateX(16px)}70%,100%{clip-path:polygon(0 0,100% 0,100% 100%,0 100%);transform:none}}
+@keyframes nsNariyalTurn{0%,100%{transform:none}50%{transform:translateX(14px) rotate(2deg)}}
+
+/* Grove: an airy botanical arch, young coconut above the lower-set editorial copy. */
+html[data-auth-theme="fresh-grove"] .ns-auth-shell{--auth-art:#eaf0df;--auth-accent:#7b9661;--auth-form:#fffff8}
+html[data-auth-theme="fresh-grove"] .ns-auth-art{margin:24px 0 24px 24px;padding:30px;min-height:632px;border-radius:180px 180px 12px 12px;background:#eaf0df;justify-content:flex-start}
+html[data-auth-theme="fresh-grove"] .ns-auth-art::after{background:radial-gradient(ellipse at 50% 15%,#fffff0 0%,transparent 60%)}
+html[data-auth-theme="fresh-grove"] .ns-auth-art-copy{order:2;margin-top:16px}
+html[data-auth-theme="fresh-grove"] .ns-nariyal-scene{order:1;width:300px;height:290px;margin:0 -25px 16px}
+html[data-auth-theme="fresh-grove"] .ns-auth-art-foot{order:3;color:#465c39;margin-top:auto;display:block;border-top:1px solid #708a5940}
+html[data-auth-theme="fresh-grove"] .ns-auth-art-foot .ns-auth-line{display:none}
+html[data-auth-theme="fresh-grove"] .ns-auth-eyebrow{color:#536c3d;margin-bottom:16px}
+html[data-auth-theme="fresh-grove"] .ns-auth-art h2{font-size:34px;color:#253f2b}
+html[data-auth-theme="fresh-grove"] .ns-auth-art h2 em{color:#506940}
+html[data-auth-theme="fresh-grove"] .ns-auth-art p{color:#4b6044}
+html[data-auth-theme="fresh-grove"] .ns-nariyal-husk{display:none}
+html[data-auth-theme="fresh-grove"] .ns-nariyal-young{display:block}
+html[data-auth-theme="fresh-grove"] .ns-nariyal-orbit{inset:4% 0;border-color:#768f574d;transform:rotate(-30deg) scaleY(.85)}
+html[data-auth-theme="fresh-grove"] .ns-nariyal-caption{color:#546844;font-size:8px}
+/* Coastal: an architectural aperture, off-axis object, and low-set editorial heading. */
+html[data-auth-theme="coastal-premium"] .ns-auth-shell{--auth-art:#123e46;--auth-accent:#c8bd9c;--auth-form:#f6f4ec;border-radius:5px}
+html[data-auth-theme="coastal-premium"] .ns-auth-art{justify-content:flex-end;padding:40px 37px 28px}
+html[data-auth-theme="coastal-premium"] .ns-auth-art::after{background:linear-gradient(130deg,transparent 12%,#688f8a18 12%,#91bcb02b 31%,transparent 31.2%),linear-gradient(180deg,#0d3039,#24535a)}
+html[data-auth-theme="coastal-premium"] .ns-auth-art-copy{margin-top:365px;position:static}
+html[data-auth-theme="coastal-premium"] .ns-auth-eyebrow{position:absolute;top:44px;left:37px;color:#ddd4b8}
+html[data-auth-theme="coastal-premium"] .ns-auth-art h2{font-size:36px}
+html[data-auth-theme="coastal-premium"] .ns-auth-art h2 em{color:#c8d6cf}
+html[data-auth-theme="coastal-premium"] .ns-nariyal-scene{position:absolute;width:345px;height:330px;left:9px;top:65px;margin:0;transform:rotate(-9deg)}
+html[data-auth-theme="coastal-premium"] .ns-nariyal-orbit{inset:0 8% -6% 11%;border-radius:140px 140px 3px 3px;border-color:#d4dec849;transform:rotate(9deg)}
+html[data-auth-theme="coastal-premium"] .ns-nariyal-caption{bottom:7px;transform:rotate(9deg);text-align:right;padding-right:14px;color:#d7e0d6;font-size:8px}
+html[data-auth-theme="coastal-premium"] .ns-nariyal-object{filter:drop-shadow(-15px -5px 25px #90c6cb21)}
+html[data-auth-theme="coastal-premium"] .ns-auth-art-foot{margin-top:20px}
+/* Harvest: a centered, framed composition with a warm ceremonial ring. */
+html[data-auth-theme="golden-harvest"] .ns-auth-shell{--auth-art:#efe3ca;--auth-accent:#967342;--auth-form:#fffaf1}
+html[data-auth-theme="golden-harvest"] .ns-auth-art{margin:18px;padding:30px 18px 22px;min-height:644px;border:1px solid #bfa77b;text-align:center;justify-content:flex-start;background:#efe3ca}
+html[data-auth-theme="golden-harvest"] .ns-auth-art::after{inset:6px;border:1px solid #bf9d6540;background:radial-gradient(ellipse at 50% 45%,#fff6df,transparent 65%)}
+html[data-auth-theme="golden-harvest"] .ns-auth-eyebrow{color:#775a31;margin:6px 0 24px;letter-spacing:2px}
+html[data-auth-theme="golden-harvest"] .ns-auth-art h2{font-size:34px;color:#583c26}
+html[data-auth-theme="golden-harvest"] .ns-auth-art h2 em{color:#805c32}
+html[data-auth-theme="golden-harvest"] .ns-auth-art p{color:#745b42;margin:auto;font-size:11px;max-width:245px}
+html[data-auth-theme="golden-harvest"] .ns-nariyal-scene{width:300px;height:290px;margin:10px -22px 12px}
+html[data-auth-theme="golden-harvest"] .ns-nariyal-orbit{inset:3%;border:1px solid #b4945d7a;outline:1px solid #b4945d30;outline-offset:7px;transform:none}
+html[data-auth-theme="golden-harvest"] .ns-nariyal-caption{color:#765d3b;font-size:8px;bottom:-8px}
+html[data-auth-theme="golden-harvest"] .ns-auth-art-foot{color:#765d3b;margin:auto auto 0;font-size:9px}
+html[data-auth-theme="golden-harvest"] .ns-auth-line{display:none}
+/* Neutral reserved art while the bounded theme lookup resolves. Form controls remain usable. */
+html[data-auth-theme-status="pending"] .ns-auth-art{visibility:hidden}
+html[data-auth-theme-status="pending"] .ns-auth-header .ns-auth-brand,html[data-auth-theme-status="pending"] .ns-auth-header>a{color:#263f30}
+@media(max-width:1000px) and (min-width:761px){
+ .ns-auth-content{padding:25px 30px}.ns-auth-art{padding:38px 25px 24px}.ns-auth-art h2{font-size:31px}.ns-nariyal-scene{width:280px;height:280px}
+ html[data-auth-theme="fresh-grove"] .ns-auth-art{padding:30px 22px;margin-left:15px}
+ html[data-auth-theme="coastal-premium"] .ns-nariyal-scene{width:270px;height:285px;left:0;top:95px}
+ html[data-auth-theme="golden-harvest"] .ns-auth-art{margin:12px;padding:30px 12px 22px}
+ html[data-auth-theme="golden-harvest"] .ns-nariyal-scene,html[data-auth-theme="fresh-grove"] .ns-nariyal-scene{width:255px;height:255px}
+ .ns-auth-shell[data-auth-context="admin"] .ns-nariyal-scene{max-width:270px}
+}
+@media(max-width:760px){
+ .ns-auth-shell{display:flex;flex-direction:column;min-height:0;border-radius:15px}
+ .ns-auth-art{min-height:190px;height:190px;padding:24px;display:block}
+ .ns-auth-art-copy{max-width:calc(100% - 123px)}
+ .ns-auth-art h2{font-size:clamp(24px,5.6vw,30px);line-height:1.13;margin-bottom:0;letter-spacing:-.6px}
+ .ns-auth-eyebrow{font-size:8px;letter-spacing:1.9px;margin-bottom:18px}
+ .ns-auth-art p,.ns-auth-art-foot{display:none!important}
+ .ns-nariyal-scene,.ns-auth-shell[data-auth-context="admin"] .ns-nariyal-scene{position:absolute;right:-6px;left:auto;top:34px;width:158px;height:158px;margin:0!important}
+ .ns-nariyal-caption{display:none}.ns-nariyal-orbit{inset:7% 0}
+ .ns-auth-content{padding:22px 24px 26px}.ns-auth-topline{margin-bottom:27px;letter-spacing:.5px}.ns-auth-shell .ns-auth-title{font-size:31px}
+ #nsacct-panel.ns-auth-panel .nsacct-head{padding:17px 22px}#nsacct-panel.ns-auth-panel .ns-auth-shell{min-height:0}#nsacct-panel.ns-auth-panel .ns-auth-art{min-height:190px}
+ .ns-auth-shell .nsacct-grid2{grid-template-columns:1fr}
+ html[data-auth-theme="fresh-grove"] .ns-auth-art{height:196px;min-height:196px;margin:12px 14px 0;border-radius:90px 12px 12px 12px;padding:33px 22px 20px}
+ html[data-auth-theme="fresh-grove"] .ns-auth-art-copy{margin:0 0 0 112px;max-width:none}
+ html[data-auth-theme="fresh-grove"] .ns-auth-art h2{font-size:25px}
+ html[data-auth-theme="fresh-grove"] .ns-auth-shell .ns-nariyal-scene{left:-8px;right:auto;top:33px;width:140px;height:150px}
+ html[data-auth-theme="coastal-premium"] .ns-auth-art{padding:25px 24px;min-height:208px;height:208px}
+ html[data-auth-theme="coastal-premium"] .ns-auth-art-copy{margin-top:40px;max-width:calc(100% - 104px);position:relative}
+ html[data-auth-theme="coastal-premium"] .ns-auth-art h2{font-size:27px}
+ html[data-auth-theme="coastal-premium"] .ns-auth-eyebrow{top:-39px;left:0}
+ html[data-auth-theme="coastal-premium"] .ns-auth-shell .ns-nariyal-scene{left:auto;right:-8px;top:33px;width:154px;height:158px}
+ html[data-auth-theme="golden-harvest"] .ns-auth-art{margin:12px 14px 0;padding:22px 15px;height:192px;min-height:192px;text-align:left}
+ html[data-auth-theme="golden-harvest"] .ns-auth-eyebrow{margin:0 0 16px;font-size:8px;letter-spacing:1.4px}
+ html[data-auth-theme="golden-harvest"] .ns-auth-art h2{font-size:25px}
+ html[data-auth-theme="golden-harvest"] .ns-auth-shell .ns-nariyal-scene{right:-5px;top:32px;width:145px;height:145px}
+ .ns-auth-transition .ns-auth-sweep,.ns-auth-transition .ns-auth-stage,.ns-auth-transition .ns-nariyal-scene{animation-duration:640ms}
+ .ns-nariyal-light{animation:none}
+}
+@media(max-width:360px){
+ .ns-auth-art{padding:23px 20px}.ns-auth-art-copy{max-width:calc(100% - 95px)}.ns-auth-art h2{font-size:24px}
+ .ns-nariyal-scene,.ns-auth-shell[data-auth-context="admin"] .ns-nariyal-scene{width:125px;height:140px;top:44px;right:-5px}
+ html[data-auth-theme="fresh-grove"] .ns-auth-art-copy{margin-left:82px}
+ html[data-auth-theme="fresh-grove"] .ns-auth-art{padding-left:18px;padding-right:15px}
+ html[data-auth-theme="fresh-grove"] .ns-auth-shell .ns-nariyal-scene{left:-10px;width:108px;height:143px;top:46px}
+ html[data-auth-theme="coastal-premium"] .ns-auth-shell .ns-nariyal-scene{width:127px;height:147px;right:-15px;top:44px}
+ html[data-auth-theme="coastal-premium"] .ns-auth-art h2{font-size:24px}
+ html[data-auth-theme="golden-harvest"] .ns-auth-shell .ns-nariyal-scene{width:124px;height:133px;right:-10px;top:48px}
+ html[data-auth-theme="golden-harvest"] .ns-auth-art h2{font-size:23px}
+ .ns-auth-content{padding-left:22px;padding-right:22px}.ns-auth-topline{font-size:8px;letter-spacing:0}
+}
+@media(orientation:landscape) and (max-height:550px){
+ .ns-auth-page{padding-top:15px}.ns-auth-header{margin-bottom:14px}
+ #nsacct-panel.ns-auth-panel{max-height:100svh;height:100%;inset:0;width:100%;border-radius:0}
+ .ns-auth-art{min-height:620px}.ns-auth-shell{min-height:620px}
+}
+@media(prefers-reduced-motion:reduce){
+ .ns-auth-shell *,.ns-auth-panel,.ns-auth-panel *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+ .ns-auth-sweep{display:none!important}.ns-auth-stage{clip-path:none!important;transform:none!important}
+ .ns-auth-shell .ns-nariyal-scene,.ns-auth-shell .ns-nariyal-object,.ns-auth-shell .ns-nariyal-glint{transform:none!important}
+ .ns-auth-shell .ns-nariyal-eyes{opacity:0!important}.ns-auth-shell .ns-nariyal-lids{opacity:1!important}
+}
+
+#nsacct-panel.ns-auth-acknowledged::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;box-shadow:inset 0 0 50px #bdd9a866;animation:nsAuthAcknowledged 600ms ease-out both}
+@keyframes nsAuthAcknowledged{0%{opacity:0}35%{opacity:1}100%{opacity:0}}
+@media(prefers-reduced-motion:reduce){#nsacct-panel.ns-auth-acknowledged::after{display:none;animation:none}}
