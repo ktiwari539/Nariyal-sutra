@@ -28,7 +28,7 @@ async function context({theme=themes[0],themeMode='ok',assetFail=false,delayAsse
   if(themeMode==='delay')await new Promise(resolve=>setTimeout(resolve,300));
   return r.fulfill({contentType:'application/json',body:JSON.stringify({themeId:themeMode==='invalid'?'private-draft':theme})}).catch(()=>{});
  });
- if(assetFail||delayAsset)await c.route('**/assets/images/brand/auth-nariyal*.svg',async r=>{if(delayAsset)await new Promise(resolve=>setTimeout(resolve,delayAsset));return assetFail?r.abort():r.continue();});
+ if(assetFail||delayAsset)await c.route('**/assets/images/brand/grove/*.webp',async r=>{if(delayAsset)await new Promise(resolve=>setTimeout(resolve,delayAsset));return assetFail?r.abort():r.continue();});
  return c;
 }
 async function open(c,kind='customer'){

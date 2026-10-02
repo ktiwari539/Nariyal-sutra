@@ -18,13 +18,13 @@ for(const theme of ['nariyal-signature','fresh-grove','coastal-premium','golden-
    else await p.waitForFunction(()=>!document.getElementById('submit').disabled);
    await p.waitForTimeout(500);
    const result=await p.evaluate(()=>{
-    const shell=document.querySelector('.ns-auth-shell'),box=shell.querySelector('.ns-nariyal-scene').getBoundingClientRect();
-    // The husk uses the inner 76% of its reserved SVG viewport, including its contour.
-    const coconut={left:box.left+box.width*.12,right:box.right-box.width*.12,top:box.top+box.height*.1,bottom:box.bottom-box.height*.1};
+    const shell=document.querySelector('.ns-auth-shell');
+    // Inspect the actual layered product containers; the checkpoint's oval SVG bounds no longer apply.
+    const products=[...shell.querySelectorAll('.ns-nariyal-object,.ns-grove-secondary')].filter(e=>e.getClientRects().length).map(e=>e.getBoundingClientRect());
     const walker=document.createTreeWalker(shell.querySelector('.ns-auth-art-copy'),NodeFilter.SHOW_TEXT);let text,overlap=[];
     while(text=walker.nextNode()){
      if(!text.textContent.trim())continue;const range=document.createRange();range.selectNodeContents(text);
-     for(const r of range.getClientRects())if(r.width&&r.height&&coconut.left<r.right&&coconut.right>r.left&&coconut.top<r.bottom&&coconut.bottom>r.top)overlap.push(text.textContent);
+     for(const r of range.getClientRects())if(r.width&&r.height&&products.some(coconut=>coconut.left<r.right&&coconut.right>r.left&&coconut.top<r.bottom&&coconut.bottom>r.top))overlap.push(text.textContent);
     }
     return{overlap,overflow:document.documentElement.scrollWidth>innerWidth||shell.scrollWidth>shell.clientWidth+1};
    });

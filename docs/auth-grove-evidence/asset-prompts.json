@@ -1,0 +1,27 @@
+{
+  "generator": "Built-in image_gen",
+  "usage": "Original transparent photographic campaign assets; images have no baked-in facial features.",
+  "assets": [
+    {
+      "path": "assets/images/brand/grove/signature.webp",
+      "prompt": "Use case: ads-marketing. Asset: photographic cutout for a luxury Nariyal Sutra coconut campaign; a real natural product, NOT a mascot. A mature whole coconut with coarse dark brown coir and irregular fibrous husk, squat broad asymmetric body, slightly tilted to the right, a few loose natural fibres and dark botanical scars. Dramatic warm side light from upper left, deep forest-green reflected shadow on right. Luxury still-life photography, not smoothly dehusked sphere. Single isolated coconut only, fully in frame, centered, occupies about 85% of square canvas, photographed near eye level with a little of the top visible. Genuine transparent background, no surface, no drop shadow background, no text, no letters, no watermark. Hyperreal fine material texture, natural imperfections, exquisite organic detail. NO face, NO eyes, NO cartoon, NO emoji, NO illustration, NO human features, NO smooth floating ball, NO sticker outline."
+    },
+    {
+      "path": "assets/images/brand/grove/fresh.webp",
+      "prompt": "Use case: ads-marketing. Asset: photographic cutout for a luxury Nariyal Sutra coconut campaign; a real natural product, NOT a mascot. A freshly harvested young whole GREEN coconut, naturally angular broad squat shape with subtly pointed rough stem cap, varied lime and deep green waxy skin, realistic brown scarring and delicate dew droplets. Slight tilt to left. Soft clear natural daylight from left, airy botanical premium editorial photography. Single isolated coconut only, fully in frame, centered, occupies about 85% of square canvas, photographed near eye level with a little of the top visible. Genuine transparent background, no surface, no drop shadow background, no text, no letters, no watermark. Hyperreal fine material texture, natural imperfections, exquisite organic detail. NO face, NO eyes, NO cartoon, NO emoji, NO illustration, NO human features, NO smooth floating ball, NO sticker outline."
+    },
+    {
+      "path": "assets/images/brand/grove/coastal.webp",
+      "prompt": "Use case: ads-marketing. Asset: photographic cutout for a luxury Nariyal Sutra coconut campaign; a real natural product, NOT a mascot. A fresh dark green drinking coconut with the top sliced at an oblique angle revealing a subtle ivory husk rim and small opening, attached fibrous pale flap at upper side. Broad asymmetric faceted green skin, natural brown vertical markings, restrained condensation. Cool soft reflected light left, deep teal shade right. Sophisticated product campaign photography, no straw or props. Single isolated coconut only, fully in frame, centered, occupies about 85% of square canvas, photographed near eye level with a little of the top visible. Genuine transparent background, no surface, no drop shadow background, no text, no letters, no watermark. Hyperreal fine material texture, natural imperfections, exquisite organic detail. NO face, NO eyes, NO cartoon, NO emoji, NO illustration, NO human features, NO smooth floating ball, NO sticker outline."
+    },
+    {
+      "path": "assets/images/brand/grove/golden.webp",
+      "prompt": "Use case: ads-marketing. Asset: photographic cutout for a luxury Nariyal Sutra coconut campaign; a real natural product, NOT a mascot. A mature partly husked coconut, broad squat irregular body with tawny beige coir torn back on upper left and darker brown ridged shell exposed on lower right. Loose golden fibres and uneven wiry bristles, fibrous shoulders, naturally grounded, not egg shaped. Rich amber directional side light left, warm earthy shadow right. Premium harvest product photography. Single isolated coconut only, fully in frame, centered, occupies about 85% of square canvas, photographed near eye level with a little of the top visible. Genuine transparent background, no surface, no drop shadow background, no text, no letters, no watermark. Hyperreal fine material texture, natural imperfections, exquisite organic detail. NO face, NO eyes, NO cartoon, NO emoji, NO illustration, NO human features, NO smooth floating ball, NO sticker outline."
+    },
+    {
+      "path": "assets/images/brand/grove/palm.webp",
+      "prompt": "Use case: ads-marketing. Asset: isolated photographic coconut palm frond for a luxury botanical product campaign. A single elegant natural palm frond, slender tapering leaflets arranged along a gently arched central midrib, oriented horizontally, base/stem at far RIGHT and delicate tip at far LEFT. Dark emerald green with subtle olive gold directional light, refined realistic fine veins and a few organic imperfections. Side-on broad view, overall silhouette long and gently curved, entire frond in frame, fills wide rectangular composition, genuine transparent background. Luxury macro product photography, crisp but natural texture. No coconut, no other objects, no text, no watermarks, no cartoon, no vector, no illustration, no drop shadow background. This must look like a real photographic leaf that can naturally drape across a coconut."
+    }
+  ],
+  "encoding": "Transparent RGBA WebP, 1200px maximum dimension, quality 88. Resizing/encoding only; no photographic retouching outside the image generator."
+}

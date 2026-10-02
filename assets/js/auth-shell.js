@@ -10,14 +10,18 @@
   };
   function brand() { return '<a class="ns-auth-brand" href="/index.html" aria-label="Nariyal Sutra home"><strong>NARIYAL SUTRA</strong><span>THE SCIENCE OF PURITY</span></a>'; }
   function object() {
-    return '<div class="ns-nariyal-scene" aria-hidden="true"><div class="ns-nariyal-orbit"></div><div class="ns-nariyal-object">'+
-      '<div class="ns-nariyal-fallback"></div><img class="ns-nariyal-husk" src="/assets/images/brand/auth-nariyal.svg" alt="" width="400" height="400" decoding="async" draggable="false">'+
-      '<img class="ns-nariyal-young" src="/assets/images/brand/auth-nariyal-young.svg" alt="" width="400" height="400" decoding="async" draggable="false">'+
-      '<svg class="ns-nariyal-face" viewBox="0 0 400 400" fill="none" focusable="false"><g class="ns-nariyal-eyes">'+
-      '<g class="ns-nariyal-eye"><path d="M149 181 Q164 172 179 181 Q166 189 149 181Z" fill="#2a2117"/><ellipse class="ns-nariyal-glint" cx="165" cy="180" rx="3" ry="2" fill="#e1cfa7" opacity=".78"/></g>'+
-      '<g class="ns-nariyal-eye"><path d="M218 180 Q232 171 246 180 Q233 188 218 180Z" fill="#221e17"/><ellipse class="ns-nariyal-glint" cx="233" cy="179" rx="3" ry="2" fill="#e1cfa7" opacity=".7"/></g></g>'+
-      '<g class="ns-nariyal-lids" stroke="#2a2117" stroke-width="2.4" stroke-linecap="round"><path d="M149 181 Q164 189 179 181"/><path d="M218 180 Q232 188 246 180"/></g></svg>'+
-      '<div class="ns-nariyal-light"></div></div><span class="ns-nariyal-caption">Naturally considered.</span></div>';
+    var products = ['signature','fresh','coastal','golden'].map(function (name) {
+      return '<img class="ns-grove-product ns-grove-'+name+'" src="/assets/images/brand/grove/'+name+'.webp" alt="" width="1200" height="1200" decoding="async" draggable="false">';
+    }).join('');
+    return '<div class="ns-nariyal-scene" aria-hidden="true"><div class="ns-nariyal-orbit"></div><div class="ns-grove-ground"></div>'+
+      '<div class="ns-grove-secondary">'+products+'</div><div class="ns-nariyal-object">'+products+
+      '<svg class="ns-nariyal-face" viewBox="0 0 400 400" fill="none" focusable="false"><g class="ns-nariyal-eyes" fill="#181d10">'+
+      '<path d="M210 158 Q222 153 236 156 L229 159 218 159Z"/><path d="M269 153 Q280 149 292 153 L283 156 274 155Z"/>'+
+      '<g class="ns-nariyal-glint" stroke="#c7b988" stroke-width="1"><path d="M228 156l4 -.5M284 153l3 -.5"/></g></g>'+
+      '<g class="ns-nariyal-lids" stroke="#272618" stroke-width="1.1"><path d="M211 158l12 2 12 -3M270 154l10 1 12 -3"/></g></svg>'+
+      '<div class="ns-nariyal-light"></div></div>'+
+      '<img class="ns-grove-privacy-leaf" src="/assets/images/brand/grove/palm.webp" alt="" width="1200" height="600" decoding="async" draggable="false">'+
+      '<div class="ns-nariyal-fallback">Rooted in nature.</div><span class="ns-nariyal-caption">Naturally considered.</span></div>';
   }
   function markup(context, content, mode) {
     var c = copy[context] || copy.customer;
@@ -72,7 +76,7 @@
     // Native validation also covers autofill, paste and password-manager insertion.
     shell.addEventListener('invalid', function () { signal(shell, 'error'); }, true);
     shell.addEventListener('submit', function () { signal(shell, 'loading'); });
-    shell.querySelectorAll('.ns-nariyal-object img').forEach(function (img) {
+    shell.querySelectorAll('.ns-nariyal-scene img').forEach(function (img) {
       img.addEventListener('error', function () { shell.dataset.nariyalAsset = 'fallback'; });
       if (img.complete && !img.naturalWidth) shell.dataset.nariyalAsset = 'fallback';
     });

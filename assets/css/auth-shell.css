@@ -103,36 +103,48 @@ html[data-auth-theme="fresh-grove"] .ns-auth-header :is(a,strong,span),html[data
 #nsacct-panel.ns-auth-panel .ns-auth-content{padding-top:22px}
 .ns-auth-shell .nsacct-msg:empty{display:none}
 .ns-nariyal-scene{position:relative;flex:none;align-self:center;width:min(360px,115%);height:335px;margin:7px -25px -5px;pointer-events:none;user-select:none;z-index:1}
-.ns-nariyal-object{position:absolute;inset:0;transform-origin:50% 73%;transition:transform 700ms cubic-bezier(.22,.7,.2,1)}
-.ns-nariyal-object>img,.ns-nariyal-face{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
-.ns-nariyal-young{display:none}
-.ns-nariyal-object>img{filter:drop-shadow(12px 19px 16px #0003)}
-.ns-nariyal-fallback{position:absolute;inset:13% 13% 12%;border-radius:48% 49% 46% 45%;background:radial-gradient(circle at 30% 22%,#c3a678,#675038 60%,#252c20);display:none}
-.ns-nariyal-orbit{position:absolute;inset:1% -3%;border:1px solid #e2d4ac24;border-radius:50%;transform:rotate(-24deg) scaleY(.87)}
-.ns-nariyal-light{position:absolute;inset:16% 23% 35% 12%;border-radius:50%;background:radial-gradient(ellipse,#ffe3a529,transparent 66%);opacity:.2;animation:nsNariyalLight 16s ease-in-out infinite;mix-blend-mode:screen}
-.ns-nariyal-caption{position:absolute;bottom:-6px;left:0;right:0;text-align:center;font:9px/1.4 Arial,sans-serif;letter-spacing:2.2px;text-transform:uppercase;color:#d7d7ba}
-.ns-nariyal-eyes{transform-box:fill-box;transform-origin:center;animation:nsNariyalBlink 11s linear infinite;transition:transform 220ms ease,opacity 180ms}
-.ns-nariyal-lids{opacity:0;transition:opacity 180ms}
+/* Nariyal Grove: separate photographic layers, grounded rather than floating. */
+.ns-nariyal-object{position:absolute;left:26%;top:19%;width:73%;height:73%;transform-origin:50% 92%;transition:transform 680ms cubic-bezier(.22,.7,.2,1);z-index:2}
+.ns-grove-product,.ns-nariyal-face{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.ns-grove-product{display:none;filter:drop-shadow(3px 10px 8px #0004)}
+.ns-grove-signature{display:block}
+.ns-grove-secondary{position:absolute;left:0;top:12%;width:58%;height:65%;z-index:1;transform:rotate(-19deg);filter:brightness(.62) saturate(.7);opacity:.88}
+.ns-grove-secondary .ns-grove-signature{display:none}.ns-grove-secondary .ns-grove-golden{display:block}
+.ns-grove-ground{position:absolute;left:6%;right:-5%;bottom:5%;height:17%;background:radial-gradient(ellipse,#0009,transparent 68%);transform:rotate(-4deg);opacity:.7}
+.ns-nariyal-orbit{position:absolute;inset:0;pointer-events:none;border:0;border-radius:0;transform:none;background:none}
+.ns-grove-privacy-leaf{position:absolute;left:11%;top:32%;width:95%;height:47.5%;object-fit:contain;z-index:4;transform-origin:94% 84%;transform:rotate(-22deg);filter:brightness(.65) saturate(.6) drop-shadow(0 7px 4px #0006);transition:transform 750ms cubic-bezier(.23,.65,.25,1);pointer-events:none}
+.ns-nariyal-face{z-index:2;mix-blend-mode:multiply}
+.ns-nariyal-eyes{opacity:.025;transform-box:fill-box;transform-origin:center;transition:opacity 260ms,transform 600ms ease}
+.ns-nariyal-lids{opacity:0;transition:opacity 100ms}
 .ns-nariyal-glint{transition:transform 600ms ease}
-.ns-auth-shell[data-nariyal-pose="email"] .ns-nariyal-glint{transform:translate(5px,1px)}
-.ns-auth-shell[data-nariyal-pose="email"] .ns-nariyal-object{transform:rotate(1deg)}
-.ns-auth-shell[data-nariyal-pose="privacy"] .ns-nariyal-eyes{animation:none;transform:scaleY(.04);opacity:0}
-.ns-auth-shell[data-nariyal-pose="privacy"] .ns-nariyal-lids{opacity:1}
-.ns-auth-shell[data-nariyal-pose="privacy"] .ns-nariyal-object{transform:rotate(-3deg) translateX(-3px)}
-.ns-auth-shell[data-nariyal-pose="peek"] .ns-nariyal-eyes{animation:none;transform:scaleY(.45)}
-.ns-auth-shell[data-auth-feedback="error"] .ns-nariyal-object{transform:rotate(-2deg)}
+.ns-nariyal-light{position:absolute;inset:5% 5% 12%;background:radial-gradient(ellipse at 18% 30%,#ffedb233,transparent 57%);opacity:.12;mix-blend-mode:screen;pointer-events:none}
+.ns-nariyal-caption{position:absolute;bottom:-25px;left:0;right:0;text-align:center;font:8px/1.4 Arial,sans-serif;letter-spacing:2.2px;text-transform:uppercase;color:#d7d7ba}
+.ns-nariyal-fallback{display:none;position:absolute;inset:22% 5%;border-top:1px solid #a994653d;border-bottom:1px solid #a994653d;align-items:center;justify-content:center;font:italic 26px Georgia,serif;color:inherit;opacity:.6}
+.ns-auth-shell[data-nariyal-pose="email"] .ns-nariyal-eyes{opacity:.38;transform:translate(2px,1px)}
+.ns-auth-shell[data-nariyal-pose="email"] .ns-nariyal-glint{transform:translate(2px,0)}
+.ns-auth-shell[data-nariyal-pose="email"] .ns-nariyal-object{transform:rotate(.65deg)}
+.ns-auth-shell[data-nariyal-pose="privacy"] .ns-nariyal-eyes{opacity:0;transition-duration:0s}
+.ns-auth-shell[data-nariyal-pose="privacy"] .ns-nariyal-lids{opacity:.24;transition-duration:0s}
+.ns-auth-shell[data-nariyal-pose="privacy"] .ns-nariyal-object{transform:rotate(-1.4deg) translateX(-1px)}
+.ns-auth-shell[data-nariyal-pose="privacy"] .ns-grove-privacy-leaf{transform:rotate(0deg);transition-duration:320ms}
+.ns-auth-shell[data-nariyal-pose="peek"] .ns-nariyal-eyes{opacity:.28;transform:scaleY(.5) translateX(2px)}
+.ns-auth-shell[data-nariyal-pose="peek"] .ns-grove-privacy-leaf{transform:translateY(-22%) rotate(7deg);transition-duration:480ms}
 .ns-auth-shell[data-auth-feedback="loading"] .ns-auth-primary,.ns-auth-shell[data-auth-feedback="loading"] .nsacct-btn.primary{background:#425b4a}
 .ns-auth-shell[data-auth-feedback="success"] .ns-nariyal-light{animation:nsNariyalAcknowledge 600ms ease-out both}
 .ns-auth-shell[data-auth-context="admin"] .ns-nariyal-scene{width:300px;height:300px}
-.ns-auth-shell[data-auth-context="admin"] .ns-nariyal-light{animation:none}
-.ns-auth-shell[data-auth-context="admin"][data-nariyal-pose="privacy"] .ns-nariyal-object{transform:rotate(-1deg)}
+.ns-auth-shell[data-auth-context="admin"] .ns-grove-secondary{display:none}
+.ns-auth-shell[data-auth-context="admin"] .ns-nariyal-object{left:14%;top:13%;width:78%;height:78%}
+.ns-auth-shell[data-auth-context="admin"] .ns-grove-privacy-leaf{left:10%;top:28%;width:95%;transform:rotate(-20deg)}
 .ns-auth-shell[data-auth-context="admin"][data-nariyal-pose="email"] .ns-nariyal-object{transform:none}
+.ns-auth-shell[data-auth-context="admin"][data-nariyal-pose="email"] .ns-nariyal-eyes{opacity:.18;transform:translateX(1px)}
+.ns-auth-shell[data-auth-context="admin"][data-nariyal-pose="privacy"] .ns-nariyal-object{transform:rotate(-.6deg)}
+.ns-auth-shell[data-auth-context="admin"][data-nariyal-pose="privacy"] .ns-grove-privacy-leaf{transform:rotate(0deg)}
+.ns-auth-shell[data-auth-context="admin"][data-nariyal-pose="peek"] .ns-grove-privacy-leaf{transform:translateY(-16%) rotate(4deg)}
+.ns-auth-shell[data-auth-context="admin"][data-nariyal-pose="peek"] .ns-nariyal-eyes{opacity:.12}
 .ns-auth-shell[data-auth-context="admin"][data-auth-feedback="success"] .ns-nariyal-light{animation:nsNariyalAcknowledge 350ms ease-out both}
-.ns-auth-shell[data-nariyal-asset="fallback"] .ns-nariyal-object>img,.ns-auth-shell[data-nariyal-asset="fallback"] .ns-nariyal-face{display:none}
-.ns-auth-shell[data-nariyal-asset="fallback"] .ns-nariyal-fallback{display:block}
-@keyframes nsNariyalBlink{0%,42%,44%,100%{transform:scaleY(1)}43%{transform:scaleY(.05)}}
-@keyframes nsNariyalLight{0%,100%{opacity:.2}50%{opacity:.55}}
-@keyframes nsNariyalAcknowledge{0%{opacity:.2}45%{opacity:1}100%{opacity:.3}}
+.ns-auth-shell[data-nariyal-asset="fallback"] .ns-nariyal-scene>:not(.ns-nariyal-fallback){display:none}
+.ns-auth-shell[data-nariyal-asset="fallback"] .ns-nariyal-fallback{display:flex}
+@keyframes nsNariyalAcknowledge{0%{opacity:.12}45%{opacity:.42}100%{opacity:.12}}
 /* A full-card diagonal sweep, accompanied by a clipped panel reveal and a quiet object turn. */
 .ns-auth-sweep-track{position:absolute;inset:0;overflow:hidden;z-index:4;pointer-events:none}
 .ns-auth-sweep{position:absolute;inset:-25% -40%;z-index:4;pointer-events:none;visibility:hidden;background:linear-gradient(105deg,transparent 8%,var(--auth-art) 8.2%,var(--auth-art) 75%,var(--auth-accent) 75.1%,var(--auth-accent) 75.3%,transparent 75.5%);transform:translateX(-120%)}
@@ -145,11 +157,11 @@ html[data-auth-theme="fresh-grove"] .ns-auth-header :is(a,strong,span),html[data
 @keyframes nsAuthPanelReveal{0%,24%{clip-path:polygon(0 0,0 0,0 100%,0 100%);transform:translateX(16px)}70%,100%{clip-path:polygon(0 0,100% 0,100% 100%,0 100%);transform:none}}
 @keyframes nsNariyalTurn{0%,100%{transform:none}50%{transform:translateX(14px) rotate(2deg)}}
 
-/* Grove: an airy botanical arch, young coconut above the lower-set editorial copy. */
+/* Fresh Grove: a daylight pair with an airy botanical arch. */
 html[data-auth-theme="fresh-grove"] .ns-auth-shell{--auth-art:#eaf0df;--auth-accent:#7b9661;--auth-form:#fffff8}
 html[data-auth-theme="fresh-grove"] .ns-auth-art{margin:24px 0 24px 24px;padding:30px;min-height:632px;border-radius:180px 180px 12px 12px;background:#eaf0df;justify-content:flex-start}
 html[data-auth-theme="fresh-grove"] .ns-auth-art::after{background:radial-gradient(ellipse at 50% 15%,#fffff0 0%,transparent 60%)}
-html[data-auth-theme="fresh-grove"] .ns-auth-art-copy{order:2;margin-top:16px}
+html[data-auth-theme="fresh-grove"] .ns-auth-art-copy{order:2;margin-top:28px}
 html[data-auth-theme="fresh-grove"] .ns-nariyal-scene{order:1;width:300px;height:290px;margin:0 -25px 16px}
 html[data-auth-theme="fresh-grove"] .ns-auth-art-foot{order:3;color:#465c39;margin-top:auto;display:block;border-top:1px solid #708a5940}
 html[data-auth-theme="fresh-grove"] .ns-auth-art-foot .ns-auth-line{display:none}
@@ -157,9 +169,14 @@ html[data-auth-theme="fresh-grove"] .ns-auth-eyebrow{color:#536c3d;margin-bottom
 html[data-auth-theme="fresh-grove"] .ns-auth-art h2{font-size:34px;color:#253f2b}
 html[data-auth-theme="fresh-grove"] .ns-auth-art h2 em{color:#506940}
 html[data-auth-theme="fresh-grove"] .ns-auth-art p{color:#4b6044}
-html[data-auth-theme="fresh-grove"] .ns-nariyal-husk{display:none}
-html[data-auth-theme="fresh-grove"] .ns-nariyal-young{display:block}
-html[data-auth-theme="fresh-grove"] .ns-nariyal-orbit{inset:4% 0;border-color:#768f574d;transform:rotate(-30deg) scaleY(.85)}
+html[data-auth-theme="fresh-grove"] .ns-grove-product{display:none}
+html[data-auth-theme="fresh-grove"] .ns-grove-fresh{display:block}
+html[data-auth-theme="fresh-grove"] .ns-grove-secondary{left:-3%;top:7%;width:55%;transform:rotate(18deg);filter:brightness(.87);opacity:1}
+html[data-auth-theme="fresh-grove"] .ns-grove-secondary .ns-grove-fresh{display:none}
+html[data-auth-theme="fresh-grove"] .ns-grove-secondary .ns-grove-coastal{display:block}
+html[data-auth-theme="fresh-grove"] .ns-grove-privacy-leaf{filter:brightness(1.15) saturate(.8) drop-shadow(0 5px 4px #223d2940)}
+html[data-auth-theme="fresh-grove"] .ns-grove-ground{opacity:.22}
+html[data-auth-theme="fresh-grove"] .ns-nariyal-orbit{background:none}
 html[data-auth-theme="fresh-grove"] .ns-nariyal-caption{color:#546844;font-size:8px}
 /* Coastal: an architectural aperture, off-axis object, and low-set editorial heading. */
 html[data-auth-theme="coastal-premium"] .ns-auth-shell{--auth-art:#123e46;--auth-accent:#c8bd9c;--auth-form:#f6f4ec;border-radius:5px}
@@ -169,12 +186,18 @@ html[data-auth-theme="coastal-premium"] .ns-auth-art-copy{margin-top:365px;posit
 html[data-auth-theme="coastal-premium"] .ns-auth-eyebrow{position:absolute;top:44px;left:37px;color:#ddd4b8}
 html[data-auth-theme="coastal-premium"] .ns-auth-art h2{font-size:36px}
 html[data-auth-theme="coastal-premium"] .ns-auth-art h2 em{color:#c8d6cf}
-html[data-auth-theme="coastal-premium"] .ns-nariyal-scene{position:absolute;width:345px;height:330px;left:9px;top:65px;margin:0;transform:rotate(-9deg)}
-html[data-auth-theme="coastal-premium"] .ns-nariyal-orbit{inset:0 8% -6% 11%;border-radius:140px 140px 3px 3px;border-color:#d4dec849;transform:rotate(9deg)}
-html[data-auth-theme="coastal-premium"] .ns-nariyal-caption{bottom:7px;transform:rotate(9deg);text-align:right;padding-right:14px;color:#d7e0d6;font-size:8px}
+html[data-auth-theme="coastal-premium"] .ns-nariyal-scene{position:absolute;width:345px;height:330px;left:9px;top:65px;margin:0;transform:none}
+html[data-auth-theme="coastal-premium"] .ns-nariyal-orbit{inset:0 8% 0 11%;border:1px solid #d4dec849;border-radius:140px 140px 3px 3px;transform:none;background:linear-gradient(120deg,#c5e1d20a,transparent 40%)}
+html[data-auth-theme="coastal-premium"] .ns-grove-product{display:none}
+html[data-auth-theme="coastal-premium"] .ns-grove-coastal{display:block}
+html[data-auth-theme="coastal-premium"] .ns-grove-secondary{left:-7%;top:15%;width:57%;transform:rotate(-24deg);filter:brightness(.62) saturate(.7)}
+html[data-auth-theme="coastal-premium"] .ns-grove-secondary .ns-grove-coastal{display:none}
+html[data-auth-theme="coastal-premium"] .ns-grove-secondary .ns-grove-fresh{display:block}
+html[data-auth-theme="coastal-premium"] .ns-grove-privacy-leaf{filter:brightness(.73) saturate(.45) drop-shadow(0 7px 4px #0005)}
+html[data-auth-theme="coastal-premium"] .ns-nariyal-caption{bottom:-15px;transform:none;text-align:right;padding-right:14px;color:#d7e0d6;font-size:8px}
 html[data-auth-theme="coastal-premium"] .ns-nariyal-object{filter:drop-shadow(-15px -5px 25px #90c6cb21)}
 html[data-auth-theme="coastal-premium"] .ns-auth-art-foot{margin-top:20px}
-/* Harvest: a centered, framed composition with a warm ceremonial ring. */
+/* Golden Harvest: tactile coir, off-axis companion and warm framed presentation. */
 html[data-auth-theme="golden-harvest"] .ns-auth-shell{--auth-art:#efe3ca;--auth-accent:#967342;--auth-form:#fffaf1}
 html[data-auth-theme="golden-harvest"] .ns-auth-art{margin:18px;padding:30px 18px 22px;min-height:644px;border:1px solid #bfa77b;text-align:center;justify-content:flex-start;background:#efe3ca}
 html[data-auth-theme="golden-harvest"] .ns-auth-art::after{inset:6px;border:1px solid #bf9d6540;background:radial-gradient(ellipse at 50% 45%,#fff6df,transparent 65%)}
@@ -183,7 +206,16 @@ html[data-auth-theme="golden-harvest"] .ns-auth-art h2{font-size:34px;color:#583
 html[data-auth-theme="golden-harvest"] .ns-auth-art h2 em{color:#805c32}
 html[data-auth-theme="golden-harvest"] .ns-auth-art p{color:#745b42;margin:auto;font-size:11px;max-width:245px}
 html[data-auth-theme="golden-harvest"] .ns-nariyal-scene{width:300px;height:290px;margin:10px -22px 12px}
-html[data-auth-theme="golden-harvest"] .ns-nariyal-orbit{inset:3%;border:1px solid #b4945d7a;outline:1px solid #b4945d30;outline-offset:7px;transform:none}
+html[data-auth-theme="golden-harvest"] .ns-nariyal-orbit{background:none}
+html[data-auth-theme="golden-harvest"] .ns-grove-product{display:none}
+html[data-auth-theme="golden-harvest"] .ns-grove-golden{display:block}
+html[data-auth-theme="golden-harvest"] .ns-auth-shell[data-auth-context="customer"] .ns-nariyal-object{left:4%;top:19%;width:76%;height:76%}
+html[data-auth-theme="golden-harvest"] .ns-grove-secondary{left:52%;top:14%;width:54%;transform:rotate(23deg);filter:brightness(.77) saturate(.75)}
+html[data-auth-theme="golden-harvest"] .ns-grove-secondary .ns-grove-golden{display:none}
+html[data-auth-theme="golden-harvest"] .ns-grove-secondary .ns-grove-signature{display:block}
+html[data-auth-theme="golden-harvest"] .ns-grove-privacy-leaf{left:-4%;filter:sepia(.45) saturate(.55) brightness(.9) drop-shadow(0 5px 4px #513e2945)}
+html[data-auth-theme="golden-harvest"] .ns-grove-ground{opacity:.32}
+html[data-auth-theme="golden-harvest"] .ns-auth-shell[data-auth-context="admin"] .ns-grove-privacy-leaf{left:10%}
 html[data-auth-theme="golden-harvest"] .ns-nariyal-caption{color:#765d3b;font-size:8px;bottom:-8px}
 html[data-auth-theme="golden-harvest"] .ns-auth-art-foot{color:#765d3b;margin:auto auto 0;font-size:9px}
 html[data-auth-theme="golden-harvest"] .ns-auth-line{display:none}
@@ -227,6 +259,8 @@ html[data-auth-theme-status="pending"] .ns-auth-header .ns-auth-brand,html[data-
  .ns-nariyal-light{animation:none}
 }
 @media(max-width:360px){
+ html[data-auth-theme="nariyal-signature"] .ns-grove-secondary{left:10%;top:17%;width:50%;height:60%}
+ html[data-auth-theme="coastal-premium"] .ns-grove-secondary{left:9%;top:20%;width:46%;height:55%}
  .ns-auth-art{padding:23px 20px}.ns-auth-art-copy{max-width:calc(100% - 95px)}.ns-auth-art h2{font-size:24px}
  .ns-nariyal-scene,.ns-auth-shell[data-auth-context="admin"] .ns-nariyal-scene{width:125px;height:140px;top:44px;right:-5px}
  html[data-auth-theme="fresh-grove"] .ns-auth-art-copy{margin-left:82px}
@@ -247,7 +281,7 @@ html[data-auth-theme-status="pending"] .ns-auth-header .ns-auth-brand,html[data-
  .ns-auth-shell *,.ns-auth-panel,.ns-auth-panel *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
  .ns-auth-sweep{display:none!important}.ns-auth-stage{clip-path:none!important;transform:none!important}
  .ns-auth-shell .ns-nariyal-scene,.ns-auth-shell .ns-nariyal-object,.ns-auth-shell .ns-nariyal-glint{transform:none!important}
- .ns-auth-shell .ns-nariyal-eyes{opacity:0!important}.ns-auth-shell .ns-nariyal-lids{opacity:1!important}
+ .ns-auth-shell .ns-nariyal-eyes{opacity:0!important}.ns-auth-shell .ns-nariyal-lids{opacity:.14!important}
 }
 
 #nsacct-panel.ns-auth-acknowledged::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;box-shadow:inset 0 0 50px #bdd9a866;animation:nsAuthAcknowledged 600ms ease-out both}
