@@ -11,8 +11,8 @@ async function context(options={}){
  await c.addInitScript(()=>{
   window.__authCalls=[];window.__soundCalls=[];window.NS_FIREBASE_READY=true;
   // Audio instrumentation records requested envelopes without making forced sound during QA.
-  window.AudioContext=class{state='running';currentTime=0;destination={};constructor(){window.__soundCalls.push('context');}createOscillator(){return {frequency:{value:0},connect(){},start(){window.__soundCalls.push('start');},stop(){}};}createGain(){return {gain:{setValueAtTime(){},linearRampToValueAtTime(){},exponentialRampToValueAtTime(){}},connect(){}};}resume(){this.state='running';return Promise.resolve();}suspend(){this.state='suspended';window.__soundCalls.push('suspend');return Promise.resolve();}};
  });
+ await c.addInitScript(fixtures.soundSpy);
  await c.route('**/firebase-config.js',r=>r.fulfill({contentType:'application/javascript',body:`window.NS_FIREBASE_CONFIG={apiKey:'qa-only',projectId:'qa-only',appId:'qa-only'};window.NS_ADMIN_CONFIG={ownerUid:'qa-owner',ownerEmail:'owner@example.com'};window.NS_CUSTOMER_AUTH_PROVIDERS={};window.NS_INIT_APP_CHECK=async()=>null;window.NS_FIREBASE_READY=true;`}));
  await c.route('https://**/*',r=>{
   const m=r.request().url().match(/firebase-(app-check|app|auth|firestore|storage|analytics|performance)\.js/);

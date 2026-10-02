@@ -25,3 +25,10 @@ export const storage = `export const getStorage=()=>({}),ref=()=>({}),uploadByte
 export const appCheck = `export class ReCaptchaEnterpriseProvider{};export const initializeAppCheck=()=>({}),getToken=async()=>({token:'qa-only'});`;
 export const analytics = `export const isSupported=async()=>false,getAnalytics=()=>({}),logEvent=()=>{};`;
 export const performance = `export const getPerformance=()=>({});`;
+// Deterministic Web Audio spy; records envelopes without playing sound during automation.
+export const soundSpy = `
+window.__soundCalls=[];window.__soundEvents=[];
+function param(label){return {value:0,setValueAtTime(v,t){__soundEvents.push({label,op:'set',v,t});},linearRampToValueAtTime(v,t){__soundEvents.push({label,op:'linear',v,t});},exponentialRampToValueAtTime(v,t){__soundEvents.push({label,op:'exponential',v,t});},cancelScheduledValues(t){__soundEvents.push({label,op:'cancel',t});}};}
+function source(kind){return{kind,frequency:param('frequency'),connect(){},disconnect(){},start(t){__soundCalls.push('start');__soundEvents.push({kind,op:'start',t});},stop(t){__soundCalls.push('stop');__soundEvents.push({kind,op:'stop',t});}};}
+window.AudioContext=class{state='running';currentTime=0;sampleRate=48000;destination={};constructor(){window.__latestAudio=this;__soundCalls.push('context');}createOscillator(){return source('tone');}createBufferSource(){return source('noise');}createBuffer(channels,length,sampleRate){return{getChannelData(){return new Float32Array(length);}};}createBiquadFilter(){return{frequency:param('filter-frequency'),Q:{value:0},connect(){},disconnect(){}};}createGain(){return{gain:param('gain'),connect(){},disconnect(){}};}resume(){this.state='running';return window.__delayAudioResume?new Promise(r=>window.__resolveAudioResume=r):Promise.resolve();}suspend(){this.state='suspended';__soundCalls.push('suspend');return Promise.resolve();}};
+`;

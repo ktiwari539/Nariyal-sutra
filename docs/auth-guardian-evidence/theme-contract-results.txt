@@ -1,0 +1,15 @@
+PASS Sanitized resolver matches storefront effective theme case 0
+PASS Sanitized resolver matches storefront effective theme case 1
+PASS Sanitized resolver matches storefront effective theme case 2
+PASS Sanitized resolver matches storefront effective theme case 3
+PASS Sanitized resolver matches storefront effective theme case 4
+PASS Sanitized resolver matches storefront effective theme case 5
+PASS Sanitized resolver matches storefront effective theme case 6
+PASS Sanitized resolver matches storefront effective theme case 7
+PASS Public response contains only allowlisted theme id
+PASS Theme endpoint reads only publicStories with no credentials or Admin bypass
+PASS Theme endpoint refuses all writes
+PASS Permission/App Check failure falls back safely
+PASS Network failure falls back safely
+PASS Unpublished source never affects auth
+PASS Animation code has no input-content/storage/analytics/network reads

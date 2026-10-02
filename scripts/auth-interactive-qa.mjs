@@ -15,8 +15,8 @@ async function context({theme=themes[0],themeMode='ok',assetFail=false,delayAsse
   const property=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value');
   Object.defineProperty(HTMLInputElement.prototype,'value',{...property,get(){if(new Error().stack.includes('auth-shell.js'))window.__credentialReads.push('forbidden');return property.get.call(this);}});
   try{new PerformanceObserver(list=>list.getEntries().filter(e=>!e.hadRecentInput).forEach(e=>__shifts.push(e.value))).observe({type:'layout-shift',buffered:true});}catch(_){}
-  window.AudioContext=class{state='running';currentTime=0;destination={};constructor(){__soundCalls.push('context');}createOscillator(){return{frequency:{value:0},connect(){},disconnect(){},start(){__soundCalls.push('start');},stop(){__soundCalls.push('stop');}};}createGain(){return{gain:{setValueAtTime(){},linearRampToValueAtTime(){},exponentialRampToValueAtTime(){}},connect(){},disconnect(){}};}resume(){this.state='running';return Promise.resolve();}suspend(){this.state='suspended';__soundCalls.push('suspend');return Promise.resolve();}};
  });
+ await c.addInitScript(fixtures.soundSpy);
  await c.route('**/firebase-config.js',r=>r.fulfill({contentType:'application/javascript',body:`window.NS_FIREBASE_CONFIG={apiKey:'qa-only',projectId:'qa-only',appId:'qa-only'};window.NS_ADMIN_CONFIG={ownerUid:'qa-owner',ownerEmail:'owner@example.com'};window.NS_CUSTOMER_AUTH_PROVIDERS={};window.NS_INIT_APP_CHECK=async()=>null;window.NS_FIREBASE_READY=true;`}));
  await c.route('https://**/*',r=>{
   const m=r.request().url().match(/firebase-(app-check|app|auth|firestore|storage|analytics|performance)\.js/);
@@ -28,7 +28,7 @@ async function context({theme=themes[0],themeMode='ok',assetFail=false,delayAsse
   if(themeMode==='delay')await new Promise(resolve=>setTimeout(resolve,300));
   return r.fulfill({contentType:'application/json',body:JSON.stringify({themeId:themeMode==='invalid'?'private-draft':theme})}).catch(()=>{});
  });
- if(assetFail||delayAsset)await c.route('**/assets/images/brand/grove/*.webp',async r=>{if(delayAsset)await new Promise(resolve=>setTimeout(resolve,delayAsset));return assetFail?r.abort():r.continue();});
+ if(assetFail||delayAsset)await c.route('**/assets/images/brand/guardian/*.webp',async r=>{if(delayAsset)await new Promise(resolve=>setTimeout(resolve,delayAsset));return assetFail?r.abort():r.continue();});
  return c;
 }
 async function open(c,kind='customer'){

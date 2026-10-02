@@ -1,0 +1,19 @@
+{
+  "localAssertions": {
+    "Guardian": 129,
+    "Closed-eye frames": 8,
+    "Auth flows": 40,
+    "Interactive": 123,
+    "Responsive composition": 40,
+    "Theme/security boundary": 15
+  },
+  "total": 355,
+  "contractSuites": {
+    "productionFirebase": "PASS (local source contract only)",
+    "adminRoles": "PASS (local source contract only)"
+  },
+  "audit": "PASS: 269 text files, 153 JavaScript syntax checks",
+  "githubActions": "Not run; no push or workflow dispatch authorized for this child.",
+  "artApproval": "Pending human visual and audio review",
+  "scope": "Local feature/storefront-themes child only"
+}

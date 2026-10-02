@@ -1,0 +1,68 @@
+{
+  "oldBytes": {
+    "signature": 630016,
+    "fresh": 390584,
+    "coastal": 414930,
+    "golden": 659032,
+    "palm": 284166
+  },
+  "new": {
+    "coastal": {
+      "bytes": 256852,
+      "dimensions": [
+        960,
+        960
+      ]
+    },
+    "signature": {
+      "bytes": 399464,
+      "dimensions": [
+        960,
+        960
+      ]
+    },
+    "golden": {
+      "bytes": 422410,
+      "dimensions": [
+        960,
+        960
+      ]
+    },
+    "palm": {
+      "bytes": 178166,
+      "dimensions": [
+        960,
+        480
+      ]
+    },
+    "fresh": {
+      "bytes": 245490,
+      "dimensions": [
+        960,
+        960
+      ]
+    }
+  },
+  "oldTotal": 2378728,
+  "newTotal": 1502382,
+  "reductionPercent": 36.840950289398364,
+  "perThemeColdImageBytes": {
+    "nariyal-signature": {
+      "customerBytes": 1000040,
+      "adminBytes": 577630
+    },
+    "fresh-grove": {
+      "customerBytes": 680508,
+      "adminBytes": 423656
+    },
+    "coastal-premium": {
+      "customerBytes": 680508,
+      "adminBytes": 435018
+    },
+    "golden-harvest": {
+      "customerBytes": 1000040,
+      "adminBytes": 600576
+    }
+  },
+  "encoding": "Original generated photographic source; 960px maximum; WebP quality 85. Alpha retained. Replaced unused 1200px Grove assets."
+}

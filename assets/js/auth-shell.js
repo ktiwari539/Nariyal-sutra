@@ -2,53 +2,81 @@
    The animation boundary consumes focus/type/enum state, never input values or lengths. */
 (function () {
   'use strict';
-  var soundOn = false, soundEpoch = 0, audio = null, voices = new Set();
+  var soundOn = false, serial = 0;
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
   var copy = {
     customer: { context: 'My Account', access: 'Customer Access', title: 'A little nature.<br><em>A daily ritual.</em>', detail: 'Fresh beginnings. Familiar details. A place that feels like you.', foot: 'Rooted in nature. Made for your everyday.' },
     admin: { context: 'Business Command Center', access: 'Admin Access', title: 'Thoughtful care.<br><em>In every detail.</em>', detail: 'A considered space for the people behind Nariyal Sutra.', foot: 'Good things begin with care.' }
   };
   function brand() { return '<a class="ns-auth-brand" href="/index.html" aria-label="Nariyal Sutra home"><strong>NARIYAL SUTRA</strong><span>THE SCIENCE OF PURITY</span></a>'; }
-  function object() {
-    var products = ['signature','fresh','coastal','golden'].map(function (name) {
-      return '<img class="ns-grove-product ns-grove-'+name+'" src="/assets/images/brand/grove/'+name+'.webp" alt="" width="1200" height="1200" decoding="async" draggable="false">';
-    }).join('');
-    return '<div class="ns-nariyal-scene" aria-hidden="true"><div class="ns-nariyal-orbit"></div><div class="ns-grove-ground"></div>'+
-      '<div class="ns-grove-secondary">'+products+'</div><div class="ns-nariyal-object">'+products+
-      '<svg class="ns-nariyal-face" viewBox="0 0 400 400" fill="none" focusable="false"><g class="ns-nariyal-eyes" fill="#181d10">'+
-      '<path d="M210 158 Q222 153 236 156 L229 159 218 159Z"/><path d="M269 153 Q280 149 292 153 L283 156 274 155Z"/>'+
-      '<g class="ns-nariyal-glint" stroke="#c7b988" stroke-width="1"><path d="M228 156l4 -.5M284 153l3 -.5"/></g></g>'+
-      '<g class="ns-nariyal-lids" stroke="#272618" stroke-width="1.1"><path d="M211 158l12 2 12 -3M270 154l10 1 12 -3"/></g></svg>'+
-      '<div class="ns-nariyal-light"></div></div>'+
-      '<img class="ns-grove-privacy-leaf" src="/assets/images/brand/grove/palm.webp" alt="" width="1200" height="600" decoding="async" draggable="false">'+
+  function object(context) {
+    var id = 'ns-guardian-' + (++serial);
+    function eye(x, y, side) {
+      var opening = 'M-23 1 Q-12 -10 0 -8 Q13 -9 23 0 Q10 9 -1 7 Q-13 7 -23 1Z';
+      return '<g class="ns-guardian-eye ns-guardian-eye-'+side+'" transform="translate('+x+' '+y+')">'+
+        '<ellipse rx="28" ry="13" fill="#171c10" opacity=".19" filter="url(#'+id+'-shadow)"/>'+
+        '<g class="ns-guardian-blink"><clipPath id="'+id+'-'+side+'"><path d="'+opening+'"/></clipPath>'+
+        '<path d="'+opening+'" fill="var(--guardian-eye-well)" opacity=".48"/>'+
+        '<g class="ns-guardian-iris" clip-path="url(#'+id+'-'+side+')"><ellipse cx="3" cy="0" rx="6.8" ry="7.6" fill="url(#'+id+'-iris)"/><ellipse cx="4" cy="0" rx="2.6" ry="5" fill="#11180f"/>'+
+        '<ellipse class="ns-nariyal-glint" cx="5.3" cy="-2.6" rx="1.25" ry=".7" fill="#efdfb1" opacity=".72"/></g>'+
+        '<path d="M-24 0 Q-12 -11 0 -9 Q14 -10 24 -1" stroke="var(--guardian-eye-rim)" stroke-width="1.8" opacity=".62"/>'+
+        '<path d="M-22 3 Q-10 10 1 8 L17 5" stroke="var(--guardian-eye-rim)" stroke-width="1.2" opacity=".5"/>'+
+        '<path d="M-28 -3l8 -4M18 -5l9 1M-18 11l8 2" stroke="var(--guardian-eye-rim)" opacity=".4" stroke-width=".8"/></g></g>';
+    }
+    function product(role) { return '<span class="ns-grove-product" data-guardian-product="'+role+'"></span>'; }
+    return '<div class="ns-nariyal-scene" data-guardian-ready="false" aria-hidden="true"><div class="ns-nariyal-orbit"></div><div class="ns-grove-ground"></div>'+
+      '<div class="ns-grove-secondary">'+(context==='admin'?'':product('secondary'))+'</div><div class="ns-nariyal-object"><div class="ns-guardian-core">'+product('primary')+
+      '<svg class="ns-nariyal-face" viewBox="0 0 400 400" fill="none" focusable="false"><defs>'+
+      '<radialGradient id="'+id+'-iris"><stop stop-color="var(--guardian-iris)"/><stop offset=".6" stop-color="#34432a"/><stop offset="1" stop-color="#172012"/></radialGradient>'+
+      '<filter id="'+id+'-shadow"><feGaussianBlur stdDeviation="2.2"/></filter>'+
+      '<filter id="'+id+'-texture" x="-10%" y="-15%" width="120%" height="130%"><feTurbulence type="fractalNoise" baseFrequency=".48" numOctaves="2" seed="17" result="grain"/><feDisplacementMap in="SourceGraphic" in2="grain" scale=".8" xChannelSelector="R" yChannelSelector="G"/></filter></defs>'+
+      '<g class="ns-nariyal-eyes" filter="url(#'+id+'-texture)">'+eye(210,156,'far')+eye(278,151,'near')+'</g>'+
+      '<g class="ns-nariyal-lids" stroke="var(--guardian-eye-rim)" stroke-width="2"><path class="ns-guardian-lid-far" d="M187 157Q209 170 233 155"/><path class="ns-guardian-lid-near" d="M255 152Q278 165 301 150"/></g></svg>'+
+      '<div class="ns-nariyal-light"></div></div></div><div class="ns-grove-leaf-rig">'+
+      '<span class="ns-grove-leaf-shadow" data-guardian-leaf></span>'+
+      '<span class="ns-grove-privacy-leaf" data-guardian-leaf></span></div>'+
       '<div class="ns-nariyal-fallback">Rooted in nature.</div><span class="ns-nariyal-caption">Naturally considered.</span></div>';
+  }
+  function hydrateArt(shell) {
+    var scene = shell.querySelector('.ns-nariyal-scene');
+    var theme = window.NSAuthTheme, ready = theme && theme.ready ? theme.ready : Promise.resolve('nariyal-signature');
+    ready.then(function (id) {
+      if (!shell.isConnected) return;
+      var pairs = {'nariyal-signature':['signature','golden'],'fresh-grove':['fresh','coastal'],'coastal-premium':['coastal','fresh'],'golden-harvest':['golden','signature']};
+      var pair = pairs[id] || pairs['nariyal-signature'], images = Array.from(scene.querySelectorAll('[data-guardian-product],[data-guardian-leaf]')), remaining = images.length;
+      function done(failed) { if (failed) shell.dataset.nariyalAsset = 'fallback'; if (--remaining === 0) scene.dataset.guardianReady = 'true'; }
+      images.forEach(function (slot) {
+        // Insert a fully sourced image so storefront media guards never see an empty img.
+        var img = document.createElement('img'); img.className = slot.className;
+        img.alt = ''; img.width = 960; img.height = slot.hasAttribute('data-guardian-leaf') ? 480 : 960;
+        img.decoding = 'async'; img.draggable = false;
+        if (slot.dataset.guardianProduct) img.dataset.guardianProduct = slot.dataset.guardianProduct;
+        else img.dataset.guardianLeaf = '';
+        img.onload = function () { done(false); }; img.onerror = function () { done(true); };
+        var role = img.dataset.guardianProduct, file = role ? pair[role==='primary'?0:1] : 'palm';
+        img.src = '/assets/images/brand/guardian/'+file+'.webp';
+        slot.replaceWith(img);
+      });
+    });
   }
   function markup(context, content, mode) {
     var c = copy[context] || copy.customer;
     return '<section class="ns-auth-shell" data-auth-context="'+context+'" data-auth-state="'+(mode||'signin')+'" data-nariyal-pose="idle">'+
-      '<div class="ns-auth-art"><div class="ns-auth-art-copy"><span class="ns-auth-eyebrow">'+c.access+'</span><h2>'+c.title+'</h2><p>'+c.detail+'</p></div>'+object()+'<div class="ns-auth-art-foot"><span class="ns-auth-line"></span>'+c.foot+'</div></div>'+
+      '<div class="ns-auth-art"><div class="ns-auth-art-copy"><span class="ns-auth-eyebrow">'+c.access+'</span><h2>'+c.title+'</h2><p>'+c.detail+'</p></div>'+object(context)+'<div class="ns-auth-art-foot"><span class="ns-auth-line"></span>'+c.foot+'</div></div>'+
       '<div class="ns-auth-content"><div class="ns-auth-topline"><span>'+c.context+'</span><button type="button" class="ns-auth-sound" data-auth-sound aria-pressed="'+soundOn+'" aria-label="'+(soundOn?'Turn sound off':'Turn sound on')+'">Sound '+(soundOn?'on':'off')+'</button></div><div class="ns-auth-stage">'+content+'</div></div><div class="ns-auth-sweep-track" aria-hidden="true"><div class="ns-auth-sweep"></div></div></section>';
   }
-  function chime() {
-    if (!soundOn) return;
-    try {
-      var Audio = window.AudioContext || window.webkitAudioContext;
-      if (!Audio) return;
-      if (!audio) audio = new Audio();
-      var epoch = soundEpoch;
-      var play = function () {
-        if (!soundOn || epoch !== soundEpoch) return;
-        [659.25, 987.77].forEach(function (frequency, i) {
-          var o = audio.createOscillator(), g = audio.createGain(), t = audio.currentTime + i * .075;
-          o.type = 'sine'; o.frequency.value = frequency;
-          g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.025, t + .012); g.gain.exponentialRampToValueAtTime(.0001, t + .28);
-          o.connect(g); g.connect(audio.destination); voices.add(o);
-          o.onended = function () { voices.delete(o); o.disconnect(); g.disconnect(); };
-          o.start(t); o.stop(t + .3);
-        });
-      };
-      if (audio.state === 'suspended') audio.resume().then(play).catch(function () {}); else play();
-    } catch (_) { /* Sound is optional and never blocks access. */ }
+  function cue(kind, shell) {
+    if (soundOn && window.NSAuthSonics) window.NSAuthSonics.play(kind, shell && shell.dataset.authContext==='admin' ? .35 : 1);
+  }
+  function setPose(shell, next) {
+    if (!shell || !['idle','email','privacy','peek'].includes(next) || shell.dataset.nariyalPose===next) return;
+    var previous = shell.dataset.nariyalPose;
+    shell.dataset.guardianPrivacy = previous==='peek' ? 'return' : 'enter';
+    shell.dataset.nariyalPose = next;
+    if (next==='privacy') {
+      var now = Date.now();
+      if (!shell._guardianRustleAt || now-shell._guardianRustleAt>900) { cue('privacy', shell); shell._guardianRustleAt=now; }
+    } else if (next==='peek') cue('peek', shell);
   }
   function shellOf(root) { return root && (root.matches('.ns-auth-shell') ? root : root.querySelector('.ns-auth-shell')); }
   function pose(shell) {
@@ -56,13 +84,15 @@
     var focused = document.activeElement, password = focused && focused.closest('.ns-auth-password');
     // The reveal button remains within this wrapper, so keyboard toggling preserves privacy.
     var hiddenPassword = password && password.querySelector('input[type="password"]');
-    shell.dataset.nariyalPose = password ? (hiddenPassword ? 'privacy' : 'peek') :
-      focused && focused.matches('input[type="email"]') ? 'email' : 'idle';
+    setPose(shell, password ? (hiddenPassword ? 'privacy' : 'peek') :
+      focused && focused.matches('input[type="email"]') ? 'email' : 'idle');
   }
-  function signal(root, name) {
+  function signal(root, name, quiet) {
     var shell = shellOf(root);
     if (!shell || !['idle', 'loading', 'error', 'success'].includes(name)) return;
+    var changed = shell.dataset.authFeedback !== name;
     shell.dataset.authFeedback = name;
+    if (name === 'success' && changed && !quiet) cue('signature', shell);
     if (name === 'success') {
       var panel = shell.closest('#nsacct-panel');
       if (panel) { panel.classList.add('ns-auth-acknowledged'); setTimeout(function () { panel.classList.remove('ns-auth-acknowledged'); }, 650); }
@@ -72,18 +102,20 @@
     if (shell.dataset.authBound) return;
     shell.dataset.authBound = 'true';
     shell.addEventListener('focusin', function () { pose(shell); });
-    shell.addEventListener('focusout', function () { queueMicrotask(function () { pose(shell); }); });
+    shell.addEventListener('focusout', function (event) {
+      // Moving to Show/Hide stays in the same privacy region; avoid a transient idle cue.
+      var wrapper = event.target.closest('.ns-auth-password');
+      if (wrapper && event.relatedTarget && wrapper.contains(event.relatedTarget)) return;
+      queueMicrotask(function () { pose(shell); });
+    });
     // Native validation also covers autofill, paste and password-manager insertion.
     shell.addEventListener('invalid', function () { signal(shell, 'error'); }, true);
     shell.addEventListener('submit', function () { signal(shell, 'loading'); });
-    shell.querySelectorAll('.ns-nariyal-scene img').forEach(function (img) {
-      img.addEventListener('error', function () { shell.dataset.nariyalAsset = 'fallback'; });
-      if (img.complete && !img.naturalWidth) shell.dataset.nariyalAsset = 'fallback';
-    });
+    hydrateArt(shell);
     // Observe status CLASSES, not messages (which may contain account details).
     var observer = new MutationObserver(function () {
       var message = shell.querySelector('.nsacct-msg.show,.msg.err,.msg.ok');
-      if (message) signal(shell, message.classList.contains('err') ? 'error' : message.classList.contains('ok') ? 'success' : 'idle');
+      if (message) signal(shell, message.classList.contains('err') ? 'error' : message.classList.contains('ok') ? 'success' : 'idle', true);
     });
     observer.observe(shell.querySelector('.ns-auth-stage'), {subtree:true, attributes:true, attributeFilter:['class']});
   }
@@ -100,19 +132,16 @@
         toggle.textContent = reveal ? 'Hide' : 'Show'; toggle.setAttribute('aria-pressed', String(reveal));
         toggle.setAttribute('aria-label', reveal ? 'Hide password' : 'Show password');
         // Mobile Safari does not focus a clicked button; explicitly use the toggle's state.
-        var shell = shellOf(root); if (shell) shell.dataset.nariyalPose = reveal ? 'peek' : 'privacy';
+        var shell = shellOf(root); if (shell) setPose(shell, reveal ? 'peek' : 'privacy');
       });
       wrap.appendChild(toggle);
     });
     root.querySelectorAll('[data-auth-sound]').forEach(function (button) {
       button.onclick = function () {
-        soundOn = !soundOn; soundEpoch++;
+        soundOn = !soundOn;
+        if (window.NSAuthSonics) window.NSAuthSonics.setEnabled(soundOn);
         document.querySelectorAll('[data-auth-sound]').forEach(function (b) { b.textContent='Sound '+(soundOn?'on':'off'); b.setAttribute('aria-pressed',String(soundOn)); b.setAttribute('aria-label',soundOn?'Turn sound off':'Turn sound on'); });
-        if (soundOn) chime();
-        else if (audio) {
-          voices.forEach(function (voice) { try { voice.stop(); } catch (_) {} }); voices.clear();
-          audio.suspend().catch(function () {});
-        }
+        if (soundOn) cue('signature', shellOf(root));
       };
     });
     var shell = shellOf(root); if (shell) { bind(shell); pose(shell); }
@@ -125,7 +154,7 @@
       shell.classList.remove('ns-auth-transition'); void shell.offsetWidth;
       if (!reduced.matches) shell.classList.add('ns-auth-transition');
     }
-    if (userInitiated) chime();
+    // State changes remain silent; only explicitly opted-in Guardian cues use sound.
   }
   window.NSAuthShell = { brand:brand, markup:markup, enhance:enhance, transition:transition, signal:signal };
 })();

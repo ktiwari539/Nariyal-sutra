@@ -1,0 +1,17 @@
+{
+  "parent": "07a19723897a1ab893b14a6e24bf2263aee8f34d",
+  "unchanged": {
+    "customer-account.js": true,
+    "assets/js/admin-auth-ui.js": true,
+    "assets/js/auth-theme.js": true,
+    "netlify/functions/published-auth-theme.js": true,
+    "firestore.rules": true,
+    "firebase.json": true,
+    "netlify.toml": true,
+    "admin-bcc-login.html form": true,
+    "admin-bcc-login.html inline security scripts": true,
+    "admin-login.html form": true,
+    "admin-login.html inline security scripts": true
+  },
+  "productionConnections": "None; all browser Firebase and external requests intercepted."
+}

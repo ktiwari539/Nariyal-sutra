@@ -26,7 +26,7 @@ jobs:
           node scripts/auth-theme-contract-qa.mjs
           node scripts/auth-interactive-qa.mjs
           node scripts/auth-composition-qa.mjs
-          node scripts/auth-grove-qa.mjs
+          node scripts/auth-guardian-qa.mjs
           node scripts/production-firebase-contract-qa.mjs
           node scripts/admin-role-contract-qa.mjs
       - uses: actions/upload-artifact@v4
@@ -36,7 +36,7 @@ jobs:
           path: |
             qa-artifacts/auth/
             qa-artifacts/auth-interactive/
-            qa-artifacts/auth-grove/
+            qa-artifacts/auth-guardian/
           retention-days: 14
   themes-pricing-water:
     runs-on: ubuntu-latest
