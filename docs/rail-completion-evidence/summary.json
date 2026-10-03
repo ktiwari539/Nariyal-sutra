@@ -1,0 +1,167 @@
+{
+  "ok": true,
+  "scope": "Moving People rail only",
+  "checks": 85,
+  "themeViewportCases": 12,
+  "runtimeErrors": [],
+  "unrelatedSuitesRerun": false,
+  "comprehensiveCompletionBlocked": "Latest previously-completed working tree and evidence absent from this restored workspace",
+  "protectedActions": {
+    "push": false,
+    "merge": false,
+    "deploy": false,
+    "productionFirebase": false
+  },
+  "statusMatrix": [
+    {
+      "item": "Moving People full-picture rail",
+      "status": "COMPLETE + VERIFIED",
+      "detail": "85 focused assertions; all 12 theme/viewport cases."
+    },
+    {
+      "item": "Equal card/media height; focal positions; hover",
+      "status": "COMPLETE + VERIFIED",
+      "detail": "2:3 frames, 14 px gutters, cover fit, preserved focal positions; zero height spread."
+    },
+    {
+      "item": "Fresh Grove rail readability",
+      "status": "COMPLETE + VERIFIED",
+      "detail": "Heading, caption and CTA computed contrast; new screenshot evidence."
+    },
+    {
+      "item": "Golden Harvest rail readability",
+      "status": "COMPLETE + VERIFIED",
+      "detail": "Heading, caption and CTA computed contrast; new screenshot evidence."
+    },
+    {
+      "item": "Rail edge fades and public copy",
+      "status": "COMPLETE + VERIFIED",
+      "detail": "Fades confined to photo rows; default editorial heading preserved."
+    },
+    {
+      "item": "Rail desktop/tablet/mobile; overflow; CLS",
+      "status": "COMPLETE + VERIFIED",
+      "detail": "No overflow or rail-source CLS after the existing opening settles."
+    },
+    {
+      "item": "Final rail art acceptance",
+      "status": "IMPLEMENTED \u2014 HUMAN REVIEW ONLY",
+      "detail": "Screenshots are ready for human visual review."
+    },
+    {
+      "item": "Four-theme overall completion / Fresh Grove / Golden Harvest",
+      "status": "BLOCKED \u2014 EXTERNAL DEPENDENCY",
+      "detail": "Latest completed version/evidence absent from restored workspace. Prior pass reported; not rerun or re-certified."
+    },
+    {
+      "item": "Theme resolution and fallback",
+      "status": "BLOCKED \u2014 EXTERNAL DEPENDENCY",
+      "detail": "Latest completed version/evidence absent from restored workspace. Prior pass reported; not rerun or re-certified."
+    },
+    {
+      "item": "Customer login on demand and Customer auth",
+      "status": "BLOCKED \u2014 EXTERNAL DEPENDENCY",
+      "detail": "Latest completed version/evidence absent from restored workspace. Prior pass reported; not rerun or re-certified."
+    },
+    {
+      "item": "Dedicated Admin auth / role gates / safe redirects",
+      "status": "BLOCKED \u2014 EXTERNAL DEPENDENCY",
+      "detail": "Latest completed version/evidence absent from restored workspace. Prior pass reported; not rerun or re-certified."
+    },
+    {
+      "item": "Guardian active eyes / idle / email gaze",
+      "status": "BLOCKED \u2014 EXTERNAL DEPENDENCY",
+      "detail": "Latest completed version/evidence absent from restored workspace. Prior pass reported; not rerun or re-certified."
+    },
+    {
+      "item": "Password close \u2192 turn \u2192 leaf privacy",
+      "status": "BLOCKED \u2014 EXTERNAL DEPENDENCY",
+      "detail": "Latest completed version/evidence absent from restored workspace. Prior pass reported; not rerun or re-certified."
+    },
+    {
+      "item": "One-eye peek / immediate Hide",
+      "status": "BLOCKED \u2014 EXTERNAL DEPENDENCY",
+      "detail": "Latest completed version/evidence absent from restored workspace. Prior pass reported; not rerun or re-certified."
+    },
+    {
+      "item": "Auth error / leaf release / visible eyes",
+      "status": "BLOCKED \u2014 EXTERNAL DEPENDENCY",
+      "detail": "Latest completed version/evidence absent from restored workspace. Prior pass reported; not rerun or re-certified."
+    },
+    {
+      "item": "Retry/reset and repeated privacy",
+      "status": "BLOCKED \u2014 EXTERNAL DEPENDENCY",
+      "detail": "Latest completed version/evidence absent from restored workspace. Prior pass reported; not rerun or re-certified."
+    },
+    {
+      "item": "Success acknowledgement / authenticated state",
+      "status": "BLOCKED \u2014 EXTERNAL DEPENDENCY",
+      "detail": "Latest completed version/evidence absent from restored workspace. Prior pass reported; not rerun or re-certified."
+    },
+    {
+      "item": "Sound default-off / toggle / cancellation",
+      "status": "BLOCKED \u2014 EXTERNAL DEPENDENCY",
+      "detail": "Latest completed version/evidence absent from restored workspace. Prior pass reported; not rerun or re-certified."
+    },
+    {
+      "item": "Reduced motion",
+      "status": "BLOCKED \u2014 EXTERNAL DEPENDENCY",
+      "detail": "Latest completed version/evidence absent from restored workspace. Prior pass reported; not rerun or re-certified."
+    },
+    {
+      "item": "Authoritative pricing",
+      "status": "BLOCKED \u2014 EXTERNAL DEPENDENCY",
+      "detail": "Latest completed version/evidence absent from restored workspace. Prior pass reported; not rerun or re-certified."
+    },
+    {
+      "item": "Checkout and delivery recap consistency",
+      "status": "BLOCKED \u2014 EXTERNAL DEPENDENCY",
+      "detail": "Latest completed version/evidence absent from restored workspace. Prior pass reported; not rerun or re-certified."
+    },
+    {
+      "item": "Liquid water 300/500 ml / glass and bottle",
+      "status": "BLOCKED \u2014 EXTERNAL DEPENDENCY",
+      "detail": "Latest completed version/evidence absent from restored workspace. Prior pass reported; not rerun or re-certified."
+    },
+    {
+      "item": "Water draft privacy / previews / role race",
+      "status": "BLOCKED \u2014 EXTERNAL DEPENDENCY",
+      "detail": "Latest completed version/evidence absent from restored workspace. Prior pass reported; not rerun or re-certified."
+    },
+    {
+      "item": "Admin/BCC regression results",
+      "status": "BLOCKED \u2014 EXTERNAL DEPENDENCY",
+      "detail": "Latest completed version/evidence absent from restored workspace. Prior pass reported; not rerun or re-certified."
+    },
+    {
+      "item": "Overall responsive/accessibility/security/performance acceptance",
+      "status": "BLOCKED \u2014 EXTERNAL DEPENDENCY",
+      "detail": "Latest completed version/evidence absent from restored workspace. Prior pass reported; not rerun or re-certified."
+    },
+    {
+      "item": "Updated customer-motion.mp4 / admin-motion.mp4 and auth state matrix",
+      "status": "BLOCKED \u2014 EXTERNAL DEPENDENCY",
+      "detail": "Latest completed version/evidence absent from restored workspace. Prior pass reported; not rerun or re-certified."
+    },
+    {
+      "item": "GitHub Actions CI",
+      "status": "BLOCKED \u2014 EXTERNAL DEPENDENCY",
+      "detail": "No push or workflow dispatch authorized; all five jobs remain unrun for these local commits."
+    },
+    {
+      "item": "Physical-device / password-manager / speaker QA",
+      "status": "BLOCKED \u2014 EXTERNAL DEPENDENCY",
+      "detail": "Requires actual devices, credential-manager integration and human listening."
+    },
+    {
+      "item": "Production deployment",
+      "status": "BLOCKED \u2014 EXTERNAL DEPENDENCY",
+      "detail": "Explicitly prohibited; awaiting separate authorization."
+    },
+    {
+      "item": "Main, Netlify and production Firebase untouched",
+      "status": "COMPLETE + VERIFIED",
+      "detail": "No push, merge, deployment, production authentication or production-data operation in this pass."
+    }
+  ]
+}

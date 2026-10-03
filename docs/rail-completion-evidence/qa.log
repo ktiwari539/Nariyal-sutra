@@ -1,0 +1,86 @@
+PASS nariyal-signature desktop: heading, caption and CTA contrast
+PASS nariyal-signature desktop: customer-facing title; fades exclude surrounding copy
+PASS nariyal-signature desktop: all rail photographs loaded
+PASS nariyal-signature desktop: equal card/media heights and aligned edges
+PASS nariyal-signature desktop: 2:3 frames, 14px gutters, cover and retained focal points
+PASS nariyal-signature desktop: no frame resize during motion/hover
+PASS nariyal-signature desktop: no rail CLS or document overflow
+PASS nariyal-signature tablet: heading, caption and CTA contrast
+PASS nariyal-signature tablet: customer-facing title; fades exclude surrounding copy
+PASS nariyal-signature tablet: all rail photographs loaded
+PASS nariyal-signature tablet: equal card/media heights and aligned edges
+PASS nariyal-signature tablet: 2:3 frames, 14px gutters, cover and retained focal points
+PASS nariyal-signature tablet: no frame resize during motion/hover
+PASS nariyal-signature tablet: no rail CLS or document overflow
+PASS nariyal-signature mobile: heading, caption and CTA contrast
+PASS nariyal-signature mobile: customer-facing title; fades exclude surrounding copy
+PASS nariyal-signature mobile: all rail photographs loaded
+PASS nariyal-signature mobile: equal card/media heights and aligned edges
+PASS nariyal-signature mobile: 2:3 frames, 14px gutters, cover and retained focal points
+PASS nariyal-signature mobile: no frame resize during motion/hover
+PASS nariyal-signature mobile: no rail CLS or document overflow
+PASS fresh-grove desktop: heading, caption and CTA contrast
+PASS fresh-grove desktop: customer-facing title; fades exclude surrounding copy
+PASS fresh-grove desktop: all rail photographs loaded
+PASS fresh-grove desktop: equal card/media heights and aligned edges
+PASS fresh-grove desktop: 2:3 frames, 14px gutters, cover and retained focal points
+PASS fresh-grove desktop: no frame resize during motion/hover
+PASS fresh-grove desktop: no rail CLS or document overflow
+PASS fresh-grove tablet: heading, caption and CTA contrast
+PASS fresh-grove tablet: customer-facing title; fades exclude surrounding copy
+PASS fresh-grove tablet: all rail photographs loaded
+PASS fresh-grove tablet: equal card/media heights and aligned edges
+PASS fresh-grove tablet: 2:3 frames, 14px gutters, cover and retained focal points
+PASS fresh-grove tablet: no frame resize during motion/hover
+PASS fresh-grove tablet: no rail CLS or document overflow
+PASS fresh-grove mobile: heading, caption and CTA contrast
+PASS fresh-grove mobile: customer-facing title; fades exclude surrounding copy
+PASS fresh-grove mobile: all rail photographs loaded
+PASS fresh-grove mobile: equal card/media heights and aligned edges
+PASS fresh-grove mobile: 2:3 frames, 14px gutters, cover and retained focal points
+PASS fresh-grove mobile: no frame resize during motion/hover
+PASS fresh-grove mobile: no rail CLS or document overflow
+PASS coastal-premium desktop: heading, caption and CTA contrast
+PASS coastal-premium desktop: customer-facing title; fades exclude surrounding copy
+PASS coastal-premium desktop: all rail photographs loaded
+PASS coastal-premium desktop: equal card/media heights and aligned edges
+PASS coastal-premium desktop: 2:3 frames, 14px gutters, cover and retained focal points
+PASS coastal-premium desktop: no frame resize during motion/hover
+PASS coastal-premium desktop: no rail CLS or document overflow
+PASS coastal-premium tablet: heading, caption and CTA contrast
+PASS coastal-premium tablet: customer-facing title; fades exclude surrounding copy
+PASS coastal-premium tablet: all rail photographs loaded
+PASS coastal-premium tablet: equal card/media heights and aligned edges
+PASS coastal-premium tablet: 2:3 frames, 14px gutters, cover and retained focal points
+PASS coastal-premium tablet: no frame resize during motion/hover
+PASS coastal-premium tablet: no rail CLS or document overflow
+PASS coastal-premium mobile: heading, caption and CTA contrast
+PASS coastal-premium mobile: customer-facing title; fades exclude surrounding copy
+PASS coastal-premium mobile: all rail photographs loaded
+PASS coastal-premium mobile: equal card/media heights and aligned edges
+PASS coastal-premium mobile: 2:3 frames, 14px gutters, cover and retained focal points
+PASS coastal-premium mobile: no frame resize during motion/hover
+PASS coastal-premium mobile: no rail CLS or document overflow
+PASS golden-harvest desktop: heading, caption and CTA contrast
+PASS golden-harvest desktop: customer-facing title; fades exclude surrounding copy
+PASS golden-harvest desktop: all rail photographs loaded
+PASS golden-harvest desktop: equal card/media heights and aligned edges
+PASS golden-harvest desktop: 2:3 frames, 14px gutters, cover and retained focal points
+PASS golden-harvest desktop: no frame resize during motion/hover
+PASS golden-harvest desktop: no rail CLS or document overflow
+PASS golden-harvest tablet: heading, caption and CTA contrast
+PASS golden-harvest tablet: customer-facing title; fades exclude surrounding copy
+PASS golden-harvest tablet: all rail photographs loaded
+PASS golden-harvest tablet: equal card/media heights and aligned edges
+PASS golden-harvest tablet: 2:3 frames, 14px gutters, cover and retained focal points
+PASS golden-harvest tablet: no frame resize during motion/hover
+PASS golden-harvest tablet: no rail CLS or document overflow
+PASS golden-harvest mobile: heading, caption and CTA contrast
+PASS golden-harvest mobile: customer-facing title; fades exclude surrounding copy
+PASS golden-harvest mobile: all rail photographs loaded
+PASS golden-harvest mobile: equal card/media heights and aligned edges
+PASS golden-harvest mobile: 2:3 frames, 14px gutters, cover and retained focal points
+PASS golden-harvest mobile: no frame resize during motion/hover
+PASS golden-harvest mobile: no rail CLS or document overflow
+PASS No rail runtime exceptions
+Moving People QA PASS (85 assertions; 12 theme/viewport cases)
