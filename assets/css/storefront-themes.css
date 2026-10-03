@@ -89,3 +89,16 @@ html[data-ns-theme] nav{background:var(--ns-nav)!important}
 html[data-ns-theme] nav a{color:var(--ns-heading)!important}
 html[data-ns-theme] nav button,html[data-ns-theme] nav button span{color:var(--ns-heading)!important}
 html[data-ns-theme] nav .nav-cta{color:var(--ns-cta-ink)!important;background:var(--ns-cta)!important}
+
+/* Moving People uses the active editorial surface, including captions/CTA.
+   Edge fades belong to photograph rows and must never obscure surrounding copy. */
+html[data-ns-theme] .ns-people-marquee-head h3{color:var(--ns-heading)}
+html[data-ns-theme] .ns-people-marquee-head :is(small,h3 em){color:var(--ns-accent)}
+html[data-ns-theme] :is(.ns-people-marquee-head p,.ns-people-marquee-foot span){color:var(--ns-muted)}
+html[data-ns-theme] .ns-people-marquee-foot .btn-outline{background:var(--ns-surface-2);color:var(--ns-body);border-color:var(--ns-border)}
+html[data-ns-theme] .ns-people-marquee::before,html[data-ns-theme] .ns-people-marquee::after{display:none}
+html[data-ns-theme] .ns-face-rows{position:relative}
+html[data-ns-theme] .ns-people-marquee:not(.no-edge-fade) .ns-face-rows::before,
+html[data-ns-theme] .ns-people-marquee:not(.no-edge-fade) .ns-face-rows::after{content:"";position:absolute;top:0;bottom:0;width:min(6vw,64px);z-index:4;pointer-events:none}
+html[data-ns-theme] .ns-face-rows::before{left:0;background:linear-gradient(90deg,var(--ns-section),transparent)}
+html[data-ns-theme] .ns-face-rows::after{right:0;background:linear-gradient(-90deg,var(--ns-section),transparent)}

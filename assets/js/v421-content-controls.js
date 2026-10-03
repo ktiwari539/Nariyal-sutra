@@ -42,7 +42,7 @@ function ensureStyle(){if($('#nsAdminCustomStyle'))return;const st=document.crea
 function customHost(){return document.querySelector('footer')?.parentElement||document.querySelector('main')||document.body;}
 function renderCustom(){
  const s=Store.load(),pid=pageId();ensureStyle();
- if(pid==='homepage'){const meta=(s.customSections||[]).find(x=>x.id==='CS-PEOPLE');const changed=meta&&(meta.title!=='Moving People full-picture rail'||meta.subtitle!=='A living editorial rail controlled from Admin.');if(changed){const title=$('#ns-face-title'),sub=$('[data-face-sub]');if(title&&meta.title)title.textContent=meta.title;if(sub&&meta.subtitle)sub.textContent=meta.subtitle;}}
+ if(pid==='homepage'){const meta=(s.customSections||[]).find(x=>x.id==='CS-PEOPLE');const changed=meta&&(meta.title!=='Moving People full-picture rail'||!['A living editorial rail controlled from Admin.','A living collection of people and stories connected to Nariyal Sutra.'].includes(meta.subtitle));if(changed){const title=$('#ns-face-title'),sub=$('[data-face-sub]');if(title&&meta.title)title.textContent=meta.title;if(sub&&meta.subtitle)sub.textContent=meta.subtitle;}}
  const wanted=(s.customSections||[]).filter(x=>x.id!=='CS-PEOPLE'&&x.page===pid&&x.visible!==false),ids=new Set(wanted.map(x=>x.id));
  $$('[data-admin-custom-section]').forEach(el=>{if(!ids.has(el.dataset.adminCustomSection))el.remove();});
  const host=customHost(),footer=document.querySelector('footer');if(!host)return;
