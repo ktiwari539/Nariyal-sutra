@@ -35,7 +35,7 @@ try{
   const before=await measure(),spread=(xs,key)=>Math.max(...xs.map(x=>x[key]))-Math.min(...xs.map(x=>x[key]));
   ok(`${theme} ${device}: all rail photographs loaded`,before.length>0&&before.every(r=>r.cards.length>2&&r.cards.every(x=>x.loaded)));
   ok(`${theme} ${device}: equal card/media heights and aligned edges`,before.every(r=>['height','mediaHeight','top','bottom','mediaTop','mediaBottom'].every(k=>spread(r.cards,k)<.1)));
-  ok(`${theme} ${device}: 2:3 frames, 14px gutters, cover and retained focal points`,before.every(r=>r.gap===14&&r.cards.every(x=>Math.abs(x.width/x.height-2/3)<.002&&x.fit==='cover'&&(!x.sourceFocal||x.sourceFocal===x.focal))));
+  ok(`${theme} ${device}: 2:3 frames, 14px gutters, full-photo-safe auto framing and retained focal points`,before.every(r=>r.gap===14&&r.cards.every(x=>Math.abs(x.width/x.height-2/3)<.002&&x.fit==='contain'&&(!x.sourceFocal||x.sourceFocal===x.focal))));
   const point=await p.evaluate(()=>{const e=[...document.querySelectorAll('.ns-face-card')].find(e=>{const r=e.getBoundingClientRect();return r.left>=0&&r.right<=innerWidth&&r.top>=0&&r.top<innerHeight-20});if(!e)return null;const r=e.getBoundingClientRect();return {x:r.x+r.width/2,y:Math.min(innerHeight-10,r.y+r.height/2)};});
   if(point)await p.mouse.move(point.x,point.y);await p.waitForTimeout(750);const hovered=await measure();
   ok(`${theme} ${device}: no frame resize during motion/hover`,before.every((r,j)=>r.cards.every((x,i)=>Math.abs(x.height-hovered[j].cards[i].height)<.1&&Math.abs(x.mediaHeight-hovered[j].cards[i].mediaHeight)<.1)));
