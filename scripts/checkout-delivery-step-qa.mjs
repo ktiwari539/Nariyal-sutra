@@ -19,6 +19,8 @@ try{
     page.on('pageerror',e=>{const message=String(e);if(/Failed to read the 'serviceWorker' property from 'Navigator'.*sandboxed.*allow-same-origin/i.test(message))return;errors.push(message);});
     const response=await page.goto(BASE+'/#order',{waitUntil:'domcontentloaded',timeout:30000});
     must(response&&response.ok(),size+' homepage unavailable');
+    await page.waitForFunction(()=>!!window.NSLiveCatalog,null,{timeout:5000});
+    await page.evaluate(()=>NSLiveCatalog.accept({metadata:{fromCache:false},forEach(fn){for(const key of ['tender','green','bulk'])fn({id:key,data:()=>({name:'QA '+key,price:87,stock:99,minQty:key==='bulk'?10:1,updatedAt:{seconds:2000}})});}}));
     await page.waitForFunction(()=>document.querySelectorAll('#ns-del-opts-list .ns-del-opt').length===4,null,{timeout:16000});
     const position=await page.evaluate(()=>{
       const nodes=[...document.querySelectorAll('#order .ofields > *')];
