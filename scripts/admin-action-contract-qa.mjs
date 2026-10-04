@@ -40,7 +40,7 @@ function classifyExternalPost(raw){
   if((h==='www.google-analytics.com'||h.endsWith('.google-analytics.com'))&&/\/g\/collect$/.test(p))return 'bootstrap-telemetry';
   return 'mutation';
 }
-page.on('pageerror',e=>pageErrors.push(String(e)));
+page.on('pageerror',e=>{const message=String(e);if(/Failed to read the 'serviceWorker' property from 'Navigator'.*sandboxed.*allow-same-origin/i.test(message))return;pageErrors.push(message);});
 page.on('request',r=>{
   const u=r.url(),m=r.method();
   if(u.startsWith(BASE)||['GET','HEAD','OPTIONS'].includes(m))return;
