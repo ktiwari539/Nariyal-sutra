@@ -15,5 +15,15 @@ listener(snap(101,3000));reads[0](snap(93,2000));await Promise.resolve();await P
 const r1=c.refresh(),r2=c.refresh();reads[2](snap(109,4000));await r2;reads[1](snap(102,3500));await r1;ok('Out-of-order read completion cannot overwrite latest request',c.price('tender')===109);
 c.unavailable();ok('Failure clears purchasable prices instead of falling back',c.price('tender')===null&&c.status==='unavailable');
 const html=fs.readFileSync('index.html','utf8');ok('No hard-coded initial price values',!/<span data-price-value="[^"]+">\d/.test(html));ok('No hard-coded checkout option price',!/data-price="(?:55|45)"/.test(html));ok('No bundled fallback rendering',!html.includes('catalog:defaults')&&!html.includes('merged={...defaultCatalog'));
-for(const name of ['fresh-tender-coconut.html','green-coconut.html'])ok(`${name} has no static SEO price`,!fs.readFileSync(name,'utf8').includes('"price":"55"'));
+for(const name of ['fresh-tender-coconut.html','green-coconut.html'])ok(`${name} has no static SEO price`,!fs.readFileSync(name,'utf8').includes('\"price\":\"55\"'));
+const bridge=fs.readFileSync('assets/js/v421-production-bridge.js','utf8');
+ok('Retail catalog rows use retail price only',bridge.includes("rawPrice=key==='bulk'?p.bulk:p.retail"));
+ok('Catalog rows never cross-fallback retail and bulk price',!bridge.includes('(p.retail||p.bulk)')&&!bridge.includes('(p.bulk||p.retail)'));
+ok('Active public products with invalid own price are rejected before persistence',bridge.includes('Active public products require their own valid price before saving'));
+const delivery=fs.readFileSync('ns-delivery.js','utf8');
+ok('Delivery recap refreshes on quantity input',delivery.includes("oQ.addEventListener('input', update)"));
+ok('Delivery recap refreshes on product selection',delivery.includes("product.addEventListener('change', update)"));
+ok('Delivery recap refreshes on authoritative catalog changes',delivery.includes("window.addEventListener('ns:catalog', update)"));
+const totalSource=fs.readFileSync('index.html','utf8');
+ok('Unavailable price does not become zero total',totalSource.includes('return p===null?null:q*p'));
 fs.mkdirSync('qa-artifacts/price-sync',{recursive:true});fs.writeFileSync('qa-artifacts/price-sync/state-results.json',JSON.stringify({ok:true,checks},null,2));console.log(`Price sync state QA PASS (${checks.length} assertions)`);

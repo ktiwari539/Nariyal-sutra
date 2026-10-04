@@ -771,9 +771,13 @@ function injectOrderHub(){
 function watchQty(){
   var oQ=el('oQ');
   if(!oQ) return;
-  var mo=new MutationObserver(function(){ nsDelShowOptions(); nsDelUpdateSummary(); });
+  var update=function(){ nsDelShowOptions(); nsDelUpdateSummary(); };
+  var mo=new MutationObserver(update);
   mo.observe(oQ,{attributes:true,attributeFilter:['value']});
-  oQ.addEventListener('change', function(){ nsDelShowOptions(); nsDelUpdateSummary(); });
+  oQ.addEventListener('input', update);
+  oQ.addEventListener('change', update);
+  var product=el('oPr');if(product)product.addEventListener('change', update);
+  window.addEventListener('ns:catalog', update);
 }
 
 /* ─── Init ─── */

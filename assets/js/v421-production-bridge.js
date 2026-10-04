@@ -91,11 +91,11 @@ async function persistRemote(s){
 }
 function catalogRows(s){
  const products=Array.isArray(s.products)?s.products:[],inventory=Array.isArray(s.inventory)?s.inventory:[];
- return products.map(p=>{const sku=String(p.sku||'').toUpperCase(),key=sku==='TENDER'?'tender':sku==='GREEN'?'green':sku==='BULK'?'bulk':'';if(!key)return null;const inv=inventory.find(x=>String(x.sku||'').toUpperCase()===sku)||{};return {key,name:p.name||key,shortName:p.shortName||p.name||key,description:p.description||'',mode:key==='bulk'?'bulk':'single',price:Math.max(0,Math.round(Number(key==='bulk'?(p.bulk||p.retail):(p.retail||p.bulk))||0)),minQty:Math.max(1,Math.round(Number(p.moq)||1)),stock:Math.max(0,Math.round(Number(inv.onHand)||0)),active:String(p.state||'Active').toLowerCase()!=='inactive'};}).filter(Boolean);
+ return products.map(p=>{const sku=String(p.sku||'').toUpperCase(),key=sku==='TENDER'?'tender':sku==='GREEN'?'green':sku==='BULK'?'bulk':'';if(!key)return null;const inv=inventory.find(x=>String(x.sku||'').toUpperCase()===sku)||{},rawPrice=key==='bulk'?p.bulk:p.retail,price=Number(rawPrice);return {key,name:p.name||key,shortName:p.shortName||p.name||key,description:p.description||'',mode:key==='bulk'?'bulk':'single',price:Number.isFinite(price)&&price>0?Math.round(price):0,minQty:Math.max(1,Math.round(Number(p.moq)||1)),stock:Math.max(0,Math.round(Number(inv.onHand)||0)),active:String(p.state||'Active').toLowerCase()!=='inactive'};}).filter(Boolean);
 }
 async function persistCatalog(s){
  if(!isAdmin||!remoteReady||!user||!CATALOG_ROLES.includes(role))return;
- const rows=catalogRows(s),hashInput=role==='Operations'?rows.map(r=>({key:r.key,stock:r.stock})):rows,h=safeHash(hashInput);if(h===lastCatalogHash)return;
+ const rows=catalogRows(s);if(role!=='Operations'){const invalid=rows.filter(r=>r.active&&!(Number.isFinite(r.price)&&r.price>0));if(invalid.length)throw new Error('Active public products require their own valid price before saving: '+invalid.map(r=>r.key).join(', '));}const hashInput=role==='Operations'?rows.map(r=>({key:r.key,stock:r.stock})):rows,h=safeHash(hashInput);if(h===lastCatalogHash)return;
  const batch=fsMod.writeBatch(db);
  for(const r of rows){
   const ref=fsMod.doc(db,'products',r.key);

@@ -2898,7 +2898,7 @@ function syncProductSelection(){
   calc();
 }
 function getCurrentPrice(){ return window.NSLiveCatalog.price(currentProduct()?.value); }
-function getCurrentTotal(){ var q=parseInt(document.getElementById('oQ')?.value)||1; return q*getCurrentPrice(); }
+function getCurrentTotal(){ var q=parseInt(document.getElementById('oQ')?.value)||1,p=getCurrentPrice(); return p===null?null:q*p; }
 function calc(){
   if(getCurrentPrice()===null){document.getElementById('pAmt').textContent='—';document.getElementById('pNote').textContent=window.NSLiveCatalog.status==='loading'?'Loading current price…':'Current price unavailable. Please retry.';return;}
   var q=parseInt(document.getElementById('oQ').value)||1,p=getCurrentPrice(),opt=currentProduct(),stock=productStock(opt);

@@ -1,0 +1,12 @@
+{
+  "ok": true,
+  "staticPriceSyncAssertions": 22,
+  "adminProjectionAssertions": 3,
+  "syntaxChecks": [
+    "assets/js/v421-production-bridge.js",
+    "ns-delivery.js",
+    "assets/js/ns-delivery.js"
+  ],
+  "browserQa": "blocked by execution-environment local-navigation policy",
+  "productionTouched": false
+}
