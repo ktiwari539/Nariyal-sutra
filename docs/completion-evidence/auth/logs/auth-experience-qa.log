@@ -1,0 +1,6 @@
+PASS Customer account remains closed on initial page load
+PASS Customer sound defaults off with no audio context
+PASS State transition has a bounded diagonal panel reveal
+PASS Focus moves to new state heading
+PASS Email survives auth-state change
+PASS Mismatched passwords prevent account creation

@@ -34,7 +34,7 @@ async function context({theme=themes[0],themeMode='ok',assetFail=false,delayAsse
 async function open(c,kind='customer'){
  const p=await c.newPage();p.on('pageerror',e=>errors.push(e.message));
  await p.goto(base+(kind==='customer'?'/index.html':'/admin-bcc-login.html'));
- if(kind==='customer'){await p.waitForFunction(()=>NS_CUSTOMER_CONTEXT?.ready);await p.evaluate(()=>{skipIntro();NS_CUSTOMER_OPEN_ACCOUNT();});await p.locator('#nsacct-signin').waitFor();}
+ if(kind==='customer'){await p.waitForFunction(()=>NS_CUSTOMER_CONTEXT?.ready);await p.evaluate(()=>skipIntro());await p.locator('#nsacct-trigger').click();await p.locator('#nsacct-signin').waitFor();}
  else await p.waitForFunction(()=>!document.getElementById('submit').disabled);
  await p.waitForFunction(()=>NSAuthTheme.status!=='pending');return p;
 }
@@ -73,14 +73,14 @@ for(const theme of (process.env.NS_QA_SKIP_MATRIX?[]:themes)){
  }
 }
 if(!process.env.NS_QA_SKIP_MATRIX)ok('Four themes have four different spatial compositions',new Set(compositions).size===4);
-// Slow theme response: the form is available while art is neutral, and a late answer cannot recolor it.
+// Theme resolution is bounded; pending shell is reserved and a late answer cannot recolor it.
 for(const mode of ['failure','slow','invalid','delay']){
  const c=await context({theme:'fresh-grove',themeMode:mode}),p=await c.newPage();
  await p.goto(base+'/admin-bcc-login.html',{waitUntil:'domcontentloaded'});
  if(mode==='slow'){ok('Theme loading does not disable email or password',await p.locator('#email').isEnabled()&&await p.locator('#pw').isEnabled());}
  await p.waitForTimeout(1350);
  ok(`${mode} theme lookup resolves safely`,await p.evaluate(m=>NSAuthTheme.id===(m==='delay'?'fresh-grove':'nariyal-signature'),mode));
- metrics.push({case:'theme-'+mode,cls:await p.evaluate(()=>__shifts.reduce((a,b)=>a+b,0))});
+ const cls=await p.evaluate(()=>__shifts.reduce((a,b)=>a+b,0));metrics.push({case:'theme-'+mode,cls});ok(`${mode} theme lookup has zero CLS`,cls===0);
  if(mode==='slow')await shot(p,'theme-fallback');await c.close();
 }
 const c=await context({recordVideo:{dir:out+'/video',size:{width:1440,height:1000}}}),p=await open(c);

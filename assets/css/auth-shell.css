@@ -219,8 +219,9 @@ html[data-auth-theme="golden-harvest"] .ns-auth-shell[data-auth-context="admin"]
 html[data-auth-theme="golden-harvest"] .ns-nariyal-caption{color:#765d3b;font-size:8px;bottom:-8px}
 html[data-auth-theme="golden-harvest"] .ns-auth-art-foot{color:#765d3b;margin:auto auto 0;font-size:9px}
 html[data-auth-theme="golden-harvest"] .ns-auth-line{display:none}
-/* Neutral reserved art while the bounded theme lookup resolves. Form controls remain usable. */
-html[data-auth-theme-status="pending"] .ns-auth-art{visibility:hidden}
+/* Reserve the full shell while the bounded theme lookup resolves; reveal in its final geometry. */
+html[data-auth-theme-status="pending"] :is(.ns-auth-art,.ns-auth-content){visibility:hidden}
+html[data-auth-theme-status="pending"] .ns-auth-shell::after{content:"Preparing your space…";position:absolute;inset:0;display:grid;place-items:center;color:#263f30;background:#f8f5eb;font:16px Georgia,serif}
 html[data-auth-theme-status="pending"] .ns-auth-header .ns-auth-brand,html[data-auth-theme-status="pending"] .ns-auth-header>a{color:#263f30}
 @media(max-width:1000px) and (min-width:761px){
  .ns-auth-content{padding:25px 30px}.ns-auth-art{padding:38px 25px 24px}.ns-auth-art h2{font-size:31px}.ns-nariyal-scene{width:280px;height:280px}

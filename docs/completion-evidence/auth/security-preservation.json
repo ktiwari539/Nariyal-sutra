@@ -1,0 +1,30 @@
+{
+  "ok": true,
+  "baseline": "26a8521",
+  "checks": [
+    {
+      "path": "admin-login.html",
+      "section": "scripts",
+      "sha256": "629854c37fe03506104d310ef02856cac58cacc98b3d0c3280d6771920492ab0",
+      "identical": true
+    },
+    {
+      "path": "admin-login.html",
+      "section": "form",
+      "sha256": "ffd30a0b3d64a0aec41f98800d5c8c1323ec7c34bfe5fde46f69bde81a5879ce",
+      "identical": true
+    },
+    {
+      "path": "admin-bcc-login.html",
+      "section": "scripts",
+      "sha256": "1ee8d7ff66a878363f3a2b4ea13d871a2555745b33b8484d0dae8b6550700c49",
+      "identical": true
+    },
+    {
+      "path": "admin-bcc-login.html",
+      "section": "form",
+      "sha256": "8fa906abe1b7de1655cde1e5931f0536327333e13ce24342df93e602a55ee734",
+      "identical": true
+    }
+  ]
+}

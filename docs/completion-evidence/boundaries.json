@@ -1,0 +1,9 @@
+{
+  "base": "26a852190c75f592fdff2fbaf98ec16bb26b8706",
+  "refsBefore": [
+    "refs/heads/feature/storefront-themes 26a852190c75f592fdff2fbaf98ec16bb26b8706",
+    "refs/remotes/origin/feature/storefront-themes 465bdaf40c643ffd9e43d9ea3ce946f70b73f6c1"
+  ],
+  "externalWrites": [],
+  "testing": "Local fixtures; external browser adapters intercepted"
+}

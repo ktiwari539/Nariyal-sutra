@@ -1,0 +1,114 @@
+PASS customer: actual success reaches account/destination without animation gate
+PASS customer: no audio before opt-in
+PASS customer: email typing and error feedback remain silent
+PASS customer: signature, rustle and tick scheduled only after opt-in
+PASS customer: OFF stops and suppresses subsequent cues
+PASS customer: reduced motion keeps static privacy and one-eye peek without animation
+PASS admin nariyal-signature desktop: all art loaded and visible
+PASS admin nariyal-signature desktop: subtle idle; intended element count
+PASS admin nariyal-signature desktop: gaze affects primary only
+PASS admin nariyal-signature desktop: active eyes readable at native scale
+PASS admin nariyal-signature desktop: eye closure precedes leaf; restrained turn
+PASS admin nariyal-signature desktop: eyes closed; privacy turn and leaf cover
+PASS admin nariyal-signature desktop: only one eye peeks
+PASS admin nariyal-signature desktop: Hide closes eyes immediately
+PASS admin nariyal-signature desktop: invalid login releases leaf and restores readable eyes
+PASS admin nariyal-signature desktop: editing retry clears error and restarts privacy
+PASS admin nariyal-signature desktop: repeated Enter retry restarts privacy while focus remains
+PASS admin nariyal-signature desktop: CLS 0; no overflow; decorative; selective images
+PASS admin nariyal-signature mobile: all art loaded and visible
+PASS admin nariyal-signature mobile: subtle idle; intended element count
+PASS admin nariyal-signature mobile: gaze affects primary only
+PASS admin nariyal-signature mobile: active eyes readable at native scale
+PASS admin nariyal-signature mobile: eye closure precedes leaf; restrained turn
+PASS admin nariyal-signature mobile: eyes closed; privacy turn and leaf cover
+PASS admin nariyal-signature mobile: only one eye peeks
+PASS admin nariyal-signature mobile: Hide closes eyes immediately
+PASS admin nariyal-signature mobile: invalid login releases leaf and restores readable eyes
+PASS admin nariyal-signature mobile: editing retry clears error and restarts privacy
+PASS admin nariyal-signature mobile: repeated Enter retry restarts privacy while focus remains
+PASS admin nariyal-signature mobile: CLS 0; no overflow; decorative; selective images
+PASS admin fresh-grove desktop: all art loaded and visible
+PASS admin fresh-grove desktop: subtle idle; intended element count
+PASS admin fresh-grove desktop: gaze affects primary only
+PASS admin fresh-grove desktop: active eyes readable at native scale
+PASS admin fresh-grove desktop: eye closure precedes leaf; restrained turn
+PASS admin fresh-grove desktop: eyes closed; privacy turn and leaf cover
+PASS admin fresh-grove desktop: only one eye peeks
+PASS admin fresh-grove desktop: Hide closes eyes immediately
+PASS admin fresh-grove desktop: invalid login releases leaf and restores readable eyes
+PASS admin fresh-grove desktop: editing retry clears error and restarts privacy
+PASS admin fresh-grove desktop: repeated Enter retry restarts privacy while focus remains
+PASS admin fresh-grove desktop: CLS 0; no overflow; decorative; selective images
+PASS admin fresh-grove mobile: all art loaded and visible
+PASS admin fresh-grove mobile: subtle idle; intended element count
+PASS admin fresh-grove mobile: gaze affects primary only
+PASS admin fresh-grove mobile: active eyes readable at native scale
+PASS admin fresh-grove mobile: eye closure precedes leaf; restrained turn
+PASS admin fresh-grove mobile: eyes closed; privacy turn and leaf cover
+PASS admin fresh-grove mobile: only one eye peeks
+PASS admin fresh-grove mobile: Hide closes eyes immediately
+PASS admin fresh-grove mobile: invalid login releases leaf and restores readable eyes
+PASS admin fresh-grove mobile: editing retry clears error and restarts privacy
+PASS admin fresh-grove mobile: repeated Enter retry restarts privacy while focus remains
+PASS admin fresh-grove mobile: CLS 0; no overflow; decorative; selective images
+PASS admin coastal-premium desktop: all art loaded and visible
+PASS admin coastal-premium desktop: subtle idle; intended element count
+PASS admin coastal-premium desktop: gaze affects primary only
+PASS admin coastal-premium desktop: active eyes readable at native scale
+PASS admin coastal-premium desktop: eye closure precedes leaf; restrained turn
+PASS admin coastal-premium desktop: eyes closed; privacy turn and leaf cover
+PASS admin coastal-premium desktop: only one eye peeks
+PASS admin coastal-premium desktop: Hide closes eyes immediately
+PASS admin coastal-premium desktop: invalid login releases leaf and restores readable eyes
+PASS admin coastal-premium desktop: editing retry clears error and restarts privacy
+PASS admin coastal-premium desktop: repeated Enter retry restarts privacy while focus remains
+PASS admin coastal-premium desktop: CLS 0; no overflow; decorative; selective images
+PASS admin coastal-premium mobile: all art loaded and visible
+PASS admin coastal-premium mobile: subtle idle; intended element count
+PASS admin coastal-premium mobile: gaze affects primary only
+PASS admin coastal-premium mobile: active eyes readable at native scale
+PASS admin coastal-premium mobile: eye closure precedes leaf; restrained turn
+PASS admin coastal-premium mobile: eyes closed; privacy turn and leaf cover
+PASS admin coastal-premium mobile: only one eye peeks
+PASS admin coastal-premium mobile: Hide closes eyes immediately
+PASS admin coastal-premium mobile: invalid login releases leaf and restores readable eyes
+PASS admin coastal-premium mobile: editing retry clears error and restarts privacy
+PASS admin coastal-premium mobile: repeated Enter retry restarts privacy while focus remains
+PASS admin coastal-premium mobile: CLS 0; no overflow; decorative; selective images
+PASS admin golden-harvest desktop: all art loaded and visible
+PASS admin golden-harvest desktop: subtle idle; intended element count
+PASS admin golden-harvest desktop: gaze affects primary only
+PASS admin golden-harvest desktop: active eyes readable at native scale
+PASS admin golden-harvest desktop: eye closure precedes leaf; restrained turn
+PASS admin golden-harvest desktop: eyes closed; privacy turn and leaf cover
+PASS admin golden-harvest desktop: only one eye peeks
+PASS admin golden-harvest desktop: Hide closes eyes immediately
+PASS admin golden-harvest desktop: invalid login releases leaf and restores readable eyes
+PASS admin golden-harvest desktop: editing retry clears error and restarts privacy
+PASS admin golden-harvest desktop: repeated Enter retry restarts privacy while focus remains
+PASS admin golden-harvest desktop: CLS 0; no overflow; decorative; selective images
+PASS admin golden-harvest mobile: all art loaded and visible
+PASS admin golden-harvest mobile: subtle idle; intended element count
+PASS admin golden-harvest mobile: gaze affects primary only
+PASS admin golden-harvest mobile: active eyes readable at native scale
+PASS admin golden-harvest mobile: eye closure precedes leaf; restrained turn
+PASS admin golden-harvest mobile: eyes closed; privacy turn and leaf cover
+PASS admin golden-harvest mobile: only one eye peeks
+PASS admin golden-harvest mobile: Hide closes eyes immediately
+PASS admin golden-harvest mobile: invalid login releases leaf and restores readable eyes
+PASS admin golden-harvest mobile: editing retry clears error and restarts privacy
+PASS admin golden-harvest mobile: repeated Enter retry restarts privacy while focus remains
+PASS admin golden-harvest mobile: CLS 0; no overflow; decorative; selective images
+PASS admin: actual success reaches account/destination without animation gate
+PASS admin: no audio before opt-in
+PASS admin: email typing and error feedback remain silent
+PASS admin: signature, rustle and tick scheduled only after opt-in
+PASS admin: OFF stops and suppresses subsequent cues
+PASS admin: reduced motion keeps static privacy and one-eye peek without animation
+PASS Off defeats pending audio resume race
+PASS privacy: real audio render is finite, quiet, unclipped, bounded
+PASS peek: real audio render is finite, quiet, unclipped, bounded
+PASS signature: real audio render is finite, quiet, unclipped, bounded
+PASS No Guardian runtime exceptions
+Guardian QA PASS (209 assertions)

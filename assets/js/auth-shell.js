@@ -12,15 +12,15 @@
   function object(context) {
     var id = 'ns-guardian-' + (++serial);
     function eye(x, y, side) {
-      var opening = 'M-23 1 Q-12 -10 0 -8 Q13 -9 23 0 Q10 9 -1 7 Q-13 7 -23 1Z';
+      var opening = 'M-33 1 Q-18 -15 0 -12 Q19 -14 33 0 Q16 14 -1 11 Q-20 11 -33 1Z';
       return '<g class="ns-guardian-eye ns-guardian-eye-'+side+'" transform="translate('+x+' '+y+')">'+
-        '<ellipse rx="28" ry="13" fill="#171c10" opacity=".19" filter="url(#'+id+'-shadow)"/>'+
+        '<ellipse rx="37" ry="20" fill="#171c10" opacity=".19" filter="url(#'+id+'-shadow)"/>'+
         '<g class="ns-guardian-blink"><clipPath id="'+id+'-'+side+'"><path d="'+opening+'"/></clipPath>'+
-        '<path d="'+opening+'" fill="var(--guardian-eye-well)" opacity=".48"/>'+
-        '<g class="ns-guardian-iris" clip-path="url(#'+id+'-'+side+')"><ellipse cx="3" cy="0" rx="6.8" ry="7.6" fill="url(#'+id+'-iris)"/><ellipse cx="4" cy="0" rx="2.6" ry="5" fill="#11180f"/>'+
-        '<ellipse class="ns-nariyal-glint" cx="5.3" cy="-2.6" rx="1.25" ry=".7" fill="#efdfb1" opacity=".72"/></g>'+
-        '<path d="M-24 0 Q-12 -11 0 -9 Q14 -10 24 -1" stroke="var(--guardian-eye-rim)" stroke-width="1.8" opacity=".62"/>'+
-        '<path d="M-22 3 Q-10 10 1 8 L17 5" stroke="var(--guardian-eye-rim)" stroke-width="1.2" opacity=".5"/>'+
+        '<path d="'+opening+'" fill="#11190f" opacity=".82"/>'+
+        '<g class="ns-guardian-iris" clip-path="url(#'+id+'-'+side+')"><ellipse cx="3" cy="0" rx="11" ry="13" fill="url(#'+id+'-iris)"/><ellipse cx="4" cy="0" rx="4" ry="8" fill="#11180f"/>'+
+        '<ellipse class="ns-nariyal-glint" cx="6" cy="-4" rx="2.5" ry="1.4" fill="#efdfb1" opacity=".72"/></g>'+
+        '<path d="M-34 0 Q-18 -16 0 -13 Q20 -15 34 -1" stroke="var(--guardian-eye-rim)" stroke-width="1.8" opacity=".62"/>'+
+        '<path d="M-32 3 Q-16 15 1 12 L26 6" stroke="var(--guardian-eye-rim)" stroke-width="1.2" opacity=".5"/>'+
         '<path d="M-28 -3l8 -4M18 -5l9 1M-18 11l8 2" stroke="var(--guardian-eye-rim)" opacity=".4" stroke-width=".8"/></g></g>';
     }
     function product(role) { return '<span class="ns-grove-product" data-guardian-product="'+role+'"></span>'; }
@@ -30,8 +30,8 @@
       '<radialGradient id="'+id+'-iris"><stop stop-color="var(--guardian-iris)"/><stop offset=".6" stop-color="#34432a"/><stop offset="1" stop-color="#172012"/></radialGradient>'+
       '<filter id="'+id+'-shadow"><feGaussianBlur stdDeviation="2.2"/></filter>'+
       '<filter id="'+id+'-texture" x="-10%" y="-15%" width="120%" height="130%"><feTurbulence type="fractalNoise" baseFrequency=".48" numOctaves="2" seed="17" result="grain"/><feDisplacementMap in="SourceGraphic" in2="grain" scale=".8" xChannelSelector="R" yChannelSelector="G"/></filter></defs>'+
-      '<g class="ns-nariyal-eyes" filter="url(#'+id+'-texture)">'+eye(210,156,'far')+eye(278,151,'near')+'</g>'+
-      '<g class="ns-nariyal-lids" stroke="var(--guardian-eye-rim)" stroke-width="2"><path class="ns-guardian-lid-far" d="M187 157Q209 170 233 155"/><path class="ns-guardian-lid-near" d="M255 152Q278 165 301 150"/></g></svg>'+
+      '<g class="ns-nariyal-eyes" filter="url(#'+id+'-texture)">'+eye(198,164,'far')+eye(286,158,'near')+'</g>'+
+      '<g class="ns-nariyal-lids" stroke="var(--guardian-eye-rim)" stroke-width="2"><path class="ns-guardian-lid-far" d="M166 165Q198 183 230 163"/><path class="ns-guardian-lid-near" d="M254 159Q286 177 318 157"/></g></svg>'+
       '<div class="ns-nariyal-light"></div></div></div><div class="ns-grove-leaf-rig">'+
       '<span class="ns-grove-leaf-shadow" data-guardian-leaf></span>'+
       '<span class="ns-grove-privacy-leaf" data-guardian-leaf></span></div>'+
@@ -69,7 +69,7 @@
     if (soundOn && window.NSAuthSonics) window.NSAuthSonics.play(kind, shell && shell.dataset.authContext==='admin' ? .35 : 1);
   }
   function setPose(shell, next) {
-    if (!shell || !['idle','email','privacy','peek'].includes(next) || shell.dataset.nariyalPose===next) return;
+    if (!shell || !['idle','email','privacy','peek','error','success'].includes(next) || shell.dataset.nariyalPose===next) return;
     var previous = shell.dataset.nariyalPose;
     shell.dataset.guardianPrivacy = previous==='peek' ? 'return' : 'enter';
     shell.dataset.nariyalPose = next;
@@ -79,8 +79,10 @@
     } else if (next==='peek') cue('peek', shell);
   }
   function shellOf(root) { return root && (root.matches('.ns-auth-shell') ? root : root.querySelector('.ns-auth-shell')); }
-  function pose(shell) {
+  function pose(shell, userFocus) {
     if (!shell) return;
+    if (shell.dataset.authFeedback==='error' && !userFocus) return;
+    if (userFocus) shell.dataset.authFeedback='idle';
     var focused = document.activeElement, password = focused && focused.closest('.ns-auth-password');
     // The reveal button remains within this wrapper, so keyboard toggling preserves privacy.
     var hiddenPassword = password && password.querySelector('input[type="password"]');
@@ -91,7 +93,9 @@
     var shell = shellOf(root);
     if (!shell || !['idle', 'loading', 'error', 'success'].includes(name)) return;
     var changed = shell.dataset.authFeedback !== name;
+    if (name==='idle' && shell.querySelector('.nsacct-msg.show.err,.msg.err')) return;
     shell.dataset.authFeedback = name;
+    if (name==='error' || name==='success') setPose(shell, name);
     if (name === 'success' && changed && !quiet) cue('signature', shell);
     if (name === 'success') {
       var panel = shell.closest('#nsacct-panel');
@@ -101,7 +105,11 @@
   function bind(shell) {
     if (shell.dataset.authBound) return;
     shell.dataset.authBound = 'true';
-    shell.addEventListener('focusin', function () { pose(shell); });
+    shell.addEventListener('focusin', function () { pose(shell, true); });
+    shell.addEventListener('input', function () { pose(shell, true); });
+    shell.addEventListener('pointerdown', function (event) {
+      if (event.target === document.activeElement && event.target.matches('input')) pose(shell, true);
+    });
     shell.addEventListener('focusout', function (event) {
       // Moving to Show/Hide stays in the same privacy region; avoid a transient idle cue.
       var wrapper = event.target.closest('.ns-auth-password');
@@ -110,7 +118,11 @@
     });
     // Native validation also covers autofill, paste and password-manager insertion.
     shell.addEventListener('invalid', function () { signal(shell, 'error'); }, true);
-    shell.addEventListener('submit', function () { signal(shell, 'loading'); });
+    shell.addEventListener('submit', function () {
+      signal(shell, 'loading');
+      var password = shell.querySelector('.ns-auth-password input:not(:disabled)');
+      if (password) setPose(shell, password.type==='password' ? 'privacy' : 'peek');
+    }, true);
     hydrateArt(shell);
     // Observe status CLASSES, not messages (which may contain account details).
     var observer = new MutationObserver(function () {
@@ -132,7 +144,7 @@
         toggle.textContent = reveal ? 'Hide' : 'Show'; toggle.setAttribute('aria-pressed', String(reveal));
         toggle.setAttribute('aria-label', reveal ? 'Hide password' : 'Show password');
         // Mobile Safari does not focus a clicked button; explicitly use the toggle's state.
-        var shell = shellOf(root); if (shell) setPose(shell, reveal ? 'peek' : 'privacy');
+        var shell = shellOf(root); if (shell) { shell.dataset.authFeedback='idle'; setPose(shell, reveal ? 'peek' : 'privacy'); }
       });
       wrap.appendChild(toggle);
     });

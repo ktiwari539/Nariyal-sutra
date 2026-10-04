@@ -14,7 +14,7 @@ for(const theme of ['nariyal-signature','fresh-grove','coastal-premium','golden-
   await c.route('**/.netlify/functions/published-auth-theme',r=>r.fulfill({contentType:'application/json',body:JSON.stringify({themeId:theme})}));
   for(const kind of ['customer','admin']){
    const p=await c.newPage();await p.goto(base+(kind==='customer'?'/index.html':'/admin-bcc-login.html'));
-   if(kind==='customer'){await p.waitForFunction(()=>NS_CUSTOMER_CONTEXT?.ready);await p.evaluate(()=>{skipIntro();NS_CUSTOMER_OPEN_ACCOUNT();});}
+   if(kind==='customer'){await p.waitForFunction(()=>NS_CUSTOMER_CONTEXT?.ready);await p.evaluate(()=>skipIntro());await p.locator('#nsacct-trigger').click();}
    else await p.waitForFunction(()=>!document.getElementById('submit').disabled);
    await p.waitForTimeout(500);
    const result=await p.evaluate(()=>{

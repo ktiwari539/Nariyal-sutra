@@ -1,0 +1,567 @@
+{
+  "ok": true,
+  "baseline": "26a852190c75f592fdff2fbaf98ec16bb26b8706",
+  "scale": "100%; deviceScaleFactor 1; actual component crop",
+  "shots": [
+    {
+      "revision": "before",
+      "kind": "customer",
+      "theme": "nariyal-signature",
+      "state": "idle",
+      "file": "before-customer-nariyal-signature-idle.png"
+    },
+    {
+      "revision": "before",
+      "kind": "customer",
+      "theme": "nariyal-signature",
+      "state": "email",
+      "file": "before-customer-nariyal-signature-email.png"
+    },
+    {
+      "revision": "before",
+      "kind": "customer",
+      "theme": "nariyal-signature",
+      "state": "privacy",
+      "file": "before-customer-nariyal-signature-privacy.png"
+    },
+    {
+      "revision": "before",
+      "kind": "customer",
+      "theme": "nariyal-signature",
+      "state": "peek",
+      "file": "before-customer-nariyal-signature-peek.png"
+    },
+    {
+      "revision": "before",
+      "kind": "customer",
+      "theme": "nariyal-signature",
+      "state": "error",
+      "file": "before-customer-nariyal-signature-error.png"
+    },
+    {
+      "revision": "before",
+      "kind": "admin",
+      "theme": "nariyal-signature",
+      "state": "idle",
+      "file": "before-admin-nariyal-signature-idle.png"
+    },
+    {
+      "revision": "before",
+      "kind": "admin",
+      "theme": "nariyal-signature",
+      "state": "email",
+      "file": "before-admin-nariyal-signature-email.png"
+    },
+    {
+      "revision": "before",
+      "kind": "admin",
+      "theme": "nariyal-signature",
+      "state": "privacy",
+      "file": "before-admin-nariyal-signature-privacy.png"
+    },
+    {
+      "revision": "before",
+      "kind": "admin",
+      "theme": "nariyal-signature",
+      "state": "peek",
+      "file": "before-admin-nariyal-signature-peek.png"
+    },
+    {
+      "revision": "before",
+      "kind": "admin",
+      "theme": "nariyal-signature",
+      "state": "error",
+      "file": "before-admin-nariyal-signature-error.png"
+    },
+    {
+      "revision": "before",
+      "kind": "customer",
+      "theme": "fresh-grove",
+      "state": "idle",
+      "file": "before-customer-fresh-grove-idle.png"
+    },
+    {
+      "revision": "before",
+      "kind": "customer",
+      "theme": "fresh-grove",
+      "state": "email",
+      "file": "before-customer-fresh-grove-email.png"
+    },
+    {
+      "revision": "before",
+      "kind": "customer",
+      "theme": "fresh-grove",
+      "state": "privacy",
+      "file": "before-customer-fresh-grove-privacy.png"
+    },
+    {
+      "revision": "before",
+      "kind": "customer",
+      "theme": "fresh-grove",
+      "state": "peek",
+      "file": "before-customer-fresh-grove-peek.png"
+    },
+    {
+      "revision": "before",
+      "kind": "customer",
+      "theme": "fresh-grove",
+      "state": "error",
+      "file": "before-customer-fresh-grove-error.png"
+    },
+    {
+      "revision": "before",
+      "kind": "admin",
+      "theme": "fresh-grove",
+      "state": "idle",
+      "file": "before-admin-fresh-grove-idle.png"
+    },
+    {
+      "revision": "before",
+      "kind": "admin",
+      "theme": "fresh-grove",
+      "state": "email",
+      "file": "before-admin-fresh-grove-email.png"
+    },
+    {
+      "revision": "before",
+      "kind": "admin",
+      "theme": "fresh-grove",
+      "state": "privacy",
+      "file": "before-admin-fresh-grove-privacy.png"
+    },
+    {
+      "revision": "before",
+      "kind": "admin",
+      "theme": "fresh-grove",
+      "state": "peek",
+      "file": "before-admin-fresh-grove-peek.png"
+    },
+    {
+      "revision": "before",
+      "kind": "admin",
+      "theme": "fresh-grove",
+      "state": "error",
+      "file": "before-admin-fresh-grove-error.png"
+    },
+    {
+      "revision": "before",
+      "kind": "customer",
+      "theme": "coastal-premium",
+      "state": "idle",
+      "file": "before-customer-coastal-premium-idle.png"
+    },
+    {
+      "revision": "before",
+      "kind": "customer",
+      "theme": "coastal-premium",
+      "state": "email",
+      "file": "before-customer-coastal-premium-email.png"
+    },
+    {
+      "revision": "before",
+      "kind": "customer",
+      "theme": "coastal-premium",
+      "state": "privacy",
+      "file": "before-customer-coastal-premium-privacy.png"
+    },
+    {
+      "revision": "before",
+      "kind": "customer",
+      "theme": "coastal-premium",
+      "state": "peek",
+      "file": "before-customer-coastal-premium-peek.png"
+    },
+    {
+      "revision": "before",
+      "kind": "customer",
+      "theme": "coastal-premium",
+      "state": "error",
+      "file": "before-customer-coastal-premium-error.png"
+    },
+    {
+      "revision": "before",
+      "kind": "admin",
+      "theme": "coastal-premium",
+      "state": "idle",
+      "file": "before-admin-coastal-premium-idle.png"
+    },
+    {
+      "revision": "before",
+      "kind": "admin",
+      "theme": "coastal-premium",
+      "state": "email",
+      "file": "before-admin-coastal-premium-email.png"
+    },
+    {
+      "revision": "before",
+      "kind": "admin",
+      "theme": "coastal-premium",
+      "state": "privacy",
+      "file": "before-admin-coastal-premium-privacy.png"
+    },
+    {
+      "revision": "before",
+      "kind": "admin",
+      "theme": "coastal-premium",
+      "state": "peek",
+      "file": "before-admin-coastal-premium-peek.png"
+    },
+    {
+      "revision": "before",
+      "kind": "admin",
+      "theme": "coastal-premium",
+      "state": "error",
+      "file": "before-admin-coastal-premium-error.png"
+    },
+    {
+      "revision": "before",
+      "kind": "customer",
+      "theme": "golden-harvest",
+      "state": "idle",
+      "file": "before-customer-golden-harvest-idle.png"
+    },
+    {
+      "revision": "before",
+      "kind": "customer",
+      "theme": "golden-harvest",
+      "state": "email",
+      "file": "before-customer-golden-harvest-email.png"
+    },
+    {
+      "revision": "before",
+      "kind": "customer",
+      "theme": "golden-harvest",
+      "state": "privacy",
+      "file": "before-customer-golden-harvest-privacy.png"
+    },
+    {
+      "revision": "before",
+      "kind": "customer",
+      "theme": "golden-harvest",
+      "state": "peek",
+      "file": "before-customer-golden-harvest-peek.png"
+    },
+    {
+      "revision": "before",
+      "kind": "customer",
+      "theme": "golden-harvest",
+      "state": "error",
+      "file": "before-customer-golden-harvest-error.png"
+    },
+    {
+      "revision": "before",
+      "kind": "admin",
+      "theme": "golden-harvest",
+      "state": "idle",
+      "file": "before-admin-golden-harvest-idle.png"
+    },
+    {
+      "revision": "before",
+      "kind": "admin",
+      "theme": "golden-harvest",
+      "state": "email",
+      "file": "before-admin-golden-harvest-email.png"
+    },
+    {
+      "revision": "before",
+      "kind": "admin",
+      "theme": "golden-harvest",
+      "state": "privacy",
+      "file": "before-admin-golden-harvest-privacy.png"
+    },
+    {
+      "revision": "before",
+      "kind": "admin",
+      "theme": "golden-harvest",
+      "state": "peek",
+      "file": "before-admin-golden-harvest-peek.png"
+    },
+    {
+      "revision": "before",
+      "kind": "admin",
+      "theme": "golden-harvest",
+      "state": "error",
+      "file": "before-admin-golden-harvest-error.png"
+    },
+    {
+      "revision": "after",
+      "kind": "customer",
+      "theme": "nariyal-signature",
+      "state": "idle",
+      "file": "after-customer-nariyal-signature-idle.png"
+    },
+    {
+      "revision": "after",
+      "kind": "customer",
+      "theme": "nariyal-signature",
+      "state": "email",
+      "file": "after-customer-nariyal-signature-email.png"
+    },
+    {
+      "revision": "after",
+      "kind": "customer",
+      "theme": "nariyal-signature",
+      "state": "privacy",
+      "file": "after-customer-nariyal-signature-privacy.png"
+    },
+    {
+      "revision": "after",
+      "kind": "customer",
+      "theme": "nariyal-signature",
+      "state": "peek",
+      "file": "after-customer-nariyal-signature-peek.png"
+    },
+    {
+      "revision": "after",
+      "kind": "customer",
+      "theme": "nariyal-signature",
+      "state": "error",
+      "file": "after-customer-nariyal-signature-error.png"
+    },
+    {
+      "revision": "after",
+      "kind": "admin",
+      "theme": "nariyal-signature",
+      "state": "idle",
+      "file": "after-admin-nariyal-signature-idle.png"
+    },
+    {
+      "revision": "after",
+      "kind": "admin",
+      "theme": "nariyal-signature",
+      "state": "email",
+      "file": "after-admin-nariyal-signature-email.png"
+    },
+    {
+      "revision": "after",
+      "kind": "admin",
+      "theme": "nariyal-signature",
+      "state": "privacy",
+      "file": "after-admin-nariyal-signature-privacy.png"
+    },
+    {
+      "revision": "after",
+      "kind": "admin",
+      "theme": "nariyal-signature",
+      "state": "peek",
+      "file": "after-admin-nariyal-signature-peek.png"
+    },
+    {
+      "revision": "after",
+      "kind": "admin",
+      "theme": "nariyal-signature",
+      "state": "error",
+      "file": "after-admin-nariyal-signature-error.png"
+    },
+    {
+      "revision": "after",
+      "kind": "customer",
+      "theme": "fresh-grove",
+      "state": "idle",
+      "file": "after-customer-fresh-grove-idle.png"
+    },
+    {
+      "revision": "after",
+      "kind": "customer",
+      "theme": "fresh-grove",
+      "state": "email",
+      "file": "after-customer-fresh-grove-email.png"
+    },
+    {
+      "revision": "after",
+      "kind": "customer",
+      "theme": "fresh-grove",
+      "state": "privacy",
+      "file": "after-customer-fresh-grove-privacy.png"
+    },
+    {
+      "revision": "after",
+      "kind": "customer",
+      "theme": "fresh-grove",
+      "state": "peek",
+      "file": "after-customer-fresh-grove-peek.png"
+    },
+    {
+      "revision": "after",
+      "kind": "customer",
+      "theme": "fresh-grove",
+      "state": "error",
+      "file": "after-customer-fresh-grove-error.png"
+    },
+    {
+      "revision": "after",
+      "kind": "admin",
+      "theme": "fresh-grove",
+      "state": "idle",
+      "file": "after-admin-fresh-grove-idle.png"
+    },
+    {
+      "revision": "after",
+      "kind": "admin",
+      "theme": "fresh-grove",
+      "state": "email",
+      "file": "after-admin-fresh-grove-email.png"
+    },
+    {
+      "revision": "after",
+      "kind": "admin",
+      "theme": "fresh-grove",
+      "state": "privacy",
+      "file": "after-admin-fresh-grove-privacy.png"
+    },
+    {
+      "revision": "after",
+      "kind": "admin",
+      "theme": "fresh-grove",
+      "state": "peek",
+      "file": "after-admin-fresh-grove-peek.png"
+    },
+    {
+      "revision": "after",
+      "kind": "admin",
+      "theme": "fresh-grove",
+      "state": "error",
+      "file": "after-admin-fresh-grove-error.png"
+    },
+    {
+      "revision": "after",
+      "kind": "customer",
+      "theme": "coastal-premium",
+      "state": "idle",
+      "file": "after-customer-coastal-premium-idle.png"
+    },
+    {
+      "revision": "after",
+      "kind": "customer",
+      "theme": "coastal-premium",
+      "state": "email",
+      "file": "after-customer-coastal-premium-email.png"
+    },
+    {
+      "revision": "after",
+      "kind": "customer",
+      "theme": "coastal-premium",
+      "state": "privacy",
+      "file": "after-customer-coastal-premium-privacy.png"
+    },
+    {
+      "revision": "after",
+      "kind": "customer",
+      "theme": "coastal-premium",
+      "state": "peek",
+      "file": "after-customer-coastal-premium-peek.png"
+    },
+    {
+      "revision": "after",
+      "kind": "customer",
+      "theme": "coastal-premium",
+      "state": "error",
+      "file": "after-customer-coastal-premium-error.png"
+    },
+    {
+      "revision": "after",
+      "kind": "admin",
+      "theme": "coastal-premium",
+      "state": "idle",
+      "file": "after-admin-coastal-premium-idle.png"
+    },
+    {
+      "revision": "after",
+      "kind": "admin",
+      "theme": "coastal-premium",
+      "state": "email",
+      "file": "after-admin-coastal-premium-email.png"
+    },
+    {
+      "revision": "after",
+      "kind": "admin",
+      "theme": "coastal-premium",
+      "state": "privacy",
+      "file": "after-admin-coastal-premium-privacy.png"
+    },
+    {
+      "revision": "after",
+      "kind": "admin",
+      "theme": "coastal-premium",
+      "state": "peek",
+      "file": "after-admin-coastal-premium-peek.png"
+    },
+    {
+      "revision": "after",
+      "kind": "admin",
+      "theme": "coastal-premium",
+      "state": "error",
+      "file": "after-admin-coastal-premium-error.png"
+    },
+    {
+      "revision": "after",
+      "kind": "customer",
+      "theme": "golden-harvest",
+      "state": "idle",
+      "file": "after-customer-golden-harvest-idle.png"
+    },
+    {
+      "revision": "after",
+      "kind": "customer",
+      "theme": "golden-harvest",
+      "state": "email",
+      "file": "after-customer-golden-harvest-email.png"
+    },
+    {
+      "revision": "after",
+      "kind": "customer",
+      "theme": "golden-harvest",
+      "state": "privacy",
+      "file": "after-customer-golden-harvest-privacy.png"
+    },
+    {
+      "revision": "after",
+      "kind": "customer",
+      "theme": "golden-harvest",
+      "state": "peek",
+      "file": "after-customer-golden-harvest-peek.png"
+    },
+    {
+      "revision": "after",
+      "kind": "customer",
+      "theme": "golden-harvest",
+      "state": "error",
+      "file": "after-customer-golden-harvest-error.png"
+    },
+    {
+      "revision": "after",
+      "kind": "admin",
+      "theme": "golden-harvest",
+      "state": "idle",
+      "file": "after-admin-golden-harvest-idle.png"
+    },
+    {
+      "revision": "after",
+      "kind": "admin",
+      "theme": "golden-harvest",
+      "state": "email",
+      "file": "after-admin-golden-harvest-email.png"
+    },
+    {
+      "revision": "after",
+      "kind": "admin",
+      "theme": "golden-harvest",
+      "state": "privacy",
+      "file": "after-admin-golden-harvest-privacy.png"
+    },
+    {
+      "revision": "after",
+      "kind": "admin",
+      "theme": "golden-harvest",
+      "state": "peek",
+      "file": "after-admin-golden-harvest-peek.png"
+    },
+    {
+      "revision": "after",
+      "kind": "admin",
+      "theme": "golden-harvest",
+      "state": "error",
+      "file": "after-admin-golden-harvest-error.png"
+    }
+  ]
+}

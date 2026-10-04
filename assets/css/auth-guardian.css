@@ -1,5 +1,5 @@
 /* Guardian edition: presentation only; all facial/leaf input is enum state. */
-.ns-auth-shell{--guardian-eye-well:#332b1b;--guardian-eye-rim:#806648;--guardian-iris:#776443;--guardian-gaze:.82;--guardian-peek:.7;--guardian-intensity:1;--guardian-gaze-x:5px;--guardian-gaze-y:1px;--guardian-cycle:14s;--guardian-leaf-rest:-31deg;--guardian-leaf-y:5%;--guardian-turn:-4deg}
+.ns-auth-shell{--guardian-eye-well:#332b1b;--guardian-eye-rim:#806648;--guardian-iris:#776443;--guardian-gaze:1;--guardian-peek:.96;--guardian-intensity:1;--guardian-gaze-x:5px;--guardian-gaze-y:1px;--guardian-cycle:14s;--guardian-leaf-rest:-31deg;--guardian-leaf-y:5%;--guardian-turn:-4deg}
 .ns-nariyal-scene[data-guardian-ready="false"]{visibility:hidden}
 .ns-auth-shell .ns-nariyal-scene .ns-grove-product{display:block;filter:drop-shadow(3px 10px 8px #0004)}
 .ns-auth-shell .ns-nariyal-caption{display:none}
@@ -22,16 +22,16 @@
 .ns-auth-shell[data-nariyal-pose="email"] .ns-guardian-blink{animation:nsGuardianBlink 7.8s linear 1.6s infinite}
 .ns-auth-shell[data-nariyal-pose="email"] .ns-nariyal-glint{transform:none}
 .ns-auth-shell[data-nariyal-pose="email"] .ns-nariyal-object{transform:rotateZ(calc(.9deg * var(--guardian-intensity))) rotateY(calc(2deg * var(--guardian-intensity)))}
-.ns-auth-shell[data-nariyal-pose="privacy"] .ns-nariyal-object{transform:translateX(calc(-3px * var(--guardian-intensity))) rotateZ(var(--guardian-turn)) rotateY(calc(-5deg * var(--guardian-intensity)));transition-delay:80ms}
+.ns-auth-shell[data-nariyal-pose="privacy"] .ns-nariyal-object{transform:translateX(calc(-3px * var(--guardian-intensity))) rotateZ(var(--guardian-turn)) rotateY(calc(-5deg * var(--guardian-intensity)));transition-duration:520ms;transition-delay:360ms}
 .ns-auth-shell[data-nariyal-pose="privacy"] .ns-nariyal-eyes{opacity:0;transform:none;transition:none}
-.ns-auth-shell[data-nariyal-pose="privacy"][data-guardian-privacy="enter"] .ns-nariyal-eyes{animation:nsGuardianNotice 240ms ease-out both}
-.ns-auth-shell[data-nariyal-pose="privacy"] .ns-guardian-blink{animation:none;transform:scaleY(.03);transition:transform .16s .07s}
+.ns-auth-shell[data-nariyal-pose="privacy"][data-guardian-privacy="enter"] .ns-nariyal-eyes{animation:nsGuardianNotice 420ms ease-out both}
+.ns-auth-shell[data-nariyal-pose="privacy"] .ns-guardian-blink{animation:none;transform:scaleY(.03);transition:transform .18s .18s}
 .ns-auth-shell[data-nariyal-pose="privacy"] .ns-nariyal-lids{opacity:.72}
 .ns-auth-shell[data-nariyal-pose="privacy"] .ns-grove-leaf-rig,.ns-auth-shell[data-nariyal-pose="peek"] .ns-grove-leaf-rig{animation:none}
-.ns-auth-shell[data-nariyal-pose="privacy"] :is(.ns-grove-privacy-leaf,.ns-grove-leaf-shadow){transform:translate3d(0,0,2px) rotateZ(0deg) rotateY(2deg) rotateX(-3deg);transition-duration:560ms;transition-delay:280ms}
+.ns-auth-shell[data-nariyal-pose="privacy"] :is(.ns-grove-privacy-leaf,.ns-grove-leaf-shadow){transform:translate3d(0,0,2px) rotateZ(0deg) rotateY(2deg) rotateX(-3deg);transition-duration:560ms;transition-delay:500ms}
 .ns-auth-shell[data-nariyal-pose="privacy"][data-guardian-privacy="return"] :is(.ns-grove-privacy-leaf,.ns-grove-leaf-shadow){transition-duration:280ms;transition-delay:0s}
 .ns-auth-shell[data-nariyal-pose="privacy"][data-guardian-privacy="return"] .ns-nariyal-lids{transition:none}
-.ns-auth-shell[data-nariyal-pose="peek"] .ns-nariyal-object{transform:rotateZ(calc(-.7deg * var(--guardian-intensity))) rotateY(calc(-1deg * var(--guardian-intensity)));transition-delay:0s}
+.ns-auth-shell[data-nariyal-pose="peek"] .ns-nariyal-object{transform:rotateZ(calc(-2.3deg * var(--guardian-intensity))) rotateY(calc(-1deg * var(--guardian-intensity)));transition-delay:0s}
 .ns-auth-shell[data-nariyal-pose="peek"] .ns-nariyal-eyes{opacity:var(--guardian-peek);transform:none}
 .ns-auth-shell[data-nariyal-pose="peek"] .ns-guardian-eye-far{opacity:0}
 .ns-auth-shell[data-nariyal-pose="peek"] .ns-guardian-eye-near .ns-guardian-blink{transform:scaleY(.8);transition:transform .35s .17s}
@@ -40,34 +40,38 @@
 .ns-auth-shell[data-nariyal-pose="peek"] .ns-guardian-lid-near{opacity:0}
 .ns-auth-shell[data-nariyal-pose="peek"] :is(.ns-grove-privacy-leaf,.ns-grove-leaf-shadow){transform:translate3d(0,-58%,9px) rotateZ(9deg) rotateY(-9deg) rotateX(10deg);transition-duration:640ms;transition-delay:0s}
 .ns-auth-shell[data-nariyal-pose="peek"] .ns-grove-leaf-shadow{opacity:.1;translate:5px 13px}
+.ns-auth-shell[data-nariyal-pose="error"] .ns-nariyal-eyes{opacity:var(--guardian-gaze);transform:none}
+.ns-auth-shell[data-nariyal-pose="error"] .ns-guardian-blink{animation:none;transform:scaleY(1);transition:transform .2s}
+.ns-auth-shell[data-nariyal-pose="error"] .ns-nariyal-lids{opacity:0}
+.ns-auth-shell[data-nariyal-pose="error"] :is(.ns-grove-privacy-leaf,.ns-grove-leaf-shadow){transition-delay:0s;transition-duration:550ms}
 /* Brief feedback complements the existing live error/status announcement. */
 .ns-auth-shell[data-auth-feedback="error"] .ns-nariyal-object{animation:nsGuardianConcern 700ms ease-out both}
 .ns-auth-shell[data-auth-feedback="error"] .ns-nariyal-light{animation:nsGuardianShade 700ms ease-out both}
-.ns-auth-shell[data-auth-feedback="error"][data-nariyal-pose="email"] .ns-guardian-iris{transform:translate(4px,3px)}
+.ns-auth-shell[data-auth-feedback="error"][data-nariyal-pose="error"] .ns-guardian-iris{transform:translate(4px,3px)}
 .ns-auth-shell[data-auth-feedback="success"] .ns-nariyal-object{animation:nsGuardianThanks 640ms ease-out both}
 .ns-auth-shell[data-auth-feedback="success"] .ns-nariyal-light{animation:nsGuardianBloom 640ms ease-out both}
 .ns-auth-shell[data-auth-feedback="success"] .ns-nariyal-eyes{animation:nsGuardianOpen 640ms ease-out both;transform:none}
 .ns-auth-shell[data-auth-feedback="success"] .ns-guardian-eye-far{opacity:1}
 .ns-auth-shell[data-auth-feedback="success"] .ns-guardian-blink{animation:none;transform:scaleY(1);transition:none}
 .ns-auth-shell[data-auth-feedback="success"] .ns-nariyal-lids{opacity:0}
-.ns-auth-shell[data-auth-feedback="success"] :is(.ns-grove-privacy-leaf,.ns-grove-leaf-shadow){transform:translate3d(0,7%,0) rotateZ(var(--guardian-leaf-rest)) rotateY(-6deg);transition-delay:0s;transition-duration:550ms}
+.ns-auth-shell[data-auth-feedback="success"] :is(.ns-grove-privacy-leaf,.ns-grove-leaf-shadow){transform:translate3d(0,var(--guardian-leaf-y),0) rotateZ(var(--guardian-leaf-rest)) rotateY(-6deg);transition-delay:0s;transition-duration:550ms}
 /* Art, framing, proportions, typography and timing differ with the published theme. */
 html[data-auth-theme="nariyal-signature"] .ns-auth-shell{grid-template-columns:48% 52%;--guardian-cycle:15s}
 html[data-auth-theme="nariyal-signature"] .ns-auth-art{background:radial-gradient(ellipse at 15% 45%,#285342,#0a2a20 75%)}
 html[data-auth-theme="nariyal-signature"] .ns-auth-shell[data-auth-context="customer"] .ns-nariyal-scene{width:390px;height:340px}
 html[data-auth-theme="nariyal-signature"] .ns-auth-title{font-size:40px}
-html[data-auth-theme="fresh-grove"] .ns-auth-shell{grid-template-columns:45% 55%;border-radius:32px;--guardian-eye-well:#3b4622;--guardian-eye-rim:#63803d;--guardian-iris:#8b9755;--guardian-gaze:.94;--guardian-peek:.82;--guardian-cycle:11s;--guardian-turn:-3.5deg}
+html[data-auth-theme="fresh-grove"] .ns-auth-shell{grid-template-columns:45% 55%;border-radius:32px;--guardian-eye-well:#3b4622;--guardian-eye-rim:#63803d;--guardian-iris:#8b9755;--guardian-gaze:1;--guardian-peek:1;--guardian-cycle:11s;--guardian-turn:-3.5deg}
 html[data-auth-theme="fresh-grove"] .ns-auth-content{padding-top:34px}
 html[data-auth-theme="fresh-grove"] .ns-auth-art{border-radius:210px 170px 18px 18px;margin-top:22px}
 html[data-auth-theme="fresh-grove"] .ns-auth-title{font-size:35px;letter-spacing:-.7px}
 html[data-auth-theme="fresh-grove"] .ns-auth-shell .ns-grove-privacy-leaf{filter:brightness(1.12) saturate(.86)}
 html[data-auth-theme="fresh-grove"] .ns-auth-transition :is(.ns-auth-sweep,.ns-auth-stage,.ns-nariyal-scene){animation-duration:940ms}
-html[data-auth-theme="coastal-premium"] .ns-auth-shell{grid-template-columns:43% 57%;--guardian-eye-well:#243d2d;--guardian-eye-rim:#557a4a;--guardian-iris:#68826b;--guardian-gaze:.7;--guardian-peek:.6;--guardian-cycle:19s}
+html[data-auth-theme="coastal-premium"] .ns-auth-shell{grid-template-columns:43% 57%;--guardian-eye-well:#243d2d;--guardian-eye-rim:#557a4a;--guardian-iris:#68826b;--guardian-gaze:.94;--guardian-peek:.9;--guardian-cycle:19s}
 html[data-auth-theme="coastal-premium"] .ns-auth-content{border-left:1px solid #bacac064;padding-left:56px}
 html[data-auth-theme="coastal-premium"] .ns-auth-title{font-size:38px;letter-spacing:-1.2px}
 html[data-auth-theme="coastal-premium"] .ns-auth-shell .ns-grove-privacy-leaf{filter:brightness(.78) saturate(.48)}
 html[data-auth-theme="coastal-premium"] .ns-auth-shell .ns-nariyal-orbit{border-radius:130px 130px 2px 2px}
-html[data-auth-theme="golden-harvest"] .ns-auth-shell{grid-template-columns:46% 54%;--guardian-eye-well:#3a291b;--guardian-eye-rim:#a27d49;--guardian-iris:#947348;--guardian-gaze:.78;--guardian-peek:.68;--guardian-cycle:13s}
+html[data-auth-theme="golden-harvest"] .ns-auth-shell{grid-template-columns:46% 54%;--guardian-eye-well:#3a291b;--guardian-eye-rim:#a27d49;--guardian-iris:#947348;--guardian-gaze:1;--guardian-peek:.94;--guardian-cycle:13s}
 html[data-auth-theme="golden-harvest"] .ns-auth-content{padding-top:32px}
 html[data-auth-theme="golden-harvest"] .ns-auth-topline{padding-bottom:14px;border-bottom:1px solid #cbb99166}
 html[data-auth-theme="golden-harvest"] .ns-auth-title{font-size:37px}
@@ -75,7 +79,7 @@ html[data-auth-theme="golden-harvest"] .ns-auth-shell :is(.ns-grove-privacy-leaf
 html[data-auth-theme="golden-harvest"] .ns-auth-shell .ns-grove-privacy-leaf{filter:sepia(.35) saturate(.65) brightness(.94)}
 html[data-auth-theme="golden-harvest"] .ns-auth-art{border-color:#b59b6d}
 /* Admin is 35% intensity for turns, ambient motion and audio, with subdued eye contrast. */
-html .ns-auth-shell[data-auth-context="admin"]{--guardian-intensity:.35;--guardian-turn:-1.4deg;--guardian-gaze:.3;--guardian-peek:.29;--guardian-leaf-rest:-16deg;--guardian-leaf-y:9%}
+html .ns-auth-shell[data-auth-context="admin"]{--guardian-intensity:.35;--guardian-turn:-3deg;--guardian-gaze:.78;--guardian-peek:.7;--guardian-leaf-rest:-16deg;--guardian-leaf-y:28%}
 html[data-auth-theme="nariyal-signature"] .ns-auth-shell[data-auth-context="admin"]{grid-template-columns:44% 56%}
 .ns-auth-shell[data-auth-context="admin"] :is(.ns-grove-privacy-leaf,.ns-grove-leaf-shadow){left:10%;top:28%;width:95%}
 html[data-auth-theme="golden-harvest"] .ns-auth-shell[data-auth-context="admin"] :is(.ns-grove-privacy-leaf,.ns-grove-leaf-shadow){left:10%}
@@ -87,7 +91,7 @@ html[data-auth-theme="golden-harvest"] .ns-auth-shell[data-auth-context="admin"]
 .ns-auth-shell[data-auth-context="admin"][data-nariyal-pose="privacy"] :is(.ns-grove-privacy-leaf,.ns-grove-leaf-shadow){transform:translate3d(0,0,1px) rotateZ(0deg) rotateY(1deg)}
 .ns-auth-shell[data-auth-context="admin"][data-nariyal-pose="peek"] .ns-nariyal-eyes{opacity:var(--guardian-peek);transform:none}
 .ns-auth-shell[data-auth-context="admin"][data-auth-feedback="success"] .ns-nariyal-light{animation:nsGuardianBloom 400ms ease-out both}
-.ns-auth-shell[data-auth-context="admin"] .ns-guardian-blink{animation-duration:11s}
+.ns-auth-shell[data-auth-context="admin"][data-nariyal-pose="email"] .ns-guardian-blink{animation-duration:11s}
 @keyframes nsGuardianBreath{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(0,calc(-1.6px * var(--guardian-intensity)),0)}}
 @keyframes nsGuardianDepth{0%,100%{transform:none}50%{transform:translate3d(-.6px,1px,0)}}
 @keyframes nsGuardianPalm{0%,100%{transform:rotate(0deg)}50%{transform:rotate(calc(.45deg * var(--guardian-intensity)))}}
@@ -121,8 +125,12 @@ html[data-auth-theme="golden-harvest"] .ns-auth-shell[data-auth-context="admin"]
 @media(prefers-reduced-motion:reduce){
  .ns-auth-shell *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
  .ns-auth-shell .ns-nariyal-object,.ns-auth-shell .ns-guardian-core,.ns-auth-shell .ns-guardian-iris{transform:none!important;translate:none!important;rotate:none!important}
- .ns-auth-shell .ns-nariyal-eyes{opacity:0!important}.ns-auth-shell .ns-nariyal-lids{opacity:.4!important}
+ .ns-auth-shell[data-nariyal-pose="peek"] .ns-nariyal-eyes{opacity:var(--guardian-peek)!important}
+ .ns-auth-shell[data-nariyal-pose="email"] .ns-nariyal-eyes,.ns-auth-shell[data-nariyal-pose="error"] .ns-nariyal-eyes{opacity:var(--guardian-gaze)!important}
+ .ns-auth-shell .ns-nariyal-lids{opacity:0!important}
+ .ns-auth-shell[data-nariyal-pose="privacy"] .ns-nariyal-eyes{opacity:0!important}
+ .ns-auth-shell[data-nariyal-pose="privacy"] .ns-nariyal-lids{opacity:.4!important}
  .ns-auth-shell .ns-grove-leaf-rig{transform:none!important}
  .ns-auth-shell .ns-auth-sweep{display:none!important}
- .ns-auth-shell .ns-guardian-lid-near{opacity:1!important}
+ .ns-auth-shell[data-nariyal-pose="privacy"] .ns-guardian-lid-near{opacity:1!important}
 }
