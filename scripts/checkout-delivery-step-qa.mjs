@@ -45,6 +45,7 @@ try{
     must(layout.cards.every(x=>x.right<=layout.section.right+2),size+' delivery cards overflow the panel: '+JSON.stringify(layout));
     must(/receive your order/i.test(position.stepText),size+' delivery preference heading missing');
     must(await page.locator('#ns-opt-door').getAttribute('aria-pressed')==='true',size+' door default selection missing');
+    await page.waitForFunction(()=>/delivery\s*\/\s*handover charge\s*:\s*Confirmed after serviceability review/is.test(document.querySelector('#ns-del-summary')?.textContent||''),null,{timeout:5000});
     must(/delivery\s*\/\s*handover charge\s*:\s*Confirmed after serviceability review/is.test(await page.locator('#ns-del-summary').textContent()),size+' summary misrepresents unknown delivery fees');
     await page.locator('#ns-opt-railway_station').click();
     must(await page.locator('#ns-opt-railway_station').getAttribute('aria-pressed')==='true',size+' railway selection did not persist');
