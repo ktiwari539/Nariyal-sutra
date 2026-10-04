@@ -152,6 +152,9 @@ jobs:
       - name: People profile Admin to storefront QA
         run: node scripts/people-profile-qa.mjs
         timeout-minutes: 15
+      - name: Moving People full-photo framing QA
+        run: node scripts/moving-people-layout-qa.mjs
+        timeout-minutes: 15
       - name: Checkout delivery preference layout and interaction QA
         run: node scripts/checkout-delivery-step-qa.mjs
         timeout-minutes: 5
