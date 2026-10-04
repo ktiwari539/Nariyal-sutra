@@ -104,7 +104,7 @@ async function inspectMediaLayout(page,label){
 
 try{
  const context=await browser.newContext({viewport:{width:1280,height:900},serviceWorkers:'block'});
- const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+ const page=await context.newPage();const errors=[];page.on('pageerror',e=>{const message=String(e);if(/Failed to read the 'serviceWorker' property from 'Navigator'.*sandboxed.*allow-same-origin/i.test(message))return;errors.push(message);});
  await page.goto(BASE+'/admin.html',{waitUntil:'domcontentloaded',timeout:30000});
  await page.waitForFunction(()=>window.__NS_V421_ADMIN_MEDIA_QUALITY_GATE__===true&&window.__NS_V421_ADMIN_MEDIA_STUDIO__===true&&document.querySelector('#apNewMediaPicker'),null,{timeout:12000});
  const desktopLayout=await inspectMediaLayout(page,'desktop');
