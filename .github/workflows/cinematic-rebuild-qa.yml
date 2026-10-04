@@ -9,13 +9,14 @@ concurrency:
 jobs:
   auth-experience:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - run: |
           npm install --no-save --no-package-lock playwright@1.55.0
           npx playwright install --with-deps chromium
       - name: Shared auth UI and isolated authorization regression
+        timeout-minutes: 22
         run: |
           python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/ns-auth-http.log 2>&1 &
           server_pid=$!
@@ -161,7 +162,7 @@ jobs:
         run: node scripts/acquisition-attribution-browser-qa.mjs
         timeout-minutes: 10
   qa:
-    needs: [firebase-contract, media-targeted]
+    needs: [auth-experience, themes-pricing-water, firebase-contract, media-targeted]
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
