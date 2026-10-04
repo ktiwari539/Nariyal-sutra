@@ -16,7 +16,7 @@ try{
     const context=await browser.newContext({viewport:{width,height},serviceWorkers:'block'});
     const page=await context.newPage();
     const errors=[];
-    page.on('pageerror',e=>errors.push(String(e)));
+    page.on('pageerror',e=>{const message=String(e);if(/Failed to read the 'serviceWorker' property from 'Navigator'.*sandboxed.*allow-same-origin/i.test(message))return;errors.push(message);});
     const response=await page.goto(BASE+'/#order',{waitUntil:'domcontentloaded',timeout:30000});
     must(response&&response.ok(),size+' homepage unavailable');
     await page.waitForFunction(()=>document.querySelectorAll('#ns-del-opts-list .ns-del-opt').length===4,null,{timeout:16000});

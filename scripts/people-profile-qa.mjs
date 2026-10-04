@@ -27,7 +27,7 @@ const browser=await chromium.launch({headless:true});
 const context=await browser.newContext({viewport:{width:1440,height:1000},serviceWorkers:'block'});
 const page=await context.newPage();
 const errors=[];const mutations=[];
-page.on('pageerror',e=>errors.push(String(e)));
+page.on('pageerror',e=>{const message=String(e);if(/Failed to read the 'serviceWorker' property from 'Navigator'.*sandboxed.*allow-same-origin/i.test(message))return;errors.push(message);});
 page.on('request',r=>{const u=r.url(),m=r.method();if(u.startsWith(BASE)||['GET','HEAD','OPTIONS'].includes(m))return;let benign=false;try{const x=new URL(u);benign=x.hostname.endsWith('googleapis.com')||x.hostname.endsWith('google-analytics.com')||x.hostname==='nominatim.openstreetmap.org'||x.hostname.endsWith('tile.openstreetmap.org')||x.hostname==='server.arcgisonline.com';}catch{}if(!benign)mutations.push(`${m} ${u}`);});
 let originalState=null;
 

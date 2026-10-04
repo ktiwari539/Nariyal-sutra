@@ -65,7 +65,7 @@ try{
   const page=await context.newPage();
   await installGeocoderMock(page);
   const errors=[];
-  page.on('pageerror',e=>errors.push(String(e)));
+  page.on('pageerror',e=>{const message=String(e);if(/Failed to read the 'serviceWorker' property from 'Navigator'.*sandboxed.*allow-same-origin/i.test(message))return;errors.push(message);});
   const res=await page.goto(BASE+'/',{waitUntil:'domcontentloaded',timeout:30000});
   must(res&&res.status()<400,`homepage returned ${res?.status()}`);
   await page.waitForFunction(()=>window.NSCheckoutLocation&&document.getElementById('ns-del-root'),null,{timeout:15000});

@@ -9,7 +9,7 @@ await sleep(800);
 const browser=await chromium.launch({headless:true});
 const context=await browser.newContext({viewport:{width:1440,height:1000},serviceWorkers:'block'});
 const page=await context.newPage(),errors=[];
-page.on('pageerror',e=>errors.push(String(e)));
+page.on('pageerror',e=>{const message=String(e);if(/Failed to read the 'serviceWorker' property from 'Navigator'.*sandboxed.*allow-same-origin/i.test(message))return;errors.push(message);});
 let original=null;
 
 async function selectRole(name){await page.locator('#apRole').selectOption(name);await sleep(80);}

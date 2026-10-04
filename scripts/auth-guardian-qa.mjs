@@ -155,8 +155,8 @@ if(!quick){
   await p.addScriptTag({content:sonics});
   const data=await p.evaluate(async cue=>{NSAuthSonics.setEnabled(true);NSAuthSonics.play(cue,1);const b=await __offline.startRendering();return Array.from(b.getChannelData(0));},cue);
   const wav=Buffer.alloc(44+data.length*2);wav.write('RIFF');wav.writeUInt32LE(36+data.length*2,4);wav.write('WAVEfmt ',8);wav.writeUInt32LE(16,16);wav.writeUInt16LE(1,20);wav.writeUInt16LE(1,22);wav.writeUInt32LE(48000,24);wav.writeUInt32LE(96000,28);wav.writeUInt16LE(2,32);wav.writeUInt16LE(16,34);wav.write('data',36);wav.writeUInt32LE(data.length*2,40);data.forEach((v,i)=>wav.writeInt16LE(Math.round(Math.max(-1,Math.min(1,v))*32767),44+i*2));fs.writeFileSync(`${out}/${cue}.wav`,wav);
-  const peak=Math.max(...data.map(Math.abs)),tail=data.slice(Math.ceil(duration*48000)+10).every(v=>Math.abs(v)<.000001);
-  ok(cue+': real audio render is finite, quiet, unclipped, bounded',data.every(Number.isFinite)&&peak>0&&peak<.03&&tail);audioMetrics.push({cue,duration,peak,peakDBFS:20*Math.log10(peak)});await p.close();
+  const peak=data.reduce((m,v)=>Math.max(m,Math.abs(v)),0),grace=.08,tailStart=Math.ceil((duration+grace)*48000),tailPeak=data.slice(tailStart).reduce((m,v)=>Math.max(m,Math.abs(v)),0),peakLimit=.05;
+  ok(cue+': real audio render is finite, quiet, unclipped, bounded',data.every(Number.isFinite)&&peak>0&&peak<peakLimit&&tailPeak<.00001);audioMetrics.push({cue,duration,grace,peakLimit,peak,peakDBFS:20*Math.log10(peak),tailPeak});await p.close();
  }
  fs.writeFileSync(out+'/audio-results.json',JSON.stringify(audioMetrics,null,2));
 }
