@@ -141,7 +141,7 @@ function normalizeProducts(s){
  const bySku=new Map((s.products||[]).filter(p=>!waterLeak(p)).map(p=>[String(p?.sku||'').toUpperCase(),p]));
  s.products=core.map(sku=>{
   const base=clone((defaults.products||[]).find(p=>p.sku===sku)||{sku,name:sku,price:0,moq:sku==='BULK'?10:1,priceVisible:true,state:'Active'}),saved=bySku.get(sku)||{},next={...base,...saved,sku};
-  const price=productPrice(next)||productPrice(base);
+  const rawPrice=productPrice(next)||productPrice(base),price=rawPrice>0?Math.round(rawPrice):0;
   next.price=price;next.retail=price;next.bulk=price;next.moq=Math.max(sku==='BULK'?10:1,Math.round(Number(next.moq)||1));next.priceVisible=next.priceVisible!==false;
   return next;
  });
