@@ -114,6 +114,7 @@ function queuePersist(s){pendingState=clone(s);clearTimeout(saveTimer);saveTimer
 
 Store.save=function(s){const out=originalSave(s);if(isAdmin)queuePersist(out);return out;};
 function orderFromDoc(d){const x=d.data()||{},createdAt=iso(x.createdAt),updatedAt=iso(x.updatedAt),status=String(x.status||'pending');return {id:x.orderId||d.id,orderId:x.orderId||d.id,customer:x.customerName||'Customer',customerName:x.customerName||'',email:x.email||'',phone:x.phone||'',city:x.city||'',state:x.state||'',country:x.country||'',pin:x.pin||'',address:x.address||'',product:x.productName||x.productKey||'Order',productName:x.productName||'',productKey:x.productKey||'',qty:Number(x.quantity||0),quantity:Number(x.quantity||0),unitPrice:Number(x.unitPrice||0),payment:x.paymentLabel||x.paymentType||'Awaiting',paymentLabel:x.paymentLabel||'',paymentType:x.paymentType||'',paymentStatus:x.paymentStatus||'',delivery:status.replaceAll('_',' '),status,total:Number(x.total||0),customerUid:x.customerUid||'',trackingToken:x.trackingToken||'',recurringPreference:x.recurringPreference||'',deliveryMethod:x.deliveryMethod||'',deliveryLabel:x.deliveryLabel||'',deliveryPreference:x.deliveryPreference||'',handoverPointType:x.handoverPointType||'',handoverPointName:x.handoverPointName||'',handoverPointAddress:x.handoverPointAddress||'',handoverPointLat:x.handoverPointLat??null,handoverPointLng:x.handoverPointLng??null,handoverSearchSource:x.handoverSearchSource||'',handoverNote:x.handoverNote||'',deliveryAddress:x.deliveryAddress||x.address||'',deliveryLat:x.deliveryLat??null,deliveryLng:x.deliveryLng??null,acquisition:x.acquisition||null,createdAt,updatedAt};}
+function inquiryFromDoc(d){const x=d.data()||{};return {...x,id:x.inquiryId||d.id,inquiryId:x.inquiryId||d.id,createdAt:iso(x.createdAt),updatedAt:iso(x.updatedAt),acquisition:x.acquisition||null};}
 function profileFromDoc(d){const x=d.data()||{};return {...x,id:d.id,uid:x.uid||d.id,createdAt:iso(x.createdAt),updatedAt:iso(x.updatedAt),lastLoginAt:iso(x.lastLoginAt)};}
 function followupFromDoc(d){const x=d.data()||{};return {...x,id:x.id||d.id,dueAt:iso(x.dueAt),createdAt:iso(x.createdAt),updatedAt:iso(x.updatedAt),completedAt:iso(x.completedAt)};}
 function followupEventFromDoc(d){const x=d.data()||{};return {...x,id:x.eventId||d.id,eventId:x.eventId||d.id,createdAt:iso(x.createdAt)};}
@@ -133,12 +134,13 @@ async function syncOperationalData(){
  if(CUSTOMER_ROLES.includes(role)){
  jobs.push(
    (async()=>{try{const q=fsMod.query(fsMod.collection(db,'orders'),fsMod.orderBy('createdAt','desc'),fsMod.limit(500));const snap=await fsMod.getDocs(q);s.orders=snap.docs.map(orderFromDoc);}catch(e){console.warn('[BCC] Orders sync unavailable',e);s.orders=[];}changed=true;})(),
+   (async()=>{try{const q=fsMod.query(fsMod.collection(db,'inquiries'),fsMod.orderBy('createdAt','desc'),fsMod.limit(500));const snap=await fsMod.getDocs(q);s.inquiries=snap.docs.map(inquiryFromDoc);}catch(e){console.warn('[BCC] Enquiries sync unavailable',e);s.inquiries=[];}changed=true;})(),
    (async()=>{try{const snap=await fsMod.getDocs(fsMod.collection(db,'customers'));s.customerProfiles=snap.docs.map(profileFromDoc);}catch(e){console.warn('[BCC] Customer profile sync unavailable',e);s.customerProfiles=[];}changed=true;})(),
    (async()=>{try{const snap=await fsMod.getDocs(fsMod.collection(db,'customerAdmin'));s.customerAdminRecords=snap.docs.map(d=>({id:d.id,personKey:d.id,...d.data()}));}catch(e){console.warn('[BCC] Customer CRM metadata sync unavailable',e);s.customerAdminRecords=[];}changed=true;})(),
    (async()=>{try{await loadFollowupsInto(s);}catch(e){console.warn('[BCC] Follow-ups sync unavailable',e);s.followups=[];s.followupEvents=[];}changed=true;})()
   );
  }else{
-  s.orders=[];s.customerProfiles=[];s.customerAdminRecords=[];s.followups=[];s.followupEvents=[];s.customer=emptyCustomer();changed=true;
+  s.orders=[];s.inquiries=[];s.customerProfiles=[];s.customerAdminRecords=[];s.followups=[];s.followupEvents=[];s.customer=emptyCustomer();changed=true;
  }
  if(CATALOG_ROLES.includes(role)){
   jobs.push((async()=>{try{const snap=await fsMod.getDocs(fsMod.collection(db,'products'));const by={};snap.forEach(d=>by[d.id]=d.data());const defs=[['TENDER','tender','Fresh Tender Coconut'],['GREEN','green','Green Round Coconut'],['BULK','bulk','Bulk Tender Coconut']];s.products=defs.map(([sku,key,name])=>{const p=by[key]||{};return {sku,name:p.name||name,shortName:p.shortName||'',description:p.description||'',retail:key==='bulk'?0:Number(p.price||0),bulk:Number(p.price||0),moq:Number(p.minQty||1),priceVisible:true,state:p.active===false?'Inactive':'Active'};});s.inventory=defs.map(([sku,key,name])=>{const p=by[key]||{};return {sku,name:p.name||name,node:'Live catalog',onHand:Number(p.stock||0),reserved:0,incoming:0,low:0,freshness:'Live Firestore stock',supplier:'Configured supply'};});}catch(e){console.warn('[BCC] Catalog sync unavailable',e);}changed=true;})());
@@ -151,7 +153,7 @@ async function syncOperationalData(){
   scrubDemoOperational(s);originalSave(s);
   const rows=catalogRows(s);lastCatalogHash=safeHash(role==='Operations'?rows.map(r=>({key:r.key,stock:r.stock})):rows);
   const durationMs=Math.round(performance.now()-started);
-  window.dispatchEvent(new CustomEvent('nsv421:operational-synced',{detail:{orders:(s.orders||[]).length,profiles:(s.customerProfiles||[]).length,role,durationMs}}));
+  window.dispatchEvent(new CustomEvent('nsv421:operational-synced',{detail:{orders:(s.orders||[]).length,inquiries:(s.inquiries||[]).length,profiles:(s.customerProfiles||[]).length,role,durationMs}}));
  }
 }
 async function refreshFollowups(){
