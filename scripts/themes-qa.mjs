@@ -17,7 +17,7 @@ async function contrastAudit(theme){
   const parse=s=>{const m=String(s).match(/[\d.]+/g);if(!m)return null;return[m[0],m[1],m[2],m[3]??1].map(Number);},blend=(fg,bg)=>{const a=Math.max(0,Math.min(1,fg[3]));return fg.slice(0,3).map((v,i)=>v*a+bg[i]*(1-a));},lum=c=>{const v=c.slice(0,3).map(x=>x/255).map(x=>x<=.03928?x/12.92:Math.pow((x+.055)/1.055,2.4));return .2126*v[0]+.7152*v[1]+.0722*v[2];},ratio=(a,b)=>{const x=lum(a),y=lum(b);return(Math.max(x,y)+.05)/(Math.min(x,y)+.05);};
   const roots=['nav','#collection','#price-list','#our-story','#how-to-order','#coconut-uses','#people-of-nariyal','.ns-people-marquee','.nutrition','.benefits','.why-section','.process','#faq','#order','#contact','.brand-moment','#harvest-film','#live-motion','.v23-community','footer'];
   const failures=[],seen=new Set();
-  if(themeId!=='nariyal-signature')for(const rootSel of roots){const root=document.querySelector(rootSel);if(!root)continue;for(const el of root.querySelectorAll('h1,h2,h3,h4,p,li,label,small,a,button,span,input,select,textarea,.wc-title,.wc-desc,.ps-title,.ps-desc,.cinema-point b')){const text=((el.innerText??el.textContent)||el.placeholder||'').trim();if(seen.has(el)||!text&&!el.matches('input,textarea')||text&&!/[A-Za-z0-9₹]/.test(text))continue;seen.add(el);const cs=getComputedStyle(el),r=el.getBoundingClientRect();if(cs.display==='none'||cs.visibility==='hidden'||Number(cs.opacity)<.45||r.width<2||r.height<2)continue;let bg=null,n=el,complex=false;while(n){const ns=getComputedStyle(n),c=parse(ns.backgroundColor);if(c&&c[3]>=.95){bg=c.slice(0,3);break;}if(ns.backgroundImage&&ns.backgroundImage!=='none'){complex=true;break;}n=n.parentElement;}const fg=parse(cs.color);if(!fg||!bg||complex)continue;const finalFg=blend(fg,bg),cr=ratio(finalFg,bg),large=parseFloat(cs.fontSize)>=24||parseFloat(cs.fontSize)>=18&&Number(cs.fontWeight)>=700,min=large?3:4.5;if(cr+0.05<min)failures.push({selector:rootSel,tag:el.tagName,text:text.slice(0,70),color:cs.color,background:bg.join(','),ratio:+cr.toFixed(2),minimum:min});}}
+  for(const rootSel of roots){const root=document.querySelector(rootSel);if(!root)continue;for(const el of root.querySelectorAll('h1,h2,h3,h4,p,li,label,small,a,button,span,input,select,textarea,.wc-title,.wc-desc,.ps-title,.ps-desc,.cinema-point b')){const text=((el.innerText??el.textContent)||el.placeholder||'').trim();if(seen.has(el)||!text&&!el.matches('input,textarea')||text&&!/[A-Za-z0-9₹]/.test(text))continue;seen.add(el);const cs=getComputedStyle(el),r=el.getBoundingClientRect();if(cs.display==='none'||cs.visibility==='hidden'||Number(cs.opacity)<.45||r.width<2||r.height<2)continue;let bg=null,n=el,complex=false;while(n){const ns=getComputedStyle(n),c=parse(ns.backgroundColor);if(c&&c[3]>=.95){bg=c.slice(0,3);break;}if(ns.backgroundImage&&ns.backgroundImage!=='none'){complex=true;break;}n=n.parentElement;}const fg=parse(cs.color);if(!fg||!bg||complex)continue;const finalFg=blend(fg,bg),cr=ratio(finalFg,bg),large=parseFloat(cs.fontSize)>=24||parseFloat(cs.fontSize)>=18&&Number(cs.fontWeight)>=700,min=large?3:4.5;if(cr+0.05<min)failures.push({selector:rootSel,tag:el.tagName,text:text.slice(0,70),color:cs.color,background:bg.join(','),ratio:+cr.toFixed(2),minimum:min});}}
   const root=getComputedStyle(document.documentElement),tokenPairs=[['--ns-heading','--ns-surface'],['--ns-body','--ns-surface'],['--ns-muted','--ns-surface'],['--ns-heading','--ns-page'],['--ns-body','--ns-page'],['--ns-link','--ns-page']];
   for(const [fgName,bgName] of tokenPairs){const resolveToken=name=>{const value=root.getPropertyValue(name).trim();if(!value)throw new Error('Missing active theme token '+name);const probe=document.createElement('span');probe.style.color=value;document.body.append(probe);const color=parse(getComputedStyle(probe).color);probe.remove();if(!color)throw new Error('Invalid active theme token '+name);return color;};const fg=resolveToken(fgName),bg=resolveToken(bgName);const cr=ratio(blend(fg,bg),bg);if(cr<4.5)failures.push({selector:':root',tag:'TOKEN',text:`${themeId} ${fgName} on ${bgName}`,color:root.getPropertyValue(fgName),background:root.getPropertyValue(bgName),ratio:+cr.toFixed(2),minimum:4.5});}
   return failures;
@@ -41,6 +41,19 @@ for(const id of ids){
 }
 for(let i=0;i<ids.length;i++)for(let j=i+1;j<ids.length;j++){const fields=['grid','cardDisplay','cardPadding','imageRadius','peopleGrid','headingAlign'];ok(`${ids[i]} and ${ids[j]} differ in layout`,fields.filter(k=>fingerprints[ids[i]][k]!==fingerprints[ids[j]][k]).length>=2);}
 
+async function adminContrastAudit(){
+ return page.evaluate(()=>{
+  const parse=s=>{const m=String(s).match(/[\\d.]+/g);if(!m)return null;return[m[0],m[1],m[2],m[3]??1].map(Number);};
+  const blend=(fg,bg)=>{const a=Math.max(0,Math.min(1,fg[3]));return fg.slice(0,3).map((v,i)=>v*a+bg[i]*(1-a));};
+  const lum=c=>{const v=c.slice(0,3).map(x=>x/255).map(x=>x<=.03928?x/12.92:Math.pow((x+.055)/1.055,2.4));return .2126*v[0]+.7152*v[1]+.0722*v[2];};
+  const ratio=(a,b)=>{const x=lum(a),y=lum(b);return(Math.max(x,y)+.05)/(Math.min(x,y)+.05);};
+  const roots=['.ap-content','#nsDashboardV2','.ap-view[data-view="media"]','.ap-view[data-view="themes"]','.ap-view[data-view="orders"]','.ap-view[data-view="inventory"]','.ap-view[data-view="delivery"]'];
+  const failures=[],seen=new Set();
+  for(const rootSel of roots){const root=document.querySelector(rootSel);if(!root)continue;for(const el of root.querySelectorAll('h1,h2,h3,h4,p,li,label,small,a,button,span,input,select,textarea,th,td,strong,b')){const text=((el.innerText??el.textContent)||el.placeholder||'').trim();if(seen.has(el)||(!text&&!el.matches('input,textarea'))||(text&&!/[A-Za-z0-9₹]/.test(text)))continue;seen.add(el);const cs=getComputedStyle(el),r=el.getBoundingClientRect();if(cs.display==='none'||cs.visibility==='hidden'||Number(cs.opacity)<.45||r.width<2||r.height<2)continue;let bg=null,n=el,complex=false;while(n){const ns=getComputedStyle(n),col=parse(ns.backgroundColor);if(col&&col[3]>=.95){bg=col.slice(0,3);break;}if(ns.backgroundImage&&ns.backgroundImage!=='none'&&!/gradient/i.test(ns.backgroundImage)){complex=true;break;}n=n.parentElement;}const fg=parse(cs.color);if(!fg||!bg||complex)continue;const finalFg=blend(fg,bg),cr=ratio(finalFg,bg),large=parseFloat(cs.fontSize)>=24||parseFloat(cs.fontSize)>=18&&Number(cs.fontWeight)>=700,min=large?3:4.5;if(cr+0.05<min)failures.push({root:rootSel,tag:el.tagName,text:text.slice(0,70),color:cs.color,background:bg.join(','),ratio:+cr.toFixed(2),minimum:min});}}
+  return failures;
+ });
+}
+
 await page.setViewportSize({width:1440,height:1000});await ready(`${base}/admin-preview.html`);await page.waitForFunction(()=>window.NSAdminThemes);
 ok('Business Command Center inherits the published storefront theme',await page.locator('html').getAttribute('data-ns-admin-theme')===baseline.theme);
 const adminPaletteBaseline=await page.evaluate(()=>{const cs=getComputedStyle(document.documentElement);return{bg:cs.getPropertyValue('--bg').trim(),panel:cs.getPropertyValue('--panel').trim(),accent:cs.getPropertyValue('--gold2').trim()};});
@@ -48,6 +61,15 @@ await page.evaluate(()=>{const s=NSV421Store.load();s.themeConfig={...s.themeCon
 await page.waitForFunction(()=>document.documentElement.dataset.nsAdminTheme==='golden-harvest');
 const adminPaletteGolden=await page.evaluate(()=>{const cs=getComputedStyle(document.documentElement);return{bg:cs.getPropertyValue('--bg').trim(),panel:cs.getPropertyValue('--panel').trim(),accent:cs.getPropertyValue('--gold2').trim()};});
 ok('Business Command Center palette changes with the selected storefront theme',JSON.stringify(adminPaletteBaseline)!==JSON.stringify(adminPaletteGolden));
+for(const adminTheme of ids){
+ await page.evaluate(themeId=>{const s=NSV421Store.load();s.themeConfig={...s.themeConfig,publishedTheme:themeId,manualOverride:null,schedules:[]};NSV421Store.save(s);window.dispatchEvent(new CustomEvent('nsv421:change'));},adminTheme);
+ await page.waitForFunction(themeId=>document.documentElement.dataset.nsAdminTheme===themeId,adminTheme);
+ await page.waitForTimeout(180);
+ const adminContrast=await adminContrastAudit();
+ fs.writeFileSync(`${out}/admin-${adminTheme}-contrast.json`,JSON.stringify(adminContrast,null,2));
+ if(adminContrast.length)throw new Error(`${adminTheme} Admin contrast failed (${adminContrast.length}); see contrast JSON`);
+ ok(`Business Command Center ${adminTheme} text meets computed contrast thresholds`,true);
+}
 await page.evaluate(themeId=>{const s=NSV421Store.load();s.themeConfig={...s.themeConfig,publishedTheme:themeId,manualOverride:null,schedules:[]};NSV421Store.save(s);window.dispatchEvent(new CustomEvent('nsv421:change'));},baseline.theme);
 await page.waitForFunction(themeId=>document.documentElement.dataset.nsAdminTheme===themeId,baseline.theme);
 await page.click('[data-view="themes"]');
