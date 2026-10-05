@@ -14,7 +14,7 @@ const money=v=>Number(v||0).toLocaleString('en-IN',{style:'currency',currency:'I
 const FLOW=['pending','confirmed','preparing','ready_for_dispatch','out_for_delivery','delivered'];
 const FLOW_LABEL={pending:'New',confirmed:'Confirmed',preparing:'Preparing',ready_for_dispatch:'Ready',out_for_delivery:'Out for delivery',delivered:'Delivered'};
 function state(){return Store.load();}
-function dateOf(x){const raw=x?.createdAt||x?.created_at||x?.orderDate||x?.date||x?.timestamp;const d=raw?new Date(raw):null;return d&&!Number.isNaN(+d)?d:null;}
+function dateOf(x){const raw=x?.createdAt||x?.created_at||x?.orderDate||x?.date||x?.timestamp;let d=raw?new Date(raw):null;if(d&&!Number.isNaN(+d))return d;if(local()){const demoHours={'NS-1048':1,'NS-1047':2,'NS-1046':4,'NS-1042':6},h=demoHours[String(x?.id||x?.orderId||'')];if(h){d=new Date(Date.now()-h*60*60*1000);return d;}}return null;}
 function dayKey(d){return d?`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`:'';}
 function isToday(d){return dayKey(d)===dayKey(new Date());}
 function sourceLabel(){return local()?'Preview data · local Admin state':'Admin source · production bridge';}
@@ -29,7 +29,7 @@ function metrics(s){
  const pending=orders.filter(o=>['pending','awaiting','review'].includes(statusKey(o)));
  const deliveries=orders.filter(o=>['confirmed','preparing','ready_for_dispatch','out_for_delivery'].includes(statusKey(o)));
  const low=arr(s.inventory).filter(i=>available(i)<=Number(i.low??i.lowStockThreshold??0));
- const comm=arr(s.communications).filter(c=>['Draft','Needs review','Failed'].includes(c.status)||(!c.sentAt&&c.scheduledAt&&new Date(c.scheduledAt)<=new Date()));
+ const comm=arr(s.communications).filter(c=>['Draft','Needs review','Failed'].includes(c.status||c.state)||(!c.sentAt&&c.scheduledAt&&new Date(c.scheduledAt)<=new Date()));
  const pipeline=Object.fromEntries(FLOW.map(k=>[k,orders.filter(o=>statusKey(o)===k).length]));pipeline.cancelled=orders.filter(o=>statusKey(o)==='cancelled').length;
  const knownCustomers=new Map();for(const o of orders){const k=String(o.customerUid||o.email||o.phone||o.customer||o.customerName||'').trim();if(k)knownCustomers.set(k,(knownCustomers.get(k)||0)+1);}const repeatCustomers=[...knownCustomers.values()].filter(n=>n>1).length;
  const totalPaid=orders.filter(o=>payment(o)==='paid').reduce((n,o)=>n+Number(o.total||o.amount||0),0),paidCount=orders.filter(o=>payment(o)==='paid').length;
