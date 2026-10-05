@@ -136,12 +136,13 @@ function reconcilePeople(s){
 }
 function productPrice(p){if(!p)return 0;const direct=Number(p.price);if(Number.isFinite(direct)&&direct>0)return direct;const sku=String(p.sku||'').toUpperCase();const legacy=Number(sku==='BULK'?p.bulk:p.retail);return Number.isFinite(legacy)&&legacy>0?legacy:0;}
 function normalizeProducts(s){
- const core=new Set(['TENDER','GREEN','BULK']);
+ const core=['TENDER','GREEN','BULK'];
  const waterLeak=p=>{const text=[p?.sku,p?.name,p?.id].join(' ').toUpperCase();return /COCONUT\s*WATER|WATER[-_ ]?(?:300|500)|(?:300|500)\s*ML.*(?:GLASS|BOTTLE)/.test(text);};
- s.products=(s.products||[]).filter(p=>!waterLeak(p)).map(p=>{
-  const next={...p},sku=String(next.sku||'').toUpperCase(),price=productPrice(next);
-  next.price=price;next.moq=Math.max(1,Math.round(Number(next.moq)||1));
-  if(core.has(sku)){next.retail=price;next.bulk=price;if(sku==='BULK'&&next.moq<10)next.moq=10;}
+ const bySku=new Map((s.products||[]).filter(p=>!waterLeak(p)).map(p=>[String(p?.sku||'').toUpperCase(),p]));
+ s.products=core.map(sku=>{
+  const base=clone((defaults.products||[]).find(p=>p.sku===sku)||{sku,name:sku,price:0,moq:sku==='BULK'?10:1,priceVisible:true,state:'Active'}),saved=bySku.get(sku)||{},next={...base,...saved,sku};
+  const price=productPrice(next)||productPrice(base);
+  next.price=price;next.retail=price;next.bulk=price;next.moq=Math.max(sku==='BULK'?10:1,Math.round(Number(next.moq)||1));next.priceVisible=next.priceVisible!==false;
   return next;
  });
  return s;

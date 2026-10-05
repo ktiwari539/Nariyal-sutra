@@ -11,7 +11,7 @@ const META={
 };
 let catalog={},status='loading',source=LOCAL?'local-admin':'loading',revision=0,requestId=0,connection=null;
 const valid=p=>p&&typeof p.price==='number'&&Number.isFinite(p.price)&&p.price>0;
-const price=key=>status==='ready'&&valid(catalog[key])?catalog[key].price:null;
+const price=key=>status==='ready'&&valid(catalog[key])&&catalog[key].priceVisible!==false?catalog[key].price:null;
 const timestamp=x=>x?.toMillis?x.toMillis():x?.seconds?x.seconds*1000:Date.parse(x||'')||0;
 function localCatalog(){
  const Store=window.NSV421Store;if(!Store?.load)return {};
@@ -19,7 +19,7 @@ function localCatalog(){
  for(const [sku,key,meta] of [['TENDER','tender',META.tender],['GREEN','green',META.green],['BULK','bulk',META.bulk]]){
   const p=(s.products||[]).find(x=>String(x.sku||'').toUpperCase()===sku),inv=inventory.find(x=>String(x.sku||'').toUpperCase()===sku);
   const amount=Number(Store.productPrice?Store.productPrice(p):p?.price),stock=Number(inv?.onHand);
-  next[key]={id:key,name:p?.name||meta.name,price:Number.isFinite(amount)&&amount>0?amount:0,stock:Number.isFinite(stock)?Math.max(0,stock):meta.stock,active:!!p&&String(p?.state||'Active').toLowerCase()!=='inactive',minQty:Math.max(1,Math.round(Number(p?.moq)||meta.minQty))};
+  next[key]={id:key,name:p?.name||meta.name,price:Number.isFinite(amount)&&amount>0?amount:0,priceVisible:p?.priceVisible!==false,stock:Number.isFinite(stock)?Math.max(0,stock):meta.stock,active:!!p&&String(p?.state||'Active').toLowerCase()!=='inactive',minQty:Math.max(1,Math.round(Number(p?.moq)||meta.minQty))};
  }
  return next;
 }
@@ -38,7 +38,7 @@ function render(){
  const ready=status==='ready',label=status==='loading'?'Loading current price…':'Current price unavailable — retry';
  document.documentElement.dataset.catalogStatus=status;document.documentElement.dataset.catalogSource=source;
  document.querySelectorAll('[data-price-value]').forEach(e=>{const p=price(e.dataset.priceValue);e.textContent=p===null?'—':p.toLocaleString('en-IN');e.setAttribute('aria-label',p===null?label:`₹${p}`);});
- for(const key of CORE){const p=catalog[key],available=ready&&valid(p)&&p.active!==false&&Number(p.stock)>0;
+ for(const key of CORE){const p=catalog[key],available=ready&&valid(p)&&p.active!==false&&p.priceVisible!==false&&Number(p.stock)>0;
  document.querySelectorAll(`[data-min-value="${key}"]`).forEach(e=>e.textContent=ready&&p?p.minQty||1:'—');
  document.querySelectorAll(`[data-stock-pill="${key}"]`).forEach(e=>e.textContent=!ready?'Checking availability…':available?'In stock':'Unavailable');
  const opt=document.querySelector(`#oPr option[value="${key}"]`);if(opt){opt.dataset.price=price(key)??'';opt.dataset.stock=p?.stock??0;opt.dataset.min=p?.minQty??1;opt.dataset.active=String(available);opt.disabled=!available;opt.textContent=(p?.name||opt.dataset.name||key)+(price(key)===null?' — price pending':` (₹${price(key)}/pc)`);}
