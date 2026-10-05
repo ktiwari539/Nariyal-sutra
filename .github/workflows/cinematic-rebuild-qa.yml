@@ -172,6 +172,9 @@ jobs:
       - uses: actions/checkout@v4
       - run: node scripts/predeploy-audit.mjs
         timeout-minutes: 5
+      - name: SEO and indexing contract QA
+        run: node scripts/seo-qa.mjs
+        timeout-minutes: 3
       - name: Pre-release optimization contracts
         run: node scripts/pre-release-optimization-qa.mjs
         timeout-minutes: 3
@@ -282,3 +285,22 @@ jobs:
           path: qa-artifacts/
           if-no-files-found: warn
           retention-days: 7
+      - name: Create verified SEO recovery bundle
+        if: success()
+        run: |
+          git fetch --unshallow origin || git fetch --prune origin
+          git branch -f feature/storefront-themes "$GITHUB_SHA"
+          mkdir -p qa-artifacts/recovery
+          BUNDLE="qa-artifacts/recovery/Nariyal-sutra-final-seo-${GITHUB_SHA}.bundle"
+          git bundle create "$BUNDLE" refs/heads/feature/storefront-themes
+          git bundle verify "$BUNDLE"
+          sha256sum "$BUNDLE" | tee "$BUNDLE.sha256"
+        timeout-minutes: 5
+      - name: Upload SEO recovery bundle
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: seo-recovery-bundle
+          path: qa-artifacts/recovery/
+          if-no-files-found: error
+          retention-days: 14
