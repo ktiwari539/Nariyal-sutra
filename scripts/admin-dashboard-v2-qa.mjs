@@ -34,6 +34,10 @@ try{
  must(/DEV PREVIEW/i.test(dashText),'Local dashboard does not show environment state');
  must(/Owner/i.test(dashText),'Dashboard role identity missing');
  must(/Preview data · local Admin state/i.test(dashText),'Local dashboard is not truthfully labelled as preview data');
+ must(!/Order timestamps unavailable/i.test(dashText),'Local bundled demo orders still render timestamp-unavailable KPI errors');
+ const localMetrics=await page.evaluate(()=>window.NSV421DashboardV2.metrics(window.NSV421Store.load()));
+ must(localMetrics.todayKnown===true&&localMetrics.today.length>=1,'Local dashboard does not derive usable demo timestamps');
+ must(localMetrics.comm.length>=1,'Local dashboard ignores legacy communication state field');
  const legacyKpis=page.locator('.ap-view[data-view="overview"] > .ap-kpis');must(await legacyKpis.count()>0,'Legacy KPI surface was not found');must(await legacyKpis.evaluateAll(es=>es.every(e=>e.hidden)),'Legacy hard-coded KPI row remains visible');
  const legacyGrids=page.locator('.ap-view[data-view="overview"] > .ap-grid-2');must(await legacyGrids.count()>0,'Legacy overview grid was not found');must(await legacyGrids.evaluateAll(es=>es.every(e=>e.hidden)),'Legacy demo overview grid remains visible');
  const metric=await page.evaluate(()=>window.NSV421DashboardV2.metrics(window.NSV421Store.load()));
