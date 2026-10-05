@@ -136,3 +136,17 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}.ap-app{min-heig
 @media(max-width:620px) {
   #apMediaGrid {grid-template-columns:minmax(0,1fr)!important;}
 }
+
+/* SEO audit responsive containment: dynamic canonical paths and audit states must wrap on narrow Admin screens. */
+.ap-view[data-view="seo"]{min-width:0;max-width:100%;overflow-x:hidden}
+.ap-view[data-view="seo"] .ap-seo-row{grid-template-columns:minmax(0,1.5fr) minmax(0,90px) minmax(0,120px) minmax(0,1fr)}
+.ap-view[data-view="seo"] .ap-seo-row>*{min-width:0;overflow-wrap:anywhere;word-break:break-word}
+@media(max-width:620px){
+  .ap-view[data-view="seo"] .ap-page-head{flex-direction:column}
+  .ap-view[data-view="seo"] .ap-head-actions{width:100%}
+  .ap-view[data-view="seo"] .ap-head-actions .ap-btn{flex:1 1 150px;min-width:0;white-space:normal}
+  .ap-view[data-view="seo"] .ap-seo-row{grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr);gap:8px 10px}
+}
+@media(max-width:420px){
+  .ap-view[data-view="seo"] .ap-seo-row{grid-template-columns:minmax(0,1fr)}
+}
