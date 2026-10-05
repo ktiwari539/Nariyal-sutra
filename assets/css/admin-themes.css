@@ -62,3 +62,75 @@ html[data-ns-admin-theme] .ap-open-store{color:var(--admin-accent)!important}
 html[data-ns-admin-theme="coastal-premium"] :is(.ap-search input,.ap-field input,.ap-field select,.ap-field textarea,.ap-filter,.ap-role-select){background:#0a303b!important;color:#f7f3e8!important}
 html[data-ns-admin-theme="coastal-premium"] :is(.ap-status.gray,.ns-theme-flag){background:#164956!important;color:#e7efec!important}
 html[data-ns-admin-theme="coastal-premium"] .ap-modal{background:rgba(1,12,16,.68)!important}
+
+
+/* Theme surface/contrast contract — all Admin light surfaces use theme ink;
+   dark Coastal surfaces use their light ink token. Keep this after legacy Admin styles. */
+html[data-ns-admin-theme]{
+ --admin-surface:var(--panel);
+ --admin-surface-soft:var(--panel2);
+ --admin-text:var(--ink);
+ --admin-text-muted:var(--muted);
+ --admin-border:var(--line);
+ --admin-on-accent:#fff;
+}
+html[data-ns-admin-theme] :is(
+ .ap-content,.ap-card,.ap-panel,.ap-sidecard,.ap-modal-card,.ap-table-wrap,.ap-story-card,.ap-day,
+ .ap-col,.ap-detail,.ap-list-item,.ap-version-note,.ap-media,.ap-media-card,.ap-media-body,
+ .ns-theme-card,.ns-theme-stat,.ns-schedule-list article,.ns-weekly-fields,.ns-publish-row,
+ .v37-place-preview,.v37-profile-card
+){color:var(--admin-text)!important}
+html[data-ns-admin-theme] :is(
+ .ap-card,.ap-panel,.ap-sidecard,.ap-modal-card,.ap-table-wrap,.ap-story-card,.ap-day,
+ .ap-media,.ap-media-card,.ap-media-body,.ns-theme-card,.ns-theme-stat,.ns-schedule-list article
+){background:var(--admin-surface)!important;border-color:var(--admin-border)!important}
+html[data-ns-admin-theme] :is(
+ .ap-col,.ap-detail,.ap-list-item,.ap-version-note,.ns-weekly-fields,.ns-publish-row,
+ .v37-place-preview,.v37-profile-card
+){background:var(--admin-surface-soft)!important;border-color:var(--admin-border)!important}
+html[data-ns-admin-theme] :is(
+ .ap-card,.ap-panel,.ap-sidecard,.ap-modal-card,.ap-table-wrap,.ap-story-card,.ap-day,.ap-col,
+ .ap-detail,.ap-list-item,.ap-media,.ap-media-card,.ap-media-body,.ns-theme-card,.ns-theme-stat,
+ .ns-schedule-list article,.ns-weekly-fields,.ns-publish-row,.v37-place-preview,.v37-profile-card
+) :is(h1,h2,h3,h4,h5,strong,b,label,td){color:var(--admin-text)!important}
+html[data-ns-admin-theme] :is(
+ .ap-card,.ap-panel,.ap-sidecard,.ap-modal-card,.ap-table-wrap,.ap-story-card,.ap-day,.ap-col,
+ .ap-detail,.ap-list-item,.ap-media,.ap-media-card,.ap-media-body,.ns-theme-card,.ns-theme-stat,
+ .ns-schedule-list article,.ns-weekly-fields,.ns-publish-row,.v37-place-preview,.v37-profile-card
+) :is(p,small,.ap-help,.ap-media-meta){color:var(--admin-text-muted)!important}
+html[data-ns-admin-theme] :is(input,select,textarea,.ap-filter,.ap-role-select,.ap-search input){
+ background:var(--admin-surface)!important;color:var(--admin-text)!important;border-color:var(--admin-border)!important
+}
+html[data-ns-admin-theme] :is(input,textarea)::placeholder{color:var(--admin-text-muted)!important;opacity:1}
+html[data-ns-admin-theme] :is(.ap-btn.primary,.ap-tabs button.is-active,.v37-device-tabs button.is-active,.ap-v42-filter.is-active){
+ background:var(--green)!important;color:var(--admin-on-accent)!important;border-color:var(--green)!important
+}
+html[data-ns-admin-theme] #nsDashboardV2{
+ --d-bg:var(--bg)!important;--d-panel:var(--panel)!important;--d-panel2:var(--panel2)!important;
+ --d-gold:var(--gold)!important;--d-gold2:var(--gold2)!important;--d-green:var(--green)!important;
+ --d-cream:var(--ink)!important;--d-muted:var(--muted)!important;--d-line:var(--line)!important;
+ color:var(--ink)!important
+}
+html[data-ns-admin-theme] #nsDashboardV2 :is(.ns-exec-hero,.ns-kpi,.ns-panel,.ns-dash-search){
+ background:linear-gradient(150deg,var(--panel),var(--panel2))!important;
+ color:var(--ink)!important;border-color:var(--line)!important
+}
+html[data-ns-admin-theme] #nsDashboardV2 :is(.ns-action,.ns-pipeline-stage,.ns-stat-tile,.ns-health-links button,.ns-inventory-row,.ns-activity>div,.ns-readiness>div){
+ background:var(--panel2)!important;color:var(--ink)!important;border-color:var(--line)!important
+}
+html[data-ns-admin-theme] #nsDashboardV2 :is(h2,h3,strong,b,.ns-kpi>strong,.ns-pipeline-stage strong,.ns-stat-tile strong,.ns-health-links strong){
+ color:var(--ink)!important
+}
+html[data-ns-admin-theme] #nsDashboardV2 :is(p,small,.ns-panel-head span,.ns-kpi>span,.ns-kpi>small,.ns-action span,.ns-pipeline-stage span,.ns-pipeline-stage small,.ns-stat-tile span,.ns-health-links span,.ns-inventory-row span,.ns-activity span,.ns-readiness small){
+ color:var(--muted)!important
+}
+html[data-ns-admin-theme] #nsDashboardV2 :is(.ns-exec-actions button,.ns-panel button,.ns-quick button,.ns-bars button){
+ background:var(--panel)!important;color:var(--ink)!important;border-color:var(--line)!important
+}
+html[data-ns-admin-theme] .ap-v42-media-organizer{
+ background:color-mix(in srgb,var(--panel) 94%,transparent)!important;color:var(--ink)!important;border-color:var(--line)!important
+}
+html[data-ns-admin-theme] :is(.ap-v42-media-search,.ap-v42-filter){
+ color:var(--ink)!important;border-color:var(--line)!important
+}
+html[data-ns-admin-theme] .ap-v42-media-search{background:var(--panel)!important}
