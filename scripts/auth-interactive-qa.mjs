@@ -33,10 +33,19 @@ async function context({theme=themes[0],themeMode='ok',assetFail=false,delayAsse
 }
 async function open(c,kind='customer'){
  const p=await c.newPage();p.on('pageerror',e=>errors.push(e.message));
- await p.goto(base+(kind==='customer'?'/index.html':'/admin-bcc-login.html'));
- if(kind==='customer'){await p.waitForFunction(()=>NS_CUSTOMER_CONTEXT?.ready);await p.evaluate(()=>skipIntro());await p.locator('#nsacct-trigger').click();await p.locator('#nsacct-signin').waitFor();}
- else await p.waitForFunction(()=>!document.getElementById('submit').disabled);
- await p.waitForFunction(()=>NSAuthTheme.status!=='pending');return p;
+ await p.goto(base+(kind==='customer'?'/index.html':'/admin-bcc-login.html'),{waitUntil:'domcontentloaded'});
+ if(kind==='customer'){
+  await p.waitForFunction(()=>window.NS_CUSTOMER_CONTEXT?.ready);
+  await p.evaluate(()=>{if(typeof window.skipIntro==='function')window.skipIntro();});
+  const trigger=p.locator('#nsacct-trigger'),overlay=p.locator('#nsacct-overlay'),signin=p.locator('#nsacct-signin');
+  await trigger.waitFor({state:'visible'});
+  for(let attempt=0;attempt<2;attempt++){
+   if(await signin.isVisible().catch(()=>false))break;
+   await trigger.click({force:attempt>0});
+   try{await overlay.waitFor({state:'visible',timeout:5000});await signin.waitFor({state:'visible',timeout:5000});break;}catch(e){if(attempt===1)throw e;await p.waitForTimeout(150);}
+  }
+ } else await p.waitForFunction(()=>!document.getElementById('submit').disabled);
+ await p.waitForFunction(()=>window.NSAuthTheme&&NSAuthTheme.status!=='pending');return p;
 }
 async function shot(p,name){await p.waitForTimeout(900);await p.screenshot({path:`${out}/${engine}-${name}.png`});}
 async function geometry(p){return p.evaluate(()=>{
