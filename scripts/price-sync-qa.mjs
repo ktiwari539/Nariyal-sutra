@@ -4,6 +4,10 @@ const context={window:null,document:{documentElement:{dataset:{}},readyState:'lo
 const ok=(name,condition)=>{assert.ok(condition,name);checks.push(name);};
 function snap(price,stamp=1000,metadata={fromCache:false,hasPendingWrites:false}){return{metadata,forEach(fn){for(const key of ['tender','green','bulk'])fn({id:key,data:()=>({price,stock:100,active:true,minQty:key==='bulk'?10:1,updatedAt:{seconds:stamp}})});}};}
 ok('Initial authoritative price is absent',c.price('tender')===null);
+const localContext={window:null,document:{documentElement:{dataset:{}},readyState:'loading',addEventListener(){},querySelector(){return null},querySelectorAll(){return []},getElementById(){return null}},location:{pathname:'/',hostname:'127.0.0.1'},addEventListener(){},setTimeout(){},CustomEvent:class{constructor(type,init){Object.assign(this,{type,...init})}},dispatchEvent(){},console};localContext.window=localContext;vm.createContext(localContext);vm.runInContext(source,localContext);const localCatalog=localContext.NSLiveCatalog;
+ok('Local preview uses explicit QA catalog source',localCatalog.status==='ready'&&localCatalog.source==='local-qa');
+ok('Local QA catalog exposes deterministic retail and bulk prices',localCatalog.price('tender')===55&&localCatalog.price('green')===55&&localCatalog.price('bulk')===45);
+localCatalog.unavailable();ok('Local preview cannot fall through to production or blank pricing',localCatalog.source==='local-qa'&&localCatalog.price('tender')===55);
 ok('Cached snapshot cannot become current',c.accept(snap(55,1000,{fromCache:true}))===false&&c.price('tender')===null);
 ok('Server price replaces loading state',c.accept(snap(87))&&c.price('tender')===87);
 ok('Cache cannot downgrade server price',!c.accept(snap(55,2000,{fromCache:true}))&&c.price('tender')===87);
