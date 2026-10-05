@@ -22,6 +22,7 @@ Checkpoint scope: local-only acceptance repair after manual review. No productio
 - Hardened Firestore rules so `priceVisible` is an allowed validated product field and guest order creation is rejected server-side while a product price is hidden.
 - Removed permissive fallback catalogue behavior in Firestore rules: if a required product document is missing, price/stock/active state no longer fall back to ₹55/₹45 or synthetic inventory, and guest checkout is rejected.
 - Aligned price precision end-to-end: Admin now accepts whole-rupee canonical prices only, matching Firestore/order validation instead of allowing a decimal locally and rounding it during production persistence.
+- Fixed a real Admin runtime exception caused by calling `.forEach()` on a single-element selector in product rendering; the same latent selector bug was corrected in the legacy Admin script. This exception was contaminating Media Library interaction QA.
 - Removed the core-catalogue “Add draft SKU” action because production currently supports exactly three authoritative coconut SKUs; future packaged-water products remain in their isolated workspace.
 - Verified root HTML IDs are unique and all 28 Admin navigation targets resolve to real Admin views.
 
