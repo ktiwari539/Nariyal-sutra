@@ -47,17 +47,16 @@ service cloud.firestore {
     function productPath(key) { return /databases/$(database)/documents/products/$(key); }
     function orderPath(orderId) { return /databases/$(database)/documents/orders/$(orderId); }
     function trackingPath(token) { return /databases/$(database)/documents/publicTracking/$(token); }
-    function defaultPrice(key) { return key == 'bulk' ? 45 : 55; }
-    function defaultMin(key) { return key == 'bulk' ? 10 : 1; }
-    function catalogPrice(key) { return exists(productPath(key)) ? get(productPath(key)).data.price : defaultPrice(key); }
-    function catalogMin(key) { return exists(productPath(key)) ? get(productPath(key)).data.minQty : defaultMin(key); }
-    function catalogActive(key) { return exists(productPath(key)) ? get(productPath(key)).data.active == true : true; }
+    function catalogExists(key) { return exists(productPath(key)); }
+    function catalogPrice(key) { return catalogExists(key) ? get(productPath(key)).data.price : 0; }
+    function catalogMin(key) { return catalogExists(key) ? get(productPath(key)).data.minQty : 1; }
+    function catalogActive(key) { return catalogExists(key) && get(productPath(key)).data.active == true; }
     function catalogPriceVisible(key) {
-      return !exists(productPath(key))
-        || !get(productPath(key)).data.keys().hasAny(['priceVisible'])
-        || get(productPath(key)).data.priceVisible == true;
+      return catalogExists(key)
+        && (!get(productPath(key)).data.keys().hasAny(['priceVisible'])
+          || get(productPath(key)).data.priceVisible == true);
     }
-    function catalogStock(key) { return exists(productPath(key)) ? get(productPath(key)).data.stock : 10000; }
+    function catalogStock(key) { return catalogExists(key) ? get(productPath(key)).data.stock : 0; }
 
     function validProduct(productKey) {
       let d = request.resource.data;
@@ -111,6 +110,7 @@ service cloud.firestore {
         && d.deliveryAddress is string && d.deliveryAddress == d.address
         && d.notes is string && d.notes.size() <= 500
         && d.productKey in ['tender','green','bulk']
+        && catalogExists(d.productKey)
         && d.productName is string && d.productName.size() <= 120
         && d.quantity is int && d.quantity >= catalogMin(d.productKey) && d.quantity <= 10000
         && d.quantity <= catalogStock(d.productKey) && catalogActive(d.productKey) && catalogPriceVisible(d.productKey)

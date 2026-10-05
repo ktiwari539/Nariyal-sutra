@@ -166,6 +166,9 @@ try{
   const guest=env.unauthenticatedContext().firestore();
   await assertSucceeds(guestCheckout(guest));
   must((await getDoc(doc(guest,'publicTracking',TOKEN))).exists(),'Exact tracking token GET must remain public-readable');
+  await env.withSecurityRulesDisabled(async ctx=>deleteDoc(doc(ctx.firestore(),'products/tender')));
+  await assertFails(guestCheckout(guest,'NS-2026-MISSING01','9'.repeat(48)));
+  await seedCatalog();
   await seed('products/tender',{name:'Fresh Tender Coconut',price:55,priceVisible:false,minQty:1,stock:150,active:true,updatedAt:new Date()});
   await assertFails(guestCheckout(guest,'NS-2026-HIDDEN01','h'.repeat(48)));
   await seedCatalog();

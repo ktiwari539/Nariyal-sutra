@@ -50,6 +50,7 @@ has(rules,[
   'd.actorRole == currentRole()',
   'd.timestamp == request.time',
   'validProduct(productKey)',
+  'catalogExists(d.productKey)',
   'catalogPriceVisible(d.productKey)',
   "'priceVisible'",
   'd.updatedBy == request.auth.uid',
