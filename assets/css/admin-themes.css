@@ -2,3 +2,63 @@
 .ns-schedule-layout{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:14px;margin-top:16px}.ns-schedule-form .ap-row{margin-bottom:10px}.ns-weekly-fields{padding:12px;border:1px solid var(--line);border-radius:10px;background:#f8faf6;margin-bottom:12px}.ns-weekly-fields>label{font-size:9px;font-weight:700}.ns-day-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin:8px 0 10px}.ns-day-grid label{display:block}.ns-day-grid input{position:absolute;opacity:0}.ns-day-grid span{display:block;padding:7px 3px;text-align:center;border:1px solid var(--line);border-radius:7px;background:#fff;font-size:8px}.ns-day-grid input:checked+span{background:#173d24;color:#fff;border-color:#173d24}.ns-enabled{display:flex;gap:7px;align-items:center;margin-bottom:12px;font-size:9px}.ns-form-note{margin:10px 0 0;color:var(--muted);font-size:9px;line-height:1.5}.ns-schedule-list{display:grid;gap:9px}.ns-schedule-list article{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;border:1px solid var(--line);border-radius:10px;background:#fff}.ns-schedule-list article span,.ns-schedule-list article small{display:block;margin-top:3px;color:var(--muted);font-size:8px}.ns-override-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;padding:16px;border:1px solid #e8c5bd;border-radius:12px;background:#fff7f4}.ns-override-row p{margin:4px 0 0;font-size:9px;color:#76564f}
 @media(max-width:1200px){.ns-themes-summary{grid-template-columns:repeat(3,1fr)}.ns-schedule-layout{grid-template-columns:1fr}}@media(max-width:1050px){.ns-theme-grid{grid-template-columns:1fr}.ns-theme-card-body p{min-height:0}}@media(max-width:760px){.ns-themes-summary{grid-template-columns:1fr}.ns-theme-frame{height:580px}.ns-theme-stage{padding:8px}.ns-publish-row,.ns-override-row,.ns-schedule-list article{align-items:flex-start;flex-direction:column}.ns-day-grid{grid-template-columns:repeat(4,1fr)}}
 .ns-theme-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.ns-theme-swatch.harvest{background:linear-gradient(145deg,#fff9ea,#e7c586);color:#4b321d;border-radius:60px 60px 0 0}.ns-theme-frame.tablet{width:768px}.ns-theme-frame.desktop{min-width:1000px}.ns-weekly-fields summary{cursor:pointer;font-weight:700;margin-bottom:12px}.ns-day-grid input:focus-visible+span{outline:3px solid #173d24;outline-offset:2px}@media(max-width:1100px){.ns-theme-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:650px){.ns-theme-grid{grid-template-columns:1fr}}
+
+
+/* Business Command Center inherits the same effective storefront theme.
+   These variables deliberately keep data-heavy Admin surfaces higher-contrast than marketing layouts. */
+html[data-ns-admin-theme="nariyal-signature"]{
+ --bg:#eef1ea;--panel:#fff;--panel2:#f7f8f4;--ink:#172016;--muted:#657061;--line:#d8e0d5;
+ --green:#173d24;--green2:#0b2716;--sage:#dfe9dc;--gold:#bb8a2c;--gold2:#e7c768;
+ --admin-sidebar-1:#11331e;--admin-sidebar-2:#0b2716;--admin-top:#eef1ea;--admin-soft:#f7f8f4;--admin-accent:#e7c768;
+}
+html[data-ns-admin-theme="fresh-grove"]{
+ --bg:#f7f1df;--panel:#fffdf7;--panel2:#eef3e8;--ink:#173824;--muted:#526355;--line:#b9c6b3;
+ --green:#17452b;--green2:#123923;--sage:#dce9d8;--gold:#79511c;--gold2:#b7873a;
+ --admin-sidebar-1:#1d5535;--admin-sidebar-2:#123923;--admin-top:#faf7ec;--admin-soft:#f2f6ed;--admin-accent:#d7b46a;
+}
+html[data-ns-admin-theme="golden-harvest"]{
+ --bg:#f8f0df;--panel:#fffdf5;--panel2:#f4e7ce;--ink:#4b321d;--muted:#6a5439;--line:#c9af82;
+ --green:#684522;--green2:#4d321c;--sage:#efe0bf;--gold:#80551f;--gold2:#c99a4f;
+ --admin-sidebar-1:#674522;--admin-sidebar-2:#4b321d;--admin-top:#fff8e9;--admin-soft:#f7ecd5;--admin-accent:#e0bd79;
+}
+html[data-ns-admin-theme="coastal-premium"]{
+ color-scheme:dark;
+ --bg:#061e27;--panel:#0c3440;--panel2:#123f4b;--ink:#f7f3e8;--muted:#bfd0cf;--line:#356977;
+ --green:#0d5868;--green2:#06313d;--sage:#164956;--gold:#d9b875;--gold2:#f0d59c;
+ --admin-sidebar-1:#062d38;--admin-sidebar-2:#041c24;--admin-top:#082a34;--admin-soft:#123f4b;--admin-accent:#edcc8d;
+ --shadow:0 18px 45px rgba(0,0,0,.25);
+}
+html[data-ns-admin-theme] body,
+html[data-ns-admin-theme] .ap-main{background:var(--bg)!important;color:var(--ink)!important}
+html[data-ns-admin-theme] .ap-sidebar{background:linear-gradient(180deg,var(--admin-sidebar-1),var(--admin-sidebar-2))!important}
+html[data-ns-admin-theme] .ap-topbar{background:color-mix(in srgb,var(--admin-top) 93%,transparent)!important;border-color:var(--line)!important}
+html[data-ns-admin-theme] :is(.ap-card,.ap-panel,.ap-sidecard,.ap-modal-card,.ap-table-wrap,.ap-story-card,.ap-day,.ns-theme-card,.ns-theme-stat,.ns-schedule-list article){
+ background:var(--panel)!important;color:var(--ink)!important;border-color:var(--line)!important
+}
+html[data-ns-admin-theme] :is(.ap-list-item,.ap-detail,.ap-preview-track,.ap-col,.ap-version-note,.v37-place-preview,.v37-profile-card,.ns-theme-stage,.ns-weekly-fields,.ns-publish-row){
+ background:var(--panel2)!important;color:var(--ink)!important;border-color:var(--line)!important
+}
+html[data-ns-admin-theme] :is(.ap-btn,.ap-icon-btn,.ap-role-select,.ap-filter,.ap-field input,.ap-field select,.ap-field textarea,.ap-tabs button,.ap-story-actions button,.ap-day-add,.v37-field select,.v37-dest,.v37-device-tabs button,.v37-quick-grid button,.v37-notify-list button){
+ background:var(--panel)!important;color:var(--ink)!important;border-color:var(--line)!important
+}
+html[data-ns-admin-theme] :is(.ap-btn.primary,.ap-tabs button.is-active,.v37-device-tabs button.is-active){
+ background:var(--green)!important;color:#fff!important;border-color:var(--green)!important
+}
+html[data-ns-admin-theme] :is(.ap-page-head p,.ap-panel-head span,.ap-kpi-label,.ap-list-item span,.ap-sidecard p,.ap-detail label,.ap-field label,.ap-help,.ap-media-meta,.ap-version-note,.v37-field small,.v37-preview-head small,.v37-profile-card span,.ns-theme-stat span,.ns-theme-stat small,.ns-theme-card-body p,.ns-preview-toolbar small,.ns-publish-row p,.ns-form-note,.ns-schedule-list article span,.ns-schedule-list article small){
+ color:var(--muted)!important
+}
+html[data-ns-admin-theme] .ap-kpi-ico{background:var(--sage)!important;color:var(--green)!important}
+html[data-ns-admin-theme] .ap-nav button.is-active{background:linear-gradient(90deg,color-mix(in srgb,var(--admin-accent) 22%,transparent),rgba(255,255,255,.06))!important;box-shadow:inset 3px 0 0 var(--admin-accent)!important}
+html[data-ns-admin-theme] .ap-mark,
+html[data-ns-admin-theme] .ap-avatar,
+html[data-ns-admin-theme] .v37-profile-dot,
+html[data-ns-admin-theme] .v37-profile-avatar{background:linear-gradient(145deg,var(--gold),var(--gold2))!important;color:var(--green2)!important}
+html[data-ns-admin-theme] .ap-table th{background:var(--panel2)!important;color:var(--muted)!important;border-color:var(--line)!important}
+html[data-ns-admin-theme] .ap-table td{border-color:var(--line)!important;color:var(--ink)!important}
+html[data-ns-admin-theme] .ap-table tbody tr:hover{background:var(--panel2)!important}
+html[data-ns-admin-theme] .ap-bar{background:linear-gradient(180deg,var(--gold2),var(--green))!important}
+html[data-ns-admin-theme] .ap-divider{background:var(--line)!important}
+html[data-ns-admin-theme] .ap-open-store{color:var(--admin-accent)!important}
+html[data-ns-admin-theme="coastal-premium"] :is(.ap-search input,.ap-field input,.ap-field select,.ap-field textarea,.ap-filter,.ap-role-select){background:#0a303b!important;color:#f7f3e8!important}
+html[data-ns-admin-theme="coastal-premium"] :is(.ap-status.gray,.ns-theme-flag){background:#164956!important;color:#e7efec!important}
+html[data-ns-admin-theme="coastal-premium"] .ap-modal{background:rgba(1,12,16,.68)!important}
