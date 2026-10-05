@@ -289,7 +289,8 @@ jobs:
         if: success()
         run: |
           git fetch --unshallow origin || git fetch --prune origin
-          git branch -f feature/storefront-themes "$GITHUB_SHA"
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git rev-parse refs/heads/feature/storefront-themes)" = "$GITHUB_SHA"
           mkdir -p qa-artifacts/recovery
           BUNDLE="qa-artifacts/recovery/Nariyal-sutra-final-seo-${GITHUB_SHA}.bundle"
           git bundle create "$BUNDLE" refs/heads/feature/storefront-themes
