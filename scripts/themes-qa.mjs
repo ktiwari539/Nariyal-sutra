@@ -41,7 +41,16 @@ for(const id of ids){
 }
 for(let i=0;i<ids.length;i++)for(let j=i+1;j<ids.length;j++){const fields=['grid','cardDisplay','cardPadding','imageRadius','peopleGrid','headingAlign'];ok(`${ids[i]} and ${ids[j]} differ in layout`,fields.filter(k=>fingerprints[ids[i]][k]!==fingerprints[ids[j]][k]).length>=2);}
 
-await page.setViewportSize({width:1440,height:1000});await ready(`${base}/admin-preview.html`);await page.waitForFunction(()=>window.NSAdminThemes);await page.click('[data-view="themes"]');
+await page.setViewportSize({width:1440,height:1000});await ready(`${base}/admin-preview.html`);await page.waitForFunction(()=>window.NSAdminThemes);
+ok('Business Command Center inherits the published storefront theme',await page.locator('html').getAttribute('data-ns-admin-theme')===baseline.theme);
+const adminPaletteBaseline=await page.evaluate(()=>{const cs=getComputedStyle(document.documentElement);return{bg:cs.getPropertyValue('--bg').trim(),panel:cs.getPropertyValue('--panel').trim(),accent:cs.getPropertyValue('--gold2').trim()};});
+await page.evaluate(()=>{const s=NSV421Store.load();s.themeConfig={...s.themeConfig,publishedTheme:'golden-harvest',manualOverride:null,schedules:[]};NSV421Store.save(s);window.dispatchEvent(new CustomEvent('nsv421:change'));});
+await page.waitForFunction(()=>document.documentElement.dataset.nsAdminTheme==='golden-harvest');
+const adminPaletteGolden=await page.evaluate(()=>{const cs=getComputedStyle(document.documentElement);return{bg:cs.getPropertyValue('--bg').trim(),panel:cs.getPropertyValue('--panel').trim(),accent:cs.getPropertyValue('--gold2').trim()};});
+ok('Business Command Center palette changes with the selected storefront theme',JSON.stringify(adminPaletteBaseline)!==JSON.stringify(adminPaletteGolden));
+await page.evaluate(themeId=>{const s=NSV421Store.load();s.themeConfig={...s.themeConfig,publishedTheme:themeId,manualOverride:null,schedules:[]};NSV421Store.save(s);window.dispatchEvent(new CustomEvent('nsv421:change'));},baseline.theme);
+await page.waitForFunction(themeId=>document.documentElement.dataset.nsAdminTheme===themeId,baseline.theme);
+await page.click('[data-view="themes"]');
 await page.screenshot({path:`${out}/admin-theme-scheduling.png`,fullPage:true});
 ok('Admin shows effective, base, active, next and fallback theme summaries',await page.locator('.ns-theme-stat').count()===5);
 const beforePreview=await page.evaluate(()=>NSV421Store.load().themeConfig.publishedTheme);await page.evaluate(()=>NSAdminThemes.preview('fresh-grove'));ok('Preview never publishes',await page.evaluate(x=>NSV421Store.load().themeConfig.publishedTheme===x,beforePreview));
