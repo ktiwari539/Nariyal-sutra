@@ -112,8 +112,14 @@ try{
  must(/Stock history/i.test(await page.locator('#apModalTitle').innerText()),'Stock history has no modal contract');
  await closeModal();
 
- // Add/create actions: click must open a real form and Cancel must create nothing.
- await assertCreateOpensForm({view:'products',button:'#apProductAdd',form:'#v45ProductAdd',key:'products'});
+ // Core catalogue is intentionally fixed to three authoritative SKUs. Existing SKU edit must work; arbitrary fourth/fifth SKU creation must not be exposed.
+ await go('products');
+ must(await page.locator('#apProductAdd').count()===0,'Core catalogue unexpectedly exposes Add draft SKU');
+ const productCountBefore=await countState('products'),productEdit=page.locator('#apProductsBody [data-prod]').first();
+ must(await productEdit.count()===1,'Core catalogue has no editable SKU');
+ await productEdit.click();await page.waitForSelector('#v21ProductForm',{state:'visible',timeout:5000});await closeModal();await sleep(80);
+ must(await countState('products')===productCountBefore,'Opening/cancelling core product edit changed catalogue size');
+ // Other add/create actions: click must open a real form and Cancel must create nothing.
  await assertCreateOpensForm({view:'inventory',button:'#apInventoryAdjust',form:'#v45StockAdd',key:'inventory'});
  await assertCreateOpensForm({view:'warehouses',button:'#apAddWarehouse',form:'#v48WarehouseForm',key:'warehouses',cancel:'[data-v48-cancel]'});
  await assertCreateOpensForm({view:'delivery-services',button:'#apAddDeliveryService',form:'#apDeliveryServiceForm',key:'deliveryServices',cancel:'[data-ds-cancel]'});

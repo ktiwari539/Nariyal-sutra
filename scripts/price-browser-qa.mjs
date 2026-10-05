@@ -20,7 +20,7 @@ const p=await c.newPage();await p.goto('http://127.0.0.1:4173/index.html',{waitU
 await p.waitForFunction(()=>window.NSLiveCatalog?.source==='local-admin'&&window.NSLiveCatalog?.price('tender')===67);
 assert.equal(await p.locator('[data-price-value="tender"]').first().textContent(),'67');
 assert.equal(await p.locator('#oPr option[value="tender"]').getAttribute('data-price'),'67');
-await p.selectOption('#oPr','tender');await p.locator('#oQ').fill('2');await p.locator('#oQ').dispatchEvent('input');await p.waitForTimeout(100);
+await p.selectOption('#oPr','tender');const qty=p.locator('#oQ');assert.equal(await qty.getAttribute('readonly'),'','Checkout quantity is intentionally stepper-controlled');await p.locator('button[aria-label="Increase quantity"]').click();await p.waitForFunction(()=>document.querySelector('#oQ')?.value==='2');await p.waitForTimeout(100);
 assert.equal(await p.evaluate(()=>getCurrentPrice()),67);assert.ok((await p.locator('#pAmt').textContent()).includes('134'),'Checkout must use Admin canonical price');
 await p.reload({waitUntil:'domcontentloaded'});await p.waitForFunction(()=>window.NSLiveCatalog?.source==='local-admin'&&window.NSLiveCatalog?.price('tender')===67);
 assert.equal(await p.locator('[data-price-value="tender"]').first().textContent(),'67','Admin price must persist on reload');
