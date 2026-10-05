@@ -52,18 +52,24 @@ service cloud.firestore {
     function catalogPrice(key) { return exists(productPath(key)) ? get(productPath(key)).data.price : defaultPrice(key); }
     function catalogMin(key) { return exists(productPath(key)) ? get(productPath(key)).data.minQty : defaultMin(key); }
     function catalogActive(key) { return exists(productPath(key)) ? get(productPath(key)).data.active == true : true; }
+    function catalogPriceVisible(key) {
+      return !exists(productPath(key))
+        || !get(productPath(key)).data.keys().hasAny(['priceVisible'])
+        || get(productPath(key)).data.priceVisible == true;
+    }
     function catalogStock(key) { return exists(productPath(key)) ? get(productPath(key)).data.stock : 10000; }
 
     function validProduct(productKey) {
       let d = request.resource.data;
       return productKey in ['tender','green','bulk']
-        && d.keys().hasOnly(['name','shortName','description','mode','price','minQty','stock','active','updatedAt','updatedBy'])
+        && d.keys().hasOnly(['name','shortName','description','mode','price','priceVisible','minQty','stock','active','updatedAt','updatedBy'])
         && d.keys().hasAll(['name','price','minQty','stock','active','updatedAt','updatedBy'])
         && d.name is string && d.name.size() >= 2 && d.name.size() <= 120
         && (!d.keys().hasAny(['shortName']) || (d.shortName is string && d.shortName.size() <= 80))
         && (!d.keys().hasAny(['description']) || (d.description is string && d.description.size() <= 500))
         && (!d.keys().hasAny(['mode']) || d.mode in ['single','bulk'])
         && d.price is int && d.price >= 0 && d.price <= 1000000
+        && (!d.keys().hasAny(['priceVisible']) || d.priceVisible is bool)
         && d.minQty is int && d.minQty >= 1 && d.minQty <= 10000
         && d.stock is int && d.stock >= 0 && d.stock <= 10000000
         && d.active is bool
@@ -107,7 +113,7 @@ service cloud.firestore {
         && d.productKey in ['tender','green','bulk']
         && d.productName is string && d.productName.size() <= 120
         && d.quantity is int && d.quantity >= catalogMin(d.productKey) && d.quantity <= 10000
-        && d.quantity <= catalogStock(d.productKey) && catalogActive(d.productKey)
+        && d.quantity <= catalogStock(d.productKey) && catalogActive(d.productKey) && catalogPriceVisible(d.productKey)
         && d.unitPrice is int && d.unitPrice == catalogPrice(d.productKey)
         && d.total is int && d.total == d.quantity * d.unitPrice
         && d.paymentType in ['cod','upi','card']

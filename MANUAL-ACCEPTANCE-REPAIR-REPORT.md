@@ -19,6 +19,7 @@ Checkpoint scope: local-only acceptance repair after manual review. No productio
 - Added defensive normalization so packaged-water draft records cannot leak into the core coconut catalogue.
 - Hardened stale-browser-state recovery so the core catalogue always resolves to exactly TENDER, GREEN and BULK; arbitrary local draft SKUs can no longer re-create a 5-SKU pricing screen.
 - Enforced the Admin “Show price publicly” control through the local and Firestore catalogue contracts; a hidden price is removed from storefront display and direct checkout until re-enabled.
+- Hardened Firestore rules so `priceVisible` is an allowed validated product field and guest order creation is rejected server-side while a product price is hidden.
 - Removed the core-catalogue “Add draft SKU” action because production currently supports exactly three authoritative coconut SKUs; future packaged-water products remain in their isolated workspace.
 - Verified root HTML IDs are unique and all 28 Admin navigation targets resolve to real Admin views.
 

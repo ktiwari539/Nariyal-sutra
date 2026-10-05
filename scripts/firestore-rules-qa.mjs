@@ -137,9 +137,9 @@ async function role(uid,email,roleName='Operations',active=true){
   });
 }
 async function seedCatalog(){
-  await seed('products/tender',{name:'Fresh Tender Coconut',price:55,minQty:1,stock:150,active:true,updatedAt:new Date()});
-  await seed('products/green',{name:'Green Round Coconut',price:55,minQty:1,stock:100,active:true,updatedAt:new Date()});
-  await seed('products/bulk',{name:'Bulk Pack 10+ pcs',price:45,minQty:10,stock:300,active:true,updatedAt:new Date()});
+  await seed('products/tender',{name:'Fresh Tender Coconut',price:55,priceVisible:true,minQty:1,stock:150,active:true,updatedAt:new Date()});
+  await seed('products/green',{name:'Green Round Coconut',price:55,priceVisible:true,minQty:1,stock:100,active:true,updatedAt:new Date()});
+  await seed('products/bulk',{name:'Bulk Pack 10+ pcs',price:45,priceVisible:true,minQty:10,stock:300,active:true,updatedAt:new Date()});
 }
 async function guestCheckout(db,orderId=ORDER,token=TOKEN,extraOrder={},extraTrack={}){
   const b=writeBatch(db);
@@ -166,6 +166,9 @@ try{
   const guest=env.unauthenticatedContext().firestore();
   await assertSucceeds(guestCheckout(guest));
   must((await getDoc(doc(guest,'publicTracking',TOKEN))).exists(),'Exact tracking token GET must remain public-readable');
+  await seed('products/tender',{name:'Fresh Tender Coconut',price:55,priceVisible:false,minQty:1,stock:150,active:true,updatedAt:new Date()});
+  await assertFails(guestCheckout(guest,'NS-2026-HIDDEN01','h'.repeat(48)));
+  await seedCatalog();
 
   await assertFails(guestCheckout(guest,ORDER2,TOKEN2,{unexpectedPrivateField:'blocked'}));
   await assertFails(guestCheckout(guest,'NS-2026-RULES04','d'.repeat(48),{unitPrice:1,total:2}));
