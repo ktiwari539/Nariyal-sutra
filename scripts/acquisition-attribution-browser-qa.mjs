@@ -45,6 +45,26 @@ try{
   must(pii.firstTouch.campaign===''&&pii.firstTouch.content==='','Potential personal data in UTM values was not discarded');
   await piiContext.close();
 
+  const adminContext=await browser.newContext({viewport:{width:1280,height:900},serviceWorkers:'block'}),adminPage=await adminContext.newPage();
+  await adminPage.goto(BASE+'/admin-preview.html',{waitUntil:'domcontentloaded'});
+  await adminPage.waitForFunction(()=>window.NSAdminAnalytics?.render&&document.getElementById('nsAnalyticsApp'));
+  await adminPage.locator('#apNav button[data-view="analytics"]').click();
+  await adminPage.evaluate(()=>{
+    const s=NSV421Store.load();
+    s.orders=[...(s.orders||[]),{id:'QA-ATTR-ORDER',orderId:'QA-ATTR-ORDER',customerName:'QA Customer',createdAt:new Date().toISOString(),acquisition:{version:2,reportedSource:'social_media',reportedSourceLabel:'Social media',reportedDetail:'YouTube',firstTouch:{classification:'whatsapp',source:'whatsapp',medium:'shared_link',campaign:'qa-whatsapp',content:'',referrerHost:'',landingPath:'/fresh-tender-coconut.html',capturedAtClient:new Date().toISOString()},lastTouch:{classification:'whatsapp',source:'whatsapp',medium:'shared_link',campaign:'qa-whatsapp',content:'',referrerHost:'',landingPath:'/fresh-tender-coconut.html',capturedAtClient:new Date().toISOString()}}}];
+    s.inquiries=[{id:'QA-ATTR-INQUIRY',inquiryId:'QA-ATTR-INQUIRY',name:'QA Enquiry',createdAt:new Date().toISOString(),acquisition:{version:2,reportedSource:'google_search',reportedSourceLabel:'Google Search',firstTouch:{classification:'organic_search',source:'google',medium:'organic',campaign:'',content:'',referrerHost:'google.com',landingPath:'/coconut-water',capturedAtClient:new Date().toISOString()},lastTouch:{classification:'organic_search',source:'google',medium:'organic',campaign:'',content:'',referrerHost:'google.com',landingPath:'/coconut-water',capturedAtClient:new Date().toISOString()}}}];
+    NSV421Store.save(s);window.dispatchEvent(new CustomEvent('nsv421:change'));
+  });
+  await adminPage.waitForTimeout(180);
+  const analyticsText=await adminPage.locator('#nsAnalyticsApp').innerText();
+  must(analyticsText.includes('WhatsApp')&&analyticsText.includes('Google Organic'),'Admin traffic source view did not render attributed order/enquiry sources');
+  must(analyticsText.includes('Fresh Tender Coconut')&&analyticsText.includes('Coconut Water'),'Admin landing-page view did not render attributed entry pages');
+  must(!analyticsText.includes('61%')&&!analyticsText.includes('28%'),'Static fake analytics metrics are still present');
+  await adminPage.selectOption('#nsAnaSource','youtube');await adminPage.fill('#nsAnaCampaign','youtube launch');
+  const tracked=await adminPage.locator('#nsAnaLink').inputValue();
+  must(tracked.includes('utm_source=youtube')&&tracked.includes('utm_medium=social')&&tracked.includes('utm_campaign=youtube-launch'),'Trackable link builder did not create YouTube campaign attribution');
+  await adminContext.close();
+
   console.log('CUSTOMER ACQUISITION BROWSER QA: PASS');
 } finally {
   await browser.close().catch(()=>{});
