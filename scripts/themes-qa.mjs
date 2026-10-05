@@ -26,7 +26,7 @@ async function contrastAudit(theme){
 
 await ready(`${base}/index.html`);await page.evaluate(()=>localStorage.clear());await ready(`${base}/index.html`);
 ok('Nariyal Signature is the default fallback',await page.locator('html').getAttribute('data-ns-theme')==='nariyal-signature');
-const baseline=await page.evaluate(()=>{const s=NSV421Store.load();return{products:s.products,orders:s.orders,prices:s.products.map(x=>[x.sku,x.retail,x.bulk]),sections:s.sections,theme:s.themeConfig.publishedTheme};});
+const baseline=await page.evaluate(()=>{const s=NSV421Store.load();return{products:s.products,orders:s.orders,prices:s.products.map(x=>[x.sku,NSV421Store.productPrice(x)]),sections:s.sections,theme:s.themeConfig.publishedTheme};});
 const fingerprints={};
 for(const id of ids){
  for(const [label,width,height] of viewports){
@@ -91,7 +91,7 @@ await ready(`${base}/index.html`);ok('Ended window automatically restores publis
 await ready(`${base}/admin-preview.html`);await page.waitForFunction(()=>window.NSAdminThemes);await page.evaluate(()=>NSAdminThemes.override('nariyal-signature'));await ready(`${base}/index.html`);ok('Emergency manual override wins safely',await page.locator('html').getAttribute('data-ns-theme')==='nariyal-signature');
 await ready(`${base}/admin-preview.html`);await page.waitForFunction(()=>window.NSAdminThemes);await page.evaluate(()=>{NSAdminThemes.clearOverride();NSAdminThemes.removeSchedule('QA-ENDED')});
 await page.evaluate(()=>{const s=NSV421Store.load();s.themeConfig.schedules=[{id:'BAD',themeId:'missing',type:'range',startAt:new Date(Date.now()-1000).toISOString(),endAt:new Date(Date.now()+10000).toISOString(),enabled:true}];NSV421Store.save(s);});await ready(`${base}/index.html`);ok('Invalid scheduled theme safely falls back',await page.locator('html').getAttribute('data-ns-theme')===beforePreview);
-const after=await page.evaluate(()=>{const s=NSV421Store.load();return{products:s.products,orders:s.orders,prices:s.products.map(x=>[x.sku,x.retail,x.bulk]),sections:s.sections};});
+const after=await page.evaluate(()=>{const s=NSV421Store.load();return{products:s.products,orders:s.orders,prices:s.products.map(x=>[x.sku,NSV421Store.productPrice(x)]),sections:s.sections};});
 ok('Products remain unchanged',JSON.stringify(after.products)===JSON.stringify(baseline.products));ok('Prices remain unchanged',JSON.stringify(after.prices)===JSON.stringify(baseline.prices));ok('Orders remain unchanged',JSON.stringify(after.orders)===JSON.stringify(baseline.orders));ok('Section order remains unchanged',JSON.stringify(after.sections)===JSON.stringify(baseline.sections));
 ok('No broken local images',!errors.some(x=>/\.(png|jpe?g|webp|svg).*(?:ERR_|HTTP [45])/i.test(x)));ok('No theme runtime errors',!errors.some(x=>/storefront-theme|admin-themes|NSTheme/i.test(x)));
 fs.writeFileSync(`${out}/themes-qa-results.json`,JSON.stringify({ok:true,checks,fingerprints,errors:errors.filter(x=>/storefront-theme|admin-themes|NSTheme/i.test(x))},null,2));

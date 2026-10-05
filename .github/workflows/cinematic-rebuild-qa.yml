@@ -191,6 +191,9 @@ jobs:
           sleep 2
           node scripts/themes-qa.mjs
         timeout-minutes: 12
+      - name: Manual acceptance regression QA
+        run: node scripts/manual-acceptance-regression-qa.mjs
+        timeout-minutes: 20
       - name: Public copy professional QA
         run: node scripts/public-copy-qa.mjs
         timeout-minutes: 3
@@ -285,23 +288,23 @@ jobs:
           path: qa-artifacts/
           if-no-files-found: warn
           retention-days: 7
-      - name: Create verified SEO recovery bundle
+      - name: Create verified local-acceptance recovery bundle
         if: success()
         run: |
           git fetch --unshallow origin || git fetch --prune origin
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
           test "$(git rev-parse refs/heads/feature/storefront-themes)" = "$GITHUB_SHA"
           mkdir -p qa-artifacts/recovery
-          BUNDLE="qa-artifacts/recovery/Nariyal-sutra-final-seo-${GITHUB_SHA}.bundle"
+          BUNDLE="qa-artifacts/recovery/Nariyal-sutra-local-acceptance-${GITHUB_SHA}.bundle"
           git bundle create "$BUNDLE" refs/heads/feature/storefront-themes
           git bundle verify "$BUNDLE"
           sha256sum "$BUNDLE" | tee "$BUNDLE.sha256"
         timeout-minutes: 5
-      - name: Upload SEO recovery bundle
+      - name: Upload local-acceptance recovery bundle
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: seo-recovery-bundle
+          name: local-acceptance-recovery-bundle
           path: qa-artifacts/recovery/
           if-no-files-found: error
           retention-days: 14

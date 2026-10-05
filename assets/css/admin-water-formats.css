@@ -1,1 +1,30 @@
-.ns-water-admin-banner{padding:20px;background:#f4eedc;border:1px solid #c7ae76;margin-bottom:20px;border-radius:12px}.ns-water-admin-banner strong{color:#573d1f;letter-spacing:.08em}.ns-water-admin-banner p{margin-top:8px;color:#695638}.ns-water-editor-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.ns-water-editor-grid fieldset{min-width:0}.ns-water-editor-grid legend{font-weight:700;padding:0 8px;color:#173d24}.ns-water-toolbar{display:flex;flex-wrap:wrap;align-items:end;gap:14px;margin:24px 0}.ns-water-toolbar label{display:grid;gap:8px}.ns-water-toolbar select{padding:12px;border:1px solid #9aab95;border-radius:8px}.ns-water-preview-stage{overflow:auto;max-width:100%;border:1px solid #9aab95;background:#dce4d8;padding:16px;margin-top:16px}#nsWaterFrame{display:block;width:1440px;height:1150px;border:0;margin:auto;background:#fff}#nsWaterStatus{min-height:24px;color:#234d2e;margin:20px 0}@media(max-width:850px){.ns-water-editor-grid{grid-template-columns:1fr}}
+/* Coconut Water Formats — private Admin workspace. Keep this surface contained and form-first. */
+.ap-view[data-view="water-formats"]{min-width:0;max-width:100%;overflow-x:hidden}
+.ap-view[data-view="water-formats"] #nsWaterApp{min-width:0;max-width:100%}
+.ns-water-admin-banner{padding:18px 20px;background:#f4eedc;border:1px solid #c7ae76;margin-bottom:20px;border-radius:14px;box-shadow:0 8px 24px rgba(78,52,20,.05)}
+.ns-water-admin-banner strong{display:block;color:#573d1f;letter-spacing:.08em;font-size:13px}
+.ns-water-admin-banner p{margin:7px 0 0;color:#695638;line-height:1.55}
+.ns-water-editor-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;min-width:0}
+.ns-water-editor-grid fieldset{min-width:0;margin:0;padding:22px;border-radius:16px;overflow:hidden}
+.ns-water-editor-grid legend{font-weight:800;padding:0 8px;color:#173d24;font-size:17px}
+.ns-water-field{display:grid;gap:7px;min-width:0;margin:0 0 14px}
+.ns-water-field:last-child{margin-bottom:0}
+.ns-water-field>label{display:block;margin:0;color:var(--ink,#42301d);font-size:10px;font-weight:700;letter-spacing:.01em;line-height:1.3}
+.ns-water-field input,.ns-water-field select,.ns-water-field textarea{display:block;width:100%;max-width:100%;min-width:0;box-sizing:border-box;margin:0;padding:11px 12px;border:1px solid var(--line,#c8aa73);border-radius:9px;background:var(--panel,#fffdf7);color:var(--ink,#42301d);font:500 12px/1.35 Inter,system-ui,sans-serif}
+.ns-water-field textarea{min-height:104px;resize:vertical;line-height:1.45}
+.ns-water-field input:focus,.ns-water-field select:focus,.ns-water-field textarea:focus{outline:2px solid rgba(119,82,36,.18);outline-offset:1px;border-color:#8a693b}
+.ns-water-field-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;min-width:0}
+.ns-water-field-help{font-size:9px;line-height:1.5;color:var(--muted,#6f6252)}
+.ns-water-toolbar{display:grid;grid-template-columns:repeat(3,minmax(170px,1fr)) auto;gap:12px;align-items:end;margin:24px 0 14px;padding:16px;border:1px solid var(--line,#c8aa73);border-radius:14px;background:var(--panel2,#f6f0df);min-width:0}
+.ns-water-toolbar label{display:grid;gap:7px;min-width:0;font-size:10px;font-weight:700}
+.ns-water-toolbar select{width:100%;min-width:0;padding:11px 12px;border:1px solid var(--line,#c8aa73);border-radius:9px;background:var(--panel,#fffdf7);color:var(--ink,#42301d)}
+.ns-water-toolbar .ap-btn{min-height:42px;white-space:nowrap}
+.ns-water-actions{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin:0 0 10px}
+#nsWaterStatus{min-height:24px;color:#234d2e;margin:14px 0;line-height:1.5}
+#nsWaterPreviewLabel{display:block;margin:8px 0 10px;color:var(--muted,#6f6252);font-size:10px;letter-spacing:.04em;text-transform:capitalize}
+.ns-water-preview-stage{position:relative;display:block;width:100%;max-width:100%;min-width:0;overflow:hidden;border:1px solid #9aab95;border-radius:14px;background:#dce4d8;padding:16px;margin-top:10px;box-sizing:border-box}
+.ns-water-preview-canvas{position:relative;width:100%;max-width:100%;min-height:720px;overflow:hidden;margin:0 auto;background:#fff;box-shadow:0 12px 30px rgba(0,0,0,.12)}
+#nsWaterFrame{position:absolute;left:0;top:0;display:block;width:1440px;height:1150px;border:0;margin:0;background:#fff;transform-origin:top left}
+@media(max-width:1100px){.ns-water-toolbar{grid-template-columns:repeat(2,minmax(0,1fr))}.ns-water-toolbar .ap-btn{width:100%}}
+@media(max-width:850px){.ns-water-editor-grid{grid-template-columns:1fr}.ns-water-editor-grid fieldset{padding:18px}.ns-water-preview-stage{padding:10px}.ns-water-preview-canvas{min-height:620px}}
+@media(max-width:620px){.ns-water-field-row{grid-template-columns:1fr}.ns-water-toolbar{grid-template-columns:1fr}.ns-water-actions{display:grid;grid-template-columns:1fr}.ns-water-actions .ap-btn{width:100%}.ns-water-admin-banner{padding:16px}.ns-water-preview-canvas{min-height:540px}}

@@ -5,6 +5,15 @@ section[hidden],.ns-people-marquee[hidden],.v25-people-worlds[hidden]{display:no
 .people-page .people-hero{min-height:clamp(520px,70svh,780px)!important}
 .people-page .section{padding:clamp(50px,6vw,78px) 0!important}
 .people-page .v23-community{padding-top:clamp(52px,6vw,78px)!important;padding-bottom:clamp(52px,6vw,78px)!important}
+
+/* People hero safety: selected people photography is shown in full, with a soft background fill instead of body/leg cropping. */
+.people-page .people-hero{isolation:isolate;background:#071204;--people-hero-focus:50% 50%}
+.people-page .people-hero::before{content:"";position:absolute;inset:-28px;z-index:0;background-image:linear-gradient(rgba(2,8,1,.35),rgba(2,8,1,.58)),var(--people-hero-image);background-size:cover;background-position:var(--people-hero-focus);filter:blur(20px) saturate(.9);transform:scale(1.05);pointer-events:none}
+.people-page .people-hero>img{z-index:1;object-position:var(--people-hero-focus)!important}
+.people-page .people-hero:after{z-index:2}
+.people-page .people-hero-copy{z-index:3}
+.people-page .people-hero[data-media-fit="full"]>img{object-fit:contain!important;object-position:var(--people-hero-focus)!important;padding:clamp(18px,3vw,46px);filter:brightness(.76) saturate(.95)}
+.people-page .people-hero[data-media-fit="cover"]>img{object-fit:cover!important;padding:0}
 /* Atmospheric surfaces prevent large areas reading as featureless black. */
 #price-list,#our-story,#how-to-order,#coconut-uses,#faq,#order,#contact{background-image:radial-gradient(circle at 16% 10%,var(--v29-atmos),transparent 32%),radial-gradient(circle at 86% 72%,var(--v29-gold),transparent 27%)!important}
 #faq,#order,#contact{padding-top:clamp(66px,7vw,96px)!important;padding-bottom:clamp(66px,7vw,96px)!important}

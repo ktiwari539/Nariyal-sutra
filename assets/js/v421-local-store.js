@@ -16,9 +16,9 @@ const defaults={
  schemaVersion:SCHEMA,
  themeConfig:{publishedTheme:'nariyal-signature',draftTheme:null,previousPublishedTheme:null,publishedAt:null,publishedBy:null,businessTimezone:'Asia/Kolkata',schedules:[],manualOverride:null},
  products:[
-  {sku:'TENDER',name:'Fresh Tender Coconut',retail:55,bulk:45,moq:10,priceVisible:true,state:'Active'},
-  {sku:'GREEN',name:'Green Round Coconut',retail:55,bulk:48,moq:10,priceVisible:true,state:'Active'},
-  {sku:'BULK',name:'Bulk Tender Coconut',retail:0,bulk:45,moq:50,priceVisible:true,state:'Quote'}
+  {sku:'TENDER',name:'Fresh Tender Coconut',price:55,retail:55,bulk:55,moq:1,priceVisible:true,state:'Active'},
+  {sku:'GREEN',name:'Green Round Coconut',price:55,retail:55,bulk:55,moq:1,priceVisible:true,state:'Active'},
+  {sku:'BULK',name:'Bulk Pack (10+ pcs)',price:45,retail:45,bulk:45,moq:10,priceVisible:true,state:'Active'}
  ],
  inventory:[
   {sku:'TENDER',name:'Fresh Tender Coconut',node:'Jabalpur fulfilment',onHand:420,reserved:36,incoming:180,low:80,freshness:'Fresh intake',supplier:'Farmer / supplier network'},
@@ -134,9 +134,22 @@ function reconcilePeople(s){
  s.faceMarquee=s.faceMarquee||clone(defaults.faceMarquee);const allowed=new Set(PEOPLE_MEDIA_IDS.concat((s.media||[]).filter(m=>String(m.id||'').startsWith('UGC-')).map(m=>m.id)));s.faceMarquee.selectedIds=(s.faceMarquee.selectedIds||[]).map(id=>alias[id]||id).filter((id,i,a)=>allowed.has(id)&&a.indexOf(id)===i);if(!s.faceMarquee.selectedIds.length)s.faceMarquee.selectedIds=FEATURED_FACE_IDS.slice();s.faceMarquee.pauseOnHover=s.faceMarquee.pauseOnHover===true;
  return s;
 }
+function productPrice(p){if(!p)return 0;const direct=Number(p.price);if(Number.isFinite(direct)&&direct>0)return direct;const sku=String(p.sku||'').toUpperCase();const legacy=Number(sku==='BULK'?p.bulk:p.retail);return Number.isFinite(legacy)&&legacy>0?legacy:0;}
+function normalizeProducts(s){
+ const core=new Set(['TENDER','GREEN','BULK']);
+ const waterLeak=p=>{const text=[p?.sku,p?.name,p?.id].join(' ').toUpperCase();return /COCONUT\s*WATER|WATER[-_ ]?(?:300|500)|(?:300|500)\s*ML.*(?:GLASS|BOTTLE)/.test(text);};
+ s.products=(s.products||[]).filter(p=>!waterLeak(p)).map(p=>{
+  const next={...p},sku=String(next.sku||'').toUpperCase(),price=productPrice(next);
+  next.price=price;next.moq=Math.max(1,Math.round(Number(next.moq)||1));
+  if(core.has(sku)){next.retail=price;next.bulk=price;if(sku==='BULK'&&next.moq<10)next.moq=10;}
+  return next;
+ });
+ return s;
+}
 function normalizeState(s){
  const arrayKeys=['products','inventory','warehouses','deliveryServices','orders','segments','communications','followups','followupEvents','media','sections','customSections','stories','content','schedule','communitySubmissions','notificationQueue','teamMembers','tasks','audit'];
  arrayKeys.forEach(k=>{if(!Array.isArray(s[k]))s[k]=clone(defaults[k]||[]);});
+ normalizeProducts(s);
  const objectKeys=['deliveryLive','customer','faceMarquee','peopleStreams','harvest','staffPhotos','settings','themeConfig'];
  objectKeys.forEach(k=>{if(!s[k]||typeof s[k]!=='object'||Array.isArray(s[k]))s[k]=clone(defaults[k]||{});});
  if(!Array.isArray(s.faceMarquee.selectedIds))s.faceMarquee.selectedIds=clone(defaults.faceMarquee.selectedIds||[]);
@@ -160,7 +173,7 @@ function eligibleForPublic(s,m){return !!(m&&m.visible&&m.publicAllowed!==false&
 function setSession(x){try{sessionStorage.setItem('ns_v10_admin_session',JSON.stringify(x||{}));}catch(e){}}
 function getSession(){try{return JSON.parse(sessionStorage.getItem('ns_v10_admin_session')||'null');}catch(e){return null;}}
 function publicFaces(s){const cfg=s.faceMarquee||{},seen=new Set();return (cfg.selectedIds||[]).map(id=>mediaById(s,id)).filter(m=>{if(!eligibleForPublic(s,m)||seen.has(m.id))return false;seen.add(m.id);return true;});}
-window.NSV421Store={KEY,SCHEMA,THEME_IDS,FACE_IDS,PEOPLE_MEDIA_IDS,FEATURED_FACE_IDS,defaults,load,save,reset,audit,mediaById,eligibleForPublic,setSession,getSession,publicFaces,resolveAlias:id=>alias[id]||id};
+window.NSV421Store={KEY,SCHEMA,THEME_IDS,FACE_IDS,PEOPLE_MEDIA_IDS,FEATURED_FACE_IDS,defaults,load,save,reset,audit,mediaById,eligibleForPublic,setSession,getSession,publicFaces,productPrice,resolveAlias:id=>alias[id]||id};
 if(!/admin(?:-|\.|\/)/i.test(location.pathname)){
  const css=document.createElement('link');css.rel='stylesheet';css.href='assets/css/storefront-themes.css';css.dataset.nsThemeAsset='styles';document.head.appendChild(css);
  const js=document.createElement('script');js.src='assets/js/storefront-theme-runtime.js';js.defer=true;js.dataset.nsThemeAsset='runtime';document.head.appendChild(js);
