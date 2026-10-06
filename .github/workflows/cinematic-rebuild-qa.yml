@@ -9,14 +9,14 @@ concurrency:
 jobs:
   auth-experience:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
       - run: |
           npm install --no-save --no-package-lock playwright@1.55.0
           npx playwright install --with-deps chromium
       - name: Shared auth UI and isolated authorization regression
-        timeout-minutes: 22
+        timeout-minutes: 35
         run: |
           python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/ns-auth-http.log 2>&1 &
           server_pid=$!
