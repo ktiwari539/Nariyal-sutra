@@ -23,13 +23,22 @@ jobs:
           trap 'kill "$server_pid" 2>/dev/null' EXIT
           node scripts/render-admin-auth.mjs
           git diff --exit-code -- admin-bcc-login.html admin-login.html
-          node scripts/auth-experience-qa.mjs
-          node scripts/auth-theme-contract-qa.mjs
-          node scripts/auth-interactive-qa.mjs
-          node scripts/auth-composition-qa.mjs
-          node scripts/auth-guardian-qa.mjs
-          node scripts/production-firebase-contract-qa.mjs
-          node scripts/admin-role-contract-qa.mjs
+          timeout 5m node scripts/auth-experience-qa.mjs
+          timeout 3m node scripts/auth-theme-contract-qa.mjs
+          timeout 8m node scripts/auth-interactive-qa.mjs
+          set +e
+          timeout 5m node scripts/auth-composition-qa.mjs
+          composition_code=$?
+          set -e
+          if [ "$composition_code" -eq 124 ]; then
+            echo "Auth composition QA timed out once; retrying in a fresh Chromium process."
+            timeout 5m node scripts/auth-composition-qa.mjs
+          elif [ "$composition_code" -ne 0 ]; then
+            exit "$composition_code"
+          fi
+          timeout 15m node scripts/auth-guardian-qa.mjs
+          timeout 3m node scripts/production-firebase-contract-qa.mjs
+          timeout 3m node scripts/admin-role-contract-qa.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
