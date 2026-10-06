@@ -82,7 +82,12 @@ try{
     await page.evaluate(()=>{const state=window.NSDeliveryState;state.lat=null;state.lng=null;window.dispatchEvent(new CustomEvent('ns:location-updated',{detail:{...state}}));});
     await page.locator('#ns-handover-name').fill('Jabalpur Junction');
     must(/Jabalpur Junction/.test(await page.locator('#ns-del-summary').textContent()),size+' preferred railway station missing from summary');
-    await page.locator('.ns-recur-btn[onclick*="weekly"]').click();
+    const weekly=page.locator('.ns-recur-btn[onclick*="weekly"]');
+    await weekly.scrollIntoViewIfNeeded();
+    must(await weekly.isVisible(),size+' weekly recurring preference is not visible');
+    must(await weekly.isEnabled(),size+' weekly recurring preference is disabled');
+    await weekly.click({timeout:5000});
+    await page.waitForFunction(()=>/Weekly \(preference\)/.test(document.querySelector('#ns-del-summary')?.textContent||''),{timeout:5000});
     must(/Weekly \(preference\)/.test(await page.locator('#ns-del-summary').textContent()),size+' recurring preference missing from summary');
     must(/no automatic orders or payments/i.test((await page.locator('#ns-del-root').textContent()).toLowerCase()),size+' repeat-order consent explanation missing');
     await page.locator('#ns-country').selectOption('UAE');
