@@ -76,8 +76,10 @@ for(const kind of (process.env.NS_QA_KIND?[process.env.NS_QA_KIND]:['customer','
    await p.waitForTimeout(1100);const privacy=await state(p);
    ok(`${kind} ${theme} ${size}: eyes closed; privacy turn and leaf cover`,privacy.eyes===0&&privacy.leaf!==idle.leaf&&privacy.primary!==idle.primary&&privacy.group===idle.group);
    await closeup(p,`${kind}-${theme}-${size}-privacy-closeup`);
-   await p.locator('.ns-auth-reveal').click();await p.waitForTimeout(740);const peek=await state(p);
-   ok(`${kind} ${theme} ${size}: only one eye peeks`,peek.pose==='peek'&&peek.far===0&&peek.near===1&&peek.eyes>0&&peek.leaf!==privacy.leaf);
+   await p.locator('.ns-auth-reveal').click();
+   await p.waitForFunction(()=>{const e=document.querySelector('.ns-auth-shell');if(!e||e.dataset.nariyalPose!=='peek')return false;const s=q=>getComputedStyle(e.querySelector(q));return Number(s('.ns-guardian-eye-far').opacity)===0&&Number(s('.ns-guardian-eye-near').opacity)>=.99&&Number(s('.ns-nariyal-eyes').opacity)>0;},{timeout:2500});
+   const peek=await state(p);
+   ok(`${kind} ${theme} ${size}: only one eye peeks`,peek.pose==='peek'&&peek.far===0&&peek.near>=.99&&peek.eyes>0&&peek.leaf!==privacy.leaf);
    await closeup(p,`${kind}-${theme}-${size}-peek-closeup`);
    await p.locator('.ns-auth-reveal').click();const hidden=await state(p);
    ok(`${kind} ${theme} ${size}: Hide closes eyes immediately`,hidden.pose==='privacy'&&hidden.eyes===0);
