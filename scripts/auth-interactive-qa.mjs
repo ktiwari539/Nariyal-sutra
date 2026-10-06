@@ -45,7 +45,9 @@ async function open(c,kind='customer'){
    try{await overlay.waitFor({state:'visible',timeout:5000});await signin.waitFor({state:'visible',timeout:5000});break;}catch(e){if(attempt===1)throw e;await p.waitForTimeout(150);}
   }
  } else await p.waitForFunction(()=>!document.getElementById('submit').disabled);
- await p.waitForFunction(()=>window.NSAuthTheme&&NSAuthTheme.status!=='pending');return p;
+ await p.waitForFunction(()=>window.NSAuthTheme&&NSAuthTheme.status!=='pending');
+ await p.waitForFunction(()=>[...document.querySelectorAll('.ns-auth-shell')].some(shell=>shell.dataset.authBound==='true'&&shell.querySelector('.ns-nariyal-scene')?.dataset.guardianReady==='true'&&shell.getClientRects().length));
+ return p;
 }
 async function shot(p,name){await p.waitForTimeout(900);await p.screenshot({path:`${out}/${engine}-${name}.png`});}
 async function geometry(p){return p.evaluate(()=>{
