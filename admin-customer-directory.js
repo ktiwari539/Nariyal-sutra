@@ -131,7 +131,7 @@
       return {
         key:key,type:p.type,typeLabel:currentType,uid:p.uid,profile:p.profile,
         name:name,email:email,loginEmail:loginEmail,contactEmail:email,emailVerified:profile.emailVerified===true&&!!loginEmail&&normalizeEmail(email)===normalizeEmail(loginEmail),phoneVerified:profile.phoneVerified===true,phone:phone,photoURL:clean(profile.photoURL),telegramUsername:telegram,
-        preferredChannel:clean(profile.preferredChannel)||'whatsapp',notifyEmail:profile.notifyEmail!==false,notifyWhatsapp:profile.notifyWhatsapp!==false,notifyTelegram:profile.notifyTelegram===true,
+        preferredChannel:clean(profile.preferredChannel)||'whatsapp',notifyEmail:profile.notifyEmail!==false,notifyWhatsapp:profile.notifyWhatsapp!==false,notifyTelegram:profile.notifyTelegram===true,marketingEmailOptIn:profile.marketingEmailOptIn===true,marketingWhatsappOptIn:profile.marketingWhatsappOptIn===true,marketingTelegramOptIn:profile.marketingTelegramOptIn===true,marketingConsentUpdatedAt:profile.marketingConsentUpdatedAt||'',
         city:city,state:state,country:country,pin:pin,
         orders:all,linkedOrders:p.linkedOrders,guestHistory:p.guestHistory,
         orderCount:all.length,activeCount:active.length,deliveredCount:delivered,cancelledCount:cancelled,lifetimeValue:lifetime,averageOrderValue:nonCancelled.length?lifetime/nonCancelled.length:0,totalQuantity:totalQty,
