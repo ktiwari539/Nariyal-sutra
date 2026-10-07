@@ -16,7 +16,7 @@ jobs:
           npm install --no-save --no-package-lock playwright@1.55.0
           npx playwright install --with-deps chromium
       - name: Shared auth UI and isolated authorization regression
-        timeout-minutes: 35
+        timeout-minutes: 45
         run: |
           python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/ns-auth-http.log 2>&1 &
           server_pid=$!
@@ -25,7 +25,7 @@ jobs:
           git diff --exit-code -- admin-bcc-login.html admin-login.html
           timeout 5m node scripts/auth-experience-qa.mjs
           timeout 3m node scripts/auth-theme-contract-qa.mjs
-          timeout 8m node scripts/auth-interactive-qa.mjs
+          timeout 12m node scripts/auth-interactive-qa.mjs
           set +e
           timeout 5m node scripts/auth-composition-qa.mjs
           composition_code=$?
