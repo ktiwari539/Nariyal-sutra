@@ -35,7 +35,7 @@ function enforceCardLayout(card){
  const visual=$('.ap-media-img',card),body=$('.ap-media-body',card),img=visual?.querySelector('img');
  // Uniform 4:3 management frames keep cards aligned. object-fit:contain
  // preserves the *entire* original, including portrait and landscape shots.
- for(const [k,v] of [['display','flex'],['flex-direction','column'],['align-self','stretch'],['min-width','0'],['min-height','0'],['overflow','hidden']])card.style.setProperty(k,v,'important');
+ for(const [k,v] of [['display',card.dataset.v42Visible==='0'?'none':'flex'],['flex-direction','column'],['align-self','stretch'],['min-width','0'],['min-height','0'],['overflow','hidden']])card.style.setProperty(k,v,'important');
  if(visual){
   visual.classList.add('ap-media-visual');
   for(const [k,v] of [['position','relative'],['display','block'],['flex','0 0 auto'],['width','100%'],['height','auto'],['min-height','0'],['max-height','none'],['aspect-ratio','4 / 3'],['overflow','hidden'],['contain','none'],['z-index','0']])visual.style.setProperty(k,v,'important');

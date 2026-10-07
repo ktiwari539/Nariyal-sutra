@@ -25,10 +25,15 @@ try{
  await page.waitForFunction(()=>window.NSV421Store?.load&&window.__NS_V421_ADMIN_MEDIA_ORGANIZER__===true);
  await page.evaluate(()=>document.documentElement.setAttribute('data-ns-admin-theme','coastal-premium'));
  await page.locator('#apNav button[data-view="media"]').click();await page.waitForSelector('#apV42MediaOrganizer',{state:'visible'});
- for(const key of ['website-ready','in-use','people','reference','needs-review','archived','all']){
+ const mediaSets={};for(const key of ['website-ready','in-use','people','reference','needs-review','archived','all']){
    const b=page.locator('[data-v42-filter="'+key+'"]');await b.click();await page.waitForFunction(k=>document.querySelector('#apMediaGrid')?.dataset.activeFilter===k,key);
    must(await b.getAttribute('aria-pressed')==='true','Filter did not stay active: '+key);
+   mediaSets[key]=await page.locator('#apMediaGrid .ap-media[data-v42-visible="1"]').evaluateAll(nodes=>nodes.map(n=>n.dataset.id).filter(Boolean));
+   const hiddenVisible=await page.locator('#apMediaGrid .ap-media[data-v42-visible="0"]:visible').count();must(hiddenVisible===0,'Hidden media cards became visible after filter '+key);
  }
+ must(mediaSets.all.length>=mediaSets.people.length&&mediaSets.people.length>0,'People filter produced no usable subset');
+ must(mediaSets.websiteReady===undefined||true,'compat');
+ must(JSON.stringify(mediaSets['website-ready'])!==JSON.stringify(mediaSets.people),'Website-ready and People filters show the same card set');
  await page.locator('[data-v42-filter="website-ready"]').click();await page.waitForFunction(()=>document.querySelector('#apMediaGrid')?.dataset.activeFilter==='website-ready');
  const mediaButtonContrast=await page.locator('#apMediaGrid .ap-media-actions button').first().evaluate(el=>{const s=getComputedStyle(el);return{color:s.color,bg:s.backgroundColor,text:(el.textContent||'').trim()}});
  must(mediaButtonContrast.text.length>0,'Media action button text missing');
