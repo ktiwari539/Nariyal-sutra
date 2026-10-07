@@ -71,7 +71,7 @@ try{
   await page.locator('#apGlobalSearch').fill('orders');await page.locator('#apGlobalSearch').press('Enter');await page.waitForSelector('#nsCommandPalette.is-open');await page.keyboard.press('Escape');
   await page.screenshot({path:OUT+'/overview-mobile.png',fullPage:false});
   await page.locator('#apMenuBtn').click();
-  await page.waitForFunction(()=>document.querySelector('#apSidebar')?.classList.contains('is-open'));
+  await page.waitForFunction(()=>document.querySelector('#apSidebar')?.classList.contains('is-open'));await sleep(220);
   const side=await page.locator('#apSidebar').boundingBox();
   must(side&&side.x>=-1&&side.width<=390,'Mobile sidebar is not contained in viewport');
   await page.screenshot({path:OUT+'/mobile-navigation.png',fullPage:false});
