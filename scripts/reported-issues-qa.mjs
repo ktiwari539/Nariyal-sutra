@@ -77,5 +77,6 @@ try{
  await page.setViewportSize({width:390,height:844});await sleep(120);
  must(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'Campaign modal causes mobile page overflow');
  await page.screenshot({path:OUT+'/campaign-audience-builder-mobile.png',fullPage:false});
- if(failures.length)throw new Error('REPORTED ISSUE QA FAILURES ('+failures.length+'):\n- '+failures.join('\n- '));\n console.log('REPORTED ISSUE VISUAL + WORKFLOW QA: PASS');
+ if(failures.length)throw new Error('REPORTED ISSUE QA FAILURES ('+failures.length+'):\n- '+failures.join('\n- '));
+ console.log('REPORTED ISSUE VISUAL + WORKFLOW QA: PASS');
 }finally{await browser.close().catch(()=>{});server.kill('SIGTERM');}
