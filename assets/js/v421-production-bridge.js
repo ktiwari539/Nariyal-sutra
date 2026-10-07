@@ -9,7 +9,7 @@ if(LOCAL)return;
 const SDK='12.18.0';
 const isAdmin=/admin-preview\.html$/i.test(location.pathname);
 const PUBLIC_KEYS=['sections','pageSequences','sectionMedia','sectionMediaLayout','media','faceMarquee','peopleStreams','harvest','customSections','stories','content','schedule','settings','themeConfig'];
-const PRIVATE_KEYS=['tasks','warehouses','deliveryServices','segments','communications','notificationQueue'];
+const PRIVATE_KEYS=['tasks','warehouses','deliveryServices','segments','communications','campaigns','notificationQueue'];
 const CUSTOMER_ROLES=['Owner','Admin','Manager','Operations','Support','Sales'];
 const FOLLOWUP_READ_ROLES=['Owner','Admin','Manager','Operations','Support','Sales'];
 const FOLLOWUP_WRITE_ROLES=['Owner','Admin','Manager','Support','Sales'];
