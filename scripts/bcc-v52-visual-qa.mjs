@@ -19,6 +19,8 @@ try{
   await page.waitForFunction(()=>window.NSV421DashboardV2?.ready===true);
   const navCount=await page.locator('#apNav button[data-view]').count();
   must(navCount>=25,'BCC V52 lost Admin navigation capability: '+navCount+' modules found');
+  const requiredViews=['overview','orders','payments','products','inventory','warehouses','delivery-services','delivery','customers','segments','followups','communication','content','pages','water-formats','themes','stories','ambassadors','submissions','media','schedule','seo','analytics','reports','team','audit','security','settings'];
+  for(const view of requiredViews)must(await page.locator('#apNav button[data-view="'+view+'"]').count()===1,'BCC V52 removed required Admin module: '+view);
   const visibleNav=await page.locator('#apNav button[data-view]:visible').count();
   must(visibleNav>=20,'Owner view unexpectedly hides Admin modules: '+visibleNav);
   must(await page.locator('#nsCommandHint').count()===1,'Command Center trigger missing');
@@ -26,7 +28,7 @@ try{
   must(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'Desktop BCC shell causes horizontal page overflow');
   await page.screenshot({path:OUT+'/overview-desktop.png',fullPage:false});
 
-  await page.keyboard.press('Control+KeyK');
+  await page.keyboard.press('Control+K');
   await page.waitForSelector('#nsCommandPalette.is-open');
   must(await page.locator('#nsCmdResults .ns-cmd-item').count()>=visibleNav,'Command Center does not expose the available module/action set');
   await page.screenshot({path:OUT+'/command-palette.png',fullPage:false});
