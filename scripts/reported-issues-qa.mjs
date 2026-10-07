@@ -49,12 +49,25 @@ try{
  }
  await page.screenshot({path:OUT+'/admin-followups-compact.png',fullPage:false});
 
+ await page.evaluate(()=>{const s=window.NSV421Store.load();s.customerProfiles=[
+  {uid:'v51-a',displayName:'Aarav Mehta',contactEmail:'aarav@example.com',phone:'+919811111111',primaryCity:'Jabalpur',preferredProduct:'tender',marketingEmailOptIn:true,marketingWhatsappOptIn:true,marketingTelegramOptIn:false},
+  {uid:'v51-b',displayName:'Riya Sharma',contactEmail:'riya@example.com',phone:'+919822222222',primaryCity:'Bhopal',preferredProduct:'green',marketingEmailOptIn:true,marketingWhatsappOptIn:false,marketingTelegramOptIn:false},
+  {uid:'v51-c',displayName:'No Marketing Consent',contactEmail:'orders@example.com',phone:'+919833333333',primaryCity:'Jabalpur',preferredProduct:'tender',marketingEmailOptIn:false,marketingWhatsappOptIn:false,marketingTelegramOptIn:false}
+ ];s.orders=[...(s.orders||[]),{orderId:'V51-GUEST',customerName:'Guest Virar',email:'guest@example.com',phone:'+919844444444',city:'Virar',productKey:'bulk',quantity:10,total:450,status:'delivered'}];s.campaigns=[];window.NSV421Store.save(s);window.dispatchEvent(new CustomEvent('nsv421:change'));});
  await page.locator('#apNav button[data-view="communication"]').click();await page.waitForSelector('#nsCampaignCenter',{state:'visible'});
  must(await page.locator('#nsCampaignDirectoryExport').count()===1,'Full customer directory export missing');
  await page.locator('#nsCampaignNew').click();await page.waitForSelector('#nsCampaignForm',{state:'visible'});
  for(const sel of ['[data-camp-source="existing"]','[data-camp-source="imported"]','[data-camp-select-all]','[data-camp-city]','[data-camp-product]','[data-camp-type]','[data-camp-template]','#nsCampaignCsvImport'])must(await page.locator('#nsCampaignForm '+sel).count()===1,'Campaign audience control missing: '+sel);
- must(await page.locator('#nsCampaignForm .ns-camp-customer-row').count()>0,'Existing customers are not visible in Campaign Center');
- const summary=await page.locator('#nsCampaignForm .ns-camp-audience-summary strong').allTextContents();must(summary.length===5,'Campaign audience KPI summary incomplete');
+ must(await page.locator('#nsCampaignForm .ns-camp-customer-row').count()>=4,'Existing registered + guest customers are not visible in Campaign Center');
+ let summary=await page.locator('#nsCampaignForm .ns-camp-audience-summary strong').allTextContents();must(summary.length===5,'Campaign audience KPI summary incomplete');must(Number(summary[3])===2,'Email default selection should include exactly two explicitly opted-in customers');
+ await page.locator('#nsCampaignForm [data-camp-clear]').click();summary=await page.locator('#nsCampaignForm .ns-camp-audience-summary strong').allTextContents();must(Number(summary[3])===0,'Clear selection did not clear recipients');
+ const firstEligible=page.locator('#nsCampaignForm [data-camp-row]:not([disabled])').first();await firstEligible.check();summary=await page.locator('#nsCampaignForm .ns-camp-audience-summary strong').allTextContents();must(Number(summary[3])===1,'Individual customer selection did not update');
+ await page.locator('#nsCampaignForm [data-camp-select-all]').click();summary=await page.locator('#nsCampaignForm .ns-camp-audience-summary strong').allTextContents();must(Number(summary[3])===2,'Select all eligible did not restore the eligible audience');
+ await page.locator('#nsCampaignForm [data-camp-city]').selectOption({label:/Jabalpur/});summary=await page.locator('#nsCampaignForm .ns-camp-audience-summary strong').allTextContents();must(Number(summary[1])===2&&Number(summary[2])===1,'City filtering did not produce the expected Jabalpur audience');
+ const csv='customer_id,customer_name,email,phone,telegram,city,state,country,preferred_product,customer_type,marketing_email_opt_in,marketing_whatsapp_opt_in,marketing_telegram_opt_in,consent_updated_at,include_in_campaign\nIMP-1,Imported Customer,imported@example.com,919855555555,,Indore,Madhya Pradesh,India,tender,Imported,true,false,false,2026-10-07T00:00:00Z,true\n';
+ await page.locator('#nsCampaignCsvImport').setInputFiles({name:'campaign.csv',mimeType:'text/csv',buffer:Buffer.from(csv)});await page.waitForTimeout(120);
+ must(await page.locator('#nsCampaignForm [data-camp-source="imported"]').evaluate(el=>el.classList.contains('is-active')),'Imported sheet did not become active after CSV upload');
+ must(await page.locator('#nsCampaignForm .ns-camp-customer-row').count()===1,'Imported CSV audience did not render exactly one row');
  await page.screenshot({path:OUT+'/campaign-audience-builder-desktop.png',fullPage:false});
  await page.setViewportSize({width:390,height:844});await sleep(120);
  must(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'Campaign modal causes mobile page overflow');
