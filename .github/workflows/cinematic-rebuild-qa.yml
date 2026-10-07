@@ -217,6 +217,18 @@ jobs:
           path: qa-artifacts/reported-issues/
           if-no-files-found: warn
           retention-days: 14
+      - name: Business Command Center V52 visual QA
+        if: always()
+        run: node scripts/bcc-v52-visual-qa.mjs
+        timeout-minutes: 12
+      - name: Upload Business Command Center V52 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bcc-v52-evidence
+          path: qa-artifacts/bcc-v52/
+          if-no-files-found: warn
+          retention-days: 14
       - name: Public copy professional QA
         run: node scripts/public-copy-qa.mjs
         timeout-minutes: 3
