@@ -38,6 +38,7 @@ try{
  const dup=page.locator('[data-id="WS001"] [data-v42-duplicate="WS001"]');must(await dup.count()===1,'Duplicate badge missing');
  const search=page.locator('#apV42MediaSearch');await search.fill('WS004');await page.waitForTimeout(100);let found=await visible(page);must(found.length===1&&found[0]==='WS004','ID search failed');
  await search.fill('golden backwaters');await page.waitForTimeout(100);found=await visible(page);must(found.includes('WS004'),'Title search failed');
+ await search.fill('');await page.waitForFunction(()=>!document.querySelector('#apV42MediaSearch')?.value&&Number(document.querySelector('#apMediaGrid')?.dataset.visibleCount||0)>2);
  for(const width of [1280,820,390]){await page.setViewportSize({width,height:900});await filter(page,'all');for(const id of ['AMB101-P','WS001']){const card=page.locator('#apMediaGrid .ap-media-card[data-id="'+id+'"]');await card.scrollIntoViewIfNeeded();const actions=card.locator('.ap-media-actions button');must(await actions.count()>=3,width+'px '+id+' missing actions');}}
  must(!errors.length,'Page errors: '+errors.join(' | '));
  console.log('ADMIN MEDIA ORGANIZER QA: PASS');
