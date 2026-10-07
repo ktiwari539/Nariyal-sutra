@@ -37,7 +37,7 @@ html[data-ns-admin-theme] .ap-v42-filter.is-active{background:var(--green)!impor
 html[data-ns-admin-theme] .ap-v42-media-summary{color:var(--muted)!important}
 
 .ap-view[data-view="water-formats"] .ns-water-preview-canvas{
-  min-height:0!important;height:auto!important;background:transparent!important
+  min-height:0!important;background:transparent!important
 }
 .ap-view[data-view="water-formats"] .ns-water-preview-stage{min-height:0!important}
 .ap-view[data-view="water-formats"] #nsWaterFrame{background:var(--panel,#fff)!important}
