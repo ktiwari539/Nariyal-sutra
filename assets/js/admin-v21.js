@@ -54,7 +54,7 @@ async function save(action,target){Store.audit(state,action,target);Store.save(s
 function can(role,view){return rolePerms[role]==='*'||(rolePerms[role]||[]).includes(view);}
 function currentRole(){return $('#apRole')?.value||'Owner';}
 function modal(title,sub,body){$('#apModalTitle').textContent=title;$('#apModalSub').textContent=sub||'';$('#apModalBody').innerHTML=body;$('#apModal').classList.add('is-open');}
-function closeModal(){$('#apModal').classList.remove('is-open');}
+function closeModal(){$('#apModal').classList.remove('is-open','ap-modal-wide');}
 function openView(view){const role=currentRole();if(!can(role,view)){toast(role+' cannot access this module.');return;}currentView=view;$$('.ap-view').forEach(v=>v.classList.toggle('is-active',v.dataset.view===view));$$('#apNav button[data-view]').forEach(b=>b.classList.toggle('is-active',b.dataset.view===view));if(view==='delivery')setTimeout(initMap,80);if(innerWidth<860)$('#apSidebar')?.classList.remove('is-open');}
 function applyRole(role){const id=identities[role]||identities.Owner;$$('#apNav button[data-view]').forEach(b=>b.hidden=!can(role,b.dataset.view));$$('#apNav .ap-nav-title').forEach(t=>{let n=t.nextElementSibling,any=false;while(n&&!n.classList.contains('ap-nav-title')){if(n.matches('button[data-view]')&&!n.hidden)any=true;n=n.nextElementSibling}t.hidden=!any;});
  $('#apUserName').textContent=id[0];$('#apRoleFoot').textContent=role;$('#apUserAvatar').textContent=id[1];$('#apUserAvatar').classList.remove('v27-photo-ready');$('#apGreeting').textContent='Good '+(new Date().getHours()<12?'morning':new Date().getHours()<17?'afternoon':'evening')+', '+id[0].split(' ')[0]+'.';setTimeout(hydrateStaffPhoto,0);
