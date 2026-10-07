@@ -6,7 +6,10 @@ const server=spawn('python3',['-m','http.server','4212','--bind','127.0.0.1'],{s
 await new Promise(r=>setTimeout(r,900));
 const browser=await chromium.launch({headless:true});
 async function visible(page){return page.locator('#apMediaGrid .ap-media[data-v42-visible="1"] .ap-media-id').allTextContents();}
-async function filter(page,key){await page.locator('[data-v42-filter="'+key+'"]').click();await page.waitForTimeout(120);}
+async function filter(page,key){
+ await page.waitForFunction(k=>{const nodes=[...document.querySelectorAll('[data-v42-filter="'+k+'"]')],button=nodes.find(n=>n.getClientRects().length&&getComputedStyle(n).visibility!=='hidden');if(!button)return false;button.click();return true;},key,{timeout:5000});
+ await page.waitForFunction(k=>document.querySelector('#apMediaGrid')?.dataset.activeFilter===k||[...document.querySelectorAll('[data-v42-filter="'+k+'"]')].some(n=>n.getAttribute('aria-pressed')==='true'),key,{timeout:5000});
+}
 try{
  const page=await browser.newPage({viewport:{width:1280,height:900}}),errors=[];
  page.on('pageerror',e=>errors.push(String(e)));page.setDefaultTimeout(9000);
