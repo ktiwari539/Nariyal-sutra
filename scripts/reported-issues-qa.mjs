@@ -15,10 +15,11 @@ try{
  must(await page.locator('.story-visual .sv-badge [data-price-value="bulk"]').count()===0,'Story badge still mixes retail and bulk prices');
  must(await page.locator('.sticky-bar [data-price-value="bulk"]').count()===0,'Sticky CTA still mixes retail and bulk prices');
  const kicker=(await page.locator('.hero-price .live-price-kicker').textContent())||'';must(!/local admin/i.test(kicker),'Storefront leaks internal pricing source: '+kicker);
+ await page.screenshot({path:OUT+'/storefront-hero-price.png',fullPage:false});
  const fit=await page.locator('#people-of-nariyal .ns-people-visual img').evaluate(el=>getComputedStyle(el).objectFit);
  must(fit==='contain','Homepage People teaser still crops photography: '+fit);
- const peoplePage=await browser.newPage({viewport:{width:1440,height:1000}});await peoplePage.goto(BASE+'/people-of-nariyal-sutra.html',{waitUntil:'domcontentloaded'});const heroFit=await peoplePage.locator('.people-hero>img').evaluate(el=>getComputedStyle(el).objectFit);must(heroFit==='contain','People page hero still crops photography: '+heroFit);await peoplePage.close();
- await page.locator('#people-of-nariyal').scrollIntoViewIfNeeded();await page.screenshot({path:OUT+'/storefront-people-and-price.png',fullPage:false});
+ await page.locator('#people-of-nariyal').scrollIntoViewIfNeeded();await page.screenshot({path:OUT+'/storefront-people.png',fullPage:false});
+ const peoplePage=await browser.newPage({viewport:{width:1440,height:1000}});await peoplePage.goto(BASE+'/people-of-nariyal-sutra.html',{waitUntil:'domcontentloaded'});const heroFit=await peoplePage.locator('.people-hero>img').evaluate(el=>getComputedStyle(el).objectFit);must(heroFit==='contain','People page hero still crops photography: '+heroFit);await peoplePage.screenshot({path:OUT+'/people-page-hero.png',fullPage:false});await peoplePage.close();
 
  await page.goto(BASE+'/admin-preview.html',{waitUntil:'domcontentloaded'});
  await page.waitForFunction(()=>window.NSV421Store?.load&&window.__NS_V421_ADMIN_MEDIA_ORGANIZER__===true);
