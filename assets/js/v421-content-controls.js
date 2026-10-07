@@ -29,7 +29,7 @@ function applyImages(){
    const m=mediaRecord(s,mId);if(!m)continue;
    if(t.large&&!largeReady(m)){console.warn('[Nariyal Sutra media quality] blocked low-resolution media from large section',id,mId,m.width,m.height);continue;}
    const src=m.src||m.thumb||'';if(!src)continue;const el=$(t.sel);if(!el)continue;
-   const layout=layouts[id]||{},focus=layout.focus||m.focus||'50% 50%',fit=layout.fit||m.fit||t.fit||'cover';
+   const layout=layouts[id]||{},focus=layout.focus||m.focus||'50% 50%',fit=(id==='homepage-people-teaser'||id==='people-hero')?'contain':(layout.fit||m.fit||t.fit||'cover');
    if(t.kind==='img'){
      if(el.getAttribute('src')!==src){el.src=src;el.removeAttribute('srcset');el.dataset.adminMedia=mId;}
      el.style.objectPosition=focus;el.style.objectFit=fit;el.dataset.adminMediaFit=fit;el.dataset.adminMediaQuality='approved-large';if(id==='homepage-people-teaser'){const wrap=el.closest('.ns-people-visual');wrap?.style.setProperty('--ns-people-image',`url("${String(src).replace(/"/g,'\\\"')}")`);wrap?.setAttribute('data-media-fit','full');}if(id==='people-hero'){const wrap=el.closest('.people-hero');wrap?.style.setProperty('--people-hero-image',`url("${String(src).replace(/"/g,'\\\"')}")`);wrap?.setAttribute('data-media-fit','full');}
