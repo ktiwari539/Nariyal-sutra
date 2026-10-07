@@ -118,7 +118,7 @@ await c.close();await p.video().saveAs(out+'/'+engine+'-customer-motion.webm');a
 // Saved-credential/password-manager insertion WITHOUT keyboard/input/change events.
 const autofill=await context(),ap=await open(autofill);
 await ap.evaluate(()=>{document.getElementById('nsacct-login-email').value='saved@example.com';document.getElementById('nsacct-login-password').value='Synthetic-manager-123';window.__authScenario='wrong-password';});
-await ap.locator('#nsacct-login-password').focus();ok('Manager-style fill without input events still gets privacy pose',await ap.locator('.ns-auth-shell').getAttribute('data-nariyal-pose')==='privacy');
+await ap.locator('#nsacct-login-password').focus();const managerShell=ap.locator('#nsacct-login-password').locator('xpath=ancestor::*[contains(concat(" ",normalize-space(@class)," ")," ns-auth-shell ")][1]');await managerShell.waitFor({state:'visible'});await ap.waitForFunction(()=>document.getElementById('nsacct-login-password')?.closest('.ns-auth-shell')?.dataset.nariyalPose==='privacy');ok('Manager-style fill without input events still gets privacy pose',await managerShell.getAttribute('data-nariyal-pose')==='privacy');
 await ap.keyboard.press('Enter');await ap.locator('#nsacct-message.err').waitFor();
 ok('Enter submits autofilled credentials and validation stays editable',await ap.evaluate(()=>__authCalls.includes('signin'))&&await ap.locator('#nsacct-login-password').isEnabled());
 await shot(ap,'autofill-error');
