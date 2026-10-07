@@ -1,7 +1,7 @@
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
 import fs from 'node:fs';
-const BASE='http://127.0.0.1:4213',OUT='qa-artifacts/reported-issues',must=(c,m)=>{if(!c)throw new Error(m)},sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const BASE='http://127.0.0.1:4213',OUT='qa-artifacts/reported-issues',failures=[],must=(c,m)=>{if(!c)failures.push(m)},sleep=ms=>new Promise(r=>setTimeout(r,ms));
 fs.mkdirSync(OUT,{recursive:true});
 const server=spawn('python3',['-m','http.server','4213','--bind','127.0.0.1'],{stdio:'ignore'});await sleep(850);
 const browser=await chromium.launch({headless:true});
@@ -77,5 +77,5 @@ try{
  await page.setViewportSize({width:390,height:844});await sleep(120);
  must(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'Campaign modal causes mobile page overflow');
  await page.screenshot({path:OUT+'/campaign-audience-builder-mobile.png',fullPage:false});
- console.log('REPORTED ISSUE VISUAL + WORKFLOW QA: PASS');
+ if(failures.length)throw new Error('REPORTED ISSUE QA FAILURES ('+failures.length+'):\n- '+failures.join('\n- '));\n console.log('REPORTED ISSUE VISUAL + WORKFLOW QA: PASS');
 }finally{await browser.close().catch(()=>{});server.kill('SIGTERM');}
