@@ -1,7 +1,7 @@
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
 import fs from 'node:fs';
-const BASE='http://127.0.0.1:4209',must=(c,m)=>{if(!c)throw new Error(m)},sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const BASE='http://127.0.0.1:4209',OUT='qa-artifacts/campaign-center',must=(c,m)=>{if(!c)throw new Error(m)},sleep=ms=>new Promise(r=>setTimeout(r,ms));fs.mkdirSync(OUT,{recursive:true});
 const campaign=fs.readFileSync('assets/js/admin-campaign-center.js','utf8'),account=fs.readFileSync('customer-account.js','utf8'),rules=fs.readFileSync('firestore.rules','utf8'),bridge=fs.readFileSync('assets/js/v421-production-bridge.js','utf8'),loader=fs.readFileSync('assets/js/admin-v30.js','utf8');
 for(const flag of ['marketingEmailOptIn===true','marketingWhatsappOptIn===true','marketingTelegramOptIn===true'])must(campaign.includes(flag),`Campaign audience does not require explicit ${flag}`);
 must(!/notifyEmail|notifyWhatsapp|notifyTelegram/.test(campaign),'Campaign Center incorrectly reuses order-update preferences as marketing consent');
@@ -26,6 +26,12 @@ try{
  ];s.campaigns=[];window.NSV421Store.save(s);window.dispatchEvent(new CustomEvent('nsv421:change'));});
  await page.locator('#apNav button[data-view="communication"]').click();await page.waitForSelector('#nsCampaignCenter',{state:'visible'});await sleep(80);
  const stats=await page.locator('#nsCampaignCenter .ns-camp-stats strong').allTextContents();must(stats.join('|')==='3|2|1|1|1',`Consent KPI counts wrong: ${stats.join('|')}`);
+ must(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'Campaign Center desktop page overflow');
+ await page.screenshot({path:OUT+'/campaign-center-desktop.png',fullPage:true});
+ await page.setViewportSize({width:390,height:844});await sleep(120);
+ must(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'Campaign Center mobile page overflow');
+ await page.screenshot({path:OUT+'/campaign-center-mobile.png',fullPage:true});
+ await page.setViewportSize({width:1440,height:1000});await sleep(120);
  const audience=await page.evaluate(()=>window.NSV421CampaignCenter.audience({channels:['Email','WhatsApp','Telegram'],city:'',product:''}));must(audience.email.length===1&&audience.wa.length===1&&audience.tg.length===1&&audience.union.length===2,'Order-update-only customer leaked into campaign audience');
  await page.locator('#nsCampaignNew').click();await page.waitForSelector('#nsCampaignForm',{state:'visible'});await page.locator('#nsCampaignForm [name="name"]').fill('QA Festival Campaign');await page.locator('#nsCampaignForm [name="channels"][value="WhatsApp"]').check();await page.locator('#nsCampaignForm [name="channels"][value="Telegram"]').check();await page.locator('#nsCampaignForm [name="subject"]').fill('Festival wishes from Nariyal Sutra');await page.locator('#nsCampaignForm [name="message"]').fill('Warm wishes from Nariyal Sutra.');await page.locator('#nsCampaignForm button[type="submit"]').click();
  await page.waitForFunction(()=>window.NSV421Store.load().campaigns?.length===1);let saved=await page.evaluate(()=>window.NSV421Store.load().campaigns[0]);must(saved.status==='Draft'&&saved.channels.length===3,'Campaign draft did not persist correctly');
