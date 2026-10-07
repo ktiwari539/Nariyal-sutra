@@ -24,7 +24,7 @@ try{
  await page.goto(BASE+'/admin-preview.html',{waitUntil:'domcontentloaded'});
  await page.waitForFunction(()=>window.NSV421Store?.load&&window.__NS_V421_ADMIN_MEDIA_ORGANIZER__===true);
  await page.evaluate(()=>document.documentElement.setAttribute('data-ns-admin-theme','coastal-premium'));
- await page.locator('#apNav button[data-view="media"]').click();await page.waitForSelector('#apV42MediaOrganizer',{state:'visible'});
+ await page.locator('#apNav button[data-view="media"]').click();await page.waitForSelector('#apV42MediaOrganizer',{state:'visible'});await page.waitForFunction(()=>window.NSV421AdminMediaOrganizer?.ready===true&&document.querySelector('#apMediaGrid')?.dataset.organizerReady==='1');
  const mediaSets={};for(const key of ['website-ready','in-use','people','reference','needs-review','archived','all']){
    const b=page.locator('[data-v42-filter="'+key+'"]');await b.click();await page.waitForFunction(k=>document.querySelector('#apMediaGrid')?.dataset.activeFilter===k,key);
    must(await b.getAttribute('aria-pressed')==='true','Filter did not stay active: '+key);
