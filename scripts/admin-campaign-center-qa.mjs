@@ -7,6 +7,8 @@ for(const flag of ['marketingEmailOptIn===true','marketingWhatsappOptIn===true',
 must(!/notifyEmail|notifyWhatsapp|notifyTelegram/.test(campaign),'Campaign Center incorrectly reuses order-update preferences as marketing consent');
 must(account.includes('Offers, announcements &amp; festival greetings')&&account.includes('marketingEmailOptIn:false')&&account.includes('marketingWhatsappOptIn:false')&&account.includes('marketingTelegramOptIn:false'),'Customer account does not expose separate default-off marketing consent');
 for(const f of ['marketingEmailOptIn','marketingWhatsappOptIn','marketingTelegramOptIn'])must(rules.includes(f),`Firestore profile contract missing ${f}`);
+must(rules.includes("!d.diff(resource.data).affectedKeys().hasAny(['marketingEmailOptIn','marketingWhatsappOptIn','marketingTelegramOptIn'])"),'Firestore consent timestamp would be forced to refresh on unrelated profile edits');
+must(rules.includes("d.diff(resource.data).affectedKeys().hasAny(['marketingConsentUpdatedAt'])"),'Firestore rules do not bind consent timestamp changes to consent-field changes');
 must(bridge.includes("'campaigns'")&&loader.includes('admin-campaign-center.js'),'Campaign drafts are not wired into private Admin persistence/runtime');
 must(!/api\.emailjs\.com|graph\.facebook|whatsapp.*api|api\.telegram\.org/i.test(campaign),'No-cost Campaign Center contains a direct bulk provider send path');
 const server=spawn('python3',['-m','http.server','4209','--bind','127.0.0.1'],{stdio:'ignore'});await sleep(850);
