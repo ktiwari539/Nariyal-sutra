@@ -10,10 +10,10 @@ const TARGETS={
  'homepage-harvest-1':{page:'homepage',sel:'#harvest-film .harvest-scene:nth-child(1)',kind:'img',large:true,fit:'cover'},
  'homepage-harvest-2':{page:'homepage',sel:'#harvest-film .harvest-scene:nth-child(2)',kind:'img',large:true,fit:'cover'},
  'homepage-harvest-3':{page:'homepage',sel:'#harvest-film .harvest-scene:nth-child(3)',kind:'img',large:true,fit:'cover'},
- 'homepage-people-teaser':{page:'homepage',sel:'#people-of-nariyal .ns-people-visual img',kind:'img',large:true,fit:'cover'},
+ 'homepage-people-teaser':{page:'homepage',sel:'#people-of-nariyal .ns-people-visual img',kind:'img',large:true,fit:'contain'},
  'homepage-cinematic-grove':{page:'homepage',sel:'#v20-story-film .v20-origin-scene[data-cinematic-slot="grove"]',kind:'img',large:true,fit:'cover'},
  'homepage-cinematic-canopy':{page:'homepage',sel:'#v20-story-film .v20-origin-scene[data-cinematic-slot="canopy"]',kind:'img',large:true,fit:'cover'},
- 'people-hero':{page:'people',sel:'#peopleHeroImg',kind:'img',large:true,fit:'cover'},
+ 'people-hero':{page:'people',sel:'#peopleHeroImg',kind:'img',large:true,fit:'contain'},
  'fresh-tender-hero':{page:'fresh-tender-coconut',sel:'.sp-scenes .sp-scene:first-child',kind:'img',large:true,fit:'cover'},
  'green-hero':{page:'green-coconut',sel:'.sp-scenes .sp-scene:first-child',kind:'img',large:true,fit:'cover'},
  'bulk-hero':{page:'bulk',sel:'.w-hero-media img',kind:'img',large:true,fit:'cover'}
@@ -32,7 +32,7 @@ function applyImages(){
    const layout=layouts[id]||{},focus=layout.focus||m.focus||'50% 50%',fit=layout.fit||m.fit||t.fit||'cover';
    if(t.kind==='img'){
      if(el.getAttribute('src')!==src){el.src=src;el.removeAttribute('srcset');el.dataset.adminMedia=mId;}
-     el.style.objectPosition=focus;el.style.objectFit=fit;el.dataset.adminMediaFit=fit;el.dataset.adminMediaQuality='approved-large';
+     el.style.objectPosition=focus;el.style.objectFit=fit;el.dataset.adminMediaFit=fit;el.dataset.adminMediaQuality='approved-large';if(id==='homepage-people-teaser'){const wrap=el.closest('.ns-people-visual');wrap?.style.setProperty('--ns-people-image',`url("${String(src).replace(/"/g,'\\\"')}")`);wrap?.setAttribute('data-media-fit','full');}if(id==='people-hero'){const wrap=el.closest('.people-hero');wrap?.style.setProperty('--people-hero-image',`url("${String(src).replace(/"/g,'\\\"')}")`);wrap?.setAttribute('data-media-fit','full');}
    }else{
      el.style.backgroundImage=(t.overlay?t.overlay+',':'')+`url("${String(src).replace(/"/g,'')}")`;el.style.backgroundPosition=focus;el.style.backgroundSize=fit==='contain'?'contain':'cover';el.style.backgroundRepeat='no-repeat';el.dataset.adminMedia=mId;el.dataset.adminMediaFit=fit;el.dataset.adminMediaQuality='approved-large';
    }
