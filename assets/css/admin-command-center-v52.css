@@ -128,7 +128,7 @@ html[data-bcc-v52="1"] .ap-toast{border-radius:10px;box-shadow:0 16px 45px rgba(
  html[data-bcc-v52="1"] .ap-grid-2,html[data-bcc-v52="1"] .ap-grid-3{grid-template-columns:1fr}
  html[data-bcc-v52="1"] .ap-split{grid-template-columns:1fr}
  html[data-bcc-v52="1"] .ap-sidecard{position:static;max-height:none}
- html[data-bcc-v52="1"] .ap-search{min-width:90px}
+ html[data-bcc-v52="1"] .ap-search{display:block!important;min-width:90px;flex:1 1 120px}
  html[data-bcc-v52="1"] .ap-search input{padding-right:74px}
  html[data-bcc-v52="1"] .ap-top-actions{max-width:52vw;overflow-x:auto;overscroll-behavior-inline:contain;scrollbar-width:none;flex:0 1 auto}
  html[data-bcc-v52="1"] .ap-top-actions::-webkit-scrollbar{display:none}
