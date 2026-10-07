@@ -305,10 +305,12 @@ jobs:
         run: |
           git fetch --unshallow origin || git fetch --prune origin
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
-          test "$(git rev-parse refs/heads/feature/storefront-themes)" = "$GITHUB_SHA"
+          test -n "$GITHUB_REF_NAME"
+          git update-ref "refs/heads/$GITHUB_REF_NAME" "$GITHUB_SHA"
+          test "$(git rev-parse "refs/heads/$GITHUB_REF_NAME")" = "$GITHUB_SHA"
           mkdir -p qa-artifacts/recovery
           BUNDLE="qa-artifacts/recovery/Nariyal-sutra-local-acceptance-${GITHUB_SHA}.bundle"
-          git bundle create "$BUNDLE" refs/heads/feature/storefront-themes
+          git bundle create "$BUNDLE" "refs/heads/$GITHUB_REF_NAME"
           git bundle verify "$BUNDLE"
           sha256sum "$BUNDLE" | tee "$BUNDLE.sha256"
         timeout-minutes: 5
