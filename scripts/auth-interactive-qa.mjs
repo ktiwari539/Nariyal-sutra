@@ -41,7 +41,8 @@ async function open(c,kind='customer'){
   await trigger.waitFor({state:'visible'});
   for(let attempt=0;attempt<2;attempt++){
    if(await signin.isVisible().catch(()=>false))break;
-   await trigger.click({force:attempt>0});
+   try{await trigger.click({force:attempt>0,timeout:15000});}
+   catch(e){if(attempt===1)throw e;await p.waitForTimeout(250);continue;}
    try{await overlay.waitFor({state:'visible',timeout:5000});await signin.waitFor({state:'visible',timeout:5000});break;}catch(e){if(attempt===1)throw e;await p.waitForTimeout(150);}
   }
  } else await p.waitForFunction(()=>!document.getElementById('submit').disabled);
