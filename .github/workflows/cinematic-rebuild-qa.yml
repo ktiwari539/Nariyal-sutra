@@ -149,6 +149,9 @@ jobs:
       - name: Communication and Review Queue acceptance QA
         run: node scripts/admin-communication-review-qa.mjs
         timeout-minutes: 15
+      - name: Customer Campaign Center consent and no-cost workflow QA
+        run: node scripts/admin-campaign-center-qa.mjs
+        timeout-minutes: 12
       - name: Admin Follow-up workflow acceptance QA
         run: node scripts/admin-followup-browser-qa.mjs
         timeout-minutes: 12
