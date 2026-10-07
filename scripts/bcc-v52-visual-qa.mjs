@@ -66,6 +66,9 @@ try{
   await page.setViewportSize({width:390,height:844});
   await sleep(160);
   must(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'BCC V52 mobile shell causes horizontal overflow');
+  must(await page.locator('#apRole').evaluate(el=>getComputedStyle(el).display!=='none'),'Mobile BCC hides role control');
+  must(await page.locator('#apNotifications').evaluate(el=>getComputedStyle(el).display!=='none'),'Mobile BCC hides notifications control');
+  await page.locator('#apGlobalSearch').fill('orders');await page.locator('#apGlobalSearch').press('Enter');await page.waitForSelector('#nsCommandPalette.is-open');await page.keyboard.press('Escape');
   await page.screenshot({path:OUT+'/overview-mobile.png',fullPage:false});
   await page.locator('#apMenuBtn').click();
   await page.waitForFunction(()=>document.querySelector('#apSidebar')?.classList.contains('is-open'));
