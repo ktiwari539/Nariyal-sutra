@@ -209,6 +209,14 @@ jobs:
       - name: Screenshot-reported issue QA
         run: node scripts/reported-issues-qa.mjs
         timeout-minutes: 12
+      - name: Upload screenshot-reported issue evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reported-issues-evidence
+          path: qa-artifacts/reported-issues/
+          if-no-files-found: warn
+          retention-days: 14
       - name: Public copy professional QA
         run: node scripts/public-copy-qa.mjs
         timeout-minutes: 3
