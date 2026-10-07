@@ -26,9 +26,9 @@ try{
  for(const id of CLEAN)must(defaults.includes(id),'Default omitted '+id);
  for(const id of ['AMB101-P','AMB102-P','AMB201-P'])must(!defaults.includes(id),'Website-ready duplicated People '+id);
  must(await page.locator('[data-v42-filter="website-ready"]').getAttribute('aria-pressed')==='true','Website-ready active state missing');
- await filter(page,'reference');must(await page.locator('[data-v42-filter="reference"]').getAttribute('aria-pressed')==='true','Reference did not activate');const refs=await visible(page);
+ await filter(page,'reference');must(await page.locator('[data-v42-filter="reference"]').getAttribute('aria-pressed')==='true','Reference did not activate');const refs=await visible(page);must(/Reference filter/i.test(await page.locator('#apV42MediaSummary').innerText()),'Reference filter result feedback missing');
  for(const id of REFERENCE)must(refs.includes(id),'Reference omitted '+id);for(const id of CLEAN)must(!refs.includes(id),'Reference leaked '+id);
- await filter(page,'people');must(await page.locator('[data-v42-filter="people"]').getAttribute('aria-pressed')==='true','People did not activate');const people=await visible(page);
+ await filter(page,'people');must(await page.locator('[data-v42-filter="people"]').getAttribute('aria-pressed')==='true','People did not activate');const people=await visible(page);must(/People filter/i.test(await page.locator('#apV42MediaSummary').innerText()),'People filter result feedback missing');must(people.join('|')!==refs.join('|'),'People and Reference filters rendered the same result set');await page.screenshot({path:'qa-artifacts/media-organizer-people-filter.png',fullPage:false});
  for(const id of ['AMB101-P','AMB102-P','AMB201-P'])must(people.includes(id),'People omitted '+id);for(const id of CLEAN)must(!people.includes(id),'People leaked '+id);
  await filter(page,'needs-review');must((await visible(page)).includes('QA-REVIEW'),'Needs-review omitted QA record');
  await filter(page,'archived');must((await visible(page)).includes('QA-ARCHIVE'),'Archived omitted QA record');

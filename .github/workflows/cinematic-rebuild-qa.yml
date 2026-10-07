@@ -186,6 +186,16 @@ jobs:
       - name: Customer acquisition browser QA
         run: node scripts/acquisition-attribution-browser-qa.mjs
         timeout-minutes: 10
+      - name: Upload Media and Campaign Center evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: media-campaign-evidence
+          path: |
+            qa-artifacts/media-organizer-people-filter.png
+            qa-artifacts/campaign-center/
+          if-no-files-found: warn
+          retention-days: 14
   qa:
     needs: [auth-experience, themes-pricing-water, firebase-contract, media-targeted]
     runs-on: ubuntu-latest
