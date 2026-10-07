@@ -12,6 +12,7 @@ try{
  await page.waitForFunction(()=>window.NSLiveCatalog&&document.querySelector('.hero-price'));
  must(await page.locator('.hero-price [data-price-value]').count()===1,'Hero still exposes multiple customer prices');
  must(await page.locator('.hero-price [data-price-value="bulk"]').count()===0,'Hero still exposes ambiguous bulk price');
+ const kicker=(await page.locator('.hero-price .live-price-kicker').textContent())||'';must(!/local admin/i.test(kicker),'Storefront leaks internal pricing source: '+kicker);
  const fit=await page.locator('#people-of-nariyal .ns-people-visual img').evaluate(el=>getComputedStyle(el).objectFit);
  must(fit==='contain','Homepage People teaser still crops photography: '+fit);
  await page.locator('#people-of-nariyal').scrollIntoViewIfNeeded();await page.screenshot({path:OUT+'/storefront-people-and-price.png',fullPage:false});
