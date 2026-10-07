@@ -57,7 +57,7 @@ try{
   {uid:'v51-a',displayName:'Aarav Mehta',contactEmail:'aarav@example.com',phone:'+919811111111',primaryCity:'Jabalpur',preferredProduct:'tender',marketingEmailOptIn:true,marketingWhatsappOptIn:true,marketingTelegramOptIn:false},
   {uid:'v51-b',displayName:'Riya Sharma',contactEmail:'riya@example.com',phone:'+919822222222',primaryCity:'Bhopal',preferredProduct:'green',marketingEmailOptIn:true,marketingWhatsappOptIn:false,marketingTelegramOptIn:false},
   {uid:'v51-c',displayName:'No Marketing Consent',contactEmail:'orders@example.com',phone:'+919833333333',primaryCity:'Jabalpur',preferredProduct:'tender',marketingEmailOptIn:false,marketingWhatsappOptIn:false,marketingTelegramOptIn:false}
- ];s.orders=[...(s.orders||[]),{orderId:'V51-GUEST',customerName:'Guest Virar',email:'guest@example.com',phone:'+919844444444',city:'Virar',productKey:'bulk',quantity:10,total:450,status:'delivered'}];s.campaigns=[];window.NSV421Store.save(s);window.dispatchEvent(new CustomEvent('nsv421:change'));});
+ ];s.orders=[{orderId:'V51-GUEST',customerName:'Guest Virar',email:'guest@example.com',phone:'+919844444444',city:'Virar',productKey:'bulk',quantity:10,total:450,status:'delivered'}];s.campaigns=[];window.NSV421Store.save(s);window.dispatchEvent(new CustomEvent('nsv421:change'));});
  await page.locator('#apNav button[data-view="communication"]').click();await page.waitForSelector('#nsCampaignCenter',{state:'visible'});
  must(await page.locator('#nsCampaignDirectoryExport').count()===1,'Full customer directory export missing');
  await page.locator('#nsCampaignNew').click();await page.waitForSelector('#nsCampaignForm',{state:'visible'});
