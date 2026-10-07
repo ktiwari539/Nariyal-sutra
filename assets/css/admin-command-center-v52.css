@@ -128,19 +128,23 @@ html[data-bcc-v52="1"] .ap-toast{border-radius:10px;box-shadow:0 16px 45px rgba(
  html[data-bcc-v52="1"] .ap-grid-2,html[data-bcc-v52="1"] .ap-grid-3{grid-template-columns:1fr}
  html[data-bcc-v52="1"] .ap-split{grid-template-columns:1fr}
  html[data-bcc-v52="1"] .ap-sidecard{position:static;max-height:none}
+ html[data-bcc-v52="1"] .ap-search{min-width:90px}
  html[data-bcc-v52="1"] .ap-search input{padding-right:74px}
+ html[data-bcc-v52="1"] .ap-top-actions{max-width:52vw;overflow-x:auto;overscroll-behavior-inline:contain;scrollbar-width:none;flex:0 1 auto}
+ html[data-bcc-v52="1"] .ap-top-actions::-webkit-scrollbar{display:none}
+ html[data-bcc-v52="1"] .ap-top-actions>*{flex:0 0 auto}
  html[data-bcc-v52="1"] .ap-role-select{max-width:115px}
 }
 @media(max-width:620px){
  html[data-bcc-v52="1"] .ap-kpis{grid-template-columns:1fr 1fr}
- html[data-bcc-v52="1"] .ap-top-actions #apNotifications{display:none}
  html[data-bcc-v52="1"] .ap-session-pill{min-width:0}
- html[data-bcc-v52="1"] .ap-role-select{display:none}
+ html[data-bcc-v52="1"] .ap-role-select{max-width:104px}
  html[data-bcc-v52="1"] .ap-page-head h1{font-size:29px}
  html[data-bcc-v52="1"] .ap-panel{padding:12px}
  html[data-bcc-v52="1"] .ap-toolbar{align-items:stretch;flex-direction:column}
  html[data-bcc-v52="1"] .ap-toolbar>*{width:100%}
- #nsCommandHint{min-width:52px}
+ #nsCommandHint{display:none}
+ html[data-bcc-v52="1"] .ap-search input{padding-right:10px}
  .ns-cmd-layer{padding:6vh 8px 8px}
  .ns-cmd-card{border-radius:14px}
 }
