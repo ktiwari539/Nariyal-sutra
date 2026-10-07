@@ -295,7 +295,7 @@ service cloud.firestore {
         && d.preferredChannel in ['whatsapp','email','telegram','any']
         && d.notifyEmail is bool && d.notifyWhatsapp is bool && d.notifyTelegram is bool
         && d.marketingEmailOptIn is bool && d.marketingWhatsappOptIn is bool && d.marketingTelegramOptIn is bool
-        && (!('marketingConsentUpdatedAt' in d) || d.marketingConsentUpdatedAt == request.time)
+        && (!('marketingConsentUpdatedAt' in d) || (d.marketingConsentUpdatedAt is timestamp && d.marketingConsentUpdatedAt == request.time))
         && d.primaryCity is string && d.primaryCity.size() <= 120
         && d.primaryState is string && d.primaryState.size() <= 100
         && d.primaryCountry is string && d.primaryCountry.size() <= 80
@@ -324,7 +324,15 @@ service cloud.firestore {
         && d.preferredChannel in ['whatsapp','email','telegram','any']
         && d.notifyEmail is bool && d.notifyWhatsapp is bool && d.notifyTelegram is bool
         && d.marketingEmailOptIn is bool && d.marketingWhatsappOptIn is bool && d.marketingTelegramOptIn is bool
-        && (!('marketingConsentUpdatedAt' in d) || d.marketingConsentUpdatedAt == request.time)
+        && (!('marketingConsentUpdatedAt' in d) || d.marketingConsentUpdatedAt is timestamp)
+        && (
+          !d.diff(resource.data).affectedKeys().hasAny(['marketingEmailOptIn','marketingWhatsappOptIn','marketingTelegramOptIn'])
+          || (('marketingConsentUpdatedAt' in d) && d.marketingConsentUpdatedAt == request.time)
+        )
+        && (
+          !d.diff(resource.data).affectedKeys().hasAny(['marketingConsentUpdatedAt'])
+          || d.diff(resource.data).affectedKeys().hasAny(['marketingEmailOptIn','marketingWhatsappOptIn','marketingTelegramOptIn'])
+        )
         && d.primaryCity is string && d.primaryCity.size() <= 120
         && d.primaryState is string && d.primaryState.size() <= 100
         && d.primaryCountry is string && d.primaryCountry.size() <= 80
