@@ -206,6 +206,9 @@ jobs:
       - name: Manual acceptance regression QA
         run: node scripts/manual-acceptance-regression-qa.mjs
         timeout-minutes: 20
+      - name: Screenshot-reported issue QA
+        run: node scripts/reported-issues-qa.mjs
+        timeout-minutes: 12
       - name: Public copy professional QA
         run: node scripts/public-copy-qa.mjs
         timeout-minutes: 3
