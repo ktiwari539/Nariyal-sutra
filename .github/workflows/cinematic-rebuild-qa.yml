@@ -1,7 +1,7 @@
 name: Cinematic rebuild QA
 on:
   push:
-    branches: [fix/cinematic-real-sequence-20260911, improvement/pre-release-optimization, feature/storefront-themes]
+    branches: [fix/cinematic-real-sequence-20260911, improvement/pre-release-optimization, feature/storefront-themes, feature/customer-campaign-center]
   workflow_dispatch:
 concurrency:
   group: cinematic-rebuild-qa-${{ github.ref }}
