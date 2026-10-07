@@ -32,7 +32,7 @@ function init(){
     hero.src=src;hero.style.objectPosition=focus;
     if(wrap){wrap.dataset.mediaFit=selectedAllowed?'full':'cover';wrap.style.setProperty('--people-hero-focus',focus);wrap.style.setProperty('--people-hero-image',`url("${String(src).replace(/"/g,'\\\"')}")`);}
     if(selectedAllowed&&selected.localBlobKey)hero.setAttribute('data-local-blob-key',selected.localBlobKey);else hero.removeAttribute('data-local-blob-key');
-    hero.onerror=()=>{hero.onerror=null;const fallback='assets/images/review/coastal-grove.webp';hero.src=fallback;hero.removeAttribute('data-local-blob-key');if(wrap){wrap.dataset.mediaFit='cover';wrap.style.setProperty('--people-hero-focus','50% 50%');wrap.style.setProperty('--people-hero-image',`url("${fallback}")`);}};
+    hero.onerror=()=>{hero.onerror=null;const fallback='assets/images/review/coastal-grove.webp';hero.src=fallback;hero.style.objectFit='contain';hero.removeAttribute('data-local-blob-key');if(wrap){wrap.dataset.mediaFit='full';wrap.style.setProperty('--people-hero-focus','50% 50%');wrap.style.setProperty('--people-hero-image',`url("${fallback}")`);}};
   }
   if(MediaDB&&MediaDB.hydrate)MediaDB.hydrate(document);
 }
