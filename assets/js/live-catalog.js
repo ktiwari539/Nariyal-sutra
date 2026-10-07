@@ -48,8 +48,8 @@ function render(){
  const retail=[price('tender'),price('green')].filter(x=>x!==null);
  toggle('[data-retail-toggle]',retail.length?`🥥 Retail from ₹${Math.min(...retail)}/pc`:'🥥 Retail · price pending');
  toggle('[data-bulk-toggle]',price('bulk')!==null?`📦 Bulk ${catalog.bulk.minQty||1}+ — ₹${price('bulk')}/pc`:'📦 Bulk · price pending');
- const live=document.getElementById('catalogLive');if(live){live.textContent=ready?(source==='local-admin'?'Local Admin catalogue':'Current availability'):label;if(!ready&&status!=='loading'){const b=document.createElement('button');b.type='button';b.textContent='Retry';b.onclick=refresh;live.append(' ',b);}}
- document.querySelectorAll('.live-price-kicker').forEach(e=>e.textContent=ready?(source==='local-admin'?'Local Admin pricing':'Current pricing'):label);
+ const live=document.getElementById('catalogLive');if(live){live.textContent=ready?'Current availability':label;if(!ready&&status!=='loading'){const b=document.createElement('button');b.type='button';b.textContent='Retry';b.onclick=refresh;live.append(' ',b);}}
+ document.querySelectorAll('.live-price-kicker').forEach(e=>e.textContent=ready?'Current retail price':label);
  if(typeof window.calc==='function')window.calc();
 }
 async function refresh(){if(LOCAL)return syncLocal();if(!connection)return false;const request=++requestId,startedAt=revision;try{const snap=await connection.fs.getDocsFromServer(connection.ref);return accept(snap,{request,startedAt});}catch(e){if(request===requestId&&startedAt===revision)unavailable();return false;}}
