@@ -13,7 +13,7 @@ const browser=await chromium.launch({headless:true});
 
 async function inspectMediaLayout(page,label){
  await page.evaluate(()=>document.querySelector('#apNav button[data-view="media"]')?.click());
- await page.waitForSelector('#apMediaGrid .ap-media',{state:'visible',timeout:8000});
+ await page.waitForFunction(()=>[...document.querySelectorAll('#apMediaGrid .ap-media')].some(card=>{const r=card.getBoundingClientRect();return r.width>0&&r.height>0&&getComputedStyle(card).display!=='none';}),null,{timeout:8000});
  await page.waitForFunction(()=>window.__NS_V421_ADMIN_V43_MEDIA_GUIDANCE__===true&&[...document.querySelectorAll('#apMediaGrid .ap-media img')].some(img=>img.naturalWidth>0&&img.naturalHeight>0),null,{timeout:10000});
  await page.waitForTimeout(180);
  const result=await page.evaluate(()=>{
