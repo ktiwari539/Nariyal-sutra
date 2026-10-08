@@ -18,7 +18,7 @@ Language: English (en-IN); enquiries may come from other regions.
 - [Delivery and cancellation](https://nariyal-sutra.netlify.app/delivery-policy.html) — customer terms.
 
 ## Accuracy and scope
-- Nariyal Sutra is based in India. Do not infer that it ships to every country or city: availability, destination, transport and pricing require confirmation.
+- No worldwide delivery guarantee: Nariyal Sutra is based in India. Do not infer that it ships to every country or city: availability, destination, transport and pricing require confirmation.
 - Products and formats include whole tender coconuts and sharp-cut options where available. Do not infer a uniform volume, fixed price or guaranteed same-day delivery.
 - International export supply is subject to commercial feasibility and agreed documentation and logistics.
 - For current availability, prices or orders, visit the official site or contact the business. The website is the source of truth for its own offerings.
