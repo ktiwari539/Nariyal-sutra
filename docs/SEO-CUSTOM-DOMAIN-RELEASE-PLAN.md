@@ -22,7 +22,7 @@ Status: **release preparation only**. This document does **not** approve a produ
 
 ## Gate B — Production release package and credit control (separate approval)
 
-- Current `netlify.toml` declares `publish = "."`. This can publish `docs/`, QA files, large recordings and other repository content. **This is a blocker for direct GitHub production deployment.**
+- The old `netlify.toml` declared `publish = "."`, which risked uploading `docs/`, QA recordings and repository-only files. **The integration candidate now uses `command = "node scripts/build-netlify-site.mjs"` and `publish = "dist-site"`.** This must pass CI and be reviewed before any future deployment.
 - Create a vetted staged publish directory from an **allowlist** of required public HTML, CSS, JS, images, robots.txt, sitemap.xml, public web manifest and Netlify headers/redirects.
 - Exclude `.github/`, `docs/`, `scripts/`, `qa-artifacts/`, local/temporary files, test screenshots and videos, build/recovery bundles, `.env*`, secrets and source-only reports.
 - Preserve all seven required Netlify Functions via the correct `functions` setting, and test their route mappings and runtime module imports.
