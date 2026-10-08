@@ -210,7 +210,8 @@ const semanticContracts = {
     /(events|weddings)/i,
     /(hotels|cafés|hospitality)/i
   ],
-  'coconut-wholesale-export.html': [/wholesale/i, /export/i]
+  'coconut-wholesale-export.html': [/wholesale/i, /export/i],
+  'coconut-buying-guide.html': [/tender coconut/i, /coconut water/i, /bulk/i, /international trade/i]
 };
 
 for (const [file, patterns] of Object.entries(semanticContracts)) {
@@ -247,6 +248,29 @@ const robotsTxt = await read('robots.txt');
 if (!robotsTxt.includes('Sitemap: ' + ORIGIN + '/sitemap.xml')) {
   errors.push('robots.txt: canonical sitemap declaration missing');
 }
+
+
+// Make AI search visibility an explicit, testable contract.
+// Training crawlers are independent; we are not changing their settings here.
+for (const bot of [
+  'OAI-SearchBot','ChatGPT-User','PerplexityBot','Perplexity-User',
+  'Claude-SearchBot','Claude-User','Googlebot','bingbot'
+]) {
+  const rule = robotsTxt.match(new RegExp('User-agent: ' + bot + '\\s*\\nAllow: \\/', 'i'));
+  if (!rule) errors.push('robots.txt: public search/retrieval crawler not explicitly allowed: ' + bot);
+}
+if (!urls.includes(ORIGIN + '/coconut-buying-guide.html')) {
+  errors.push('sitemap.xml: missing public coconut buying guide');
+}
+if (!home.includes('href="coconut-buying-guide.html"')) {
+  errors.push('index.html: buying guide internal link missing');
+}
+const llms = await read('llms.txt');
+for (const must of ['# Nariyal Sutra','/coconut-buying-guide.html','/sitemap.xml','No worldwide delivery guarantee']) {
+  if (!llms.includes(must)) errors.push('llms.txt: missing factual discovery field ' + must);
+}
+checks.push('Major AI search and user-retrieval crawlers explicitly allowed');
+checks.push('Official AI-readable source index and homepage guide link present');
 
 const headers = await read('_headers');
 for (const route of [
