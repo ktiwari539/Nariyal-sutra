@@ -119,8 +119,9 @@
       if(p.type==='registered'&&!all.length)signals.push('Profile created · no orders yet');
       if(p.type==='registered'&&(!email||!phone))signals.push('Profile contact incomplete');
       if(p.type==='registered'&&profile.notifyTelegram===true&&!clean(profile.telegramUsername))signals.push('Telegram updates selected · username missing');
-      if(p.type==='registered'&&(!email||!phone))signals.push('Profile contact incomplete');
-      if(p.type==='registered'&&profile.notifyTelegram===true&&!clean(profile.telegramUsername))signals.push('Telegram updates selected · username missing');
+      if(p.type==='registered'&&profile.marketingEmailOptIn===true&&!email)signals.push('Email marketing opted in · email missing');
+      if(p.type==='registered'&&profile.marketingWhatsappOptIn===true&&!phone)signals.push('WhatsApp marketing opted in · phone missing');
+      if(p.type==='registered'&&profile.marketingTelegramOptIn===true&&!clean(profile.telegramUsername))signals.push('Telegram marketing opted in · username missing');
       if(p.type==='registered'&&p.guestHistory.length)signals.push('Has guest-order history');
       if(all.length>=2)signals.push('Repeat buyer');
       if(active.length)signals.push(active.length+' active order'+(active.length===1?'':'s'));
@@ -131,7 +132,7 @@
       return {
         key:key,type:p.type,typeLabel:currentType,uid:p.uid,profile:p.profile,
         name:name,email:email,loginEmail:loginEmail,contactEmail:email,emailVerified:profile.emailVerified===true&&!!loginEmail&&normalizeEmail(email)===normalizeEmail(loginEmail),phoneVerified:profile.phoneVerified===true,phone:phone,photoURL:clean(profile.photoURL),telegramUsername:telegram,
-        preferredChannel:clean(profile.preferredChannel)||'whatsapp',notifyEmail:profile.notifyEmail!==false,notifyWhatsapp:profile.notifyWhatsapp!==false,notifyTelegram:profile.notifyTelegram===true,
+        preferredChannel:clean(profile.preferredChannel)||'whatsapp',notifyEmail:profile.notifyEmail!==false,notifyWhatsapp:profile.notifyWhatsapp!==false,notifyTelegram:profile.notifyTelegram===true,marketingEmailOptIn:profile.marketingEmailOptIn===true,marketingWhatsappOptIn:profile.marketingWhatsappOptIn===true,marketingTelegramOptIn:profile.marketingTelegramOptIn===true,marketingConsentUpdatedAt:profile.marketingConsentUpdatedAt||'',
         city:city,state:state,country:country,pin:pin,
         orders:all,linkedOrders:p.linkedOrders,guestHistory:p.guestHistory,
         orderCount:all.length,activeCount:active.length,deliveredCount:delivered,cancelledCount:cancelled,lifetimeValue:lifetime,averageOrderValue:nonCancelled.length?lifetime/nonCancelled.length:0,totalQuantity:totalQty,

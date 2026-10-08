@@ -41,7 +41,8 @@ async function open(c,kind='customer'){
   await trigger.waitFor({state:'visible'});
   for(let attempt=0;attempt<2;attempt++){
    if(await signin.isVisible().catch(()=>false))break;
-   await trigger.click({force:attempt>0});
+   try{await trigger.click({force:attempt>0,timeout:15000});}
+   catch(e){if(attempt===1)throw e;await p.waitForTimeout(250);continue;}
    try{await overlay.waitFor({state:'visible',timeout:5000});await signin.waitFor({state:'visible',timeout:5000});break;}catch(e){if(attempt===1)throw e;await p.waitForTimeout(150);}
   }
  } else await p.waitForFunction(()=>!document.getElementById('submit').disabled);
@@ -118,7 +119,7 @@ await c.close();await p.video().saveAs(out+'/'+engine+'-customer-motion.webm');a
 // Saved-credential/password-manager insertion WITHOUT keyboard/input/change events.
 const autofill=await context(),ap=await open(autofill);
 await ap.evaluate(()=>{document.getElementById('nsacct-login-email').value='saved@example.com';document.getElementById('nsacct-login-password').value='Synthetic-manager-123';window.__authScenario='wrong-password';});
-await ap.locator('#nsacct-login-password').focus();ok('Manager-style fill without input events still gets privacy pose',await ap.locator('.ns-auth-shell').getAttribute('data-nariyal-pose')==='privacy');
+const managerShell=ap.locator('#nsacct-login-password').locator('xpath=ancestor::*[contains(concat(" ",normalize-space(@class)," ")," ns-auth-shell ")][1]');await managerShell.waitFor({state:'visible'});await ap.waitForFunction(()=>{const pw=document.getElementById('nsacct-login-password'),shell=pw?.closest('.ns-auth-shell');if(!pw||!shell)return false;if(document.activeElement!==pw)pw.focus({preventScroll:true});return document.activeElement===pw&&shell.dataset.nariyalPose==='privacy';},null,{timeout:30000,polling:100});ok('Manager-style fill without input events still gets privacy pose',await managerShell.getAttribute('data-nariyal-pose')==='privacy');
 await ap.keyboard.press('Enter');await ap.locator('#nsacct-message.err').waitFor();
 ok('Enter submits autofilled credentials and validation stays editable',await ap.evaluate(()=>__authCalls.includes('signin'))&&await ap.locator('#nsacct-login-password').isEnabled());
 await shot(ap,'autofill-error');

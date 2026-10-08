@@ -258,7 +258,7 @@ nav.solid{background:rgba(6,14,3,0.97);padding:12px 48px;backdrop-filter:blur(16
 .hp-num{font-family:'Playfair Display',serif;font-size:50px;color:var(--gold);line-height:1;font-weight:400}
 .hp-lbl{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.3);margin-top:5px}
 .hp-div{height:1px;background:rgba(212,168,67,.18);margin:14px 0}
-.hp-bulk{font-family:'Playfair Display',serif;font-size:32px;color:var(--gold);font-weight:400}
+.hp-bulk{font-family:'Playfair Display',serif;font-size:32px;color:var(--gold);font-weight:400}.hp-catalog-link{display:block;margin-top:14px;color:var(--gold2);font-size:9px;letter-spacing:1.4px;text-transform:uppercase;text-decoration:none}.hp-catalog-link:hover{text-decoration:underline}
 .hero-scroll{position:absolute;bottom:40px;left:64px;z-index:10;display:flex;flex-direction:column;align-items:flex-start;gap:10px}
 .hs-line{width:1px;height:72px;position:relative;overflow:hidden;background:rgba(255,255,255,.1)}
 .hs-line::after{content:'';position:absolute;top:-100%;left:0;right:0;height:100%;background:var(--gold);animation:scrollBar 2s ease infinite}
@@ -1580,7 +1580,7 @@ body.ns-story-active .story-skip{display:block}.story-skip:hover{color:var(--gol
 <noscript><style>#jungle-intro,#ji-skip{display:none!important}#main-site{opacity:1!important;pointer-events:auto!important}.r,.rl,.rr{opacity:1!important;transform:none!important}</style></noscript>
 <style id="ns-v40-people-style">
 .ns-people-teaser{margin:72px 0 64px;display:grid;grid-template-columns:minmax(300px,.88fr) minmax(0,1.12fr);border:1px solid rgba(212,168,67,.18);background:linear-gradient(135deg,rgba(212,168,67,.055),rgba(5,16,4,.82));overflow:hidden;min-height:390px}
-.ns-people-visual{position:relative;min-height:390px;overflow:hidden;background:#071104}.ns-people-visual img{width:100%;height:100%;object-fit:cover;object-position:center 54%;display:block;filter:saturate(.9) contrast(1.04) brightness(.78);transition:transform .7s ease}.ns-people-teaser:hover .ns-people-visual img{transform:scale(1.025)}.ns-people-visual:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(4,13,3,.04),rgba(4,13,3,.36)),linear-gradient(180deg,transparent 45%,rgba(3,10,2,.42))}
+.ns-people-visual{position:relative;min-height:390px;overflow:hidden;background:#071104;isolation:isolate}.ns-people-visual:before{content:"";position:absolute;inset:-26px;z-index:0;background-image:linear-gradient(rgba(4,13,3,.28),rgba(4,13,3,.48)),var(--ns-people-image);background-size:cover;background-position:center;filter:blur(18px) saturate(.85);transform:scale(1.06)}.ns-people-visual img{position:relative;z-index:1;width:100%;height:100%;object-fit:contain!important;object-position:center!important;display:block;background:transparent;filter:saturate(.92) contrast(1.02) brightness(.84);transition:transform .7s ease;padding:clamp(14px,2vw,28px)}.ns-people-teaser:hover .ns-people-visual img{transform:scale(1.012)}.ns-people-visual:after{content:"";position:absolute;inset:0;z-index:2;background:linear-gradient(90deg,rgba(4,13,3,.02),rgba(4,13,3,.18)),linear-gradient(180deg,transparent 60%,rgba(3,10,2,.34));pointer-events:none}
 .ns-people-copy{padding:clamp(30px,5vw,70px);display:flex;flex-direction:column;justify-content:center}.ns-people-copy small{color:#D4A843;font:600 9px/1 'Jost',sans-serif;letter-spacing:3px;text-transform:uppercase}.ns-people-copy h3{font:400 clamp(38px,5vw,66px)/.98 'Playfair Display',serif;color:#fff;margin:14px 0 18px}.ns-people-copy h3 em{color:#D4A843;font-weight:400}.ns-people-copy p{max-width:720px;color:rgba(255,255,255,.65);font-size:13px;line-height:1.9}.ns-people-points{display:flex;flex-wrap:wrap;gap:9px;margin:22px 0 26px}.ns-people-points span{border:1px solid rgba(212,168,67,.18);padding:9px 12px;color:rgba(255,255,255,.62);font-size:9px;letter-spacing:1.4px;text-transform:uppercase}.ns-people-actions{display:flex;flex-wrap:wrap;gap:12px}.ns-people-actions a{text-decoration:none}.enquiry-role-grid{grid-template-columns:repeat(2,1fr)!important}.ns-people-note{margin-top:16px;color:rgba(255,255,255,.38);font-size:10px;line-height:1.65}
 @media(max-width:820px){.ns-people-teaser{grid-template-columns:1fr}.ns-people-visual{min-height:330px}.ns-people-copy{padding:30px 22px 34px}}
 </style>
@@ -1772,10 +1772,9 @@ body.ns-story-active .story-skip{display:block}.story-skip:hover{color:var(--gol
 </div>
 </div>
 <div class="hero-price">
-<div class="live-price-kicker"><i></i> Current pricing</div>
-<div class="hp-num">₹<span data-price-value="tender">—</span></div><div class="hp-lbl">Tender Coconut · Retail</div>
-<div class="hp-div"></div>
-<div class="hp-bulk">₹<span data-price-value="bulk">—</span></div><div class="hp-lbl">Bulk <span data-min-value="bulk">10</span>+ Pieces</div>
+<div class="live-price-kicker"><i></i> Current retail price</div>
+<div class="hp-num">₹<span data-price-value="tender">—</span></div><div class="hp-lbl">Fresh Tender Coconut · per piece</div>
+<a class="hp-catalog-link" href="#collection">View all products &amp; bulk pricing ↓</a>
 </div>
 <div class="hero-scroll"><div class="hs-line"></div><span class="hs-txt">Scroll</span></div>
 </section>
@@ -2159,9 +2158,7 @@ body.ns-story-active .story-skip{display:block}.story-skip:hover{color:var(--gol
 <div class="sv-ring"></div><div class="sv-ring2"></div>
 <img alt="Freshly harvested coconuts in a sunlit Indian coconut grove" class="sv-img" decoding="async" height="933" loading="lazy" src="/assets/images/nariyal-coconut-grove.webp" width="1400"/>
 <div class="sv-badge">
-<div class="svb-num">₹<span data-price-value="tender">—</span></div><div class="svb-lbl">Retail Per Piece</div>
-<div class="svb-div"></div>
-<div class="svb-num" style="font-size:30px">₹<span data-price-value="bulk">—</span></div><div class="svb-lbl">Bulk <span data-min-value="bulk">10</span>+ Pieces</div>
+<div class="svb-num">₹<span data-price-value="tender">—</span></div><div class="svb-lbl">Fresh Tender Coconut · Per Piece</div>
 </div>
 </div>
 <div class="story-text rr">
@@ -2595,7 +2592,7 @@ body.ns-story-active .story-skip{display:block}.story-skip:hover{color:var(--gol
 </footer>
 <!-- STICKY BAR (mobile) -->
 <div class="sticky-bar">
-<div><div style="font-size:13px;font-weight:600">Nariyal Sutra</div><div style="font-size:11px;color:var(--gold)">₹<span data-price-value="tender">—</span>/pc · Bulk ₹<span data-price-value="bulk">—</span></div></div>
+<div><div style="font-size:13px;font-weight:600">Nariyal Sutra</div><div style="font-size:11px;color:var(--gold)">Fresh Tender Coconut · ₹<span data-price-value="tender">—</span>/pc</div></div>
 <button class="btn-gold" onclick="go('order')" style="padding:11px 22px;font-size:10px">Order Now</button>
 </div>
 <div class="toast" id="toast"></div>

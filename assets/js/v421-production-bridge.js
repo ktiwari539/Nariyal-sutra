@@ -9,7 +9,7 @@ if(LOCAL)return;
 const SDK='12.18.0';
 const isAdmin=/admin-preview\.html$/i.test(location.pathname);
 const PUBLIC_KEYS=['sections','pageSequences','sectionMedia','sectionMediaLayout','media','faceMarquee','peopleStreams','harvest','customSections','stories','content','schedule','settings','themeConfig'];
-const PRIVATE_KEYS=['tasks','warehouses','deliveryServices','segments','communications','notificationQueue'];
+const PRIVATE_KEYS=['tasks','warehouses','deliveryServices','segments','communications','campaigns','notificationQueue'];
 const CUSTOMER_ROLES=['Owner','Admin','Manager','Operations','Support','Sales'];
 const FOLLOWUP_READ_ROLES=['Owner','Admin','Manager','Operations','Support','Sales'];
 const FOLLOWUP_WRITE_ROLES=['Owner','Admin','Manager','Support','Sales'];
@@ -115,7 +115,7 @@ function queuePersist(s){pendingState=clone(s);clearTimeout(saveTimer);saveTimer
 Store.save=function(s){const out=originalSave(s);if(isAdmin)queuePersist(out);return out;};
 function orderFromDoc(d){const x=d.data()||{},createdAt=iso(x.createdAt),updatedAt=iso(x.updatedAt),status=String(x.status||'pending');return {id:x.orderId||d.id,orderId:x.orderId||d.id,customer:x.customerName||'Customer',customerName:x.customerName||'',email:x.email||'',phone:x.phone||'',city:x.city||'',state:x.state||'',country:x.country||'',pin:x.pin||'',address:x.address||'',product:x.productName||x.productKey||'Order',productName:x.productName||'',productKey:x.productKey||'',qty:Number(x.quantity||0),quantity:Number(x.quantity||0),unitPrice:Number(x.unitPrice||0),payment:x.paymentLabel||x.paymentType||'Awaiting',paymentLabel:x.paymentLabel||'',paymentType:x.paymentType||'',paymentStatus:x.paymentStatus||'',delivery:status.replaceAll('_',' '),status,total:Number(x.total||0),customerUid:x.customerUid||'',trackingToken:x.trackingToken||'',recurringPreference:x.recurringPreference||'',deliveryMethod:x.deliveryMethod||'',deliveryLabel:x.deliveryLabel||'',deliveryPreference:x.deliveryPreference||'',handoverPointType:x.handoverPointType||'',handoverPointName:x.handoverPointName||'',handoverPointAddress:x.handoverPointAddress||'',handoverPointLat:x.handoverPointLat??null,handoverPointLng:x.handoverPointLng??null,handoverSearchSource:x.handoverSearchSource||'',handoverNote:x.handoverNote||'',deliveryAddress:x.deliveryAddress||x.address||'',deliveryLat:x.deliveryLat??null,deliveryLng:x.deliveryLng??null,acquisition:x.acquisition||null,createdAt,updatedAt};}
 function inquiryFromDoc(d){const x=d.data()||{};return {...x,id:x.inquiryId||d.id,inquiryId:x.inquiryId||d.id,createdAt:iso(x.createdAt),updatedAt:iso(x.updatedAt),acquisition:x.acquisition||null};}
-function profileFromDoc(d){const x=d.data()||{};return {...x,id:d.id,uid:x.uid||d.id,createdAt:iso(x.createdAt),updatedAt:iso(x.updatedAt),lastLoginAt:iso(x.lastLoginAt)};}
+function profileFromDoc(d){const x=d.data()||{};return {...x,id:d.id,uid:x.uid||d.id,createdAt:iso(x.createdAt),updatedAt:iso(x.updatedAt),lastLoginAt:iso(x.lastLoginAt),marketingConsentUpdatedAt:iso(x.marketingConsentUpdatedAt)};}
 function followupFromDoc(d){const x=d.data()||{};return {...x,id:x.id||d.id,dueAt:iso(x.dueAt),createdAt:iso(x.createdAt),updatedAt:iso(x.updatedAt),completedAt:iso(x.completedAt)};}
 function followupEventFromDoc(d){const x=d.data()||{};return {...x,id:x.eventId||d.id,eventId:x.eventId||d.id,createdAt:iso(x.createdAt)};}
 async function loadFollowupsInto(s){

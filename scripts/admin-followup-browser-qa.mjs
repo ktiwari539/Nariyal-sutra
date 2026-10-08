@@ -14,6 +14,7 @@ let original=null;
 
 async function selectRole(name){await page.locator('#apRole').selectOption(name);await sleep(80);}
 async function go(){await page.locator('#apNav button[data-view="followups"]').click();await page.waitForFunction(()=>document.querySelector('.ap-view[data-view="followups"]')?.classList.contains('is-active'));}
+async function openMore(id){const menu=page.locator(`tr[data-followup-id="${id}"] .ns-fu-more`);if(!(await menu.evaluate(el=>el.open)))await menu.locator('summary').click();}
 
 try{
  const res=await page.goto(BASE+'/admin-preview.html',{waitUntil:'domcontentloaded',timeout:30000});
@@ -45,11 +46,11 @@ try{
  must(await page.locator(`tr[data-followup-id="${id}"]`).count()===1,'Search did not find linked order Follow-up');
  await page.locator(`tr[data-followup-id="${id}"] [data-fu-status="in_progress"]`).click();
  await page.waitForFunction(cid=>(window.NSV421Store.load().followups||[]).find(x=>x.id===cid)?.status==='in_progress',id);
- await page.locator(`tr[data-followup-id="${id}"] [data-fu-history]`).click();
+ await openMore(id);await page.locator(`tr[data-followup-id="${id}"] [data-fu-history]`).click();
  must(/Status changed from Open to In Progress/i.test(await page.locator('#apModalBody').innerText()),'Status history did not render');
  await page.locator('#apModalClose').click();
 
- await page.locator(`tr[data-followup-id="${id}"] [data-fu-communication]`).click();await page.waitForSelector('#v38Form');
+ await openMore(id);await page.locator(`tr[data-followup-id="${id}"] [data-fu-communication]`).click();await page.waitForSelector('#v38Form');
  must(await page.locator('#v38Form [name="recipient"]').inputValue()==='QA Follow-up Customer','Communication draft did not inherit customer');
  must(await page.locator('#v38Form [name="orderId"]').inputValue()==='QA-ORDER-FU-1','Communication draft did not inherit order');
  must(/Confirm recurring delivery requirements/.test(await page.locator('#v38Form [name="message"]').inputValue()),'Communication draft did not inherit context');

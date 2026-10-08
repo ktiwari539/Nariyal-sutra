@@ -24,6 +24,6 @@ await p.selectOption('#oPr','tender');const qty=p.locator('#oQ');assert.equal(aw
 assert.equal(await p.evaluate(()=>getCurrentPrice()),67);assert.ok((await p.locator('#pAmt').textContent()).includes('134'),'Checkout must use Admin canonical price');
 await p.reload({waitUntil:'domcontentloaded'});await p.waitForFunction(()=>window.NSLiveCatalog?.source==='local-admin'&&window.NSLiveCatalog?.price('tender')===67);
 assert.equal(await p.locator('[data-price-value="tender"]').first().textContent(),'67','Admin price must persist on reload');
-await p.locator('#order').scrollIntoViewIfNeeded();await p.screenshot({path:'qa-artifacts/price-sync/admin-to-storefront-checkout.png'});
+await p.locator('#order').scrollIntoViewIfNeeded();await p.locator('#order').waitFor({state:'visible'});await p.waitForTimeout(150);await p.locator('#order').screenshot({path:'qa-artifacts/price-sync/admin-to-storefront-checkout.png'});
 fs.writeFileSync('qa-artifacts/price-sync/browser-results.json',JSON.stringify({ok:true,editedTenderPrice:67,source:'local-admin'},null,2));
 console.log('Price browser QA PASS (Admin -> local catalogue -> storefront -> checkout -> reload)');await b.close();

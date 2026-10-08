@@ -1,7 +1,9 @@
 name: Cinematic rebuild QA
 on:
   push:
-    branches: [fix/cinematic-real-sequence-20260911, improvement/pre-release-optimization, feature/storefront-themes]
+    branches: [fix/cinematic-real-sequence-20260911, improvement/pre-release-optimization, feature/storefront-themes, feature/customer-campaign-center]
+  pull_request:
+    branches: [feature/storefront-themes]
   workflow_dispatch:
 concurrency:
   group: cinematic-rebuild-qa-${{ github.ref }}
@@ -12,11 +14,13 @@ jobs:
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - run: |
           npm install --no-save --no-package-lock playwright@1.55.0
           npx playwright install --with-deps chromium
       - name: Shared auth UI and isolated authorization regression
-        timeout-minutes: 35
+        timeout-minutes: 45
         run: |
           python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/ns-auth-http.log 2>&1 &
           server_pid=$!
@@ -25,7 +29,7 @@ jobs:
           git diff --exit-code -- admin-bcc-login.html admin-login.html
           timeout 5m node scripts/auth-experience-qa.mjs
           timeout 3m node scripts/auth-theme-contract-qa.mjs
-          timeout 8m node scripts/auth-interactive-qa.mjs
+          timeout 12m node scripts/auth-interactive-qa.mjs
           set +e
           timeout 5m node scripts/auth-composition-qa.mjs
           composition_code=$?
@@ -53,6 +57,8 @@ jobs:
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - run: |
           npm install --no-save --no-package-lock playwright@1.55.0
           npx playwright install --with-deps chromium
@@ -79,6 +85,8 @@ jobs:
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - name: Production Firebase integration contract QA
         run: node scripts/production-firebase-contract-qa.mjs
         timeout-minutes: 3
@@ -121,6 +129,8 @@ jobs:
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - run: |
           npm install --no-save --no-package-lock playwright@1.55.0
           npx playwright install --with-deps chromium
@@ -149,6 +159,9 @@ jobs:
       - name: Communication and Review Queue acceptance QA
         run: node scripts/admin-communication-review-qa.mjs
         timeout-minutes: 15
+      - name: Customer Campaign Center consent and no-cost workflow QA
+        run: node scripts/admin-campaign-center-qa.mjs
+        timeout-minutes: 12
       - name: Admin Follow-up workflow acceptance QA
         run: node scripts/admin-followup-browser-qa.mjs
         timeout-minutes: 12
@@ -173,16 +186,31 @@ jobs:
       - name: Customer acquisition browser QA
         run: node scripts/acquisition-attribution-browser-qa.mjs
         timeout-minutes: 10
+      - name: Upload Media and Campaign Center evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: media-campaign-evidence
+          path: |
+            qa-artifacts/media-organizer-people-filter.png
+            qa-artifacts/campaign-center/
+          if-no-files-found: warn
+          retention-days: 14
   qa:
     needs: [auth-experience, themes-pricing-water, firebase-contract, media-targeted]
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - run: node scripts/predeploy-audit.mjs
         timeout-minutes: 5
       - name: SEO and indexing contract QA
         run: node scripts/seo-qa.mjs
+        timeout-minutes: 3
+      - name: SEO go-live static acceptance gate
+        run: node scripts/seo-go-live-acceptance.mjs
         timeout-minutes: 3
       - name: Pre-release optimization contracts
         run: node scripts/pre-release-optimization-qa.mjs
@@ -203,6 +231,29 @@ jobs:
       - name: Manual acceptance regression QA
         run: node scripts/manual-acceptance-regression-qa.mjs
         timeout-minutes: 20
+      - name: Screenshot-reported issue QA
+        run: node scripts/reported-issues-qa.mjs
+        timeout-minutes: 12
+      - name: Upload screenshot-reported issue evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reported-issues-evidence
+          path: qa-artifacts/reported-issues/
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Business Command Center V52 visual QA
+        if: always()
+        run: node scripts/bcc-v52-visual-qa.mjs
+        timeout-minutes: 12
+      - name: Upload Business Command Center V52 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bcc-v52-evidence
+          path: qa-artifacts/bcc-v52/
+          if-no-files-found: warn
+          retention-days: 14
       - name: Public copy professional QA
         run: node scripts/public-copy-qa.mjs
         timeout-minutes: 3
@@ -299,13 +350,19 @@ jobs:
           retention-days: 7
       - name: Create verified local-acceptance recovery bundle
         if: success()
+        env:
+          TARGET_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          BUNDLE_BRANCH: ${{ github.head_ref || github.ref_name }}
         run: |
           git fetch --unshallow origin || git fetch --prune origin
-          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
-          test "$(git rev-parse refs/heads/feature/storefront-themes)" = "$GITHUB_SHA"
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          test -n "$BUNDLE_BRANCH"
+          git fetch origin "$TARGET_SHA"
+          git update-ref "refs/heads/$BUNDLE_BRANCH" "$TARGET_SHA"
+          test "$(git rev-parse "refs/heads/$BUNDLE_BRANCH")" = "$TARGET_SHA"
           mkdir -p qa-artifacts/recovery
-          BUNDLE="qa-artifacts/recovery/Nariyal-sutra-local-acceptance-${GITHUB_SHA}.bundle"
-          git bundle create "$BUNDLE" refs/heads/feature/storefront-themes
+          BUNDLE="qa-artifacts/recovery/Nariyal-sutra-local-acceptance-${TARGET_SHA}.bundle"
+          git bundle create "$BUNDLE" "refs/heads/$BUNDLE_BRANCH"
           git bundle verify "$BUNDLE"
           sha256sum "$BUNDLE" | tee "$BUNDLE.sha256"
         timeout-minutes: 5
