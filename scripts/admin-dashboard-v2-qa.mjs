@@ -20,9 +20,14 @@ try{
  await page.waitForFunction(()=>window.NSV421OrderOperations?.lifecycleV2===true,null,{timeout:10000});
  original=await page.evaluate(()=>window.NSV421Store.load());
  await page.waitForSelector('#nsDashboardV2',{state:'visible'});
- must(await page.evaluate(()=>window.NSV421DashboardV2.version)==='executive-v3','Executive dashboard version is not active');
+ must(await page.evaluate(()=>window.NSV421DashboardV2.version)==='executive-v4','Executive dashboard version is not active');
  must(await page.locator('[data-executive-dashboard]').count()===1,'Executive command header missing');
  must(await page.locator('[data-executive-trend]').count()===1,'Revenue/order trend surface missing');
+ must(await page.locator('[data-executive-trend] .ns-chart-summary').count()===1,'Premium seven-day chart summary missing');
+ must(await page.locator('[data-executive-trend] svg circle').count()===0,'Decorative chart nodes remain and can bleed across the dashboard');
+ must(await page.locator('[data-executive-trend] .ns-chart-grid line').count()===4,'Subtle chart guide grid missing');
+ must(await page.locator('[data-executive-dashboard] .ns-exec-pill').last().innerText().then(t=>/ACTION|NO OPEN ACTIONS/i.test(t)),'Executive action-state signal missing');
+ const chartOverflow=await page.locator('[data-executive-trend] .ns-exec-chart svg').evaluate(el=>getComputedStyle(el).overflow);must(chartOverflow==='hidden','Revenue chart is not clipped inside its panel');
  must(await page.locator('[data-attention-center]').count()===1,'Attention Center missing');
  must(await page.locator('[data-order-pipeline]').count()===1,'Order Operations pipeline missing');
  must(await page.locator('#nsDashboardV2 .ns-pipeline-stage').count()===6,'Order pipeline must expose six fulfilment stages');

@@ -26,7 +26,9 @@ try{
   must(await page.locator('#nsCommandHint').count()===1,'Command Center trigger missing');
   must(await page.locator('#nsActivityToggle').count()===1,'Universal activity trigger missing');
   must(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'Desktop BCC shell causes horizontal page overflow');
-  await page.screenshot({path:OUT+'/overview-desktop.png',fullPage:false});
+
+  must(await page.locator('#nsDashboardV2 [data-executive-trend] svg circle').count()===0,'Overview still contains oversized decorative chart nodes');
+  must(await page.locator('#nsDashboardV2 .ns-chart-summary').count()===1,'Premium chart summary missing from overview');  await page.screenshot({path:OUT+'/overview-desktop.png',fullPage:false});
 
   await page.keyboard.press('Control+K');
   await page.waitForSelector('#nsCommandPalette.is-open');
