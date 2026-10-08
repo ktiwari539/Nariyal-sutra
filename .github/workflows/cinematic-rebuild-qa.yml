@@ -1,9 +1,9 @@
 name: Cinematic rebuild QA
 on:
   push:
-    branches: [fix/cinematic-real-sequence-20260911, improvement/pre-release-optimization, feature/storefront-themes, feature/customer-campaign-center, feature/ai-search-discoverability-20261008]
+    branches: [fix/cinematic-real-sequence-20260911, improvement/pre-release-optimization, feature/storefront-themes, feature/customer-campaign-center, feature/ai-search-discoverability-20261008, feature/release-integrated-seo-20261008, main]
   pull_request:
-    branches: [feature/storefront-themes]
+    branches: [feature/storefront-themes, main]
   workflow_dispatch:
 concurrency:
   group: cinematic-rebuild-qa-${{ github.ref }}
@@ -208,6 +208,9 @@ jobs:
         timeout-minutes: 5
       - name: SEO and indexing contract QA
         run: node scripts/seo-qa.mjs
+        timeout-minutes: 3
+      - name: SEO go-live static acceptance gate
+        run: node scripts/seo-go-live-acceptance.mjs
         timeout-minutes: 3
       - name: Pre-release optimization contracts
         run: node scripts/pre-release-optimization-qa.mjs
