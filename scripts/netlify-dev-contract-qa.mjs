@@ -18,7 +18,8 @@ function expect(re,label){if(!re.test(toml))throw new Error(`netlify.toml missin
 expect(/\[dev\][\s\S]*?framework\s*=\s*"#static"/,'static Netlify Dev framework');
 expect(/\[dev\][\s\S]*?publish\s*=\s*"\.netlify-dev"/,'isolated Netlify Dev publish directory');
 expect(/\[dev\][\s\S]*?port\s*=\s*8888/,'Netlify Dev port 8888');
-expect(/\[build\][\s\S]*?publish\s*=\s*"\."/,'production publish root');
+expect(/\[build\][\s\S]*?publish\s*=\s*"dist-site"/,'filtered production publish folder');
+expect(/\[build\][\s\S]*?command\s*=\s*"node scripts\/build-netlify-site\.mjs"/,'safe staged-site build command');
 
 if(!/upgrade-insecure-requests/i.test(sourceHeaders))throw new Error('Production CSP lost upgrade-insecure-requests');
 if(/upgrade-insecure-requests/i.test(devHeaders))throw new Error('Generated Dev CSP still forces HTTPS on localhost');

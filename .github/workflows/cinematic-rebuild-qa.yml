@@ -206,6 +206,17 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - run: node scripts/predeploy-audit.mjs
         timeout-minutes: 5
+      - name: Build and audit Netlify public release package
+        run: node scripts/build-netlify-site.mjs
+        timeout-minutes: 5
+      - name: Upload Netlify release manifest
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-package-manifest
+          path: qa-artifacts/release-package/manifest.json
+          if-no-files-found: error
+          retention-days: 14
       - name: SEO and indexing contract QA
         run: node scripts/seo-qa.mjs
         timeout-minutes: 3
