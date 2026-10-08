@@ -209,6 +209,9 @@ jobs:
       - name: SEO and indexing contract QA
         run: node scripts/seo-qa.mjs
         timeout-minutes: 3
+      - name: SEO go-live static acceptance gate
+        run: node scripts/seo-go-live-acceptance.mjs
+        timeout-minutes: 3
       - name: Pre-release optimization contracts
         run: node scripts/pre-release-optimization-qa.mjs
         timeout-minutes: 3
