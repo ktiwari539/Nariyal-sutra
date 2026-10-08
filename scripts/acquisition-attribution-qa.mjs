@@ -75,8 +75,45 @@ has(admin,[
   'They are not website visitor, session or traffic totals.',
   'firstTouch',
   'Top campaigns'
-],'Admin acquisition reporting');
+],'Legacy Admin acquisition reporting');
 new Function(admin);
+
+const currentAdmin=read('assets/js/admin-analytics-v1.js');
+has(currentAdmin,[
+  'How customers found us',
+  'What customers told us',
+  'Top landing pages',
+  'Trackable link builder',
+  'Visitor-level engagement',
+  "utm_source",
+  "utm_medium",
+  "utm_campaign",
+  'Confirmed outcomes, not raw visits',
+  'Full referrer URLs and arbitrary query-string values are not stored.'
+],'Current Business Command Center acquisition analytics');
+not(currentAdmin,[
+  '61%',
+  '28%',
+  'fake visitor',
+  'localStorage'
+],'Current analytics truthfulness');
+new Function(currentAdmin);
+
+const adminPage=read('admin-preview.html');
+has(adminPage,[
+  'data-view="analytics"',
+  'Analytics / Traffic',
+  'id="nsAnalyticsApp"',
+  'Open traffic & acquisition',
+  'assets/js/admin-analytics-v1.js'
+],'Current Admin analytics integration');
+
+const bridge=read('assets/js/v421-production-bridge.js');
+has(bridge,[
+  "collection(db,'inquiries')",
+  's.inquiries=snap.docs.map(inquiryFromDoc)',
+  'inquiries:(s.inquiries||[]).length'
+],'Production inquiry acquisition sync');
 
 const orderAdmin=read('assets/js/admin-v44-order-operations.js');
 has(orderAdmin,[

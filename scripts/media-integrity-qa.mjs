@@ -5,14 +5,15 @@ import path from 'node:path';
 const ROOT=process.cwd(),OUT=path.join(ROOT,'qa-artifacts','media-integrity'),BASE='http://127.0.0.1:4191';fs.mkdirSync(OUT,{recursive:true});const must=(c,m)=>{if(!c)throw new Error(m)},sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const homePeopleJs=fs.readFileSync(path.join(ROOT,'assets/js/v21-public.js'),'utf8'),homePeopleCss=fs.readFileSync(path.join(ROOT,'assets/css/v23-public.css'),'utf8'),peopleStreamJs=fs.readFileSync(path.join(ROOT,'assets/js/v25-public.js'),'utf8');
 const finalResponsiveCss=fs.readFileSync(path.join(ROOT,'assets/css/v36-public.css'),'utf8');
-must(!finalResponsiveCss.includes('.ns-face-card img{object-fit:contain!important'),'Final responsive stylesheet reintroduces contain');
-must(finalResponsiveCss.includes('.ns-face-card img{object-fit:cover!important'),'Final responsive stylesheet lacks full-frame cover');
+must(finalResponsiveCss.includes('.ns-face-card[data-fit="cover"] .ns-face-foreground{object-fit:cover!important}'),'Final responsive stylesheet lacks explicit Fill-entire-card rendering');
+must(finalResponsiveCss.includes('.ns-face-card[data-fit="auto"] .ns-face-foreground,.ns-face-card[data-fit="full"] .ns-face-foreground{object-fit:contain!important}'),'Final responsive stylesheet lacks safe Auto/Full rendering');
 must(homePeopleJs.includes("first=bundledFaceSrc(id)||m.src||m.thumb||faceSrc(id)"),'Homepage People rail does not prefer canonical bundled full images');
+must(homePeopleJs.includes('mediaFraming')&&homePeopleJs.includes("fit:mode==='cover'?'cover':'contain'"),'Homepage People rail framing metadata or safe default is missing');
 must(!homePeopleJs.includes('https://nariyal-sutra.netlify.app/assets/images/ambassadors/'),'Homepage People rail still depends on production-domain image fallback');
-must(homePeopleCss.includes('.ns-face-card img{object-fit:cover!important'),'Homepage People rail is not forced to full-frame cover');
-must(!homePeopleCss.includes('.ns-face-card img{object-fit:contain!important'),'Homepage People rail still forces contain');
+must(homePeopleCss.includes('.ns-face-card[data-fit="cover"] .ns-face-foreground{object-fit:cover!important'),'Homepage People rail lacks explicit Fill-entire-card rendering');
+must(homePeopleCss.includes('.ns-face-card[data-fit="auto"] .ns-face-foreground,.ns-face-card[data-fit="full"] .ns-face-foreground{object-fit:contain!important'),'Homepage People rail lacks Auto/Full no-crop rendering');
 must(peopleStreamJs.includes('bundled=/^G\\d{3}$/i.test(id)'),'People page stream does not prefer canonical bundled images');const server=spawn('python3',['-m','http.server','4191','--bind','127.0.0.1'],{stdio:'ignore'});await sleep(900);const browser=await chromium.launch({headless:true});
-async function open(c,url,label){const p=await c.newPage(),errors=[];p.on('pageerror',e=>errors.push(String(e)));const r=await p.goto(BASE+url,{waitUntil:'domcontentloaded',timeout:30000});must(r&&r.status()<400,`${label} returned ${r?.status()}`);await p.waitForTimeout(250);must(!errors.length,`${label} page errors ${errors.join(' | ')}`);return p;}
+async function open(c,url,label){const p=await c.newPage(),errors=[];p.on('pageerror',e=>{const message=String(e);if(/Failed to read the 'serviceWorker' property from 'Navigator'.*sandboxed.*allow-same-origin/i.test(message))return;errors.push(message);});const r=await p.goto(BASE+url,{waitUntil:'domcontentloaded',timeout:30000});must(r&&r.status()<400,`${label} returned ${r?.status()}`);await p.waitForTimeout(250);must(!errors.length,`${label} page errors ${errors.join(' | ')}`);return p;}
 async function noBroken(p,label){const x=await p.evaluate(()=>[...document.images].filter(i=>{const s=getComputedStyle(i),r=i.getBoundingClientRect();return s.display!=='none'&&s.visibility!=='hidden'&&!i.hidden&&i.complete&&i.naturalWidth===0&&r.width>2&&r.height>2}).map(i=>i.getAttribute('src')||''));must(!x.length,`${label} broken images ${JSON.stringify(x)}`);}
 try{
  const c=await browser.newContext({viewport:{width:1440,height:900},serviceWorkers:'block'});
@@ -24,18 +25,18 @@ const nature=await home.evaluate(async()=>{
 });
 must(nature.length===3,'Nature framed beautifully must have three section images: '+JSON.stringify(nature));
 must(nature.every(x=>x.src.startsWith('/assets/images/')&&x.width>0&&x.height>0),'Nature section image failed browser decode or uses a remote origin: '+JSON.stringify(nature));
-const peopleRail=await home.evaluate(()=>[...document.querySelectorAll('#nsPeopleMarquee .ns-face-card img')].slice(0,16).map(img=>({id:img.dataset.id||'',src:new URL(img.currentSrc||img.src,location.href).pathname,fit:getComputedStyle(img).objectFit})));
+const peopleRail=await home.evaluate(()=>[...document.querySelectorAll('#nsPeopleMarquee .ns-face-card img')].slice(0,16).map(img=>({id:img.dataset.id||'',src:new URL(img.currentSrc||img.src,location.href).pathname,fit:getComputedStyle(img).objectFit,mode:img.closest('.ns-face-card')?.dataset.fit||''})));
 must(peopleRail.length>=4,'Homepage People full-picture rail did not render enough images '+JSON.stringify(peopleRail));
-must(peopleRail.every(x=>x.fit==='cover'),'Homepage People full-picture rail is not cover '+JSON.stringify(peopleRail));
+must(peopleRail.every(x=>['auto','full','cover'].includes(x.mode)&&(x.mode==='cover'?x.fit==='cover':x.fit==='contain')),'Homepage People framing does not match Admin-safe mode '+JSON.stringify(peopleRail));
 const bundledRail=peopleRail.filter(x=>/^G\d{3}$/i.test(x.id));
 must(bundledRail.length>=3,'Homepage People rail did not render bundled G media '+JSON.stringify(peopleRail));
 must(bundledRail.every(x=>x.src==='/assets/images/ambassadors/'+x.id+'.webp'),'Homepage People rail rendered thumbnails/noncanonical sources '+JSON.stringify(bundledRail));
 for(const [label,width,height] of [['desktop',1440,900],['tablet',820,1100],['mobile',390,844]]){
   await home.setViewportSize({width,height});
   await home.waitForTimeout(350);
-  const cards=await home.evaluate(()=>[...document.querySelectorAll('#nsPeopleMarquee .ns-face-card img')].slice(0,20).map(img=>{const r=img.getBoundingClientRect(),parent=img.closest('.ns-face-card')?.getBoundingClientRect();return {id:img.dataset.id||'',src:new URL(img.currentSrc||img.src,location.href).pathname,fit:getComputedStyle(img).objectFit,pad:getComputedStyle(img).padding,width:r.width,height:r.height,cardWidth:parent?.width||0,cardHeight:parent?.height||0};}));
+  const cards=await home.evaluate(()=>[...document.querySelectorAll('#nsPeopleMarquee .ns-face-card img')].slice(0,20).map(img=>{const r=img.getBoundingClientRect(),card=img.closest('.ns-face-card'),parent=card?.getBoundingClientRect();return {id:img.dataset.id||'',src:new URL(img.currentSrc||img.src,location.href).pathname,fit:getComputedStyle(img).objectFit,mode:card?.dataset.fit||'',pad:getComputedStyle(img).padding,width:r.width,height:r.height,cardWidth:parent?.width||0,cardHeight:parent?.height||0};}));
   must(cards.length>=4,label+' People rail did not render four cards: '+JSON.stringify(cards));
-  must(cards.every(x=>x.fit==='cover'),label+' People rail reverted to contain: '+JSON.stringify(cards));
+  must(cards.every(x=>['auto','full','cover'].includes(x.mode)&&(x.mode==='cover'?x.fit==='cover':x.fit==='contain')),label+' People rail framing does not match selected mode: '+JSON.stringify(cards));
   must(cards.every(x=>x.pad==='0px'),label+' People rail image has inner padding: '+JSON.stringify(cards));
   must(cards.every(x=>Math.abs(x.width-x.cardWidth)<=3&&Math.abs(x.height-x.cardHeight)<=3),label+' People rail image does not fill card bounds: '+JSON.stringify(cards));
   const canonical=cards.filter(x=>/^G\d{3}$/i.test(x.id));

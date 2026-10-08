@@ -1,0 +1,116 @@
+/* Four layouts share business data. Named surfaces own their foregrounds, including legacy copy. */
+:root{--ns-page:#060e03;--ns-section:#071304;--ns-surface:#0d1d09;--ns-surface-2:#12270c;--ns-primary:#1e4010;--ns-secondary:#a6cda0;--ns-accent:#d4a843;--ns-accent-soft:#f5d17e;--ns-heading:#fdf7e8;--ns-body:#f8f1df;--ns-muted:#bbc7b5;--ns-link:#f5d17e;--ns-border:#536341;--ns-radius:2px;--ns-shadow:0 24px 70px #0005;--ns-nav:#061003;--ns-field:#0b1907;--ns-focus:#f5d17e;--ns-cta:#e5bd65;--ns-cta-ink:#102217;--ns-error:#ffb7aa}
+:root[data-ns-theme="fresh-grove"]{color-scheme:light;--ns-page:#f7f1df;--ns-section:#fffaf0;--ns-surface:#fffdf7;--ns-surface-2:#e7efdf;--ns-primary:#17452b;--ns-secondary:#315d3e;--ns-accent:#79511c;--ns-accent-soft:#705019;--ns-heading:#173824;--ns-body:#304837;--ns-muted:#4f6254;--ns-link:#1d603b;--ns-border:#a6b59f;--ns-radius:24px;--ns-shadow:0 18px 45px #1f462a18;--ns-nav:#faf7ec;--ns-field:#fffef9;--ns-focus:#206d45;--ns-cta:#17452b;--ns-cta-ink:#fffaf0;--ns-error:#8b2727}
+:root[data-ns-theme="coastal-premium"]{color-scheme:dark;--ns-page:#041820;--ns-section:#082a34;--ns-surface:#0c3440;--ns-surface-2:#15414d;--ns-primary:#0c5261;--ns-secondary:#acd9d8;--ns-accent:#edcc8d;--ns-accent-soft:#f1d7a5;--ns-heading:#fff9ec;--ns-body:#e8f0ec;--ns-muted:#b8d0ce;--ns-link:#f1d7a5;--ns-border:#609392;--ns-radius:0;--ns-shadow:0 28px 70px #000a112e;--ns-nav:#041820;--ns-field:#082731;--ns-focus:#f1d7a5;--ns-cta:#f1d7a5;--ns-cta-ink:#041820;--ns-error:#ffb7aa}
+:root[data-ns-theme="golden-harvest"]{color-scheme:light;--ns-page:#f8f0df;--ns-section:#fff9ec;--ns-surface:#fffdf5;--ns-surface-2:#f0e0bf;--ns-primary:#563820;--ns-secondary:#765029;--ns-accent:#80551f;--ns-accent-soft:#80551f;--ns-heading:#4b321d;--ns-body:#58432e;--ns-muted:#6a5439;--ns-link:#754716;--ns-border:#c3a777;--ns-radius:6px;--ns-shadow:0 18px 48px #63442117;--ns-nav:#fff8e9;--ns-field:#fffdf5;--ns-focus:#80551f;--ns-cta:#563820;--ns-cta-ink:#fff9ec;--ns-error:#962828}
+html[data-ns-theme] body{background:var(--ns-page);color:var(--ns-body)}
+/* Text and controls on these specific surfaces share a tested contract. */
+html[data-ns-theme] :is(#collection,#price-list,#our-story,#how-to-order,#coconut-uses,#faq,#order,#contact,.brand-moment,.cinema,.motion-fold,.ns-people-teaser,.ns-people-marquee,.sp-facts,.sp-section,.w-section,footer){--gold:var(--ns-accent);--muted:var(--ns-muted);background:var(--ns-section);color:var(--ns-body)}
+html[data-ns-theme] :is(.pc,.price-card,.why-card,.hto-step,.use-card,.uc,.ci,.order-card,.checkout-card,.faq-item,.sp-fact,.sp-card){background:var(--ns-surface);color:var(--ns-body);border-color:var(--ns-border);border-radius:var(--ns-radius)}
+html[data-ns-theme] :is(.wc-title,.ps-title,.sec-title,.pc-name,.pcard-title,.story-text h2,.cinema-copy h2,.film-copy h2,.motion-fold h2,.brand-moment h2,.ns-people-copy h3,.hto-title,.uc-title,.ci-val,.footer-brand,.footer-col h4,.faq-q,.faq-list summary,.order-card h2,.enquiry-title){color:var(--ns-heading)}
+html[data-ns-theme] :is(.wc-desc,.ps-desc,.story-text p,.sec-sub,.pc-desc,.pc-per,.pcard-copy,.pcard-per,.pcard-features li,.hto-desc,.uc-list li,.use-card li,.cinema-point small,.cinema-copy p,.film-copy p,.motion-fold p,.brand-moment p,.ns-people-copy p,.ns-people-note,.ns-people-points span,.faq-a,.faq-list p,.order-card p,.order-card label,.order-note,.ps-lbl,.ps-note,.form-privacy,.order-trust-row span,.ci-lbl,.footer-desc,.footer-bottom,.footer-col a,.flinks a,.collection-rail span,.motion-hint,.catalog-live){color:var(--ns-muted)}
+html[data-ns-theme] :is(.cinema-point b,.story-text strong,.ci a,.enquiry-wrap label,.ef label){color:var(--ns-body)}
+html[data-ns-theme] :is(.sec-eyebrow,.se-txt,.pc-price,.pcard-price,.po-price,.ps-amt,.ps-num,.stat-num,.section-kicker,.enquiry-kicker,.ns-people-copy small,.ns-people-copy h3 em,.sec-title em,.story-text h2 em){color:var(--ns-accent)}
+html[data-ns-theme] :is(.btn-gold,.nav-cta,.w-btn.primary,.sp-order,.sp-btn.primary,.btn.gold,.topt.on){background:var(--ns-cta);color:var(--ns-cta-ink);border-color:var(--ns-cta);border-radius:var(--ns-radius)}
+html[data-ns-theme] :is(.pc-btn,.po-btn,.price-card .btn-outline,.topt,.pay-opt,.ns-del-opt,.ns-recur-btn,.ns-find-btn,.ns-gps-btn){background:var(--ns-surface-2);color:var(--ns-body);border-color:var(--ns-border)}
+html[data-ns-theme] :is(.topt.on,.pay-opt[aria-pressed="true"],.ns-del-opt.selected,.ns-recur-btn.sel){background:var(--ns-cta);color:var(--ns-cta-ink);border-color:var(--ns-cta)}
+html[data-ns-theme] :is(input,select,textarea){background:var(--ns-field);color:var(--ns-body);border-color:var(--ns-border)}
+html[data-ns-theme] :is(input,select,textarea)::placeholder{color:var(--ns-muted);opacity:1}
+html[data-ns-theme] :is(input,select,textarea,button):disabled{color:var(--ns-muted);background:var(--ns-surface-2);opacity:1;cursor:not-allowed}
+html[data-ns-theme] :is(a,button,input,select,textarea,summary):focus-visible{outline:3px solid var(--ns-focus);outline-offset:4px}
+html[data-ns-theme] :is(.error,.field-error,.validation-error,[role="alert"]){color:var(--ns-error)}
+html[data-ns-theme] :is(.ns-v21-address-map,.ns-del-section){background:var(--ns-surface-2);color:var(--ns-body);border-color:var(--ns-border)}
+html[data-ns-theme] :is(.ns-step-tag,.ns-step-heading,.ns-del-opt-state,.ns-del-opt-title,.ns-del-opt-copy,.ns-discovery-help,.ns-v21-map-head strong,.ns-v21-map-head span,.ns-v21-map-status){color:inherit}
+html[data-ns-theme] nav.solid,html[data-ns-theme] :is(.w-nav,.sp-nav){background:var(--ns-nav);border-color:var(--ns-border)}
+html[data-ns-theme] nav.solid :is(a,button,.logo-name,.logo-tag),html[data-ns-theme] :is(.w-nav,.sp-nav) a{color:var(--ns-heading)}
+html[data-ns-theme] :is(.dropdown,.drop-sub){background:var(--ns-surface);border-color:var(--ns-border)}
+html[data-ns-theme] :is(.dropdown a,.drop-sub a,.drop-group-title){color:var(--ns-body)}
+/* Photo/overlay islands retain light ink even inside a light editorial section. */
+html[data-ns-theme] :is(.hero,.w-hero,.sp-hero,.people-hero,.pc-overlay,.pc-img-wrap,.sv-badge,.world-card,.story-card,.promise-portal,.story-stage,.v20-story-film,.mobile-story-reel){--ns-heading:#fffaf0;--ns-body:#fffaf0;--ns-muted:#e3e8de;--ns-accent:#f2d899;--ns-accent-soft:#f2d899;--ns-link:#f2d899;--gold:#f2d899;--muted:#e3e8de;color:#fffaf0}
+html[data-ns-theme] :is(.world-card,.story-card,.promise-portal,.pc-overlay){background-color:#07170d}
+html[data-ns-theme] :is(.pc-overlay,.sv-badge,.world-card,.story-card,.promise-portal) :is(h2,h3,p,b,small,span){color:var(--ns-body)}
+html[data-ns-theme] .pc-tag,html[data-ns-theme] .stock-pill{background:#07170d;color:#fffaf0}
+html[data-ns-theme] .hero-content{background:linear-gradient(90deg,#041103e6,#041103b8);padding:32px;border-radius:var(--ns-radius)}
+html[data-ns-theme] .hero :is(h1,p,.hero-proof span,.hero-sense span,.hero-sense small,.hero-sub,.hp-lbl,.live-price-kicker){color:#fffaf0}
+html[data-ns-theme] .hero-price{background:#07170deb;color:#fffaf0;padding:20px}
+html[data-ns-theme] .cinema-point{border-color:var(--ns-border)}
+/* Layout variants keep DOM and keyboard order; only grids, sizing and framing change. */
+html[data-ns-theme="fresh-grove"] :is(#collection,#our-story,#price-list){padding-block:140px}
+html[data-ns-theme="fresh-grove"] :is(.pc,.why-card,.price-card){box-shadow:var(--ns-shadow);padding:12px;border:1px solid var(--ns-border)}
+html[data-ns-theme="fresh-grove"] .pc-img-wrap{border-radius:120px 120px 18px 18px;margin:8px;overflow:hidden}
+html[data-ns-theme="fresh-grove"] .hero-content{max-width:640px;border-radius:32px}
+html[data-ns-theme="fresh-grove"] .why-grid{gap:32px}
+html[data-ns-theme="fresh-grove"] .ns-people-teaser{grid-template-columns:1fr 1fr;border-radius:32px;gap:30px;padding:24px}
+html[data-ns-theme="fresh-grove"] .ns-people-visual{border-radius:120px 120px 24px 24px}
+html[data-ns-theme="fresh-grove"] .price-card.featured{transform:none;border:2px solid var(--ns-primary)}
+html[data-ns-theme="fresh-grove"] :is(.nutrition,.benefits,.why-section,.process){background:var(--ns-section)!important;color:var(--ns-body)!important}
+html[data-ns-theme="fresh-grove"] .benefits .ben{background:var(--ns-surface)!important;color:var(--ns-body)!important;border-color:var(--ns-border)!important}
+html[data-ns-theme="fresh-grove"] .nutrition :is(h2,h3,h4,.nutri-text h2){color:var(--ns-heading)!important}
+html[data-ns-theme="fresh-grove"] .nutrition :is(p,td,li,.nutri-text p){color:var(--ns-body)!important}
+html[data-ns-theme="fresh-grove"] .benefits :is(span,p,small,.ben-desc){color:var(--ns-muted)!important}
+html[data-ns-theme="fresh-grove"] #order :is(small,.order-note,.ps-note,.form-privacy){color:var(--ns-muted)!important}
+html[data-ns-theme="coastal-premium"] .pc{display:grid;grid-template-columns:1fr 1fr;border-radius:0;border-top:3px solid var(--ns-accent)}
+html[data-ns-theme="coastal-premium"] .prod-grid{grid-template-columns:1fr;max-width:1120px;margin-inline:auto}
+html[data-ns-theme="coastal-premium"] .pc-img-wrap{min-height:360px;height:100%;border:12px solid var(--ns-surface)}
+html[data-ns-theme="coastal-premium"] .pc-body{display:flex;flex-direction:column;justify-content:center;padding:36px}
+html[data-ns-theme="coastal-premium"] .sec-hd{text-align:left;max-width:1100px;margin-inline:auto;border-left:3px solid var(--ns-accent);padding-left:30px}
+html[data-ns-theme="coastal-premium"] .sec-eyebrow{justify-content:flex-start}
+html[data-ns-theme="coastal-premium"] .ns-people-teaser{grid-template-columns:1.25fr 1fr;border:12px solid var(--ns-surface);gap:24px}
+html[data-ns-theme="coastal-premium"] .price-card{border-top:4px solid var(--ns-accent);padding:44px 30px}
+html[data-ns-theme="coastal-premium"] :is(.sec-title,.story-text h2){letter-spacing:-.045em}
+html[data-ns-theme="golden-harvest"] .pc{padding:18px;border:1px solid var(--ns-border);box-shadow:var(--ns-shadow)}
+html[data-ns-theme="golden-harvest"] :is(.nutrition,.benefits,.why-section,.process){background:var(--ns-section)!important;color:var(--ns-body)!important}
+html[data-ns-theme="golden-harvest"] .nutrition :is(h2,h3,h4,.nutri-text h2){color:var(--ns-heading)!important}
+html[data-ns-theme="golden-harvest"] .nutrition :is(p,td,li,.nutri-text p){color:var(--ns-body)!important}
+html[data-ns-theme="golden-harvest"] .benefits .ben{background:var(--ns-surface)!important;color:var(--ns-body)!important;border-color:var(--ns-border)!important}
+html[data-ns-theme="golden-harvest"] .benefits :is(span,p,small,.ben-desc){color:var(--ns-muted)!important}
+html[data-ns-theme="golden-harvest"] #order :is(small,.order-note,.ps-note,.form-privacy){color:var(--ns-muted)!important}
+html[data-ns-theme="golden-harvest"] .pc-img-wrap{border-radius:200px 200px 6px 6px;border:5px solid var(--ns-surface-2);margin-bottom:16px}
+html[data-ns-theme="golden-harvest"] .hero-content{text-align:center;max-width:740px;border-radius:160px 160px 12px 12px;padding:64px 40px 32px}
+html[data-ns-theme="golden-harvest"] .hero-btns{justify-content:center}
+html[data-ns-theme="golden-harvest"] .sec-hd{border-bottom:1px solid var(--ns-border);padding-bottom:30px}
+html[data-ns-theme="golden-harvest"] .price-card{border:4px double var(--ns-border);padding:48px 30px}
+html[data-ns-theme="golden-harvest"] .ns-people-teaser{grid-template-columns:1fr;padding:40px;max-width:1100px;margin-inline:auto;text-align:center}
+html[data-ns-theme="golden-harvest"] .ns-people-visual{max-height:420px;border-radius:160px 160px 8px 8px}
+html[data-ns-theme="golden-harvest"] .ns-people-copy{align-items:center}
+html[data-ns-theme="golden-harvest"] footer{border-top:6px double var(--ns-border);padding-top:70px}
+@media(min-width:1000px){html[data-ns-theme="fresh-grove"] .prod-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:36px}html[data-ns-theme="golden-harvest"] .prod-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:40px}html[data-ns-theme="golden-harvest"] .pc:last-child{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;align-items:center}}
+@media(max-width:900px){html[data-ns-theme] .ns-people-teaser{grid-template-columns:1fr}html[data-ns-theme="coastal-premium"] .pc{grid-template-columns:1fr}html[data-ns-theme] .hero-content{max-width:100%;padding:24px}html[data-ns-theme] .prod-grid{grid-template-columns:1fr}html[data-ns-theme] :is(#collection,#our-story,#price-list){padding:64px 22px}html[data-ns-theme] .hero-price{padding:12px}}
+@media(hover:hover){html[data-ns-theme] :is(.pc-btn,.po-btn,.btn-gold):hover{filter:brightness(1.08)}html[data-ns-theme="fresh-grove"] .pc:hover{transform:translateY(-5px)}}
+@media(prefers-reduced-motion:reduce){html[data-ns-theme] :is(.pc,.hero-content,.pc-img-wrap){transition:none;transform:none}}
+/* Copy islands above decorative photographs always have an opaque owned surface. */
+html[data-ns-theme] :is(.brand-moment-copy,.motion-fold-copy){background:var(--ns-surface);color:var(--ns-body);padding:32px;border-radius:var(--ns-radius)}
+html[data-ns-theme] :is(.brand-moment-kicker,.motion-fold-kicker,.brand-moment-stats span,.motion-fold-facts span,.brand-moment-stats strong,.motion-fold-facts b,.tag){color:var(--ns-accent)}
+html[data-ns-theme] :is(.film-caption,.motion-player-top,.motion-player-bottom){--ns-body:#fffaf0;--ns-heading:#fffaf0;--ns-muted:#e3e8de;--ns-accent:#f2d899;--gold:#f2d899;background:#07170ded;color:#fffaf0}
+html[data-ns-theme] .pc-tag{--gold:#f2d899}
+html[data-ns-theme] :is(.benefits,.process,.why-section){background:var(--ns-section);color:var(--ns-body)}
+html[data-ns-theme] :is(.ben-title,.ns-del-summary strong,.ns-del-result strong){color:var(--ns-heading)}
+html[data-ns-theme] :is(.ben-desc,.ns-del-field label,.ns-del-opt-desc,.ns-del-opt-eta,.ns-del-note,.ns-handover-help,.ns-handover-status,.ns-gps-status,.ns-del-summary,.ns-del-summary small,.ns-del-result,.ns-del-result small){color:var(--ns-muted)}
+html[data-ns-theme] #ns-del-root :is(.ns-del-result,.ns-del-choice-status,.ns-del-summary){background:var(--ns-surface);color:var(--ns-body)}
+html[data-ns-theme] #ns-del-root :is(.ns-del-result small,.ns-del-summary small,.ns-del-choice-status small){color:var(--ns-muted)}
+html[data-ns-theme] :is(.ns-place-choice,.ns-handover-input){background:var(--ns-field);color:var(--ns-body)}
+html[data-ns-theme] :is(.ns-place-choice small,.ns-handover-distance){color:var(--ns-muted)}
+/* Keep dynamically styled controls on their active theme's paired surface. */
+html[data-ns-theme] #collection :is(.pc-btn,.po-btn),
+html[data-ns-theme] #order button:not(.btn-gold):not(.topt.on):not(.sel),
+html[data-ns-theme] :is(#people-of-nariyal,#harvest-film) .btn-outline{background:var(--ns-surface-2)!important;color:var(--ns-body)!important;border-color:var(--ns-border)!important}
+html[data-ns-theme] footer small{color:var(--ns-muted)!important}
+html[data-ns-theme] #collection .po-btn{background:var(--ns-cta)!important;color:var(--ns-cta-ink)!important}
+html[data-ns-theme] #order .ns-del-opt-state{color:inherit!important}
+html[data-ns-theme] nav{background:var(--ns-nav)!important}
+html[data-ns-theme] nav a{color:var(--ns-heading)!important}
+html[data-ns-theme] nav button,html[data-ns-theme] nav button span{color:var(--ns-heading)!important}
+html[data-ns-theme] nav .nav-cta{color:var(--ns-cta-ink)!important;background:var(--ns-cta)!important}
+
+/* Moving People uses the active editorial surface, including captions/CTA.
+   Edge fades belong to photograph rows and must never obscure surrounding copy. */
+html[data-ns-theme] .ns-people-marquee-head h3{color:var(--ns-heading)}
+html[data-ns-theme] .ns-people-marquee-head :is(small,h3 em){color:var(--ns-accent)}
+html[data-ns-theme] :is(.ns-people-marquee-head p,.ns-people-marquee-foot span){color:var(--ns-muted)}
+html[data-ns-theme] .ns-people-marquee-foot .btn-outline{background:var(--ns-surface-2);color:var(--ns-body);border-color:var(--ns-border)}
+html[data-ns-theme] .ns-people-marquee::before,html[data-ns-theme] .ns-people-marquee::after{display:none}
+html[data-ns-theme] .ns-face-rows{position:relative}
+html[data-ns-theme] .ns-people-marquee:not(.no-edge-fade) .ns-face-rows::before,
+html[data-ns-theme] .ns-people-marquee:not(.no-edge-fade) .ns-face-rows::after{content:"";position:absolute;top:0;bottom:0;width:min(6vw,64px);z-index:4;pointer-events:none}
+html[data-ns-theme] .ns-face-rows::before{left:0;background:linear-gradient(90deg,var(--ns-section),transparent)}
+html[data-ns-theme] .ns-face-rows::after{right:0;background:linear-gradient(-90deg,var(--ns-section),transparent)}

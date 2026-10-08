@@ -20,7 +20,7 @@
     app:null,auth:null,db:null,authMod:null,fs:null,appMod:null,storage:null,storageMod:null,photoObjectUrl:'',
     user:null,profile:null,addresses:[],orders:[],
     authReady:false,authError:'',
-    authTab:'signin',panelTab:'overview',
+    authTab:'signin',authEmail:'',panelTab:'overview',
     orderUnsub:null,addressUnsub:null,
     drawerOpen:false,lastFocus:null,
     phoneStage:'',phoneConfirmation:null,phoneVerifier:null,phoneNumber:'',phonePendingName:''
@@ -107,6 +107,7 @@
         </aside>';
       document.body.appendChild(wrap);
     }
+    var brand=byId('nsacct-panel').querySelector('.nsacct-brand');if(window.NSAuthShell&&brand)brand.innerHTML=NSAuthShell.brand()+'<span id="nsacct-dialog-title" class="ns-auth-context-label">My Account</span>';
     ensureOrderContext();
     bindShell();
   }
@@ -124,7 +125,7 @@
       overlay.addEventListener('click',function(e){
         var close=e.target.closest('[data-nsacct-close]');if(close){closeDrawer();return}
         var action=e.target.closest('[data-nsacct-action]');if(action){handleAction(action.getAttribute('data-nsacct-action'),action);return}
-        var authTab=e.target.closest('[data-nsacct-auth-tab]');if(authTab){state.authTab=authTab.getAttribute('data-nsacct-auth-tab');render();return}
+        var authTab=e.target.closest('[data-nsacct-auth-tab]');if(authTab){changeAuthMode(authTab.getAttribute('data-nsacct-auth-tab'));return}
         var panelTab=e.target.closest('[data-nsacct-tab]');if(panelTab){state.panelTab=panelTab.getAttribute('data-nsacct-tab');render();return}
       });
       overlay.addEventListener('submit',handleSubmit);
@@ -151,15 +152,16 @@
   }
   function trapFocus(e){
     var panel=byId('nsacct-panel');if(!panel)return;var focusables=Array.from(panel.querySelectorAll('button:not([disabled]),a[href],input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')).filter(function(x){return x.offsetParent!==null});if(!focusables.length)return;
-    var first=focusables[0],last=focusables[focusables.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}
+    var first=focusables[0],last=focusables[focusables.length-1];if(e.shiftKey&&(document.activeElement===first||document.activeElement===panel)){e.preventDefault();last.focus()}else if(!e.shiftKey&&(document.activeElement===last||document.activeElement===panel)){e.preventDefault();first.focus()}
   }
 
   function renderBoot(){
-    var body=byId('nsacct-body');if(!body)return;body.innerHTML='<div class="nsacct-kicker">Optional customer profile</div><div class="nsacct-title">Your Nariyal Sutra</div><p class="nsacct-sub">The full store stays available with or without an account. We are securely loading your profile options.</p><div class="nsacct-card"><div class="nsacct-skeleton" style="width:72%"></div><div class="nsacct-skeleton" style="width:92%"></div><div class="nsacct-skeleton" style="width:55%"></div></div>';
+    var body=byId('nsacct-body');if(!body)return;
+    body.innerHTML=NSAuthShell.markup('customer','<h2 class="ns-auth-title">Welcome to your account.</h2><p class="ns-auth-sub" role="status">Connecting securely…</p><p class="ns-auth-note">Guest shopping is always available.</p>','signin');NSAuthShell.enhance(body);
   }
 
   function render(){
-    updateTrigger();updateOrderContext();
+    updateTrigger();updateOrderContext();var panel=byId('nsacct-panel');if(panel)panel.classList.toggle('ns-auth-panel',!state.user);
     if(!state.drawerOpen)return;
     if(!state.authReady&&!state.authError){renderBoot();return}
     if(state.authError&&!state.user){renderUnavailable();return}
@@ -168,7 +170,8 @@
   }
 
   function renderUnavailable(){
-    var body=byId('nsacct-body');if(!body)return;body.innerHTML='<div class="nsacct-kicker">Account service</div><div class="nsacct-title">Keep shopping normally</div><p class="nsacct-sub">Customer profiles are temporarily unavailable on this device. The storefront, guest checkout and WhatsApp ordering remain available.</p><div class="nsacct-card soft"><b style="font-size:13px">Nothing in your order journey is blocked.</b><p class="nsacct-mini" style="margin-top:8px">You can place an order as a guest and use your private tracking link. Try My Account again later.</p><div class="nsacct-actions"><button class="nsacct-btn primary" type="button" data-nsacct-action="continue-shopping">Continue shopping</button><a class="nsacct-btn ghost" style="text-align:center;text-decoration:none" href="/track">Track an order</a></div></div>';
+    var body=byId('nsacct-body');if(!body)return;
+    body.innerHTML=NSAuthShell.markup('customer','<h2 class="ns-auth-title">We’ll be right back.</h2><p class="ns-auth-sub" role="status">Account access is temporarily unavailable. Please reload to try again. You can still shop and order as a guest.</p><button class="ns-auth-primary" type="button" data-nsacct-action="continue-shopping">Continue shopping</button><p class="ns-auth-note"><a class="nsacct-link" href="/track">Track an existing order</a> with your private tracking link.</p>','signin');NSAuthShell.enhance(body);
   }
 
   function signedOutIntro(){return '<div class="nsacct-kicker">Optional customer profile</div><div class="nsacct-title">Your Nariyal Sutra</div><p class="nsacct-sub">The full storefront stays open to everyone. Sign in only when you want saved details, faster checkout and one place to manage your orders.</p><div class="nsacct-visual"><img src="assets/images/brand/coconut-premium.webp" alt="Fresh green coconut prepared for drinking" loading="lazy" decoding="async"><div class="nsacct-visual-copy"><span>One profile</span>Every order. Same storefront.</div></div>'}
@@ -188,13 +191,29 @@
     }
     return '<div class="nsacct-phone-card"><div class="nsacct-kicker">Phone OTP</div><b style="font-size:13px">Sign in without a password.</b><p class="nsacct-mini" style="margin-top:7px">For Indian numbers you can enter a 10-digit mobile number; we will use +91 automatically.</p><form class="nsacct-form" id="nsacct-phone-send"><div class="nsacct-field"><label for="nsacct-phone-number">Mobile number</label><input id="nsacct-phone-number" type="tel" autocomplete="tel" maxlength="24" required placeholder="+91 98765 43210"></div><div class="nsacct-field"><label for="nsacct-phone-name">Full name <span style="opacity:.55">(first time only)</span></label><input id="nsacct-phone-name" type="text" autocomplete="name" maxlength="100" placeholder="Your name"></div><div id="nsacct-recaptcha"></div><button class="nsacct-btn primary" type="submit">Send OTP</button><button class="nsacct-btn ghost" type="button" data-nsacct-action="phone-reset">Use email instead</button></form></div>';
   }
+  function changeAuthMode(mode){
+    if(byId('nsacct-body')?.querySelector('form[aria-busy="true"]'))return;
+    var current=byId('nsacct-login-email')||byId('nsacct-signup-email')||byId('nsacct-reset-email');
+    if(current)state.authEmail=current.value;
+    state.authTab=mode;state.phoneStage='';render();
+    if(window.NSAuthShell){NSAuthShell.transition(byId('nsacct-body'),mode,true);NSAuthShell.enhance(byId('nsacct-body'),true);}
+  }
+  function resetForm(){return '<form id="nsacct-reset" class="nsacct-form"><div class="nsacct-field"><label for="nsacct-reset-email">Email</label><input id="nsacct-reset-email" type="email" autocomplete="email" placeholder="you@example.com" required></div><button class="nsacct-btn primary" type="submit">Send reset link</button><button class="nsacct-btn ghost" type="button" data-nsacct-auth-tab="signin">Back to sign in</button></form>';}
   function renderSignedOut(){
     var body=byId('nsacct-body');if(!body)return;
-    var login=state.authTab==='signin',providers=providerButtons();
-    body.innerHTML=signedOutIntro()+providers+(state.phoneStage?phoneAuthForm():(providers?'<div class="nsacct-or">or use email</div>':'')+'<div class="nsacct-switch"><button type="button" data-nsacct-auth-tab="signin" class="'+(login?'active':'')+'">Sign in</button><button type="button" data-nsacct-auth-tab="signup" class="'+(!login?'active':'')+'">Create profile</button></div>'+(login?signinForm():signupForm()))+'<div id="nsacct-message" class="nsacct-msg"></div>'+accountBenefits()+'<div class="nsacct-divider"></div><div class="nsacct-card soft"><div class="nsacct-kicker">Already ordered as a guest?</div><b style="font-size:13px">Your private tracking link still works.</b><p class="nsacct-mini" style="margin-top:7px">You can track without an account. After creating a profile, you can also attach an existing guest order using that private link.</p><div class="nsacct-actions"><a href="/track" class="nsacct-btn ghost" style="text-align:center;text-decoration:none">Track order</a><button type="button" class="nsacct-btn ghost" data-nsacct-action="continue-shopping">Continue shopping</button></div></div>';
+    var mode=state.authTab,login=mode==='signin',reset=mode==='reset',providers=reset?'':providerButtons();
+    var title=reset?'A fresh start.':login?'Welcome back.':'Make yourself at home.';
+    var sub=reset?'Enter your email and we’ll help you return to your account.':login?'Your orders, saved details and everyday favourites.':'A few details today. A little more ease tomorrow.';
+    var content='<h2 class="ns-auth-title" tabindex="-1">'+title+'</h2><p class="ns-auth-sub">'+sub+'</p>'+
+      (state.phoneStage?phoneAuthForm():providers+(providers?'<div class="nsacct-or">or use email</div>':'')+(reset?resetForm():login?signinForm():signupForm()))+
+      '<div id="nsacct-message" class="nsacct-msg" role="status" aria-live="polite" aria-atomic="true"></div>'+
+      (reset||state.phoneStage?'':'<p class="ns-auth-bottom">'+(login?'New to Nariyal Sutra? <button type="button" data-nsacct-auth-tab="signup">Create account</button>':'Already have an account? <button type="button" data-nsacct-auth-tab="signin">Sign in</button>')+'</p>')+
+      '<p class="ns-auth-note">Shopping as a guest? You’re always welcome. <a class="nsacct-link" href="/track">Track an order</a> or <button class="ns-auth-text" type="button" data-nsacct-action="continue-shopping">continue shopping</button>.</p>';
+    var shell=body.querySelector('.ns-auth-shell');if(shell){shell.querySelector('.ns-auth-stage').innerHTML=content;shell.dataset.authState=mode;}else{body.innerHTML=NSAuthShell.markup('customer',content,mode);}NSAuthShell.enhance(body);
+    var email=byId('nsacct-login-email')||byId('nsacct-signup-email')||byId('nsacct-reset-email');if(email)email.value=state.authEmail;
   }
-  function signinForm(){return '<form class="nsacct-form" id="nsacct-signin"><div class="nsacct-field"><label for="nsacct-login-email">Email</label><input id="nsacct-login-email" type="email" autocomplete="email" required placeholder="you@example.com"></div><div class="nsacct-field"><label for="nsacct-login-password">Password</label><input id="nsacct-login-password" type="password" autocomplete="current-password" required placeholder="Your password"></div><button class="nsacct-btn primary" type="submit">Sign in</button><button class="nsacct-btn ghost" type="button" data-nsacct-action="forgot-password">Forgot password?</button><p class="nsacct-mini">Signing in is optional. You can close this panel and continue shopping or ordering as a guest at any time.</p></form>'}
-  function signupForm(){return '<form class="nsacct-form" id="nsacct-signup"><div class="nsacct-grid2"><div class="nsacct-field"><label for="nsacct-signup-name">Full name</label><input id="nsacct-signup-name" type="text" autocomplete="name" required maxlength="100" placeholder="Your name"></div><div class="nsacct-field"><label for="nsacct-signup-phone">Mobile / WhatsApp</label><input id="nsacct-signup-phone" type="tel" autocomplete="tel" required maxlength="24" placeholder="+91 ..."></div></div><div class="nsacct-field"><label for="nsacct-signup-email">Email</label><input id="nsacct-signup-email" type="email" autocomplete="email" required maxlength="160" placeholder="you@example.com"></div><div class="nsacct-grid2"><div class="nsacct-field"><label for="nsacct-signup-password">Password</label><input id="nsacct-signup-password" type="password" autocomplete="new-password" required minlength="8" placeholder="8+ characters"></div><div class="nsacct-field"><label for="nsacct-signup-confirm">Confirm password</label><input id="nsacct-signup-confirm" type="password" autocomplete="new-password" required minlength="8" placeholder="Repeat password"></div></div><label class="nsacct-check"><input id="nsacct-terms" type="checkbox" required><span>I agree to the <a href="/terms.html" target="_blank" rel="noopener">Terms</a> and <a href="/privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</span></label><button class="nsacct-btn primary" type="submit">Create my profile</button><p class="nsacct-mini">Your account is a convenience layer. The public website and guest checkout remain available even if you never create a profile.</p></form>'}
+  function signinForm(){return '<form class="nsacct-form" id="nsacct-signin"><div class="nsacct-field"><label for="nsacct-login-email">Email</label><input id="nsacct-login-email" type="email" autocomplete="email" required placeholder="you@example.com"></div><div class="nsacct-field"><label for="nsacct-login-password">Password</label><input id="nsacct-login-password" type="password" autocomplete="current-password" required placeholder="Your password"></div><button class="nsacct-btn primary" type="submit">Sign in</button><button class="nsacct-btn ghost" type="button" data-nsacct-action="forgot-password">Forgot password?</button></form>'}
+  function signupForm(){return '<form class="nsacct-form" id="nsacct-signup"><div class="nsacct-grid2"><div class="nsacct-field"><label for="nsacct-signup-name">Full name</label><input id="nsacct-signup-name" type="text" autocomplete="name" required maxlength="100" placeholder="Your name"></div><div class="nsacct-field"><label for="nsacct-signup-phone">Mobile / WhatsApp</label><input id="nsacct-signup-phone" type="tel" autocomplete="tel" required maxlength="24" placeholder="+91 ..."></div></div><div class="nsacct-field"><label for="nsacct-signup-email">Email</label><input id="nsacct-signup-email" type="email" autocomplete="email" required maxlength="160" placeholder="you@example.com"></div><div class="nsacct-grid2"><div class="nsacct-field"><label for="nsacct-signup-password">Password</label><input id="nsacct-signup-password" type="password" autocomplete="new-password" required minlength="8" placeholder="8+ characters"></div><div class="nsacct-field"><label for="nsacct-signup-confirm">Confirm password</label><input id="nsacct-signup-confirm" type="password" autocomplete="new-password" required minlength="8" placeholder="Repeat password"></div></div><label class="nsacct-check"><input id="nsacct-terms" type="checkbox" required><span>I agree to the <a href="/terms.html" target="_blank" rel="noopener">Terms</a> and <a href="/privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</span></label><button class="nsacct-btn primary" type="submit">Create account</button></form>'}
 
 
   function renderSignedIn(){
@@ -240,6 +259,7 @@
       '<div class="nsacct-grid2"><div class="nsacct-field"><label for="nsacct-profile-name">Full name</label><input id="nsacct-profile-name" type="text" autocomplete="name" maxlength="100" required value="'+esc(p.displayName||state.user.displayName||'')+'"></div><div class="nsacct-field"><label for="nsacct-profile-phone">Mobile / WhatsApp</label><input id="nsacct-profile-phone" type="tel" autocomplete="tel" maxlength="24" required value="'+esc(p.phone||state.user.phoneNumber||'')+'"></div></div>'+
       '<div class="nsacct-grid2"><div class="nsacct-field"><label for="nsacct-pref-channel">Preferred contact</label><select id="nsacct-pref-channel"><option value="whatsapp" '+((p.preferredChannel||'whatsapp')==='whatsapp'?'selected':'')+'>WhatsApp</option><option value="email" '+(p.preferredChannel==='email'?'selected':'')+'>Email</option><option value="telegram" '+(p.preferredChannel==='telegram'?'selected':'')+'>Telegram</option><option value="any" '+(p.preferredChannel==='any'?'selected':'')+'>Any channel</option></select></div><div class="nsacct-field"><label for="nsacct-telegram">Telegram username <span style="opacity:.45">(optional)</span></label><input id="nsacct-telegram" type="text" maxlength="80" placeholder="@username" value="'+esc(p.telegramUsername||'')+'"><p class="nsacct-mini" style="margin-top:5px">Saved as a preference. Automated Telegram delivery remains disabled until a real Nariyal Sutra bot/chat link is connected.</p></div></div>'+
       '<div class="nsacct-field"><label>Order update channels</label><div class="nsacct-prefgrid"><label><input id="nsacct-notify-wa" type="checkbox" '+(p.notifyWhatsapp!==false?'checked':'')+'> WhatsApp</label><label><input id="nsacct-notify-email" type="checkbox" '+(p.notifyEmail!==false?'checked':'')+'> Email</label><label><input id="nsacct-notify-telegram" type="checkbox" '+(p.notifyTelegram===true?'checked':'')+'> Telegram preference</label></div></div>'+
+      '<div class="nsacct-field"><label>Offers, announcements &amp; festival greetings <span style="opacity:.5">(optional)</span></label><p class="nsacct-mini" style="margin:5px 0 9px">Separate from order updates. Nothing is selected by default; choose only the channels where you want promotional messages from Nariyal Sutra.</p><div class="nsacct-prefgrid"><label><input id="nsacct-marketing-wa" type="checkbox" '+(p.marketingWhatsappOptIn===true?'checked':'')+'> WhatsApp offers</label><label><input id="nsacct-marketing-email" type="checkbox" '+(p.marketingEmailOptIn===true?'checked':'')+'> Email offers</label><label><input id="nsacct-marketing-telegram" type="checkbox" '+(p.marketingTelegramOptIn===true?'checked':'')+'> Telegram offers</label></div><p class="nsacct-mini" style="margin-top:7px">You can change these choices at any time. Turning a channel off removes it from future campaign audiences.</p></div>'+
       '<div class="nsacct-sectiontitle"><h3>Primary location</h3><span>For quicker delivery forms</span></div><div class="nsacct-grid2"><div class="nsacct-field"><label for="nsacct-primary-city">City</label><input id="nsacct-primary-city" type="text" maxlength="120" value="'+esc(p.primaryCity||'')+'"></div><div class="nsacct-field"><label for="nsacct-primary-state">State</label><input id="nsacct-primary-state" type="text" maxlength="100" value="'+esc(p.primaryState||'')+'"></div></div><div class="nsacct-grid2"><div class="nsacct-field"><label for="nsacct-primary-pin">PIN / Postal</label><input id="nsacct-primary-pin" type="text" maxlength="24" value="'+esc(p.primaryPin||'')+'"></div><div class="nsacct-field"><label for="nsacct-primary-country">Country</label><input id="nsacct-primary-country" type="text" maxlength="80" value="'+esc(p.primaryCountry||'India')+'"></div></div>'+
       '<div class="nsacct-grid2"><div class="nsacct-field"><label for="nsacct-pref-product">Preferred product</label><select id="nsacct-pref-product"><option value="" '+(!p.preferredProduct?'selected':'')+'>No preference</option><option value="tender" '+(p.preferredProduct==='tender'?'selected':'')+'>Fresh Tender Coconut</option><option value="green" '+(p.preferredProduct==='green'?'selected':'')+'>Green Round Coconut</option><option value="bulk" '+(p.preferredProduct==='bulk'?'selected':'')+'>Bulk Pack</option></select></div><div class="nsacct-field"><label for="nsacct-pref-recurring">Ordering preference</label><select id="nsacct-pref-recurring"><option value="onetime" '+((p.recurringPreference||'onetime')==='onetime'?'selected':'')+'>One-time</option><option value="weekly" '+(p.recurringPreference==='weekly'?'selected':'')+'>Weekly</option><option value="fortnightly" '+(p.recurringPreference==='fortnightly'?'selected':'')+'>Fortnightly</option><option value="monthly" '+(p.recurringPreference==='monthly'?'selected':'')+'>Monthly</option><option value="flexible" '+(p.recurringPreference==='flexible'?'selected':'')+'>Flexible</option></select></div></div>'+
       '<div class="nsacct-profile-note">Payment methods will be handled through a payment provider in a later phase. Nariyal Sutra will never ask you to save a card number, CVV, UPI PIN or banking password in this profile.</div><button class="nsacct-btn primary" type="submit">Save profile</button></form>'+
@@ -281,6 +301,7 @@
     state.authReady=true;state.authError='';state.user=user||null;state.profile=null;state.addresses=[];state.orders=[];cleanupSubs();
     window.NS_CUSTOMER_CONTEXT={ready:true,uid:user?user.uid:'',user:user||null,profile:null};
     if(user){
+      window.NSAuthShell?.signal(byId('nsacct-body'),'success');
       try{await ensureProfile(user)}catch(e){console.warn('[customer-account] profile load failed:',e);showDeferredMessage('Your sign-in succeeded, but profile details could not be loaded yet. You can still shop and order.', 'warn')}
       subscribeAddresses();subscribeOrders();prefillCheckout(false);analytics('customer_account_ready',{email_verified:!!user.emailVerified});try{if(sessionStorage.getItem('nsacct_auth_return')){sessionStorage.removeItem('nsacct_auth_return');setTimeout(openDrawer,80)}}catch(e){}
     }
@@ -290,11 +311,11 @@
 
   async function ensureProfile(user){
     var ref=state.fs.doc(state.db,'customers',user.uid),snap=await state.fs.getDoc(ref),now=state.fs.serverTimestamp();
-    var defaults={uid:user.uid,email:user.email||'',contactEmail:user.email||'',emailVerified:!!user.emailVerified,phoneVerified:!!user.phoneNumber,displayName:user.displayName||'',phone:user.phoneNumber||'',photoURL:user.photoURL||'',photoPath:'',preferredProduct:'',recurringPreference:'onetime',telegramUsername:'',preferredChannel:'whatsapp',notifyEmail:true,notifyWhatsapp:true,notifyTelegram:false,primaryCity:'',primaryState:'',primaryCountry:'India',primaryPin:'',lastLoginAt:now,updatedAt:now};
+    var defaults={uid:user.uid,email:user.email||'',contactEmail:user.email||'',emailVerified:!!user.emailVerified,phoneVerified:!!user.phoneNumber,displayName:user.displayName||'',phone:user.phoneNumber||'',photoURL:user.photoURL||'',photoPath:'',preferredProduct:'',recurringPreference:'onetime',telegramUsername:'',preferredChannel:'whatsapp',notifyEmail:true,notifyWhatsapp:true,notifyTelegram:false,marketingEmailOptIn:false,marketingWhatsappOptIn:false,marketingTelegramOptIn:false,primaryCity:'',primaryState:'',primaryCountry:'India',primaryPin:'',lastLoginAt:now,updatedAt:now};
     if(!snap.exists()){
       defaults.createdAt=now;await state.fs.setDoc(ref,defaults);state.profile=Object.assign({},defaults,{createdAt:null,updatedAt:null,lastLoginAt:null});
     }else{
-      var current=Object.assign({},snap.data()),patch={lastLoginAt:now,updatedAt:now,emailVerified:!!user.emailVerified,phoneVerified:!!user.phoneNumber},keys=['contactEmail','photoPath','telegramUsername','preferredChannel','notifyEmail','notifyWhatsapp','notifyTelegram','primaryCity','primaryState','primaryCountry','primaryPin'];
+      var current=Object.assign({},snap.data()),patch={lastLoginAt:now,updatedAt:now,emailVerified:!!user.emailVerified,phoneVerified:!!user.phoneNumber},keys=['contactEmail','photoPath','telegramUsername','preferredChannel','notifyEmail','notifyWhatsapp','notifyTelegram','marketingEmailOptIn','marketingWhatsappOptIn','marketingTelegramOptIn','primaryCity','primaryState','primaryCountry','primaryPin'];
       keys.forEach(function(k){if(current[k]===undefined)patch[k]=defaults[k]});
       if(current.photoURL===undefined)patch.photoURL=user.photoURL||'';
       await state.fs.setDoc(ref,patch,{merge:true});state.profile=Object.assign({},defaults,current,patch,{updatedAt:current.updatedAt,lastLoginAt:current.lastLoginAt});
@@ -333,6 +354,7 @@
 
   async function handleSubmit(e){
     if(e.target.id==='nsacct-signin'){e.preventDefault();await signin(e.target)}
+    else if(e.target.id==='nsacct-reset'){e.preventDefault();setBusy(e.target,true);try{await forgotPassword()}finally{setBusy(e.target,false)}}
     else if(e.target.id==='nsacct-signup'){e.preventDefault();await signup(e.target)}
     else if(e.target.id==='nsacct-phone-send'){e.preventDefault();await sendPhoneOtp(e.target)}
     else if(e.target.id==='nsacct-phone-code'){e.preventDefault();await verifyPhoneOtp(e.target)}
@@ -340,7 +362,7 @@
     else if(e.target.id==='nsacct-address'){e.preventDefault();await saveAddress(e.target)}
     else if(e.target.id==='nsacct-claim'){e.preventDefault();await claimGuestOrder(e.target)}
   }
-  function setBusy(form,busy){var btn=form&&form.querySelector('button[type="submit"]');if(btn){if(!btn.dataset.label)btn.dataset.label=btn.textContent;btn.disabled=busy;btn.textContent=busy?'Please wait…':btn.dataset.label}}
+  function setBusy(form,busy){if(form){form.setAttribute('aria-busy',String(busy));window.NSAuthShell?.signal(form.closest('.ns-auth-shell'),busy?'loading':'idle');}var btn=form&&form.querySelector('button[type="submit"]');if(btn){if(!btn.dataset.label)btn.dataset.label=btn.textContent;btn.disabled=busy;btn.textContent=busy?'Please wait…':btn.dataset.label}}
   function normalizePhone(v){
     var raw=clean(v,30),d=digits(raw);
     if(d.length===10)return '+91'+d;
@@ -416,9 +438,9 @@
     var cred=null,profileSaved=false;
     try{
       cred=await state.authMod.createUserWithEmailAndPassword(state.auth,email,password);await state.authMod.updateProfile(cred.user,{displayName:name});
-      var ref=state.fs.doc(state.db,'customers',cred.user.uid),now=state.fs.serverTimestamp();await state.fs.setDoc(ref,{uid:cred.user.uid,email:cred.user.email||email,contactEmail:cred.user.email||email,emailVerified:!!cred.user.emailVerified,phoneVerified:!!cred.user.phoneNumber,displayName:name,phone:phone,photoURL:'',photoPath:'',preferredProduct:'',recurringPreference:'onetime',telegramUsername:'',preferredChannel:'whatsapp',notifyEmail:true,notifyWhatsapp:true,notifyTelegram:false,primaryCity:'',primaryState:'',primaryCountry:'India',primaryPin:'',createdAt:now,updatedAt:now,lastLoginAt:now});profileSaved=true;
+      var ref=state.fs.doc(state.db,'customers',cred.user.uid),now=state.fs.serverTimestamp();await state.fs.setDoc(ref,{uid:cred.user.uid,email:cred.user.email||email,contactEmail:cred.user.email||email,emailVerified:!!cred.user.emailVerified,phoneVerified:!!cred.user.phoneNumber,displayName:name,phone:phone,photoURL:'',photoPath:'',preferredProduct:'',recurringPreference:'onetime',telegramUsername:'',preferredChannel:'whatsapp',notifyEmail:true,notifyWhatsapp:true,notifyTelegram:false,marketingEmailOptIn:false,marketingWhatsappOptIn:false,marketingTelegramOptIn:false,primaryCity:'',primaryState:'',primaryCountry:'India',primaryPin:'',createdAt:now,updatedAt:now,lastLoginAt:now});profileSaved=true;
       try{await state.authMod.sendEmailVerification(cred.user)}catch(mailErr){console.warn('[customer-account] verification email not sent:',mailErr)}
-      state.profile={uid:cred.user.uid,email:cred.user.email||email,contactEmail:cred.user.email||email,emailVerified:!!cred.user.emailVerified,phoneVerified:!!cred.user.phoneNumber,displayName:name,phone:phone,photoURL:'',photoPath:'',preferredProduct:'',recurringPreference:'onetime',telegramUsername:'',preferredChannel:'whatsapp',notifyEmail:true,notifyWhatsapp:true,notifyTelegram:false,primaryCity:'',primaryState:'',primaryCountry:'India',primaryPin:''};window.NS_CUSTOMER_CONTEXT={ready:true,uid:cred.user.uid,user:cred.user,profile:state.profile};prefillCheckout(false);showDeferredMessage('Profile created. We also requested a verification email.','ok');analytics('customer_signup_success',{});
+      state.profile={uid:cred.user.uid,email:cred.user.email||email,contactEmail:cred.user.email||email,emailVerified:!!cred.user.emailVerified,phoneVerified:!!cred.user.phoneNumber,displayName:name,phone:phone,photoURL:'',photoPath:'',preferredProduct:'',recurringPreference:'onetime',telegramUsername:'',preferredChannel:'whatsapp',notifyEmail:true,notifyWhatsapp:true,notifyTelegram:false,marketingEmailOptIn:false,marketingWhatsappOptIn:false,marketingTelegramOptIn:false,primaryCity:'',primaryState:'',primaryCountry:'India',primaryPin:''};window.NS_CUSTOMER_CONTEXT={ready:true,uid:cred.user.uid,user:cred.user,profile:state.profile};prefillCheckout(false);showDeferredMessage('Profile created. We also requested a verification email.','ok');analytics('customer_signup_success',{});
     }catch(e){
       if(cred&&!profileSaved){try{await state.authMod.deleteUser(cred.user)}catch(cleanupErr){console.warn('[customer-account] incomplete signup cleanup failed:',cleanupErr)}}
       showMessage(profileSaved?friendlyAuthError(e):'We could not finish creating your profile. Nothing in checkout is blocked; please try creating the profile again.','err');analytics('customer_signup_failed',{code:clean(e&&e.code,80)})
@@ -427,11 +449,11 @@
   async function saveProfile(form){
     if(!state.user)return;setBusy(form,true);clearMessage();
     var name=clean(byId('nsacct-profile-name').value,100),contactEmail=clean(byId('nsacct-profile-email').value,160).toLowerCase(),phone=clean(byId('nsacct-profile-phone').value,24),preferred=clean(byId('nsacct-pref-product').value,20),recurring=clean(byId('nsacct-pref-recurring').value,20),telegram=clean((byId('nsacct-telegram')||{}).value,80).replace(/^@/,''),channel=clean(byId('nsacct-pref-channel').value,20),city=clean(byId('nsacct-primary-city').value,120),region=clean(byId('nsacct-primary-state').value,100),country=clean(byId('nsacct-primary-country').value,80)||'India',pin=clean(byId('nsacct-primary-pin').value,24);
-    var notifyEmail=!!byId('nsacct-notify-email').checked,notifyWhatsapp=!!byId('nsacct-notify-wa').checked,notifyTelegram=!!(byId('nsacct-notify-telegram')||{}).checked;
-    if(name.length<2){showMessage('Please enter your full name.','err');setBusy(form,false);return}if(digits(phone).length<10||digits(phone).length>15){showMessage('Please enter a valid mobile / WhatsApp number.','err');setBusy(form,false);return}if(contactEmail&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactEmail)){showMessage('Please enter a valid contact email.','err');setBusy(form,false);return}if((channel==='email'||notifyEmail)&&!contactEmail){showMessage('Add a contact email before selecting email updates.','err');setBusy(form,false);return}if((channel==='telegram'||notifyTelegram)&&!telegram){showMessage('Add your Telegram username before selecting Telegram as a preference.','err');setBusy(form,false);return}
+    var notifyEmail=!!byId('nsacct-notify-email').checked,notifyWhatsapp=!!byId('nsacct-notify-wa').checked,notifyTelegram=!!(byId('nsacct-notify-telegram')||{}).checked,marketingEmailOptIn=!!(byId('nsacct-marketing-email')||{}).checked,marketingWhatsappOptIn=!!(byId('nsacct-marketing-wa')||{}).checked,marketingTelegramOptIn=!!(byId('nsacct-marketing-telegram')||{}).checked;
+    if(name.length<2){showMessage('Please enter your full name.','err');setBusy(form,false);return}if(digits(phone).length<10||digits(phone).length>15){showMessage('Please enter a valid mobile / WhatsApp number.','err');setBusy(form,false);return}if(contactEmail&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactEmail)){showMessage('Please enter a valid contact email.','err');setBusy(form,false);return}if((channel==='email'||notifyEmail)&&!contactEmail){showMessage('Add a contact email before selecting email updates.','err');setBusy(form,false);return}if((channel==='telegram'||notifyTelegram||marketingTelegramOptIn)&&!telegram){showMessage('Add your Telegram username before selecting Telegram as a preference.','err');setBusy(form,false);return}if(marketingEmailOptIn&&!contactEmail){showMessage('Add a contact email before opting into email offers.','err');setBusy(form,false);return}
     
     try{
-      var payload={displayName:name,contactEmail:contactEmail,emailVerified:!!state.user.emailVerified,phoneVerified:!!state.user.phoneNumber,phone:phone,preferredProduct:preferred,recurringPreference:recurring,telegramUsername:telegram,preferredChannel:channel,notifyEmail:notifyEmail,notifyWhatsapp:notifyWhatsapp,notifyTelegram:notifyTelegram,primaryCity:city,primaryState:region,primaryCountry:country,primaryPin:pin,updatedAt:state.fs.serverTimestamp()};
+      var payload={displayName:name,contactEmail:contactEmail,emailVerified:!!state.user.emailVerified,phoneVerified:!!state.user.phoneNumber,phone:phone,preferredProduct:preferred,recurringPreference:recurring,telegramUsername:telegram,preferredChannel:channel,notifyEmail:notifyEmail,notifyWhatsapp:notifyWhatsapp,notifyTelegram:notifyTelegram,marketingEmailOptIn:marketingEmailOptIn,marketingWhatsappOptIn:marketingWhatsappOptIn,marketingTelegramOptIn:marketingTelegramOptIn,primaryCity:city,primaryState:region,primaryCountry:country,primaryPin:pin,updatedAt:state.fs.serverTimestamp()};var prevMarketing=state.profile||{};if(prevMarketing.marketingEmailOptIn!==marketingEmailOptIn||prevMarketing.marketingWhatsappOptIn!==marketingWhatsappOptIn||prevMarketing.marketingTelegramOptIn!==marketingTelegramOptIn)payload.marketingConsentUpdatedAt=state.fs.serverTimestamp();
       var ref=state.fs.doc(state.db,'customers',state.user.uid);await state.fs.updateDoc(ref,payload);
       if(state.user.displayName!==name)try{await state.authMod.updateProfile(state.user,{displayName:name})}catch(e){}
       state.profile=Object.assign({},state.profile,payload);window.NS_CUSTOMER_CONTEXT={ready:true,uid:state.user.uid,user:state.user,profile:state.profile};updateTrigger();updateOrderContext();prefillCheckout(false);showMessage('Profile saved.','ok');analytics('customer_profile_saved',{preferred_channel:channel});
@@ -462,7 +484,7 @@
     if(action==='apple-signin'){await oauthSignIn('apple');return}
     if(action==='phone-open'){state.phoneStage='number';render();return}
     if(action==='phone-reset'){state.phoneStage='';state.phoneConfirmation=null;state.phoneNumber='';state.phonePendingName='';clearPhoneVerifier();render();return}
-    if(action==='forgot-password'){await forgotPassword();return}
+    if(action==='forgot-password'){changeAuthMode('reset');return}
     if(action==='resend-verification'){await resendVerification();return}
     if(action==='signout'){await signout();return}
     if(action==='new-order'){closeDrawer();setTimeout(function(){if(typeof window.go==='function')window.go('order')},50);return}
@@ -476,7 +498,7 @@
     if(action==='remove-photo'){await removeProfilePhoto();return}
   }
   async function forgotPassword(){
-    if(!state.auth)return;var email=clean((byId('nsacct-login-email')||{}).value,160);if(!email){showMessage('Enter your email above, then choose Forgot password.','warn');return}try{await state.authMod.sendPasswordResetEmail(state.auth,email);showMessage('Password reset instructions were requested. Check your inbox and spam folder.','ok');analytics('customer_password_reset_requested',{})}catch(e){showMessage(friendlyAuthError(e),'err')}
+    if(!state.auth)return;var email=clean((byId('nsacct-reset-email')||byId('nsacct-login-email')||{}).value,160);if(!email){showMessage('Enter your email above, then choose Forgot password.','warn');return}try{try{await state.authMod.sendPasswordResetEmail(state.auth,email)}catch(err){if(err.code!=='auth/user-not-found')throw err}showMessage('If this email has an account, reset instructions have been requested. Check your inbox and spam folder.','ok');analytics('customer_password_reset_requested',{})}catch(e){showMessage(friendlyAuthError(e),'err')}
   }
   async function resendVerification(){
     if(!state.user)return;if(!state.user.email){showMessage('This account uses phone sign-in and does not need email verification.','ok');return}if(state.user.emailVerified){showMessage('Your email is already verified.','ok');return}try{await state.authMod.sendEmailVerification(state.user);showMessage('Verification email requested. Check your inbox and spam folder.','ok')}catch(e){showMessage(friendlyAuthError(e),'err')}

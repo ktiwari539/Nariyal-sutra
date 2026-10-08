@@ -67,8 +67,10 @@ video.ns-video-failed{display:none!important}
   #collection .pc-img-wrap img{object-fit:cover!important;object-position:center 42%!important}
   .ns-people-marquee{overflow:hidden!important;padding:42px 0 38px!important;margin-bottom:42px!important}
   .ns-people-marquee-head{grid-template-columns:1fr!important;padding:0 22px!important;gap:16px!important}
-  .ns-face-card,.ns-face-card:nth-child(3n+2),.ns-face-card:nth-child(3n){width:190px!important;height:280px!important;aspect-ratio:auto!important}
-  .ns-face-card img{object-fit:cover!important;object-position:center;padding:0!important;background:#071204!important}
+  .ns-face-card,.ns-face-card:nth-child(3n+2),.ns-face-card:nth-child(3n){width:190px!important;height:auto!important;aspect-ratio:2/3!important}
+  .ns-face-card .ns-face-foreground{object-fit:contain!important;object-position:center;padding:0!important;background:transparent!important}
+  .ns-face-card[data-fit="cover"] .ns-face-foreground{object-fit:cover!important}
+  .ns-face-card[data-fit="auto"] .ns-face-foreground,.ns-face-card[data-fit="full"] .ns-face-foreground{object-fit:contain!important}
   #order{padding-left:22px!important;padding-right:22px!important}
   #order .ofields{grid-template-columns:minmax(0,1fr)!important;min-width:0!important}
   .order-inner,.order-card,#ns-del-root,.ns-del-section,.ns-v21-address-map{width:100%!important;max-width:100%!important;min-width:0!important}
@@ -86,7 +88,7 @@ video.ns-video-failed{display:none!important}
   #collection .pc{flex:0 0 min(86vw,390px)!important;scroll-snap-align:center!important}
   #collection .pc-img-wrap{min-height:0!important;aspect-ratio:4/5!important}
   .msr-card{flex-basis:min(86vw,390px)!important;aspect-ratio:4/5!important}
-  .ns-face-card,.ns-face-card:nth-child(3n+2),.ns-face-card:nth-child(3n){width:164px!important;height:238px!important}
+  .ns-face-card,.ns-face-card:nth-child(3n+2),.ns-face-card:nth-child(3n){width:164px!important;height:auto!important;aspect-ratio:2/3!important}
   #order{padding-left:14px!important;padding-right:14px!important}
   .ns-v21-map{height:260px!important}
 }

@@ -3,6 +3,7 @@
 const KEY='ns-v421-local-state-v28';
 const LEGACY_KEYS=['ns-v421-local-state-v27','ns-v421-local-state-v26','ns-v421-local-state-v25','ns-v421-local-state-v23','ns-v421-local-state-v22','ns-v421-local-state-v21'];
 const SCHEMA=28;
+const THEME_IDS=['nariyal-signature','fresh-grove','coastal-premium','golden-harvest'];
 const PEOPLE_MEDIA_IDS=["G001","G002","G003","G004","G005","G006","G007","G008","G011","G012","G016","G021","G023","G024","G025","G026","G031","G034","G035","G036","G037","G039","G040","G041","G042","G044","G046","G047","G048","G049","G050","G051","G052","G055","G061","G064","G066","G067","G068","G069","G070","G072","G073","G074","G075","G077","G078"];
 const FEATURED_FACE_IDS=["G001","G002","G004","G005","G006","G007","G008","G011","G012","G025","G026","G031","G034","G035","G036","G039","G040","G041","G042","G044","G046","G049","G052","G055","G069","G072","G073","G074","G075","G077","G078"];
 const FACE_IDS=PEOPLE_MEDIA_IDS.slice();
@@ -13,10 +14,11 @@ function hoursFromNow(hours){return new Date(Date.now()+hours*60*60*1000).toISOS
 function faceMedia(id,i){const featured=FEATURED_FACE_IDS.includes(id);return {id,name:'People reference '+id,cat:'People',status:featured?'Approved':'Needs review',visible:featured,publicAllowed:true,storyAllowed:true,homepageAllowed:featured,brandFit:featured?'Strong':'Review',placement:featured?'People':'Library only',faceGroup:id,src:'assets/images/ambassadors/'+id+'.webp',thumb:'assets/images/ambassadors/thumbs/'+id+'.webp',version:1,versions:[{version:1,src:'assets/images/ambassadors/'+id+'.webp',at:'Bundled V26'}],order:i+1};}
 const defaults={
  schemaVersion:SCHEMA,
+ themeConfig:{publishedTheme:'nariyal-signature',draftTheme:null,previousPublishedTheme:null,publishedAt:null,publishedBy:null,businessTimezone:'Asia/Kolkata',schedules:[],manualOverride:null},
  products:[
-  {sku:'TENDER',name:'Fresh Tender Coconut',retail:55,bulk:45,moq:10,priceVisible:true,state:'Active'},
-  {sku:'GREEN',name:'Green Round Coconut',retail:55,bulk:48,moq:10,priceVisible:true,state:'Active'},
-  {sku:'BULK',name:'Bulk Tender Coconut',retail:0,bulk:45,moq:50,priceVisible:true,state:'Quote'}
+  {sku:'TENDER',name:'Fresh Tender Coconut',price:55,retail:55,bulk:55,moq:1,priceVisible:true,state:'Active'},
+  {sku:'GREEN',name:'Green Round Coconut',price:55,retail:55,bulk:55,moq:1,priceVisible:true,state:'Active'},
+  {sku:'BULK',name:'Bulk Pack (10+ pcs)',price:45,retail:45,bulk:45,moq:10,priceVisible:true,state:'Active'}
  ],
  inventory:[
   {sku:'TENDER',name:'Fresh Tender Coconut',node:'Jabalpur fulfilment',onHand:420,reserved:36,incoming:180,low:80,freshness:'Fresh intake',supplier:'Farmer / supplier network'},
@@ -58,12 +60,12 @@ const defaults={
   {id:'FUE-DEMO-2',followupId:'FU-DEMO-3',action:'status_changed',details:'Status changed from Open to In progress.',actorEmail:'preview@nariyalsutra.local',actorRole:'Owner',createdAt:now(),source:'demo'}
  ],
  media:[
-  {id:'M-ORIGIN-01',name:'Coastal coconut grove',cat:'Sourcing',status:'Approved',visible:true,publicAllowed:true,storyAllowed:true,homepageAllowed:true,brandFit:'Strong',placement:'Homepage',faceGroup:null,src:'assets/images/review/coastal-grove.png',thumb:'assets/images/review/coastal-grove.png',version:1,versions:[{version:1,src:'assets/images/review/coastal-grove.png',at:'V20 review'}]},
-  {id:'M-ORIGIN-02',name:'Backwater coconut grove',cat:'Sourcing',status:'Approved',visible:true,publicAllowed:true,storyAllowed:true,homepageAllowed:true,brandFit:'Strong',placement:'Sourcing',faceGroup:null,src:'assets/images/review/backwater-grove.png',thumb:'assets/images/review/backwater-grove.png',version:1,versions:[{version:1,src:'assets/images/review/backwater-grove.png',at:'V20 review'}]},
+  {id:'M-ORIGIN-01',name:'Coastal coconut grove',cat:'Sourcing',status:'Approved',visible:true,publicAllowed:true,storyAllowed:true,homepageAllowed:true,brandFit:'Strong',placement:'Homepage',faceGroup:null,src:'assets/images/review/coastal-grove.webp',thumb:'assets/images/review/coastal-grove.webp',version:1,versions:[{version:1,src:'assets/images/review/coastal-grove.webp',at:'V20 review'}]},
+  {id:'M-ORIGIN-02',name:'Backwater coconut grove',cat:'Sourcing',status:'Approved',visible:true,publicAllowed:true,storyAllowed:true,homepageAllowed:true,brandFit:'Strong',placement:'Sourcing',faceGroup:null,src:'assets/images/review/backwater-grove.webp',thumb:'assets/images/review/backwater-grove.webp',version:1,versions:[{version:1,src:'assets/images/review/backwater-grove.webp',at:'V20 review'}]},
   {id:'M-COCONUT-01',name:'Protected coconut hero',cat:'Product',status:'Approved',visible:true,publicAllowed:true,storyAllowed:true,homepageAllowed:true,brandFit:'Strong',placement:'Product',faceGroup:null,src:'/assets/images/story-coconut-hero.png',thumb:'/assets/images/story-coconut-hero.png',version:1,versions:[{version:1,src:'/assets/images/story-coconut-hero.png',at:'Protected V42'}]},
   ...PEOPLE_MEDIA_IDS.map(faceMedia),
   {id:'U001',name:'Uploaded people reference U001',cat:'People',status:'Needs review',visible:false,publicAllowed:true,storyAllowed:true,homepageAllowed:false,brandFit:'Review',placement:'Library only',faceGroup:'U001',src:'assets/images/people-uploads/U001.jpeg',thumb:'assets/images/people-uploads/U001.jpeg',version:1,versions:[{version:1,src:'assets/images/people-uploads/U001.jpeg',at:'Bundled V26'}]},
-  {id:'U002',name:'Uploaded people reference U002',cat:'People',status:'Needs review',visible:false,publicAllowed:true,storyAllowed:true,homepageAllowed:false,brandFit:'Review',placement:'Library only',faceGroup:'U002',src:'assets/images/people-uploads/U002.png',thumb:'assets/images/people-uploads/U002.png',version:1,versions:[{version:1,src:'assets/images/people-uploads/U002.png',at:'Bundled V26'}]}
+  {id:'U002',name:'Uploaded people reference U002',cat:'People',status:'Needs review',visible:false,publicAllowed:true,storyAllowed:true,homepageAllowed:false,brandFit:'Review',placement:'Library only',faceGroup:'U002',src:'assets/images/people-uploads/U002.webp',thumb:'assets/images/people-uploads/U002.webp',version:1,versions:[{version:1,src:'assets/images/people-uploads/U002.webp',at:'Bundled V26'}]}
  ],
  faceMarquee:{enabled:true,homepage:true,peoplePage:false,title:'People in motion · Nariyal Sutra stories',subtitle:'A moving collection of customer, collaborator and community photographs celebrating the people connected to Nariyal Sutra.',rows:2,speed:42,direction:'alternate',selectedIds:FEATURED_FACE_IDS.slice(),pauseOnHover:false,placement:'after-uses',background:'#061004',background2:'#020801',accent:'#d4a843',edgeFade:true,cardStyle:'full-frame'},
  peopleStreams:{
@@ -126,18 +128,41 @@ const defaults={
 };
 function merge(base,old){if(!old||typeof old!=='object')return clone(base);const out=clone(base);for(const k of Object.keys(old)){if(k==='schemaVersion')continue;if(Array.isArray(old[k]))out[k]=old[k];else if(old[k]&&typeof old[k]==='object'&&!Array.isArray(old[k]))out[k]=Object.assign({},out[k]||{},old[k]);else out[k]=old[k];}out.schemaVersion=SCHEMA;return out;}
 function reconcilePeople(s){
- s.media=s.media||[];const by=new Map(s.media.map(m=>[m.id,m]));
+ s.media=s.media||[];const optimized={'assets/images/review/coastal-grove.png':'assets/images/review/coastal-grove.webp','/assets/images/review/coastal-grove.png':'/assets/images/review/coastal-grove.webp','assets/images/review/backwater-grove.png':'assets/images/review/backwater-grove.webp','/assets/images/review/backwater-grove.png':'/assets/images/review/backwater-grove.webp','assets/images/people-uploads/U002.png':'assets/images/people-uploads/U002.webp','/assets/images/people-uploads/U002.png':'/assets/images/people-uploads/U002.webp'};s.media.forEach(m=>{if(optimized[m.src])m.src=optimized[m.src];if(optimized[m.thumb])m.thumb=optimized[m.thumb];});const by=new Map(s.media.map(m=>[m.id,m]));
  PEOPLE_MEDIA_IDS.forEach((id,i)=>{const fresh=faceMedia(id,i),m=by.get(id);if(m){m.src=fresh.src;m.thumb=fresh.thumb;m.cat='People';m.faceGroup=id;if(m.status==='Approved'&&!FEATURED_FACE_IDS.includes(id)&&!m._adminReviewed){m.status='Needs review';m.visible=false;m.placement='Library only';} }else{s.media.push(fresh);}});
- const extras=[{id:'U001',src:'assets/images/people-uploads/U001.jpeg'},{id:'U002',src:'assets/images/people-uploads/U002.png'}];extras.forEach(x=>{if(!s.media.find(m=>m.id===x.id))s.media.push({id:x.id,name:'Uploaded people reference '+x.id,cat:'People',status:'Needs review',visible:false,publicAllowed:true,storyAllowed:true,homepageAllowed:false,brandFit:'Review',placement:'Library only',faceGroup:x.id,src:x.src,thumb:x.src,version:1,versions:[{version:1,src:x.src,at:'Bundled V26'}]});});
+ const extras=[{id:'U001',src:'assets/images/people-uploads/U001.jpeg'},{id:'U002',src:'assets/images/people-uploads/U002.webp'}];extras.forEach(x=>{if(!s.media.find(m=>m.id===x.id))s.media.push({id:x.id,name:'Uploaded people reference '+x.id,cat:'People',status:'Needs review',visible:false,publicAllowed:true,storyAllowed:true,homepageAllowed:false,brandFit:'Review',placement:'Library only',faceGroup:x.id,src:x.src,thumb:x.src,version:1,versions:[{version:1,src:x.src,at:'Bundled V26'}]});});
  s.faceMarquee=s.faceMarquee||clone(defaults.faceMarquee);const allowed=new Set(PEOPLE_MEDIA_IDS.concat((s.media||[]).filter(m=>String(m.id||'').startsWith('UGC-')).map(m=>m.id)));s.faceMarquee.selectedIds=(s.faceMarquee.selectedIds||[]).map(id=>alias[id]||id).filter((id,i,a)=>allowed.has(id)&&a.indexOf(id)===i);if(!s.faceMarquee.selectedIds.length)s.faceMarquee.selectedIds=FEATURED_FACE_IDS.slice();s.faceMarquee.pauseOnHover=s.faceMarquee.pauseOnHover===true;
+ return s;
+}
+function productPrice(p){if(!p)return 0;const direct=Number(p.price);if(Number.isFinite(direct)&&direct>0)return direct;const sku=String(p.sku||'').toUpperCase();const legacy=Number(sku==='BULK'?p.bulk:p.retail);return Number.isFinite(legacy)&&legacy>0?legacy:0;}
+function normalizeProducts(s){
+ const core=['TENDER','GREEN','BULK'];
+ const waterLeak=p=>{const text=[p?.sku,p?.name,p?.id].join(' ').toUpperCase();return /COCONUT\s*WATER|WATER[-_ ]?(?:300|500)|(?:300|500)\s*ML.*(?:GLASS|BOTTLE)/.test(text);};
+ const bySku=new Map((s.products||[]).filter(p=>!waterLeak(p)).map(p=>[String(p?.sku||'').toUpperCase(),p]));
+ s.products=core.map(sku=>{
+  const base=clone((defaults.products||[]).find(p=>p.sku===sku)||{sku,name:sku,price:0,moq:sku==='BULK'?10:1,priceVisible:true,state:'Active'}),saved=bySku.get(sku)||{},next={...base,...saved,sku};
+  const rawPrice=productPrice(next)||productPrice(base),price=rawPrice>0?Math.round(rawPrice):0;
+  next.price=price;next.retail=price;next.bulk=price;next.moq=Math.max(sku==='BULK'?10:1,Math.round(Number(next.moq)||1));next.priceVisible=next.priceVisible!==false;
+  return next;
+ });
  return s;
 }
 function normalizeState(s){
  const arrayKeys=['products','inventory','warehouses','deliveryServices','orders','segments','communications','followups','followupEvents','media','sections','customSections','stories','content','schedule','communitySubmissions','notificationQueue','teamMembers','tasks','audit'];
  arrayKeys.forEach(k=>{if(!Array.isArray(s[k]))s[k]=clone(defaults[k]||[]);});
- const objectKeys=['deliveryLive','customer','faceMarquee','peopleStreams','harvest','staffPhotos','settings'];
+ normalizeProducts(s);
+ const objectKeys=['deliveryLive','customer','faceMarquee','peopleStreams','harvest','staffPhotos','settings','themeConfig'];
  objectKeys.forEach(k=>{if(!s[k]||typeof s[k]!=='object'||Array.isArray(s[k]))s[k]=clone(defaults[k]||{});});
  if(!Array.isArray(s.faceMarquee.selectedIds))s.faceMarquee.selectedIds=clone(defaults.faceMarquee.selectedIds||[]);
+ const cfg=s.themeConfig||{};
+ if(!THEME_IDS.includes(cfg.publishedTheme))cfg.publishedTheme='nariyal-signature';
+ if(cfg.draftTheme!==null&&!THEME_IDS.includes(cfg.draftTheme))cfg.draftTheme=null;
+ if(cfg.previousPublishedTheme!==null&&!THEME_IDS.includes(cfg.previousPublishedTheme))cfg.previousPublishedTheme=null;
+ if(typeof cfg.businessTimezone!=='string'||!cfg.businessTimezone)cfg.businessTimezone='Asia/Kolkata';
+ if(!Array.isArray(cfg.schedules))cfg.schedules=[];
+ cfg.schedules=cfg.schedules.filter(x=>x&&typeof x==='object'&&THEME_IDS.includes(x.themeId)).map(x=>({...x,enabled:x.enabled!==false,daysOfWeek:Array.isArray(x.daysOfWeek)?x.daysOfWeek.filter(d=>Number.isInteger(d)&&d>=0&&d<=6):[]}));
+ if(cfg.manualOverride&&(!THEME_IDS.includes(cfg.manualOverride.themeId)||cfg.manualOverride.active===false))cfg.manualOverride=null;
+ s.themeConfig=cfg;
  return s;
 }
 function load(){try{let raw=localStorage.getItem(KEY);if(!raw){for(const k of LEGACY_KEYS){const legacy=localStorage.getItem(k);if(legacy){raw=legacy;break;}}}if(!raw)return reconcilePeople(normalizeState(clone(defaults)));return reconcilePeople(normalizeState(merge(defaults,JSON.parse(raw))));}catch(e){return reconcilePeople(normalizeState(clone(defaults)));}}
@@ -149,5 +174,9 @@ function eligibleForPublic(s,m){return !!(m&&m.visible&&m.publicAllowed!==false&
 function setSession(x){try{sessionStorage.setItem('ns_v10_admin_session',JSON.stringify(x||{}));}catch(e){}}
 function getSession(){try{return JSON.parse(sessionStorage.getItem('ns_v10_admin_session')||'null');}catch(e){return null;}}
 function publicFaces(s){const cfg=s.faceMarquee||{},seen=new Set();return (cfg.selectedIds||[]).map(id=>mediaById(s,id)).filter(m=>{if(!eligibleForPublic(s,m)||seen.has(m.id))return false;seen.add(m.id);return true;});}
-window.NSV421Store={KEY,SCHEMA,FACE_IDS,PEOPLE_MEDIA_IDS,FEATURED_FACE_IDS,defaults,load,save,reset,audit,mediaById,eligibleForPublic,setSession,getSession,publicFaces,resolveAlias:id=>alias[id]||id};
+window.NSV421Store={KEY,SCHEMA,THEME_IDS,FACE_IDS,PEOPLE_MEDIA_IDS,FEATURED_FACE_IDS,defaults,load,save,reset,audit,mediaById,eligibleForPublic,setSession,getSession,publicFaces,productPrice,resolveAlias:id=>alias[id]||id};
+if(!/admin(?:-|\.|\/)/i.test(location.pathname)){
+ const css=document.createElement('link');css.rel='stylesheet';css.href='assets/css/storefront-themes.css';css.dataset.nsThemeAsset='styles';document.head.appendChild(css);
+ const js=document.createElement('script');js.src='assets/js/storefront-theme-runtime.js';js.defer=true;js.dataset.nsThemeAsset='runtime';document.head.appendChild(js);
+}
 })();

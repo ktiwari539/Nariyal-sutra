@@ -4,3 +4,5 @@ firestore.cutover.rules
 firebase-debug.log*
 .netlify/
 .netlify-dev/
+dist-site/
+qa-artifacts/

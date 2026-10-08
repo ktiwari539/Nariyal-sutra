@@ -64,8 +64,8 @@ function pageFallback(img){
   'coconut-events-hospitality.html':LARGE_HOSPITALITY_FALLBACK,
   'green-coconut.html':LARGE_GREEN_FALLBACK,
   'bulk-coconut-supply.html':'/assets/images/bulk-coconut-pack.jpg',
-  'gujarat-coast.html':'/assets/images/review/coastal-grove.png',
-  'south-india-groves.html':'/assets/images/review/backwater-grove.png',
+  'gujarat-coast.html':'/assets/images/review/coastal-grove.webp',
+  'south-india-groves.html':'/assets/images/review/backwater-grove.webp',
   'coconut-water.html':'/assets/images/brand/coconut-premium.webp'
  };
  return map[file]||'/assets/images/nariyal-premium-hero.webp';

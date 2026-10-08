@@ -47,23 +47,28 @@ service cloud.firestore {
     function productPath(key) { return /databases/$(database)/documents/products/$(key); }
     function orderPath(orderId) { return /databases/$(database)/documents/orders/$(orderId); }
     function trackingPath(token) { return /databases/$(database)/documents/publicTracking/$(token); }
-    function defaultPrice(key) { return key == 'bulk' ? 45 : 55; }
-    function defaultMin(key) { return key == 'bulk' ? 10 : 1; }
-    function catalogPrice(key) { return exists(productPath(key)) ? get(productPath(key)).data.price : defaultPrice(key); }
-    function catalogMin(key) { return exists(productPath(key)) ? get(productPath(key)).data.minQty : defaultMin(key); }
-    function catalogActive(key) { return exists(productPath(key)) ? get(productPath(key)).data.active == true : true; }
-    function catalogStock(key) { return exists(productPath(key)) ? get(productPath(key)).data.stock : 10000; }
+    function catalogExists(key) { return exists(productPath(key)); }
+    function catalogPrice(key) { return catalogExists(key) ? get(productPath(key)).data.price : 0; }
+    function catalogMin(key) { return catalogExists(key) ? get(productPath(key)).data.minQty : 1; }
+    function catalogActive(key) { return catalogExists(key) && get(productPath(key)).data.active == true; }
+    function catalogPriceVisible(key) {
+      return catalogExists(key)
+        && (!get(productPath(key)).data.keys().hasAny(['priceVisible'])
+          || get(productPath(key)).data.priceVisible == true);
+    }
+    function catalogStock(key) { return catalogExists(key) ? get(productPath(key)).data.stock : 0; }
 
     function validProduct(productKey) {
       let d = request.resource.data;
       return productKey in ['tender','green','bulk']
-        && d.keys().hasOnly(['name','shortName','description','mode','price','minQty','stock','active','updatedAt','updatedBy'])
+        && d.keys().hasOnly(['name','shortName','description','mode','price','priceVisible','minQty','stock','active','updatedAt','updatedBy'])
         && d.keys().hasAll(['name','price','minQty','stock','active','updatedAt','updatedBy'])
         && d.name is string && d.name.size() >= 2 && d.name.size() <= 120
         && (!d.keys().hasAny(['shortName']) || (d.shortName is string && d.shortName.size() <= 80))
         && (!d.keys().hasAny(['description']) || (d.description is string && d.description.size() <= 500))
         && (!d.keys().hasAny(['mode']) || d.mode in ['single','bulk'])
         && d.price is int && d.price >= 0 && d.price <= 1000000
+        && (!d.keys().hasAny(['priceVisible']) || d.priceVisible is bool)
         && d.minQty is int && d.minQty >= 1 && d.minQty <= 10000
         && d.stock is int && d.stock >= 0 && d.stock <= 10000000
         && d.active is bool
@@ -105,9 +110,10 @@ service cloud.firestore {
         && d.deliveryAddress is string && d.deliveryAddress == d.address
         && d.notes is string && d.notes.size() <= 500
         && d.productKey in ['tender','green','bulk']
+        && catalogExists(d.productKey)
         && d.productName is string && d.productName.size() <= 120
         && d.quantity is int && d.quantity >= catalogMin(d.productKey) && d.quantity <= 10000
-        && d.quantity <= catalogStock(d.productKey) && catalogActive(d.productKey)
+        && d.quantity <= catalogStock(d.productKey) && catalogActive(d.productKey) && catalogPriceVisible(d.productKey)
         && d.unitPrice is int && d.unitPrice == catalogPrice(d.productKey)
         && d.total is int && d.total == d.quantity * d.unitPrice
         && d.paymentType in ['cod','upi','card']
@@ -269,7 +275,7 @@ service cloud.firestore {
       let d = request.resource.data;
       return d.keys().hasOnly([
           'uid','email','contactEmail','emailVerified','phoneVerified','displayName','phone','photoURL','photoPath','preferredProduct','recurringPreference',
-          'telegramUsername','preferredChannel','notifyEmail','notifyWhatsapp','notifyTelegram','primaryCity','primaryState','primaryCountry','primaryPin',
+          'telegramUsername','preferredChannel','notifyEmail','notifyWhatsapp','notifyTelegram','marketingEmailOptIn','marketingWhatsappOptIn','marketingTelegramOptIn','marketingConsentUpdatedAt','primaryCity','primaryState','primaryCountry','primaryPin',
           'createdAt','updatedAt','lastLoginAt'
         ])
         && d.uid == uid && d.uid is string && d.uid.size() <= 128
@@ -288,6 +294,8 @@ service cloud.firestore {
         && d.telegramUsername is string && d.telegramUsername.size() <= 64
         && d.preferredChannel in ['whatsapp','email','telegram','any']
         && d.notifyEmail is bool && d.notifyWhatsapp is bool && d.notifyTelegram is bool
+        && d.marketingEmailOptIn is bool && d.marketingWhatsappOptIn is bool && d.marketingTelegramOptIn is bool
+        && (!('marketingConsentUpdatedAt' in d) || (d.marketingConsentUpdatedAt is timestamp && d.marketingConsentUpdatedAt == request.time))
         && d.primaryCity is string && d.primaryCity.size() <= 120
         && d.primaryState is string && d.primaryState.size() <= 100
         && d.primaryCountry is string && d.primaryCountry.size() <= 80
@@ -298,7 +306,7 @@ service cloud.firestore {
       let d = request.resource.data;
       return d.keys().hasOnly([
           'uid','email','contactEmail','emailVerified','phoneVerified','displayName','phone','photoURL','photoPath','preferredProduct','recurringPreference',
-          'telegramUsername','preferredChannel','notifyEmail','notifyWhatsapp','notifyTelegram','primaryCity','primaryState','primaryCountry','primaryPin',
+          'telegramUsername','preferredChannel','notifyEmail','notifyWhatsapp','notifyTelegram','marketingEmailOptIn','marketingWhatsappOptIn','marketingTelegramOptIn','marketingConsentUpdatedAt','primaryCity','primaryState','primaryCountry','primaryPin',
           'createdAt','updatedAt','lastLoginAt'
         ])
         && d.uid == uid && d.email == resource.data.email
@@ -315,6 +323,16 @@ service cloud.firestore {
         && d.telegramUsername is string && d.telegramUsername.size() <= 64
         && d.preferredChannel in ['whatsapp','email','telegram','any']
         && d.notifyEmail is bool && d.notifyWhatsapp is bool && d.notifyTelegram is bool
+        && d.marketingEmailOptIn is bool && d.marketingWhatsappOptIn is bool && d.marketingTelegramOptIn is bool
+        && (!('marketingConsentUpdatedAt' in d) || d.marketingConsentUpdatedAt is timestamp)
+        && (
+          !d.diff(resource.data).affectedKeys().hasAny(['marketingEmailOptIn','marketingWhatsappOptIn','marketingTelegramOptIn'])
+          || (('marketingConsentUpdatedAt' in d) && d.marketingConsentUpdatedAt == request.time)
+        )
+        && (
+          !d.diff(resource.data).affectedKeys().hasAny(['marketingConsentUpdatedAt'])
+          || d.diff(resource.data).affectedKeys().hasAny(['marketingEmailOptIn','marketingWhatsappOptIn','marketingTelegramOptIn'])
+        )
         && d.primaryCity is string && d.primaryCity.size() <= 120
         && d.primaryState is string && d.primaryState.size() <= 100
         && d.primaryCountry is string && d.primaryCountry.size() <= 80
@@ -602,6 +620,43 @@ service cloud.firestore {
       allow get, list: if canDeliveryRead();
       allow create, update: if canDeliveryWrite();
       allow delete: if isAdminManager();
+    }
+
+    // Draft formats are isolated from public content/config and existing role permissions.
+    function validWaterProduct(p) {
+      return p.keys().hasOnly(['id','name','size','packageType','description','image','secondaryImage','price','availability','badge'])
+        && p.name is string && p.name.size() > 0 && p.name.size() <= 160
+        && p.id is string && p.id.size() <= 80
+        && p.size in [300,500] && p.packageType in ['Glass','Bottle']
+        && p.description is string && p.description.size() > 0 && p.description.size() <= 2000
+        && p.image is string && p.image.size() > 0 && p.image.size() <= 2000
+        && p.image.matches('^(assets/images/.*|https://.*)$')
+        && p.secondaryImage is string && p.secondaryImage.size() <= 2000
+        && p.badge is string && p.badge.size() <= 100
+        && p.price is number && p.price > 0 && p.price < 100000
+        && p.availability in ['Available','Pre-order'];
+    }
+    function validWaterPublication(d) {
+      return d.keys().hasOnly(['status','placement','products','publishedAt'])
+        && d.status == 'published'
+        && d.placement in ['after-collection','after-pricing','before-how-to-order']
+        && d.publishedAt == request.time
+        && d.products is list && d.products.size() > 0 && d.products.size() <= 4
+        && validWaterProduct(d.products[0])
+        && (d.products.size() < 2 || validWaterProduct(d.products[1]))
+        && (d.products.size() < 3 || validWaterProduct(d.products[2]))
+        && (d.products.size() < 4 || validWaterProduct(d.products[3]));
+    }
+    match /waterWorkspaces/{id} {
+      allow read, delete: if hasRole(['Owner','Admin']);
+      allow create, update: if hasRole(['Owner','Admin'])
+        && request.resource.data.workspace.status in ['draft','review']
+        && request.resource.data.updatedBy == request.auth.uid;
+    }
+    match /publicWaterFormats/{id} {
+      allow get: if id == 'current' && (!exists(/databases/$(database)/documents/publicWaterFormats/current) || resource.data.status == 'published');
+      allow create, update: if id == 'current' && hasRole(['Owner','Admin']) && validWaterPublication(request.resource.data);
+      allow delete: if hasRole(['Owner','Admin']);
     }
 
     match /contentStories/{storyId} {

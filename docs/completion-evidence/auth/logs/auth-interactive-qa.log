@@ -1,0 +1,31 @@
+PASS nariyal-signature customer desktop: published theme, no overflow or control overlap
+PASS nariyal-signature customer desktop: readable controls
+PASS nariyal-signature customer desktop signup: no control collision
+PASS nariyal-signature customer desktop signin: no control collision
+PASS nariyal-signature customer desktop reset: no control collision
+PASS nariyal-signature admin desktop: published theme, no overflow or control overlap
+PASS nariyal-signature admin desktop: readable controls
+PASS nariyal-signature customer tablet: published theme, no overflow or control overlap
+PASS nariyal-signature admin tablet: published theme, no overflow or control overlap
+PASS nariyal-signature customer mobile: published theme, no overflow or control overlap
+PASS nariyal-signature customer mobile: readable controls
+PASS nariyal-signature customer mobile signup: no control collision
+PASS nariyal-signature customer mobile signin: no control collision
+PASS nariyal-signature customer mobile reset: no control collision
+PASS nariyal-signature admin mobile: published theme, no overflow or control overlap
+PASS nariyal-signature admin mobile: readable controls
+PASS nariyal-signature customer narrow: published theme, no overflow or control overlap
+PASS nariyal-signature customer narrow signup: no control collision
+PASS nariyal-signature customer narrow signin: no control collision
+PASS nariyal-signature customer narrow reset: no control collision
+PASS nariyal-signature admin narrow: published theme, no overflow or control overlap
+PASS nariyal-signature customer landscape: published theme, no overflow or control overlap
+PASS nariyal-signature admin landscape: published theme, no overflow or control overlap
+PASS fresh-grove customer desktop: published theme, no overflow or control overlap
+PASS fresh-grove customer desktop: readable controls
+PASS fresh-grove customer desktop signup: no control collision
+PASS fresh-grove customer desktop signin: no control collision
+PASS fresh-grove customer desktop reset: no control collision
+PASS fresh-grove admin desktop: published theme, no overflow or control overlap
+PASS fresh-grove admin desktop: readable controls
+PASS fresh-grove customer tablet: published theme, no overflow or control overlap

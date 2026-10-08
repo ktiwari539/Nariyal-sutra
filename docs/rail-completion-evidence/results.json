@@ -1,0 +1,727 @@
+{
+  "ok": true,
+  "checks": [
+    "nariyal-signature desktop: heading, caption and CTA contrast",
+    "nariyal-signature desktop: customer-facing title; fades exclude surrounding copy",
+    "nariyal-signature desktop: all rail photographs loaded",
+    "nariyal-signature desktop: equal card/media heights and aligned edges",
+    "nariyal-signature desktop: 2:3 frames, 14px gutters, cover and retained focal points",
+    "nariyal-signature desktop: no frame resize during motion/hover",
+    "nariyal-signature desktop: no rail CLS or document overflow",
+    "nariyal-signature tablet: heading, caption and CTA contrast",
+    "nariyal-signature tablet: customer-facing title; fades exclude surrounding copy",
+    "nariyal-signature tablet: all rail photographs loaded",
+    "nariyal-signature tablet: equal card/media heights and aligned edges",
+    "nariyal-signature tablet: 2:3 frames, 14px gutters, cover and retained focal points",
+    "nariyal-signature tablet: no frame resize during motion/hover",
+    "nariyal-signature tablet: no rail CLS or document overflow",
+    "nariyal-signature mobile: heading, caption and CTA contrast",
+    "nariyal-signature mobile: customer-facing title; fades exclude surrounding copy",
+    "nariyal-signature mobile: all rail photographs loaded",
+    "nariyal-signature mobile: equal card/media heights and aligned edges",
+    "nariyal-signature mobile: 2:3 frames, 14px gutters, cover and retained focal points",
+    "nariyal-signature mobile: no frame resize during motion/hover",
+    "nariyal-signature mobile: no rail CLS or document overflow",
+    "fresh-grove desktop: heading, caption and CTA contrast",
+    "fresh-grove desktop: customer-facing title; fades exclude surrounding copy",
+    "fresh-grove desktop: all rail photographs loaded",
+    "fresh-grove desktop: equal card/media heights and aligned edges",
+    "fresh-grove desktop: 2:3 frames, 14px gutters, cover and retained focal points",
+    "fresh-grove desktop: no frame resize during motion/hover",
+    "fresh-grove desktop: no rail CLS or document overflow",
+    "fresh-grove tablet: heading, caption and CTA contrast",
+    "fresh-grove tablet: customer-facing title; fades exclude surrounding copy",
+    "fresh-grove tablet: all rail photographs loaded",
+    "fresh-grove tablet: equal card/media heights and aligned edges",
+    "fresh-grove tablet: 2:3 frames, 14px gutters, cover and retained focal points",
+    "fresh-grove tablet: no frame resize during motion/hover",
+    "fresh-grove tablet: no rail CLS or document overflow",
+    "fresh-grove mobile: heading, caption and CTA contrast",
+    "fresh-grove mobile: customer-facing title; fades exclude surrounding copy",
+    "fresh-grove mobile: all rail photographs loaded",
+    "fresh-grove mobile: equal card/media heights and aligned edges",
+    "fresh-grove mobile: 2:3 frames, 14px gutters, cover and retained focal points",
+    "fresh-grove mobile: no frame resize during motion/hover",
+    "fresh-grove mobile: no rail CLS or document overflow",
+    "coastal-premium desktop: heading, caption and CTA contrast",
+    "coastal-premium desktop: customer-facing title; fades exclude surrounding copy",
+    "coastal-premium desktop: all rail photographs loaded",
+    "coastal-premium desktop: equal card/media heights and aligned edges",
+    "coastal-premium desktop: 2:3 frames, 14px gutters, cover and retained focal points",
+    "coastal-premium desktop: no frame resize during motion/hover",
+    "coastal-premium desktop: no rail CLS or document overflow",
+    "coastal-premium tablet: heading, caption and CTA contrast",
+    "coastal-premium tablet: customer-facing title; fades exclude surrounding copy",
+    "coastal-premium tablet: all rail photographs loaded",
+    "coastal-premium tablet: equal card/media heights and aligned edges",
+    "coastal-premium tablet: 2:3 frames, 14px gutters, cover and retained focal points",
+    "coastal-premium tablet: no frame resize during motion/hover",
+    "coastal-premium tablet: no rail CLS or document overflow",
+    "coastal-premium mobile: heading, caption and CTA contrast",
+    "coastal-premium mobile: customer-facing title; fades exclude surrounding copy",
+    "coastal-premium mobile: all rail photographs loaded",
+    "coastal-premium mobile: equal card/media heights and aligned edges",
+    "coastal-premium mobile: 2:3 frames, 14px gutters, cover and retained focal points",
+    "coastal-premium mobile: no frame resize during motion/hover",
+    "coastal-premium mobile: no rail CLS or document overflow",
+    "golden-harvest desktop: heading, caption and CTA contrast",
+    "golden-harvest desktop: customer-facing title; fades exclude surrounding copy",
+    "golden-harvest desktop: all rail photographs loaded",
+    "golden-harvest desktop: equal card/media heights and aligned edges",
+    "golden-harvest desktop: 2:3 frames, 14px gutters, cover and retained focal points",
+    "golden-harvest desktop: no frame resize during motion/hover",
+    "golden-harvest desktop: no rail CLS or document overflow",
+    "golden-harvest tablet: heading, caption and CTA contrast",
+    "golden-harvest tablet: customer-facing title; fades exclude surrounding copy",
+    "golden-harvest tablet: all rail photographs loaded",
+    "golden-harvest tablet: equal card/media heights and aligned edges",
+    "golden-harvest tablet: 2:3 frames, 14px gutters, cover and retained focal points",
+    "golden-harvest tablet: no frame resize during motion/hover",
+    "golden-harvest tablet: no rail CLS or document overflow",
+    "golden-harvest mobile: heading, caption and CTA contrast",
+    "golden-harvest mobile: customer-facing title; fades exclude surrounding copy",
+    "golden-harvest mobile: all rail photographs loaded",
+    "golden-harvest mobile: equal card/media heights and aligned edges",
+    "golden-harvest mobile: 2:3 frames, 14px gutters, cover and retained focal points",
+    "golden-harvest mobile: no frame resize during motion/hover",
+    "golden-harvest mobile: no rail CLS or document overflow",
+    "No rail runtime exceptions"
+  ],
+  "metrics": [
+    {
+      "theme": "nariyal-signature",
+      "device": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "cls": 0,
+      "overflow": false,
+      "contrast": [
+        {
+          "text": "People of Nariyal Sutra · Stories in motion",
+          "ratio": 8.588821675155888,
+          "minimum": 4.5
+        },
+        {
+          "text": "People in motion · Nariyal Sutra stories",
+          "ratio": 17.79638389909732,
+          "minimum": 3
+        },
+        {
+          "text": "A moving collection of customer, collaborator and community photographs celebrat",
+          "ratio": 10.824508524441898,
+          "minimum": 4.5
+        },
+        {
+          "text": "Names, roles and affiliations are shown only when they have been confirmed.",
+          "ratio": 10.824508524441898,
+          "minimum": 4.5
+        },
+        {
+          "text": "Explore the people stories",
+          "ratio": 14.107208259621775,
+          "minimum": 4.5
+        }
+      ],
+      "rows": [
+        {
+          "gap": 14,
+          "cards": 32,
+          "cardHeight": 388.78125,
+          "mediaHeight": 386.78125,
+          "cardHeightSpread": 0,
+          "mediaHeightSpread": 0
+        },
+        {
+          "gap": 14,
+          "cards": 30,
+          "cardHeight": 388.78125,
+          "mediaHeight": 386.78125,
+          "cardHeightSpread": 0,
+          "mediaHeightSpread": 0
+        }
+      ]
+    },
+    {
+      "theme": "nariyal-signature",
+      "device": "tablet",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "cls": 0,
+      "overflow": false,
+      "contrast": [
+        {
+          "text": "People of Nariyal Sutra · Stories in motion",
+          "ratio": 8.588821675155888,
+          "minimum": 4.5
+        },
+        {
+          "text": "People in motion · Nariyal Sutra stories",
+          "ratio": 17.79638389909732,
+          "minimum": 3
+        },
+        {
+          "text": "A moving collection of customer, collaborator and community photographs celebrat",
+          "ratio": 10.824508524441898,
+          "minimum": 4.5
+        },
+        {
+          "text": "Names, roles and affiliations are shown only when they have been confirmed.",
+          "ratio": 10.824508524441898,
+          "minimum": 4.5
+        },
+        {
+          "text": "Explore the people stories",
+          "ratio": 14.107208259621775,
+          "minimum": 4.5
+        }
+      ],
+      "rows": [
+        {
+          "gap": 14,
+          "cards": 32,
+          "cardHeight": 285,
+          "mediaHeight": 283,
+          "cardHeightSpread": 0,
+          "mediaHeightSpread": 0
+        },
+        {
+          "gap": 14,
+          "cards": 30,
+          "cardHeight": 285,
+          "mediaHeight": 283,
+          "cardHeightSpread": 0,
+          "mediaHeightSpread": 0
+        }
+      ]
+    },
+    {
+      "theme": "nariyal-signature",
+      "device": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "cls": 0,
+      "overflow": false,
+      "contrast": [
+        {
+          "text": "People of Nariyal Sutra · Stories in motion",
+          "ratio": 8.588821675155888,
+          "minimum": 4.5
+        },
+        {
+          "text": "People in motion · Nariyal Sutra stories",
+          "ratio": 17.79638389909732,
+          "minimum": 3
+        },
+        {
+          "text": "A moving collection of customer, collaborator and community photographs celebrat",
+          "ratio": 10.824508524441898,
+          "minimum": 4.5
+        },
+        {
+          "text": "Names, roles and affiliations are shown only when they have been confirmed.",
+          "ratio": 10.824508524441898,
+          "minimum": 4.5
+        },
+        {
+          "text": "Explore the people stories",
+          "ratio": 14.107208259621775,
+          "minimum": 4.5
+        }
+      ],
+      "rows": [
+        {
+          "gap": 14,
+          "cards": 62,
+          "cardHeight": 246,
+          "mediaHeight": 244,
+          "cardHeightSpread": 0,
+          "mediaHeightSpread": 0
+        }
+      ]
+    },
+    {
+      "theme": "fresh-grove",
+      "device": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "cls": 0,
+      "overflow": false,
+      "contrast": [
+        {
+          "text": "People of Nariyal Sutra · Stories in motion",
+          "ratio": 6.713107082079958,
+          "minimum": 4.5
+        },
+        {
+          "text": "People in motion · Nariyal Sutra stories",
+          "ratio": 12.401569538124937,
+          "minimum": 3
+        },
+        {
+          "text": "A moving collection of customer, collaborator and community photographs celebrat",
+          "ratio": 6.292818836483095,
+          "minimum": 4.5
+        },
+        {
+          "text": "Names, roles and affiliations are shown only when they have been confirmed.",
+          "ratio": 6.292818836483095,
+          "minimum": 4.5
+        },
+        {
+          "text": "Explore the people stories",
+          "ratio": 8.449579532672757,
+          "minimum": 4.5
+        }
+      ],
+      "rows": [
+        {
+          "gap": 14,
+          "cards": 32,
+          "cardHeight": 388.78125,
+          "mediaHeight": 386.78125,
+          "cardHeightSpread": 0,
+          "mediaHeightSpread": 0
+        },
+        {
+          "gap": 14,
+          "cards": 30,
+          "cardHeight": 388.78125,
+          "mediaHeight": 386.78125,
+          "cardHeightSpread": 0,
+          "mediaHeightSpread": 0
+        }
+      ]
+    },
+    {
+      "theme": "fresh-grove",
+      "device": "tablet",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "cls": 0,
+      "overflow": false,
+      "contrast": [
+        {
+          "text": "People of Nariyal Sutra · Stories in motion",
+          "ratio": 6.713107082079958,
+          "minimum": 4.5
+        },
+        {
+          "text": "People in motion · Nariyal Sutra stories",
+          "ratio": 12.401569538124937,
+          "minimum": 3
+        },
+        {
+          "text": "A moving collection of customer, collaborator and community photographs celebrat",
+          "ratio": 6.292818836483095,
+          "minimum": 4.5
+        },
+        {
+          "text": "Names, roles and affiliations are shown only when they have been confirmed.",
+          "ratio": 6.292818836483095,
+          "minimum": 4.5
+        },
+        {
+          "text": "Explore the people stories",
+          "ratio": 8.449579532672757,
+          "minimum": 4.5
+        }
+      ],
+      "rows": [
+        {
+          "gap": 14,
+          "cards": 32,
+          "cardHeight": 285,
+          "mediaHeight": 283,
+          "cardHeightSpread": 0,
+          "mediaHeightSpread": 0
+        },
+        {
+          "gap": 14,
+          "cards": 30,
+          "cardHeight": 285,
+          "mediaHeight": 283,
+          "cardHeightSpread": 0,
+          "mediaHeightSpread": 0
+        }
+      ]
+    },
+    {
+      "theme": "fresh-grove",
+      "device": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "cls": 0,
+      "overflow": false,
+      "contrast": [
+        {
+          "text": "People of Nariyal Sutra · Stories in motion",
+          "ratio": 6.713107082079958,
+          "minimum": 4.5
+        },
+        {
+          "text": "People in motion · Nariyal Sutra stories",
+          "ratio": 12.401569538124937,
+          "minimum": 3
+        },
+        {
+          "text": "A moving collection of customer, collaborator and community photographs celebrat",
+          "ratio": 6.292818836483095,
+          "minimum": 4.5
+        },
+        {
+          "text": "Names, roles and affiliations are shown only when they have been confirmed.",
+          "ratio": 6.292818836483095,
+          "minimum": 4.5
+        },
+        {
+          "text": "Explore the people stories",
+          "ratio": 8.449579532672757,
+          "minimum": 4.5
+        }
+      ],
+      "rows": [
+        {
+          "gap": 14,
+          "cards": 62,
+          "cardHeight": 246,
+          "mediaHeight": 244,
+          "cardHeightSpread": 0,
+          "mediaHeightSpread": 0
+        }
+      ]
+    },
+    {
+      "theme": "coastal-premium",
+      "device": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "cls": 0,
+      "overflow": false,
+      "contrast": [
+        {
+          "text": "People of Nariyal Sutra · Stories in motion",
+          "ratio": 9.79275113379647,
+          "minimum": 4.5
+        },
+        {
+          "text": "People in motion · Nariyal Sutra stories",
+          "ratio": 14.386844000936431,
+          "minimum": 3
+        },
+        {
+          "text": "A moving collection of customer, collaborator and community photographs celebrat",
+          "ratio": 9.310395944343625,
+          "minimum": 4.5
+        },
+        {
+          "text": "Names, roles and affiliations are shown only when they have been confirmed.",
+          "ratio": 9.310395944343625,
+          "minimum": 4.5
+        },
+        {
+          "text": "Explore the people stories",
+          "ratio": 9.55398822638784,
+          "minimum": 4.5
+        }
+      ],
+      "rows": [
+        {
+          "gap": 14,
+          "cards": 32,
+          "cardHeight": 388.78125,
+          "mediaHeight": 386.78125,
+          "cardHeightSpread": 0,
+          "mediaHeightSpread": 0
+        },
+        {
+          "gap": 14,
+          "cards": 30,
+          "cardHeight": 388.78125,
+          "mediaHeight": 386.78125,
+          "cardHeightSpread": 0,
+          "mediaHeightSpread": 0
+        }
+      ]
+    },
+    {
+      "theme": "coastal-premium",
+      "device": "tablet",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "cls": 0,
+      "overflow": false,
+      "contrast": [
+        {
+          "text": "People of Nariyal Sutra · Stories in motion",
+          "ratio": 9.79275113379647,
+          "minimum": 4.5
+        },
+        {
+          "text": "People in motion · Nariyal Sutra stories",
+          "ratio": 14.386844000936431,
+          "minimum": 3
+        },
+        {
+          "text": "A moving collection of customer, collaborator and community photographs celebrat",
+          "ratio": 9.310395944343625,
+          "minimum": 4.5
+        },
+        {
+          "text": "Names, roles and affiliations are shown only when they have been confirmed.",
+          "ratio": 9.310395944343625,
+          "minimum": 4.5
+        },
+        {
+          "text": "Explore the people stories",
+          "ratio": 9.55398822638784,
+          "minimum": 4.5
+        }
+      ],
+      "rows": [
+        {
+          "gap": 14,
+          "cards": 32,
+          "cardHeight": 285,
+          "mediaHeight": 283,
+          "cardHeightSpread": 0,
+          "mediaHeightSpread": 0
+        },
+        {
+          "gap": 14,
+          "cards": 30,
+          "cardHeight": 285,
+          "mediaHeight": 283,
+          "cardHeightSpread": 0,
+          "mediaHeightSpread": 0
+        }
+      ]
+    },
+    {
+      "theme": "coastal-premium",
+      "device": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "cls": 0,
+      "overflow": false,
+      "contrast": [
+        {
+          "text": "People of Nariyal Sutra · Stories in motion",
+          "ratio": 9.79275113379647,
+          "minimum": 4.5
+        },
+        {
+          "text": "People in motion · Nariyal Sutra stories",
+          "ratio": 14.386844000936431,
+          "minimum": 3
+        },
+        {
+          "text": "A moving collection of customer, collaborator and community photographs celebrat",
+          "ratio": 9.310395944343625,
+          "minimum": 4.5
+        },
+        {
+          "text": "Names, roles and affiliations are shown only when they have been confirmed.",
+          "ratio": 9.310395944343625,
+          "minimum": 4.5
+        },
+        {
+          "text": "Explore the people stories",
+          "ratio": 9.55398822638784,
+          "minimum": 4.5
+        }
+      ],
+      "rows": [
+        {
+          "gap": 14,
+          "cards": 62,
+          "cardHeight": 246,
+          "mediaHeight": 244,
+          "cardHeightSpread": 0,
+          "mediaHeightSpread": 0
+        }
+      ]
+    },
+    {
+      "theme": "golden-harvest",
+      "device": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "cls": 0,
+      "overflow": false,
+      "contrast": [
+        {
+          "text": "People of Nariyal Sutra · Stories in motion",
+          "ratio": 6.182683674147583,
+          "minimum": 4.5
+        },
+        {
+          "text": "People in motion · Nariyal Sutra stories",
+          "ratio": 11.286950915345406,
+          "minimum": 3
+        },
+        {
+          "text": "A moving collection of customer, collaborator and community photographs celebrat",
+          "ratio": 6.807207499652505,
+          "minimum": 4.5
+        },
+        {
+          "text": "Names, roles and affiliations are shown only when they have been confirmed.",
+          "ratio": 6.807207499652505,
+          "minimum": 4.5
+        },
+        {
+          "text": "Explore the people stories",
+          "ratio": 7.141255476673043,
+          "minimum": 4.5
+        }
+      ],
+      "rows": [
+        {
+          "gap": 14,
+          "cards": 32,
+          "cardHeight": 388.78125,
+          "mediaHeight": 386.78125,
+          "cardHeightSpread": 0,
+          "mediaHeightSpread": 0
+        },
+        {
+          "gap": 14,
+          "cards": 30,
+          "cardHeight": 388.78125,
+          "mediaHeight": 386.78125,
+          "cardHeightSpread": 0,
+          "mediaHeightSpread": 0
+        }
+      ]
+    },
+    {
+      "theme": "golden-harvest",
+      "device": "tablet",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "cls": 0,
+      "overflow": false,
+      "contrast": [
+        {
+          "text": "People of Nariyal Sutra · Stories in motion",
+          "ratio": 6.182683674147583,
+          "minimum": 4.5
+        },
+        {
+          "text": "People in motion · Nariyal Sutra stories",
+          "ratio": 11.286950915345406,
+          "minimum": 3
+        },
+        {
+          "text": "A moving collection of customer, collaborator and community photographs celebrat",
+          "ratio": 6.807207499652505,
+          "minimum": 4.5
+        },
+        {
+          "text": "Names, roles and affiliations are shown only when they have been confirmed.",
+          "ratio": 6.807207499652505,
+          "minimum": 4.5
+        },
+        {
+          "text": "Explore the people stories",
+          "ratio": 7.141255476673043,
+          "minimum": 4.5
+        }
+      ],
+      "rows": [
+        {
+          "gap": 14,
+          "cards": 32,
+          "cardHeight": 285,
+          "mediaHeight": 283,
+          "cardHeightSpread": 0,
+          "mediaHeightSpread": 0
+        },
+        {
+          "gap": 14,
+          "cards": 30,
+          "cardHeight": 285,
+          "mediaHeight": 283,
+          "cardHeightSpread": 0,
+          "mediaHeightSpread": 0
+        }
+      ]
+    },
+    {
+      "theme": "golden-harvest",
+      "device": "mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "cls": 0,
+      "overflow": false,
+      "contrast": [
+        {
+          "text": "People of Nariyal Sutra · Stories in motion",
+          "ratio": 6.182683674147583,
+          "minimum": 4.5
+        },
+        {
+          "text": "People in motion · Nariyal Sutra stories",
+          "ratio": 11.286950915345406,
+          "minimum": 3
+        },
+        {
+          "text": "A moving collection of customer, collaborator and community photographs celebrat",
+          "ratio": 6.807207499652505,
+          "minimum": 4.5
+        },
+        {
+          "text": "Names, roles and affiliations are shown only when they have been confirmed.",
+          "ratio": 6.807207499652505,
+          "minimum": 4.5
+        },
+        {
+          "text": "Explore the people stories",
+          "ratio": 7.141255476673043,
+          "minimum": 4.5
+        }
+      ],
+      "rows": [
+        {
+          "gap": 14,
+          "cards": 62,
+          "cardHeight": 246,
+          "mediaHeight": 244,
+          "cardHeightSpread": 0,
+          "mediaHeightSpread": 0
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "limits": [
+    "Chromium emulated viewports; no physical device test.",
+    "CLS is scoped to rail sources after the existing storefront opening settles; whole-site opening CLS is not claimed to be zero.",
+    "Review captures pause only the marquee. Frame measurements include its active motion and hover.",
+    "External requests blocked. No authentication, pricing, water or security suites rerun."
+  ]
+}

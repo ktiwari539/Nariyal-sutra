@@ -2,9 +2,9 @@
 const KEY='ns-v421-local-state-v20';
 const defaults={
  products:[
-  {sku:'TENDER',name:'Fresh Tender Coconut',retail:55,bulk:45,moq:10,state:'Active'},
-  {sku:'GREEN',name:'Green Round Coconut',retail:55,bulk:48,moq:10,state:'Active'},
-  {sku:'BULK',name:'Bulk Tender Coconut',retail:0,bulk:45,moq:50,state:'Quote'}
+  {sku:'TENDER',name:'Fresh Tender Coconut',price:55,retail:55,bulk:55,moq:1,state:'Active'},
+  {sku:'GREEN',name:'Green Round Coconut',price:55,retail:55,bulk:55,moq:1,state:'Active'},
+  {sku:'BULK',name:'Bulk Pack (10+ pcs)',price:45,retail:45,bulk:45,moq:10,state:'Active'}
  ],
  inventory:[
   {sku:'TENDER',name:'Fresh Tender Coconut',onHand:420,reserved:36,incoming:180,low:80,supplier:'Farmer / supplier network',node:'Jabalpur fulfilment'},
@@ -15,8 +15,8 @@ const defaults={
   {name:'MMR partner node',ownership:'Partner-operated',city:'Virar / Mumbai Metropolitan Region'}
  ],
  media:[
-  {id:'M-ORIGIN-01',name:'Coastal coconut grove',status:'Approved',visible:true,placement:'Homepage',src:'assets/images/review/coastal-grove.png'},
-  {id:'M-ORIGIN-02',name:'Backwater coconut grove',status:'Approved',visible:true,placement:'Sourcing',src:'assets/images/review/backwater-grove.png'},
+  {id:'M-ORIGIN-01',name:'Coastal coconut grove',status:'Approved',visible:true,placement:'Homepage',src:'assets/images/review/coastal-grove.webp'},
+  {id:'M-ORIGIN-02',name:'Backwater coconut grove',status:'Approved',visible:true,placement:'Sourcing',src:'assets/images/review/backwater-grove.webp'},
   {id:'M-LIVE-01',name:'Protected coconut hero',status:'Approved',visible:true,placement:'Product',src:'/assets/images/story-coconut-hero.png'}
  ],
  sections:[

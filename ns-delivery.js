@@ -719,7 +719,8 @@ function nsDelUpdateSummary(){
   var summaryEl=el('ns-del-summary');
   if(!summaryEl)return;
   var q=parseInt((el('oQ')||{}).value)||1;
-  var price=typeof getCurrentPrice==='function'?getCurrentPrice():(window.ot==='bulk'?45:55);
+  var price=typeof getCurrentPrice==='function'?getCurrentPrice():null;
+  if(price===null){summaryEl.style.display='block';summaryEl.textContent='Current product price unavailable. Please retry before ordering.';return;}
   var subtotal=q*price;
   var opts=deliveryEstimates(q,nsDelivery.isInternational);
   var chosen=opts.find(function(o){return o.id===nsDelivery.selectedDelivery;});
@@ -811,7 +812,8 @@ function nsShowOrderHub(){
 
   var n=(el('oN')||{}).value||'Customer';
   var q=parseInt((el('oQ')||{}).value)||1;
-  var price=typeof getCurrentPrice==='function'?getCurrentPrice():55;
+  var price=typeof getCurrentPrice==='function'?getCurrentPrice():null;
+  if(price===null)return;
   var subtotal=q*price;
   var opts=deliveryEstimates(q, nsDelivery.isInternational);
   var chosen=opts.find(function(o){return o.id===nsDelivery.selectedDelivery;});
@@ -888,9 +890,13 @@ function injectOrderHub(){
 function watchQty(){
   var oQ=el('oQ');
   if(!oQ) return;
-  var mo=new MutationObserver(function(){ nsDelShowOptions(); nsDelUpdateSummary(); });
+  var update=function(){ nsDelShowOptions(); nsDelUpdateSummary(); };
+  var mo=new MutationObserver(update);
   mo.observe(oQ,{attributes:true,attributeFilter:['value']});
-  oQ.addEventListener('change', function(){ nsDelShowOptions(); nsDelUpdateSummary(); });
+  oQ.addEventListener('input', update);
+  oQ.addEventListener('change', update);
+  var product=el('oPr');if(product)product.addEventListener('change', update);
+  window.addEventListener('ns:catalog', update);
 }
 
 /* ─── Init ─── */

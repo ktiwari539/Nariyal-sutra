@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "checkpoint": "d771f8482bb28d577c160f8384a566af2dec63d8",
+  "checks": [
+    "admin-bcc-login.html: existing form byte-for-byte preserved",
+    "admin-login.html: existing form byte-for-byte preserved",
+    "customer-account.js: unchanged from checkpoint",
+    "assets/js/admin-auth-ui.js: unchanged from checkpoint",
+    "assets/js/auth-theme.js: unchanged from checkpoint",
+    "netlify/functions/published-auth-theme.js: unchanged from checkpoint",
+    "firestore.rules: unchanged from checkpoint",
+    "firebase.json: unchanged from checkpoint",
+    "netlify.toml: unchanged from checkpoint"
+  ]
+}

@@ -1,17 +1,92 @@
 name: Cinematic rebuild QA
 on:
   push:
-    branches: [fix/cinematic-real-sequence-20260911]
+    branches: [fix/cinematic-real-sequence-20260911, improvement/pre-release-optimization, feature/storefront-themes, feature/customer-campaign-center, feature/ai-search-discoverability-20261008, feature/release-integrated-seo-20261008, main]
+  pull_request:
+    branches: [feature/storefront-themes, main]
   workflow_dispatch:
 concurrency:
   group: cinematic-rebuild-qa-${{ github.ref }}
   cancel-in-progress: true
 jobs:
+  auth-experience:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Shared auth UI and isolated authorization regression
+        timeout-minutes: 45
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/ns-auth-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null' EXIT
+          node scripts/render-admin-auth.mjs
+          git diff --exit-code -- admin-bcc-login.html admin-login.html
+          timeout 5m node scripts/auth-experience-qa.mjs
+          timeout 3m node scripts/auth-theme-contract-qa.mjs
+          timeout 12m node scripts/auth-interactive-qa.mjs
+          set +e
+          timeout 5m node scripts/auth-composition-qa.mjs
+          composition_code=$?
+          set -e
+          if [ "$composition_code" -eq 124 ]; then
+            echo "Auth composition QA timed out once; retrying in a fresh Chromium process."
+            timeout 5m node scripts/auth-composition-qa.mjs
+          elif [ "$composition_code" -ne 0 ]; then
+            exit "$composition_code"
+          fi
+          timeout 15m node scripts/auth-guardian-qa.mjs
+          timeout 3m node scripts/production-firebase-contract-qa.mjs
+          timeout 3m node scripts/admin-role-contract-qa.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: auth-experience-evidence
+          path: |
+            qa-artifacts/auth/
+            qa-artifacts/auth-interactive/
+            qa-artifacts/auth-guardian/
+          retention-days: 14
+  themes-pricing-water:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Authoritative pricing races
+        run: node scripts/price-sync-qa.mjs
+      - name: Four themes and contrast
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/ns-theme-http.log 2>&1 &
+          node scripts/themes-qa.mjs
+      - name: Price loading and checkout
+        if: always()
+        run: node scripts/price-browser-qa.mjs
+      - name: Private packaged-water preview
+        if: always()
+        run: node scripts/water-formats-qa.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: theme-price-water-evidence
+          path: qa-artifacts/
+          retention-days: 14
   firebase-contract:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - name: Production Firebase integration contract QA
         run: node scripts/production-firebase-contract-qa.mjs
         timeout-minutes: 3
@@ -54,6 +129,8 @@ jobs:
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - run: |
           npm install --no-save --no-package-lock playwright@1.55.0
           npx playwright install --with-deps chromium
@@ -82,6 +159,9 @@ jobs:
       - name: Communication and Review Queue acceptance QA
         run: node scripts/admin-communication-review-qa.mjs
         timeout-minutes: 15
+      - name: Customer Campaign Center consent and no-cost workflow QA
+        run: node scripts/admin-campaign-center-qa.mjs
+        timeout-minutes: 12
       - name: Admin Follow-up workflow acceptance QA
         run: node scripts/admin-followup-browser-qa.mjs
         timeout-minutes: 12
@@ -94,6 +174,9 @@ jobs:
       - name: People profile Admin to storefront QA
         run: node scripts/people-profile-qa.mjs
         timeout-minutes: 15
+      - name: Moving People full-photo framing QA
+        run: node scripts/moving-people-layout-qa.mjs
+        timeout-minutes: 15
       - name: Checkout delivery preference layout and interaction QA
         run: node scripts/checkout-delivery-step-qa.mjs
         timeout-minutes: 5
@@ -103,14 +186,85 @@ jobs:
       - name: Customer acquisition browser QA
         run: node scripts/acquisition-attribution-browser-qa.mjs
         timeout-minutes: 10
+      - name: Upload Media and Campaign Center evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: media-campaign-evidence
+          path: |
+            qa-artifacts/media-organizer-people-filter.png
+            qa-artifacts/campaign-center/
+          if-no-files-found: warn
+          retention-days: 14
   qa:
-    needs: [firebase-contract, media-targeted]
+    needs: [auth-experience, themes-pricing-water, firebase-contract, media-targeted]
     runs-on: ubuntu-latest
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - run: node scripts/predeploy-audit.mjs
         timeout-minutes: 5
+      - name: Build and audit Netlify public release package
+        run: node scripts/build-netlify-site.mjs
+        timeout-minutes: 5
+      - name: Upload Netlify release manifest
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-package-manifest
+          path: qa-artifacts/release-package/manifest.json
+          if-no-files-found: error
+          retention-days: 14
+      - name: SEO and indexing contract QA
+        run: node scripts/seo-qa.mjs
+        timeout-minutes: 3
+      - name: SEO go-live static acceptance gate
+        run: node scripts/seo-go-live-acceptance.mjs
+        timeout-minutes: 3
+      - name: Pre-release optimization contracts
+        run: node scripts/pre-release-optimization-qa.mjs
+        timeout-minutes: 3
+      - name: Install Playwright browser QA dependency
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+        timeout-minutes: 15
+      - name: Storefront Themes contracts and visual evidence
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/nariyal-themes-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID || true' EXIT
+          sleep 2
+          node scripts/themes-qa.mjs
+        timeout-minutes: 12
+      - name: Manual acceptance regression QA
+        run: node scripts/manual-acceptance-regression-qa.mjs
+        timeout-minutes: 20
+      - name: Screenshot-reported issue QA
+        run: node scripts/reported-issues-qa.mjs
+        timeout-minutes: 12
+      - name: Upload screenshot-reported issue evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reported-issues-evidence
+          path: qa-artifacts/reported-issues/
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Business Command Center V52 visual QA
+        if: always()
+        run: node scripts/bcc-v52-visual-qa.mjs
+        timeout-minutes: 12
+      - name: Upload Business Command Center V52 evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bcc-v52-evidence
+          path: qa-artifacts/bcc-v52/
+          if-no-files-found: warn
+          retention-days: 14
       - name: Public copy professional QA
         run: node scripts/public-copy-qa.mjs
         timeout-minutes: 3
@@ -120,10 +274,6 @@ jobs:
       - name: Campaign image binary signatures
         run: node scripts/campaign-asset-diagnostics.mjs
         timeout-minutes: 5
-      - run: |
-          npm install --no-save --no-package-lock playwright@1.55.0
-          npx playwright install --with-deps chromium
-        timeout-minutes: 15
       - name: Capture supplied media recovery candidates
         run: node scripts/media-recovery-contact-sheet.mjs
         timeout-minutes: 10
@@ -209,3 +359,29 @@ jobs:
           path: qa-artifacts/
           if-no-files-found: warn
           retention-days: 7
+      - name: Create verified local-acceptance recovery bundle
+        if: success()
+        env:
+          TARGET_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          BUNDLE_BRANCH: ${{ github.head_ref || github.ref_name }}
+        run: |
+          git fetch --unshallow origin || git fetch --prune origin
+          test "$(git rev-parse HEAD)" = "$TARGET_SHA"
+          test -n "$BUNDLE_BRANCH"
+          git fetch origin "$TARGET_SHA"
+          git update-ref "refs/heads/$BUNDLE_BRANCH" "$TARGET_SHA"
+          test "$(git rev-parse "refs/heads/$BUNDLE_BRANCH")" = "$TARGET_SHA"
+          mkdir -p qa-artifacts/recovery
+          BUNDLE="qa-artifacts/recovery/Nariyal-sutra-local-acceptance-${TARGET_SHA}.bundle"
+          git bundle create "$BUNDLE" "refs/heads/$BUNDLE_BRANCH"
+          git bundle verify "$BUNDLE"
+          sha256sum "$BUNDLE" | tee "$BUNDLE.sha256"
+        timeout-minutes: 5
+      - name: Upload local-acceptance recovery bundle
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: local-acceptance-recovery-bundle
+          path: qa-artifacts/recovery/
+          if-no-files-found: error
+          retention-days: 14

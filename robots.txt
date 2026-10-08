@@ -1,4 +1,30 @@
+# Public customer information is open to search and retrieval.
+# A crawler permission is not a guarantee of indexing, citation or ranking.
 User-agent: *
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: bingbot
 Allow: /
 
 Sitemap: https://nariyal-sutra.netlify.app/sitemap.xml

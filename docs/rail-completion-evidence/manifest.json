@@ -1,0 +1,92 @@
+[
+  {
+    "path": "golden-harvest-tablet.webp",
+    "bytes": 633778,
+    "sha256": "ba9944e6611e75144142d8a24966c43a2bc08e463fe91be592cb1a0516e85a5e"
+  },
+  {
+    "path": "fresh-grove-mobile.webp",
+    "bytes": 178040,
+    "sha256": "e078371e40070f22b6902514911ac97be575065cff8f03989cd357758bc047f2"
+  },
+  {
+    "path": "nariyal-signature-desktop.webp",
+    "bytes": 1247106,
+    "sha256": "88b570c10d44070c45f4dfa3d31c52b967f394dd5dc4c61f4456cad37233215d"
+  },
+  {
+    "path": "fresh-grove-tablet.webp",
+    "bytes": 633860,
+    "sha256": "8d617871dff76ab0d82d61d9111ce1e5a39b75675842412e600bc43c9ff0d3c6"
+  },
+  {
+    "path": "golden-harvest-desktop.webp",
+    "bytes": 1319198,
+    "sha256": "7d3a8bf935ebb76aedc63d78a79953d73d32397ec6e1d43e8a3af4eefc6b6b09"
+  },
+  {
+    "path": "qa.log",
+    "bytes": 5928,
+    "sha256": "5a6dd93d7db80c3d2e77b73853b33c50beafb8b2e0e42f75fa73ed288aab56c0"
+  },
+  {
+    "path": "nariyal-signature-mobile.webp",
+    "bytes": 173336,
+    "sha256": "3b910f7a862c35873d0c60b7be6b17a1d34efaa8cef86359f03727595d7a2932"
+  },
+  {
+    "path": "fresh-grove-desktop.webp",
+    "bytes": 1317662,
+    "sha256": "1c42edb816484d9f1f96f5feaec331af576017f80d082b7ab3132aaaeacf8cfc"
+  },
+  {
+    "path": "README.md",
+    "bytes": 10790,
+    "sha256": "1f8e99406ef5323985beac9d21c9644ccdacbf86db636a0630f4e871ba270a35"
+  },
+  {
+    "path": "coastal-premium-mobile.webp",
+    "bytes": 177236,
+    "sha256": "80c439bc8d166f38e8b881fc2c0702c67c188b47f9ee61ee5820ba68123aa35d"
+  },
+  {
+    "path": "golden-harvest-mobile.webp",
+    "bytes": 177666,
+    "sha256": "a4fa56efc5a817b5402231233b294007c77c005b83d9f8e62fc4613847b79673"
+  },
+  {
+    "path": "nariyal-signature-tablet.webp",
+    "bytes": 624600,
+    "sha256": "f0ada3e4c76d97f951b92705b6480932ae37cb0ca885cc50283991a3612b6c18"
+  },
+  {
+    "path": "results.json",
+    "bytes": 22813,
+    "sha256": "b28eb973c5e01af3d6d9f737a26b8512ef823c8b06372de3564fdf0a5db3fdf9"
+  },
+  {
+    "path": "summary.json",
+    "bytes": 7499,
+    "sha256": "25b462bc219794930a50f10e4a790ea9c09c7b1d335c8419467f9bfea50ba164"
+  },
+  {
+    "path": "index.html",
+    "bytes": 3394,
+    "sha256": "312ca89dd849d76b67cb5f35712f07237bf2c9dcc5cebdf943a87d4880270b44"
+  },
+  {
+    "path": "coastal-premium-desktop.webp",
+    "bytes": 1253476,
+    "sha256": "54908ccd64780a4770d9e4d08130773f3998dbe25b27b946002f6cb26739dbc7"
+  },
+  {
+    "path": "coastal-premium-tablet.webp",
+    "bytes": 631864,
+    "sha256": "7902ff7cadad538428e6b38bb1612dd620b54b94c97e9b2767777998917b99bd"
+  },
+  {
+    "path": "changed-files.txt",
+    "bytes": 1143,
+    "sha256": "23262aa8dc5f1169a41abcde97066bac6a2c35d5ff7ce230ba5d99c702e5479a"
+  }
+]

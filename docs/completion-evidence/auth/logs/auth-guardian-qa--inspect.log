@@ -1,0 +1,14 @@
+PASS admin nariyal-signature desktop: all art loaded and visible
+PASS admin nariyal-signature desktop: subtle idle; intended element count
+PASS admin nariyal-signature desktop: gaze affects primary only
+PASS admin nariyal-signature desktop: active eyes readable at native scale
+PASS admin nariyal-signature desktop: eye closure precedes leaf; restrained turn
+PASS admin nariyal-signature desktop: eyes closed; privacy turn and leaf cover
+PASS admin nariyal-signature desktop: only one eye peeks
+PASS admin nariyal-signature desktop: Hide closes eyes immediately
+PASS admin nariyal-signature desktop: invalid login releases leaf and restores readable eyes
+PASS admin nariyal-signature desktop: editing retry clears error and restarts privacy
+PASS admin nariyal-signature desktop: repeated Enter retry restarts privacy while focus remains
+PASS admin nariyal-signature desktop: CLS 0; no overflow; decorative; selective images
+PASS No Guardian runtime exceptions
+Guardian QA PASS (13 assertions)

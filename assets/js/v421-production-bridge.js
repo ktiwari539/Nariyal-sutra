@@ -8,8 +8,8 @@ const LOCAL=/^(localhost|127\.0\.0\.1|\[::1\])$/i.test(location.hostname);
 if(LOCAL)return;
 const SDK='12.18.0';
 const isAdmin=/admin-preview\.html$/i.test(location.pathname);
-const PUBLIC_KEYS=['sections','pageSequences','sectionMedia','sectionMediaLayout','media','faceMarquee','peopleStreams','harvest','customSections','stories','content','schedule','settings'];
-const PRIVATE_KEYS=['tasks','warehouses','deliveryServices','segments','communications','notificationQueue'];
+const PUBLIC_KEYS=['sections','pageSequences','sectionMedia','sectionMediaLayout','media','faceMarquee','peopleStreams','harvest','customSections','stories','content','schedule','settings','themeConfig'];
+const PRIVATE_KEYS=['tasks','warehouses','deliveryServices','segments','communications','campaigns','notificationQueue'];
 const CUSTOMER_ROLES=['Owner','Admin','Manager','Operations','Support','Sales'];
 const FOLLOWUP_READ_ROLES=['Owner','Admin','Manager','Operations','Support','Sales'];
 const FOLLOWUP_WRITE_ROLES=['Owner','Admin','Manager','Support','Sales'];
@@ -91,23 +91,31 @@ async function persistRemote(s){
 }
 function catalogRows(s){
  const products=Array.isArray(s.products)?s.products:[],inventory=Array.isArray(s.inventory)?s.inventory:[];
- return products.map(p=>{const sku=String(p.sku||'').toUpperCase(),key=sku==='TENDER'?'tender':sku==='GREEN'?'green':sku==='BULK'?'bulk':'';if(!key)return null;const inv=inventory.find(x=>String(x.sku||'').toUpperCase()===sku)||{};return {key,name:p.name||key,shortName:p.shortName||p.name||key,description:p.description||'',mode:key==='bulk'?'bulk':'single',price:Math.max(0,Math.round(Number(key==='bulk'?(p.bulk||p.retail):(p.retail||p.bulk))||0)),minQty:Math.max(1,Math.round(Number(p.moq)||1)),stock:Math.max(0,Math.round(Number(inv.onHand)||0)),active:String(p.state||'Active').toLowerCase()!=='inactive'};}).filter(Boolean);
+ return products.map(p=>{const sku=String(p.sku||'').toUpperCase(),key=sku==='TENDER'?'tender':sku==='GREEN'?'green':sku==='BULK'?'bulk':'';if(!key)return null;const inv=inventory.find(x=>String(x.sku||'').toUpperCase()===sku)||{},rawPrice=Store.productPrice?.(p)??p.price,price=Number(rawPrice);return {key,name:p.name||key,shortName:p.shortName||p.name||key,description:p.description||'',mode:key==='bulk'?'bulk':'single',price:Number.isFinite(price)&&price>0?Math.round(price):0,priceVisible:p.priceVisible!==false,minQty:Math.max(1,Math.round(Number(p.moq)||1)),stock:Math.max(0,Math.round(Number(inv.onHand)||0)),active:String(p.state||'Active').toLowerCase()!=='inactive'};}).filter(Boolean);
 }
 async function persistCatalog(s){
  if(!isAdmin||!remoteReady||!user||!CATALOG_ROLES.includes(role))return;
- const rows=catalogRows(s),hashInput=role==='Operations'?rows.map(r=>({key:r.key,stock:r.stock})):rows,h=safeHash(hashInput);if(h===lastCatalogHash)return;
+ const rows=catalogRows(s);if(role!=='Operations'){const invalid=rows.filter(r=>r.active&&r.priceVisible!==false&&!(Number.isFinite(r.price)&&r.price>0));if(invalid.length)throw new Error('Active public products require their own valid price before saving: '+invalid.map(r=>r.key).join(', '));}const hashInput=role==='Operations'?rows.map(r=>({key:r.key,stock:r.stock})):rows,h=safeHash(hashInput);if(h===lastCatalogHash)return;
  const batch=fsMod.writeBatch(db);
  for(const r of rows){
   const ref=fsMod.doc(db,'products',r.key);
   if(role==='Operations')batch.update(ref,{stock:r.stock,updatedAt:fsMod.serverTimestamp(),updatedBy:user.uid});
-  else batch.set(ref,{name:r.name,shortName:r.shortName,description:r.description,mode:r.mode,price:r.price,minQty:r.minQty,stock:r.stock,active:r.active,updatedAt:fsMod.serverTimestamp(),updatedBy:user.uid});
+  else batch.set(ref,{name:r.name,shortName:r.shortName,description:r.description,mode:r.mode,price:r.price,priceVisible:r.priceVisible!==false,minQty:r.minQty,stock:r.stock,active:r.active,updatedAt:fsMod.serverTimestamp(),updatedBy:user.uid});
  }
  await batch.commit();lastCatalogHash=h;
+ try{localStorage.setItem('ns_catalog_version',String(Date.now()));const bc=new BroadcastChannel('ns-catalog');bc.postMessage({type:'refresh'});bc.close();}catch(_){}
+ window.dispatchEvent(new CustomEvent('nsv421:catalog-saved'));
+
 }
-function queuePersist(s){pendingState=clone(s);clearTimeout(saveTimer);saveTimer=setTimeout(async()=>{const x=pendingState;pendingState=null;try{await Promise.all([persistRemote(x),persistCatalog(x)]);window.dispatchEvent(new CustomEvent('nsv421:remote-saved'));}catch(e){console.error('[Nariyal Sutra remote save]',e);window.dispatchEvent(new CustomEvent('nsv421:remote-error',{detail:String(e?.message||e)}));}},350);}
+let writeChain=Promise.resolve();
+function persistState(s){const next=clone(s);const task=writeChain.catch(()=>{}).then(async()=>{await persistRemote(next);await persistCatalog(next);window.dispatchEvent(new CustomEvent('nsv421:remote-saved'));});writeChain=task;return task;}
+function flushPersist(){clearTimeout(saveTimer);const next=pendingState||originalLoad();pendingState=null;return persistState(next);}
+function queuePersist(s){pendingState=clone(s);clearTimeout(saveTimer);saveTimer=setTimeout(()=>flushPersist().catch(e=>{console.error('[Nariyal Sutra remote save]',e);window.dispatchEvent(new CustomEvent('nsv421:remote-error',{detail:String(e?.message||e)}));}),350);}
+
 Store.save=function(s){const out=originalSave(s);if(isAdmin)queuePersist(out);return out;};
 function orderFromDoc(d){const x=d.data()||{},createdAt=iso(x.createdAt),updatedAt=iso(x.updatedAt),status=String(x.status||'pending');return {id:x.orderId||d.id,orderId:x.orderId||d.id,customer:x.customerName||'Customer',customerName:x.customerName||'',email:x.email||'',phone:x.phone||'',city:x.city||'',state:x.state||'',country:x.country||'',pin:x.pin||'',address:x.address||'',product:x.productName||x.productKey||'Order',productName:x.productName||'',productKey:x.productKey||'',qty:Number(x.quantity||0),quantity:Number(x.quantity||0),unitPrice:Number(x.unitPrice||0),payment:x.paymentLabel||x.paymentType||'Awaiting',paymentLabel:x.paymentLabel||'',paymentType:x.paymentType||'',paymentStatus:x.paymentStatus||'',delivery:status.replaceAll('_',' '),status,total:Number(x.total||0),customerUid:x.customerUid||'',trackingToken:x.trackingToken||'',recurringPreference:x.recurringPreference||'',deliveryMethod:x.deliveryMethod||'',deliveryLabel:x.deliveryLabel||'',deliveryPreference:x.deliveryPreference||'',handoverPointType:x.handoverPointType||'',handoverPointName:x.handoverPointName||'',handoverPointAddress:x.handoverPointAddress||'',handoverPointLat:x.handoverPointLat??null,handoverPointLng:x.handoverPointLng??null,handoverSearchSource:x.handoverSearchSource||'',handoverNote:x.handoverNote||'',deliveryAddress:x.deliveryAddress||x.address||'',deliveryLat:x.deliveryLat??null,deliveryLng:x.deliveryLng??null,acquisition:x.acquisition||null,createdAt,updatedAt};}
-function profileFromDoc(d){const x=d.data()||{};return {...x,id:d.id,uid:x.uid||d.id,createdAt:iso(x.createdAt),updatedAt:iso(x.updatedAt),lastLoginAt:iso(x.lastLoginAt)};}
+function inquiryFromDoc(d){const x=d.data()||{};return {...x,id:x.inquiryId||d.id,inquiryId:x.inquiryId||d.id,createdAt:iso(x.createdAt),updatedAt:iso(x.updatedAt),acquisition:x.acquisition||null};}
+function profileFromDoc(d){const x=d.data()||{};return {...x,id:d.id,uid:x.uid||d.id,createdAt:iso(x.createdAt),updatedAt:iso(x.updatedAt),lastLoginAt:iso(x.lastLoginAt),marketingConsentUpdatedAt:iso(x.marketingConsentUpdatedAt)};}
 function followupFromDoc(d){const x=d.data()||{};return {...x,id:x.id||d.id,dueAt:iso(x.dueAt),createdAt:iso(x.createdAt),updatedAt:iso(x.updatedAt),completedAt:iso(x.completedAt)};}
 function followupEventFromDoc(d){const x=d.data()||{};return {...x,id:x.eventId||d.id,eventId:x.eventId||d.id,createdAt:iso(x.createdAt)};}
 async function loadFollowupsInto(s){
@@ -126,15 +134,16 @@ async function syncOperationalData(){
  if(CUSTOMER_ROLES.includes(role)){
  jobs.push(
    (async()=>{try{const q=fsMod.query(fsMod.collection(db,'orders'),fsMod.orderBy('createdAt','desc'),fsMod.limit(500));const snap=await fsMod.getDocs(q);s.orders=snap.docs.map(orderFromDoc);}catch(e){console.warn('[BCC] Orders sync unavailable',e);s.orders=[];}changed=true;})(),
+   (async()=>{try{const q=fsMod.query(fsMod.collection(db,'inquiries'),fsMod.orderBy('createdAt','desc'),fsMod.limit(500));const snap=await fsMod.getDocs(q);s.inquiries=snap.docs.map(inquiryFromDoc);}catch(e){console.warn('[BCC] Enquiries sync unavailable',e);s.inquiries=[];}changed=true;})(),
    (async()=>{try{const snap=await fsMod.getDocs(fsMod.collection(db,'customers'));s.customerProfiles=snap.docs.map(profileFromDoc);}catch(e){console.warn('[BCC] Customer profile sync unavailable',e);s.customerProfiles=[];}changed=true;})(),
    (async()=>{try{const snap=await fsMod.getDocs(fsMod.collection(db,'customerAdmin'));s.customerAdminRecords=snap.docs.map(d=>({id:d.id,personKey:d.id,...d.data()}));}catch(e){console.warn('[BCC] Customer CRM metadata sync unavailable',e);s.customerAdminRecords=[];}changed=true;})(),
    (async()=>{try{await loadFollowupsInto(s);}catch(e){console.warn('[BCC] Follow-ups sync unavailable',e);s.followups=[];s.followupEvents=[];}changed=true;})()
   );
  }else{
-  s.orders=[];s.customerProfiles=[];s.customerAdminRecords=[];s.followups=[];s.followupEvents=[];s.customer=emptyCustomer();changed=true;
+  s.orders=[];s.inquiries=[];s.customerProfiles=[];s.customerAdminRecords=[];s.followups=[];s.followupEvents=[];s.customer=emptyCustomer();changed=true;
  }
  if(CATALOG_ROLES.includes(role)){
-  jobs.push((async()=>{try{const snap=await fsMod.getDocs(fsMod.collection(db,'products'));const by={};snap.forEach(d=>by[d.id]=d.data());const defs=[['TENDER','tender','Fresh Tender Coconut'],['GREEN','green','Green Round Coconut'],['BULK','bulk','Bulk Tender Coconut']];s.products=defs.map(([sku,key,name])=>{const p=by[key]||{};return {sku,name:p.name||name,shortName:p.shortName||'',description:p.description||'',retail:key==='bulk'?0:Number(p.price||0),bulk:Number(p.price||0),moq:Number(p.minQty||1),priceVisible:true,state:p.active===false?'Inactive':'Active'};});s.inventory=defs.map(([sku,key,name])=>{const p=by[key]||{};return {sku,name:p.name||name,node:'Live catalog',onHand:Number(p.stock||0),reserved:0,incoming:0,low:0,freshness:'Live Firestore stock',supplier:'Configured supply'};});}catch(e){console.warn('[BCC] Catalog sync unavailable',e);}changed=true;})());
+  jobs.push((async()=>{try{const snap=await fsMod.getDocs(fsMod.collection(db,'products'));const by={};snap.forEach(d=>by[d.id]=d.data());const defs=[['TENDER','tender','Fresh Tender Coconut'],['GREEN','green','Green Round Coconut'],['BULK','bulk','Bulk Tender Coconut']];s.products=defs.map(([sku,key,name])=>{const p=by[key]||{};return {sku,name:p.name||name,shortName:p.shortName||'',description:p.description||'',price:Number(p.price||0),retail:Number(p.price||0),bulk:Number(p.price||0),moq:Number(p.minQty||1),priceVisible:p.priceVisible!==false,state:p.active===false?'Inactive':'Active'};});s.inventory=defs.map(([sku,key,name])=>{const p=by[key]||{};return {sku,name:p.name||name,node:'Live catalog',onHand:Number(p.stock||0),reserved:0,incoming:0,low:0,freshness:'Live Firestore stock',supplier:'Configured supply'};});}catch(e){console.warn('[BCC] Catalog sync unavailable',e);}changed=true;})());
  }
  if(role==='Owner'){
   jobs.push((async()=>{try{const snap=await fsMod.getDocs(fsMod.collection(db,'adminRoles'));s.teamMembers=snap.docs.map(d=>{const x=d.data()||{},label=x.name||x.email||d.id;return {id:d.id,name:label,email:x.email||'',role:x.role||'Unassigned',status:x.status||'Inactive',active:x.active===true,inviteStatus:x.inviteStatus||'Active',source:'Firebase adminRoles'};});if(!s.teamMembers.some(x=>x.id===user.uid))s.teamMembers.unshift({id:user.uid,name:user.email||'Owner',email:user.email||'',role:'Owner',status:'Active',active:true,inviteStatus:'Active',source:'Firebase owner identity'});}catch(e){console.warn('[BCC] Team role sync unavailable',e);s.teamMembers=[{id:user.uid,name:user.email||'Owner',email:user.email||'',role:'Owner',status:'Active',active:true,inviteStatus:'Active',source:'Firebase owner identity'}];}changed=true;})());
@@ -144,7 +153,7 @@ async function syncOperationalData(){
   scrubDemoOperational(s);originalSave(s);
   const rows=catalogRows(s);lastCatalogHash=safeHash(role==='Operations'?rows.map(r=>({key:r.key,stock:r.stock})):rows);
   const durationMs=Math.round(performance.now()-started);
-  window.dispatchEvent(new CustomEvent('nsv421:operational-synced',{detail:{orders:(s.orders||[]).length,profiles:(s.customerProfiles||[]).length,role,durationMs}}));
+  window.dispatchEvent(new CustomEvent('nsv421:operational-synced',{detail:{orders:(s.orders||[]).length,inquiries:(s.inquiries||[]).length,profiles:(s.customerProfiles||[]).length,role,durationMs}}));
  }
 }
 async function refreshFollowups(){
@@ -198,12 +207,17 @@ async function initAdmin(){
  resolveReady({mode:'admin',role,user,identity:identityDiagnostic()});window.dispatchEvent(new CustomEvent('nsv421:production-ready',{detail:{role,identity:identityDiagnostic()}}));
  loadCustomerRuntime().catch(e=>console.warn('[BCC] Customer runtime bootstrap failed',e));
 }
-async function initPublic(){try{const data=await readPublicOnce();if(data)mergeIntoLocal([data]);watchPublic();remoteReady=true;resolveReady({mode:'public'});window.dispatchEvent(new CustomEvent('nsv421:production-ready',{detail:{mode:'public',appCheckStatus:window.NS_APP_CHECK_STATUS||'unknown'}}));}catch(e){console.warn('[Nariyal Sutra public config]',e);remoteReady=true;resolveReady({mode:'public',degraded:true});}}
+async function initPublic(){watchWaterFormats();try{const data=await readPublicOnce();if(data)mergeIntoLocal([data]);watchPublic();remoteReady=true;resolveReady({mode:'public'});window.dispatchEvent(new CustomEvent('nsv421:production-ready',{detail:{mode:'public',appCheckStatus:window.NS_APP_CHECK_STATUS||'unknown'}}));}catch(e){console.warn('[Nariyal Sutra public config]',e);remoteReady=true;resolveReady({mode:'public',degraded:true});}}
 async function mediaSignRequest(meta={}){if(!isAdmin||!user)throw new Error('Admin authentication is required for media upload.');const token=await user.getIdToken(),appCheck=typeof window.NS_GET_APP_CHECK_TOKEN==='function'?await window.NS_GET_APP_CHECK_TOKEN():'';const headers={'content-type':'application/json','authorization':'Bearer '+token};if(appCheck)headers['x-firebase-appcheck']=appCheck;const sign=await fetch('/.netlify/functions/media-sign-upload',{method:'POST',headers,body:JSON.stringify({folder:meta.folder||'nariyal-sutra/media',public_id:meta.publicId||'',tags:meta.tags||'admin-upload',context:meta.context||''})});const signed=await sign.json().catch(()=>({}));if(!sign.ok){const err=new Error(signed.error||'Could not authorize media upload.');err.status=sign.status;throw err;}return signed;}
 async function checkMediaUpload(){try{const signed=await mediaSignRequest({publicId:'admin-preflight-'+Date.now(),tags:'preflight'});return {ok:true,role:signed.role||role,provider:'cloudinary',message:'Production media upload is configured.'};}catch(e){return {ok:false,status:e.status||0,role,message:String(e?.message||e)};}}
 async function uploadMedia(file,meta={}){const signed=await mediaSignRequest(meta);const fd=new FormData();fd.append('file',file);fd.append('api_key',signed.apiKey);fd.append('timestamp',String(signed.timestamp));fd.append('signature',signed.signature);fd.append('folder',signed.folder);if(signed.public_id)fd.append('public_id',signed.public_id);if(signed.tags)fd.append('tags',signed.tags);if(signed.context)fd.append('context',signed.context);const up=await fetch(`https://api.cloudinary.com/v1_1/${encodeURIComponent(signed.cloudName)}/image/upload`,{method:'POST',body:fd});const out=await up.json().catch(()=>({}));if(!up.ok||!out.secure_url)throw new Error(out.error?.message||'Cloudinary upload failed.');return out;}
 async function reload(){const parts=[await readPublicOnce()];if(isAdmin&&user&&CONTENT_ROLES.includes(role))parts.push(await readPrivateOnce());const s=mergeIntoLocal(parts);if(isAdmin)await syncOperationalData();return s;}
-window.NSV421ProductionBridge={ready,isProduction:true,isAdmin,get role(){return role},get user(){return user},get roleRecord(){return roleRecord?clone(roleRecord):null},identityDiagnostic,checkMediaUpload,persist:()=>Promise.all([persistRemote(originalLoad()),persistCatalog(originalLoad())]),reload,refreshFollowups,saveFollowup,uploadMedia};
+function requireWaterAccess(){if(!isAdmin||!remoteReady||!user||!['Owner','Admin'].includes(role))throw new Error('Authenticated Owner or Admin access required.');}
+async function loadWaterWorkspace(){requireWaterAccess();const snap=await fsMod.getDocFromServer(fsMod.doc(db,'waterWorkspaces','current'));return snap.exists()?snap.data().workspace:null;}
+async function saveWaterWorkspace(workspace){requireWaterAccess();if(!['draft','review'].includes(workspace.status))throw new Error('Workspace saves must remain private drafts or review.');await fsMod.setDoc(fsMod.doc(db,'waterWorkspaces','current'),{workspace:clone(workspace),updatedAt:fsMod.serverTimestamp(),updatedBy:user.uid});}
+async function publishWaterFormats(workspace){requireWaterAccess();if(!window.NSWaterFormats?.publishable(workspace))throw new Error('Mandatory launch information is missing.');const payload={status:'published',placement:workspace.placement,products:clone(workspace.products),publishedAt:fsMod.serverTimestamp()};await fsMod.setDoc(fsMod.doc(db,'publicWaterFormats','current'),payload);}
+function watchWaterFormats(){if(isAdmin)return;unsubs.push(fsMod.onSnapshot(fsMod.doc(db,'publicWaterFormats','current'),snap=>{window.NSWaterFormats?.mount(snap.exists()?snap.data():null);},()=>window.NSWaterFormats?.mount(null)));}
+window.NSV421ProductionBridge={ready,isProduction:true,isAdmin,get role(){return role},get user(){return user},get roleRecord(){return roleRecord?clone(roleRecord):null},identityDiagnostic,loadWaterWorkspace,saveWaterWorkspace,publishWaterFormats,checkMediaUpload,persist:flushPersist,reload,refreshFollowups,saveFollowup,uploadMedia};
 (async()=>{try{if(isAdmin)overlay('Connecting secure Business Command Center…');await ensureFirebase();if(isAdmin)await initAdmin();else await initPublic();}catch(e){console.error('[Nariyal Sutra production bridge]',e);if(isAdmin)showError(String(e?.message||e));resolveReady({error:String(e?.message||e)});}})();
 window.addEventListener('beforeunload',()=>unsubs.forEach(fn=>{try{fn();}catch(e){}}));
 })();

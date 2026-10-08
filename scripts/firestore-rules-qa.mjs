@@ -137,9 +137,9 @@ async function role(uid,email,roleName='Operations',active=true){
   });
 }
 async function seedCatalog(){
-  await seed('products/tender',{name:'Fresh Tender Coconut',price:55,minQty:1,stock:150,active:true,updatedAt:new Date()});
-  await seed('products/green',{name:'Green Round Coconut',price:55,minQty:1,stock:100,active:true,updatedAt:new Date()});
-  await seed('products/bulk',{name:'Bulk Pack 10+ pcs',price:45,minQty:10,stock:300,active:true,updatedAt:new Date()});
+  await seed('products/tender',{name:'Fresh Tender Coconut',price:55,priceVisible:true,minQty:1,stock:150,active:true,updatedAt:new Date()});
+  await seed('products/green',{name:'Green Round Coconut',price:55,priceVisible:true,minQty:1,stock:100,active:true,updatedAt:new Date()});
+  await seed('products/bulk',{name:'Bulk Pack 10+ pcs',price:45,priceVisible:true,minQty:10,stock:300,active:true,updatedAt:new Date()});
 }
 async function guestCheckout(db,orderId=ORDER,token=TOKEN,extraOrder={},extraTrack={}){
   const b=writeBatch(db);
@@ -166,6 +166,12 @@ try{
   const guest=env.unauthenticatedContext().firestore();
   await assertSucceeds(guestCheckout(guest));
   must((await getDoc(doc(guest,'publicTracking',TOKEN))).exists(),'Exact tracking token GET must remain public-readable');
+  await env.withSecurityRulesDisabled(async ctx=>deleteDoc(doc(ctx.firestore(),'products/tender')));
+  await assertFails(guestCheckout(guest,'NS-2026-MISSING01','9'.repeat(48)));
+  await seedCatalog();
+  await seed('products/tender',{name:'Fresh Tender Coconut',price:55,priceVisible:false,minQty:1,stock:150,active:true,updatedAt:new Date()});
+  await assertFails(guestCheckout(guest,'NS-2026-HIDDEN01','h'.repeat(48)));
+  await seedCatalog();
 
   await assertFails(guestCheckout(guest,ORDER2,TOKEN2,{unexpectedPrivateField:'blocked'}));
   await assertFails(guestCheckout(guest,'NS-2026-RULES04','d'.repeat(48),{unitPrice:1,total:2}));
@@ -293,6 +299,22 @@ try{
     orderIds:[ORDER],count:1,otpVerified:true,source:'admin_owner_email_otp',cleanup:[{orderId:ORDER,orderDeleted:true}]
   }));
   await assertFails(deleteDoc(doc(owner,'products','tender')));
+  const waterDraft={workspace:{status:'draft',placement:'after-collection',products:[]},updatedAt:serverTimestamp(),updatedBy:OWNER_UID};
+  await assertSucceeds(setDoc(doc(owner,'waterWorkspaces','current'),waterDraft));
+  await assertFails(getDoc(doc(guest,'waterWorkspaces','current')));
+  await assertFails(getDoc(doc(content,'waterWorkspaces','current')));
+  await assertFails(getDoc(doc(support,'waterWorkspaces','current')));
+  await assertSucceeds(getDoc(doc(admin,'waterWorkspaces','current')));
+  const waterProduct={id:'water-300-glass',name:'QA water',size:300,packageType:'Glass',description:'QA description',image:'assets/images/concepts/water-glass.png',secondaryImage:'',price:87,availability:'Available',badge:'QA'};
+  const publication={status:'published',placement:'after-collection',products:[waterProduct],publishedAt:serverTimestamp()};
+  await assertFails(setDoc(doc(owner,'publicWaterFormats','current'),{...publication,products:[{...waterProduct,price:null}]}));
+  await assertFails(setDoc(doc(owner,'publicWaterFormats','current'),{...publication,products:[{...waterProduct,size:200}]}));
+  await assertFails(setDoc(doc(content,'publicWaterFormats','current'),publication));
+  await assertSucceeds(setDoc(doc(owner,'publicWaterFormats','current'),publication));
+  await assertSucceeds(getDoc(doc(guest,'publicWaterFormats','current')));
+  await assertFails(setDoc(doc(owner,'publicWaterFormats','current'),{...publication,status:'draft'}));
+  await assertSucceeds(deleteDoc(doc(admin,'publicWaterFormats','current')));
+  console.log('Packaged-water rules: 12 privacy, validation and role assertions passed');
   const ownerUnverified=env.authenticatedContext(OWNER_UID,{email:OWNER_EMAIL,email_verified:false}).firestore();
   await assertFails(getDoc(doc(ownerUnverified,'orders',ORDER)));
 

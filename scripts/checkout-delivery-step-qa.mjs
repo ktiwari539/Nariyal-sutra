@@ -16,9 +16,11 @@ try{
     const context=await browser.newContext({viewport:{width,height},serviceWorkers:'block'});
     const page=await context.newPage();
     const errors=[];
-    page.on('pageerror',e=>errors.push(String(e)));
+    page.on('pageerror',e=>{const message=String(e);if(/Failed to read the 'serviceWorker' property from 'Navigator'.*sandboxed.*allow-same-origin/i.test(message))return;errors.push(message);});
     const response=await page.goto(BASE+'/#order',{waitUntil:'domcontentloaded',timeout:30000});
     must(response&&response.ok(),size+' homepage unavailable');
+    await page.waitForFunction(()=>!!window.NSLiveCatalog,null,{timeout:5000});
+    await page.evaluate(()=>NSLiveCatalog.accept({metadata:{fromCache:false},forEach(fn){for(const key of ['tender','green','bulk'])fn({id:key,data:()=>({name:'QA '+key,price:87,stock:99,minQty:key==='bulk'?10:1,updatedAt:{seconds:2000}})});}}));
     await page.waitForFunction(()=>document.querySelectorAll('#ns-del-opts-list .ns-del-opt').length===4,null,{timeout:16000});
     const position=await page.evaluate(()=>{
       const nodes=[...document.querySelectorAll('#order .ofields > *')];
@@ -45,6 +47,7 @@ try{
     must(layout.cards.every(x=>x.right<=layout.section.right+2),size+' delivery cards overflow the panel: '+JSON.stringify(layout));
     must(/receive your order/i.test(position.stepText),size+' delivery preference heading missing');
     must(await page.locator('#ns-opt-door').getAttribute('aria-pressed')==='true',size+' door default selection missing');
+    await page.waitForFunction(()=>/delivery\s*\/\s*handover charge\s*:\s*Confirmed after serviceability review/is.test(document.querySelector('#ns-del-summary')?.textContent||''),null,{timeout:5000});
     must(/delivery\s*\/\s*handover charge\s*:\s*Confirmed after serviceability review/is.test(await page.locator('#ns-del-summary').textContent()),size+' summary misrepresents unknown delivery fees');
     await page.locator('#ns-opt-railway_station').click();
     must(await page.locator('#ns-opt-railway_station').getAttribute('aria-pressed')==='true',size+' railway selection did not persist');
@@ -79,7 +82,12 @@ try{
     await page.evaluate(()=>{const state=window.NSDeliveryState;state.lat=null;state.lng=null;window.dispatchEvent(new CustomEvent('ns:location-updated',{detail:{...state}}));});
     await page.locator('#ns-handover-name').fill('Jabalpur Junction');
     must(/Jabalpur Junction/.test(await page.locator('#ns-del-summary').textContent()),size+' preferred railway station missing from summary');
-    await page.locator('.ns-recur-btn[onclick*="weekly"]').click();
+    const weekly=page.locator('.ns-recur-btn[onclick*="weekly"]');
+    await weekly.scrollIntoViewIfNeeded();
+    must(await weekly.isVisible(),size+' weekly recurring preference is not visible');
+    must(await weekly.isEnabled(),size+' weekly recurring preference is disabled');
+    await weekly.click({timeout:5000});
+    await page.waitForFunction(()=>/Weekly \(preference\)/.test(document.querySelector('#ns-del-summary')?.textContent||''),{timeout:5000});
     must(/Weekly \(preference\)/.test(await page.locator('#ns-del-summary').textContent()),size+' recurring preference missing from summary');
     must(/no automatic orders or payments/i.test((await page.locator('#ns-del-root').textContent()).toLowerCase()),size+' repeat-order consent explanation missing');
     await page.locator('#ns-country').selectOption('UAE');

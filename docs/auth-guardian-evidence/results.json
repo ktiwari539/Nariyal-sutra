@@ -1,0 +1,360 @@
+{
+  "ok": true,
+  "checks": [
+    "customer nariyal-signature desktop: all art loaded and visible",
+    "customer nariyal-signature desktop: subtle idle; intended element count",
+    "customer nariyal-signature desktop: gaze affects primary only",
+    "customer nariyal-signature desktop: eyes closed; privacy turn and leaf cover",
+    "customer nariyal-signature desktop: only one eye peeks",
+    "customer nariyal-signature desktop: Hide closes eyes immediately",
+    "customer nariyal-signature desktop: CLS 0; no overflow; decorative; selective images",
+    "customer nariyal-signature mobile: all art loaded and visible",
+    "customer nariyal-signature mobile: subtle idle; intended element count",
+    "customer nariyal-signature mobile: gaze affects primary only",
+    "customer nariyal-signature mobile: eyes closed; privacy turn and leaf cover",
+    "customer nariyal-signature mobile: only one eye peeks",
+    "customer nariyal-signature mobile: Hide closes eyes immediately",
+    "customer nariyal-signature mobile: CLS 0; no overflow; decorative; selective images",
+    "customer fresh-grove desktop: all art loaded and visible",
+    "customer fresh-grove desktop: subtle idle; intended element count",
+    "customer fresh-grove desktop: gaze affects primary only",
+    "customer fresh-grove desktop: eyes closed; privacy turn and leaf cover",
+    "customer fresh-grove desktop: only one eye peeks",
+    "customer fresh-grove desktop: Hide closes eyes immediately",
+    "customer fresh-grove desktop: CLS 0; no overflow; decorative; selective images",
+    "customer fresh-grove mobile: all art loaded and visible",
+    "customer fresh-grove mobile: subtle idle; intended element count",
+    "customer fresh-grove mobile: gaze affects primary only",
+    "customer fresh-grove mobile: eyes closed; privacy turn and leaf cover",
+    "customer fresh-grove mobile: only one eye peeks",
+    "customer fresh-grove mobile: Hide closes eyes immediately",
+    "customer fresh-grove mobile: CLS 0; no overflow; decorative; selective images",
+    "customer coastal-premium desktop: all art loaded and visible",
+    "customer coastal-premium desktop: subtle idle; intended element count",
+    "customer coastal-premium desktop: gaze affects primary only",
+    "customer coastal-premium desktop: eyes closed; privacy turn and leaf cover",
+    "customer coastal-premium desktop: only one eye peeks",
+    "customer coastal-premium desktop: Hide closes eyes immediately",
+    "customer coastal-premium desktop: CLS 0; no overflow; decorative; selective images",
+    "customer coastal-premium mobile: all art loaded and visible",
+    "customer coastal-premium mobile: subtle idle; intended element count",
+    "customer coastal-premium mobile: gaze affects primary only",
+    "customer coastal-premium mobile: eyes closed; privacy turn and leaf cover",
+    "customer coastal-premium mobile: only one eye peeks",
+    "customer coastal-premium mobile: Hide closes eyes immediately",
+    "customer coastal-premium mobile: CLS 0; no overflow; decorative; selective images",
+    "customer golden-harvest desktop: all art loaded and visible",
+    "customer golden-harvest desktop: subtle idle; intended element count",
+    "customer golden-harvest desktop: gaze affects primary only",
+    "customer golden-harvest desktop: eyes closed; privacy turn and leaf cover",
+    "customer golden-harvest desktop: only one eye peeks",
+    "customer golden-harvest desktop: Hide closes eyes immediately",
+    "customer golden-harvest desktop: CLS 0; no overflow; decorative; selective images",
+    "customer golden-harvest mobile: all art loaded and visible",
+    "customer golden-harvest mobile: subtle idle; intended element count",
+    "customer golden-harvest mobile: gaze affects primary only",
+    "customer golden-harvest mobile: eyes closed; privacy turn and leaf cover",
+    "customer golden-harvest mobile: only one eye peeks",
+    "customer golden-harvest mobile: Hide closes eyes immediately",
+    "customer golden-harvest mobile: CLS 0; no overflow; decorative; selective images",
+    "customer: actual success reaches account/destination without animation gate",
+    "customer: no audio before opt-in",
+    "customer: email typing and error feedback remain silent",
+    "customer: signature, rustle and tick scheduled only after opt-in",
+    "customer: OFF stops and suppresses subsequent cues",
+    "customer: reduced motion removes all animation, transitions and gaze",
+    "admin nariyal-signature desktop: all art loaded and visible",
+    "admin nariyal-signature desktop: subtle idle; intended element count",
+    "admin nariyal-signature desktop: gaze affects primary only",
+    "admin nariyal-signature desktop: eyes closed; privacy turn and leaf cover",
+    "admin nariyal-signature desktop: only one eye peeks",
+    "admin nariyal-signature desktop: Hide closes eyes immediately",
+    "admin nariyal-signature desktop: CLS 0; no overflow; decorative; selective images",
+    "admin nariyal-signature mobile: all art loaded and visible",
+    "admin nariyal-signature mobile: subtle idle; intended element count",
+    "admin nariyal-signature mobile: gaze affects primary only",
+    "admin nariyal-signature mobile: eyes closed; privacy turn and leaf cover",
+    "admin nariyal-signature mobile: only one eye peeks",
+    "admin nariyal-signature mobile: Hide closes eyes immediately",
+    "admin nariyal-signature mobile: CLS 0; no overflow; decorative; selective images",
+    "admin fresh-grove desktop: all art loaded and visible",
+    "admin fresh-grove desktop: subtle idle; intended element count",
+    "admin fresh-grove desktop: gaze affects primary only",
+    "admin fresh-grove desktop: eyes closed; privacy turn and leaf cover",
+    "admin fresh-grove desktop: only one eye peeks",
+    "admin fresh-grove desktop: Hide closes eyes immediately",
+    "admin fresh-grove desktop: CLS 0; no overflow; decorative; selective images",
+    "admin fresh-grove mobile: all art loaded and visible",
+    "admin fresh-grove mobile: subtle idle; intended element count",
+    "admin fresh-grove mobile: gaze affects primary only",
+    "admin fresh-grove mobile: eyes closed; privacy turn and leaf cover",
+    "admin fresh-grove mobile: only one eye peeks",
+    "admin fresh-grove mobile: Hide closes eyes immediately",
+    "admin fresh-grove mobile: CLS 0; no overflow; decorative; selective images",
+    "admin coastal-premium desktop: all art loaded and visible",
+    "admin coastal-premium desktop: subtle idle; intended element count",
+    "admin coastal-premium desktop: gaze affects primary only",
+    "admin coastal-premium desktop: eyes closed; privacy turn and leaf cover",
+    "admin coastal-premium desktop: only one eye peeks",
+    "admin coastal-premium desktop: Hide closes eyes immediately",
+    "admin coastal-premium desktop: CLS 0; no overflow; decorative; selective images",
+    "admin coastal-premium mobile: all art loaded and visible",
+    "admin coastal-premium mobile: subtle idle; intended element count",
+    "admin coastal-premium mobile: gaze affects primary only",
+    "admin coastal-premium mobile: eyes closed; privacy turn and leaf cover",
+    "admin coastal-premium mobile: only one eye peeks",
+    "admin coastal-premium mobile: Hide closes eyes immediately",
+    "admin coastal-premium mobile: CLS 0; no overflow; decorative; selective images",
+    "admin golden-harvest desktop: all art loaded and visible",
+    "admin golden-harvest desktop: subtle idle; intended element count",
+    "admin golden-harvest desktop: gaze affects primary only",
+    "admin golden-harvest desktop: eyes closed; privacy turn and leaf cover",
+    "admin golden-harvest desktop: only one eye peeks",
+    "admin golden-harvest desktop: Hide closes eyes immediately",
+    "admin golden-harvest desktop: CLS 0; no overflow; decorative; selective images",
+    "admin golden-harvest mobile: all art loaded and visible",
+    "admin golden-harvest mobile: subtle idle; intended element count",
+    "admin golden-harvest mobile: gaze affects primary only",
+    "admin golden-harvest mobile: eyes closed; privacy turn and leaf cover",
+    "admin golden-harvest mobile: only one eye peeks",
+    "admin golden-harvest mobile: Hide closes eyes immediately",
+    "admin golden-harvest mobile: CLS 0; no overflow; decorative; selective images",
+    "admin: actual success reaches account/destination without animation gate",
+    "admin: no audio before opt-in",
+    "admin: email typing and error feedback remain silent",
+    "admin: signature, rustle and tick scheduled only after opt-in",
+    "admin: OFF stops and suppresses subsequent cues",
+    "admin: reduced motion removes all animation, transitions and gaze",
+    "Off defeats pending audio resume race",
+    "privacy: real audio render is finite, quiet, unclipped, bounded",
+    "peek: real audio render is finite, quiet, unclipped, bounded",
+    "signature: real audio render is finite, quiet, unclipped, bounded",
+    "No Guardian runtime exceptions"
+  ],
+  "errors": [],
+  "metrics": [
+    {
+      "kind": "customer",
+      "theme": "nariyal-signature",
+      "size": "desktop",
+      "cls": 0,
+      "art": [
+        "golden.webp",
+        "signature.webp",
+        "palm.webp"
+      ],
+      "overflow": false,
+      "decorative": true,
+      "intensity": "1"
+    },
+    {
+      "kind": "customer",
+      "theme": "nariyal-signature",
+      "size": "mobile",
+      "cls": 0,
+      "art": [
+        "golden.webp",
+        "signature.webp",
+        "palm.webp"
+      ],
+      "overflow": false,
+      "decorative": true,
+      "intensity": "1"
+    },
+    {
+      "kind": "customer",
+      "theme": "fresh-grove",
+      "size": "desktop",
+      "cls": 0,
+      "art": [
+        "coastal.webp",
+        "fresh.webp",
+        "palm.webp"
+      ],
+      "overflow": false,
+      "decorative": true,
+      "intensity": "1"
+    },
+    {
+      "kind": "customer",
+      "theme": "fresh-grove",
+      "size": "mobile",
+      "cls": 0,
+      "art": [
+        "coastal.webp",
+        "fresh.webp",
+        "palm.webp"
+      ],
+      "overflow": false,
+      "decorative": true,
+      "intensity": "1"
+    },
+    {
+      "kind": "customer",
+      "theme": "coastal-premium",
+      "size": "desktop",
+      "cls": 0,
+      "art": [
+        "fresh.webp",
+        "coastal.webp",
+        "palm.webp"
+      ],
+      "overflow": false,
+      "decorative": true,
+      "intensity": "1"
+    },
+    {
+      "kind": "customer",
+      "theme": "coastal-premium",
+      "size": "mobile",
+      "cls": 0,
+      "art": [
+        "fresh.webp",
+        "palm.webp",
+        "coastal.webp"
+      ],
+      "overflow": false,
+      "decorative": true,
+      "intensity": "1"
+    },
+    {
+      "kind": "customer",
+      "theme": "golden-harvest",
+      "size": "desktop",
+      "cls": 0,
+      "art": [
+        "signature.webp",
+        "golden.webp",
+        "palm.webp"
+      ],
+      "overflow": false,
+      "decorative": true,
+      "intensity": "1"
+    },
+    {
+      "kind": "customer",
+      "theme": "golden-harvest",
+      "size": "mobile",
+      "cls": 0,
+      "art": [
+        "signature.webp",
+        "golden.webp",
+        "palm.webp"
+      ],
+      "overflow": false,
+      "decorative": true,
+      "intensity": "1"
+    },
+    {
+      "kind": "admin",
+      "theme": "nariyal-signature",
+      "size": "desktop",
+      "cls": 0,
+      "art": [
+        "palm.webp",
+        "signature.webp"
+      ],
+      "overflow": false,
+      "decorative": true,
+      "intensity": ".35"
+    },
+    {
+      "kind": "admin",
+      "theme": "nariyal-signature",
+      "size": "mobile",
+      "cls": 0,
+      "art": [
+        "signature.webp",
+        "palm.webp"
+      ],
+      "overflow": false,
+      "decorative": true,
+      "intensity": ".35"
+    },
+    {
+      "kind": "admin",
+      "theme": "fresh-grove",
+      "size": "desktop",
+      "cls": 0,
+      "art": [
+        "fresh.webp",
+        "palm.webp"
+      ],
+      "overflow": false,
+      "decorative": true,
+      "intensity": ".35"
+    },
+    {
+      "kind": "admin",
+      "theme": "fresh-grove",
+      "size": "mobile",
+      "cls": 0,
+      "art": [
+        "fresh.webp",
+        "palm.webp"
+      ],
+      "overflow": false,
+      "decorative": true,
+      "intensity": ".35"
+    },
+    {
+      "kind": "admin",
+      "theme": "coastal-premium",
+      "size": "desktop",
+      "cls": 0,
+      "art": [
+        "coastal.webp",
+        "palm.webp"
+      ],
+      "overflow": false,
+      "decorative": true,
+      "intensity": ".35"
+    },
+    {
+      "kind": "admin",
+      "theme": "coastal-premium",
+      "size": "mobile",
+      "cls": 0,
+      "art": [
+        "coastal.webp",
+        "palm.webp"
+      ],
+      "overflow": false,
+      "decorative": true,
+      "intensity": ".35"
+    },
+    {
+      "kind": "admin",
+      "theme": "golden-harvest",
+      "size": "desktop",
+      "cls": 0,
+      "art": [
+        "golden.webp",
+        "palm.webp"
+      ],
+      "overflow": false,
+      "decorative": true,
+      "intensity": ".35"
+    },
+    {
+      "kind": "admin",
+      "theme": "golden-harvest",
+      "size": "mobile",
+      "cls": 0,
+      "art": [
+        "golden.webp",
+        "palm.webp"
+      ],
+      "overflow": false,
+      "decorative": true,
+      "intensity": ".35"
+    }
+  ],
+  "limits": [
+    "Chromium desktop/mobile emulation; physical iOS/Safari not available.",
+    "All Firebase adapters intercepted; no production credentials or data.",
+    "Motion recordings are silent; real procedural audio renders supplied separately.",
+    "Success expression close-ups are explicitly held pose inspections; actual unblocked login is separately recorded and asserted.",
+    "CLS measurement covers auth shell sources during local fixture runs; it is not a production field metric."
+  ]
+}

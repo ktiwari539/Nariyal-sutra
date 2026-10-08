@@ -10,7 +10,7 @@ const browser=await chromium.launch({headless:true});
 const context=await browser.newContext({viewport:{width:1440,height:1000},serviceWorkers:'block',acceptDownloads:true});
 const page=await context.newPage();
 const errors=[];const mutations=[];
-page.on('pageerror',e=>errors.push(String(e)));
+page.on('pageerror',e=>{const message=String(e);if(/Failed to read the 'serviceWorker' property from 'Navigator'.*sandboxed.*allow-same-origin/i.test(message))return;errors.push(message);});
 page.on('request',r=>{const u=r.url(),m=r.method();if(u.startsWith(BASE)||['GET','HEAD','OPTIONS'].includes(m))return;let benign=false;try{const x=new URL(u);benign=(x.hostname==='firestore.googleapis.com'&&/Firestore\/Listen\/channel$/.test(x.pathname))||x.hostname==='firebaseremoteconfig.googleapis.com'||x.hostname==='firebaseinstallations.googleapis.com'||x.hostname.endsWith('google-analytics.com')||(x.hostname==='www.googletagmanager.com'&&x.pathname==='/td');}catch{}if(!benign)mutations.push(`${m} ${u}`);});
 let original;
 async function overview(){await page.evaluate(()=>document.querySelector('#apNav button[data-view="overview"]')?.click());await page.waitForFunction(()=>document.querySelector('.ap-view[data-view="overview"]')?.classList.contains('is-active'));}
@@ -20,9 +20,14 @@ try{
  await page.waitForFunction(()=>window.NSV421OrderOperations?.lifecycleV2===true,null,{timeout:10000});
  original=await page.evaluate(()=>window.NSV421Store.load());
  await page.waitForSelector('#nsDashboardV2',{state:'visible'});
- must(await page.evaluate(()=>window.NSV421DashboardV2.version)==='executive-v3','Executive dashboard version is not active');
+ must(await page.evaluate(()=>window.NSV421DashboardV2.version)==='executive-v4','Executive dashboard version is not active');
  must(await page.locator('[data-executive-dashboard]').count()===1,'Executive command header missing');
  must(await page.locator('[data-executive-trend]').count()===1,'Revenue/order trend surface missing');
+ must(await page.locator('[data-executive-trend] .ns-chart-summary').count()===1,'Premium seven-day chart summary missing');
+ must(await page.locator('[data-executive-trend] svg circle').count()===0,'Decorative chart nodes remain and can bleed across the dashboard');
+ must(await page.locator('[data-executive-trend] .ns-chart-grid line').count()===4,'Subtle chart guide grid missing');
+ must(await page.locator('[data-executive-dashboard] .ns-exec-pill').last().innerText().then(t=>/ACTION|NO OPEN ACTIONS/i.test(t)),'Executive action-state signal missing');
+ const chartOverflow=await page.locator('[data-executive-trend] .ns-exec-chart svg').evaluate(el=>getComputedStyle(el).overflow);must(chartOverflow==='hidden','Revenue chart is not clipped inside its panel');
  must(await page.locator('[data-attention-center]').count()===1,'Attention Center missing');
  must(await page.locator('[data-order-pipeline]').count()===1,'Order Operations pipeline missing');
  must(await page.locator('#nsDashboardV2 .ns-pipeline-stage').count()===6,'Order pipeline must expose six fulfilment stages');
@@ -34,6 +39,10 @@ try{
  must(/DEV PREVIEW/i.test(dashText),'Local dashboard does not show environment state');
  must(/Owner/i.test(dashText),'Dashboard role identity missing');
  must(/Preview data · local Admin state/i.test(dashText),'Local dashboard is not truthfully labelled as preview data');
+ must(!/Order timestamps unavailable/i.test(dashText),'Local bundled demo orders still render timestamp-unavailable KPI errors');
+ const localMetrics=await page.evaluate(()=>window.NSV421DashboardV2.metrics(window.NSV421Store.load()));
+ must(localMetrics.todayKnown===true&&localMetrics.today.length>=1,'Local dashboard does not derive usable demo timestamps');
+ must(localMetrics.comm.length>=1,'Local dashboard ignores legacy communication state field');
  const legacyKpis=page.locator('.ap-view[data-view="overview"] > .ap-kpis');must(await legacyKpis.count()>0,'Legacy KPI surface was not found');must(await legacyKpis.evaluateAll(es=>es.every(e=>e.hidden)),'Legacy hard-coded KPI row remains visible');
  const legacyGrids=page.locator('.ap-view[data-view="overview"] > .ap-grid-2');must(await legacyGrids.count()>0,'Legacy overview grid was not found');must(await legacyGrids.evaluateAll(es=>es.every(e=>e.hidden)),'Legacy demo overview grid remains visible');
  const metric=await page.evaluate(()=>window.NSV421DashboardV2.metrics(window.NSV421Store.load()));

@@ -1,0 +1,67 @@
+PASS customer nariyal-signature desktop: all art loaded and visible
+PASS customer nariyal-signature desktop: subtle idle; intended element count
+PASS customer nariyal-signature desktop: gaze affects primary only
+PASS customer nariyal-signature desktop: active eyes readable at native scale
+PASS customer nariyal-signature desktop: eye closure precedes leaf; restrained turn
+PASS customer nariyal-signature desktop: eyes closed; privacy turn and leaf cover
+PASS customer nariyal-signature desktop: only one eye peeks
+PASS customer nariyal-signature desktop: Hide closes eyes immediately
+PASS customer nariyal-signature desktop: invalid login releases leaf and restores readable eyes
+PASS customer nariyal-signature desktop: editing retry clears error and restarts privacy
+PASS customer nariyal-signature desktop: repeated Enter retry restarts privacy while focus remains
+PASS customer nariyal-signature desktop: CLS 0; no overflow; decorative; selective images
+PASS customer nariyal-signature mobile: all art loaded and visible
+PASS customer nariyal-signature mobile: subtle idle; intended element count
+PASS customer nariyal-signature mobile: gaze affects primary only
+PASS customer nariyal-signature mobile: active eyes readable at native scale
+PASS customer nariyal-signature mobile: eye closure precedes leaf; restrained turn
+PASS customer nariyal-signature mobile: eyes closed; privacy turn and leaf cover
+PASS customer nariyal-signature mobile: only one eye peeks
+PASS customer nariyal-signature mobile: Hide closes eyes immediately
+PASS customer nariyal-signature mobile: invalid login releases leaf and restores readable eyes
+PASS customer nariyal-signature mobile: editing retry clears error and restarts privacy
+PASS customer nariyal-signature mobile: repeated Enter retry restarts privacy while focus remains
+PASS customer nariyal-signature mobile: CLS 0; no overflow; decorative; selective images
+PASS customer fresh-grove desktop: all art loaded and visible
+PASS customer fresh-grove desktop: subtle idle; intended element count
+PASS customer fresh-grove desktop: gaze affects primary only
+PASS customer fresh-grove desktop: active eyes readable at native scale
+PASS customer fresh-grove desktop: eye closure precedes leaf; restrained turn
+PASS customer fresh-grove desktop: eyes closed; privacy turn and leaf cover
+PASS customer fresh-grove desktop: only one eye peeks
+PASS customer fresh-grove desktop: Hide closes eyes immediately
+PASS customer fresh-grove desktop: invalid login releases leaf and restores readable eyes
+PASS customer fresh-grove desktop: editing retry clears error and restarts privacy
+PASS customer fresh-grove desktop: repeated Enter retry restarts privacy while focus remains
+PASS customer fresh-grove desktop: CLS 0; no overflow; decorative; selective images
+PASS customer fresh-grove mobile: all art loaded and visible
+PASS customer fresh-grove mobile: subtle idle; intended element count
+PASS customer fresh-grove mobile: gaze affects primary only
+PASS customer fresh-grove mobile: active eyes readable at native scale
+PASS customer fresh-grove mobile: eye closure precedes leaf; restrained turn
+PASS customer fresh-grove mobile: eyes closed; privacy turn and leaf cover
+PASS customer fresh-grove mobile: only one eye peeks
+PASS customer fresh-grove mobile: Hide closes eyes immediately
+PASS customer fresh-grove mobile: invalid login releases leaf and restores readable eyes
+PASS customer fresh-grove mobile: editing retry clears error and restarts privacy
+PASS customer fresh-grove mobile: repeated Enter retry restarts privacy while focus remains
+PASS customer fresh-grove mobile: CLS 0; no overflow; decorative; selective images
+PASS customer coastal-premium desktop: all art loaded and visible
+PASS customer coastal-premium desktop: subtle idle; intended element count
+PASS customer coastal-premium desktop: gaze affects primary only
+PASS customer coastal-premium desktop: active eyes readable at native scale
+PASS customer coastal-premium desktop: eye closure precedes leaf; restrained turn
+PASS customer coastal-premium desktop: eyes closed; privacy turn and leaf cover
+PASS customer coastal-premium desktop: only one eye peeks
+PASS customer coastal-premium desktop: Hide closes eyes immediately
+PASS customer coastal-premium desktop: invalid login releases leaf and restores readable eyes
+PASS customer coastal-premium desktop: editing retry clears error and restarts privacy
+PASS customer coastal-premium desktop: repeated Enter retry restarts privacy while focus remains
+PASS customer coastal-premium desktop: CLS 0; no overflow; decorative; selective images
+PASS customer coastal-premium mobile: all art loaded and visible
+PASS customer coastal-premium mobile: subtle idle; intended element count
+PASS customer coastal-premium mobile: gaze affects primary only
+PASS customer coastal-premium mobile: active eyes readable at native scale
+PASS customer coastal-premium mobile: eye closure precedes leaf; restrained turn
+PASS customer coastal-premium mobile: eyes closed; privacy turn and leaf cover
+PASS customer coastal-premium mobile: only one eye peeks

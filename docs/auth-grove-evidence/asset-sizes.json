@@ -1,0 +1,25 @@
+{
+  "assets": [
+    {
+      "path": "assets/images/brand/grove/coastal.webp",
+      "bytes": 414930
+    },
+    {
+      "path": "assets/images/brand/grove/fresh.webp",
+      "bytes": 390584
+    },
+    {
+      "path": "assets/images/brand/grove/golden.webp",
+      "bytes": 659032
+    },
+    {
+      "path": "assets/images/brand/grove/palm.webp",
+      "bytes": 284166
+    },
+    {
+      "path": "assets/images/brand/grove/signature.webp",
+      "bytes": 630016
+    }
+  ],
+  "totalBytes": 2378728
+}

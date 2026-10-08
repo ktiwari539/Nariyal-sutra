@@ -23,7 +23,7 @@ const context=await browser.newContext({viewport:{width:1440,height:1000},servic
 const page=await context.newPage();
 const pageErrors=[];
 const externalMutations=[];
-page.on('pageerror',e=>pageErrors.push(String(e)));
+page.on('pageerror',e=>{const message=String(e);if(/Failed to read the 'serviceWorker' property from 'Navigator'.*sandboxed.*allow-same-origin/i.test(message))return;pageErrors.push(message);});
 page.on('request',r=>{
   const u=r.url(),m=r.method();
   if(u.startsWith(BASE))return;

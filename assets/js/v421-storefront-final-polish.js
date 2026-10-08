@@ -6,7 +6,7 @@ const Store=window.NSV421Store;
 
 /* Curated defaults are fallbacks only. Explicit Admin sectionMedia selections always win. */
 const LOCAL_HARVEST=[
-  '/assets/images/review/coastal-grove.png',
+  '/assets/images/review/coastal-grove.webp',
   '/assets/images/website-media/ws005-field-harvest-workers.webp',
   '/assets/images/website-media/ws006-tender-coconut-basket.webp'
 ];
@@ -92,8 +92,8 @@ function diversifyHomepageMedia(){
   if(heroSrc)setImg('.hero-visual img',heroSrc,'Nariyal Sutra homepage hero');
   setImg('#people-of-nariyal .ns-people-visual img',configuredMedia('homepage-people-teaser')||'/assets/images/ambassadors/G001.webp','Nariyal Sutra community and people story');
 
-  setImg('.promise-portal.coast img','/assets/images/review/coastal-grove.png','Gujarat coastal coconut sourcing story');
-  setImg('.promise-portal.grove img','/assets/images/review/backwater-grove.png','South India coconut backwater and canopy story');
+  setImg('.promise-portal.coast img','/assets/images/review/coastal-grove.webp','Gujarat coastal coconut sourcing story');
+  setImg('.promise-portal.grove img','/assets/images/review/backwater-grove.webp','South India coconut backwater and canopy story');
   setImg('.promise-portal.farm img','/assets/images/website-media/ws003-harvest-hands.webp','Direct coconut harvest and source handling story');
 
   const brand=document.querySelector('.brand-moment-bg');

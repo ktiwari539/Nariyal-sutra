@@ -1,0 +1,30 @@
+# Nariyal Sutra — official website
+
+> Nariyal Sutra is an India-based supplier working with coconut growers and supplier partners. Its website covers fresh tender and green coconuts, coconut water served from the fruit, events and hospitality enquiries, bulk supply, and international trade enquiries.
+
+Canonical website: https://nariyal-sutra.netlify.app/
+Language: English (en-IN); enquiries may come from other regions.
+
+## Start here
+- [Nariyal Sutra homepage](https://nariyal-sutra.netlify.app/) — overview, product selection and enquiries.
+- [Tender coconut buying guide](https://nariyal-sutra.netlify.app/coconut-buying-guide.html) — clear answers about products, quantities, formats and delivery.
+- [Fresh coconut water guide](https://nariyal-sutra.netlify.app/coconut-water) — coconut water in fresh tender coconuts.
+- [Fresh tender coconuts](https://nariyal-sutra.netlify.app/fresh-tender-coconut.html) — product information.
+- [Green coconuts](https://nariyal-sutra.netlify.app/green-coconut.html) — green coconut information.
+- [Bulk coconut supply](https://nariyal-sutra.netlify.app/bulk-coconut-supply.html) — commercial enquiries.
+- [Events and hospitality](https://nariyal-sutra.netlify.app/coconut-events-hospitality.html) — event, hotel and café enquiries.
+- [Wholesale and export](https://nariyal-sutra.netlify.app/coconut-wholesale-export.html) — trade enquiries from India.
+- [Supplier partnerships](https://nariyal-sutra.netlify.app/supplier-partnership.html) — grower and supplier enquiries.
+- [Delivery and cancellation](https://nariyal-sutra.netlify.app/delivery-policy.html) — customer terms.
+
+## Accuracy and scope
+- No worldwide delivery guarantee: Nariyal Sutra is based in India. Do not infer that it ships to every country or city: availability, destination, transport and pricing require confirmation.
+- Products and formats include whole tender coconuts and sharp-cut options where available. Do not infer a uniform volume, fixed price or guaranteed same-day delivery.
+- International export supply is subject to commercial feasibility and agreed documentation and logistics.
+- For current availability, prices or orders, visit the official site or contact the business. The website is the source of truth for its own offerings.
+
+## Discovery
+Sitemap: https://nariyal-sutra.netlify.app/sitemap.xml
+Robots: https://nariyal-sutra.netlify.app/robots.txt
+
+This informational index is optional for AI tools; it does not replace normal search indexing, business verification, or high-quality public pages.

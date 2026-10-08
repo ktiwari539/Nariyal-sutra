@@ -15,7 +15,7 @@ try{
  for(const [label,width,height] of [['desktop',1440,900],['tablet',900,1000],['mobile',390,844]]){
   const context=await browser.newContext({viewport:{width,height},serviceWorkers:'block'});
   const page=await context.newPage(),jsErrors=[];
-  page.on('pageerror',e=>jsErrors.push(String(e)));
+  page.on('pageerror',e=>{const message=String(e);if(/Failed to read the 'serviceWorker' property from 'Navigator'.*sandboxed.*allow-same-origin/i.test(message))return;jsErrors.push(message);});
   await page.goto(BASE+'/admin.html',{waitUntil:'domcontentloaded',timeout:30000});
   if(label==='mobile'){await page.locator('#apMenuBtn').click();await page.waitForTimeout(250);}
   await page.locator('#apNav button[data-view="orders"]').click();

@@ -1,0 +1,14 @@
+{
+  "ok": true,
+  "checks": [
+    "customer nariyal-signature: closed-eye frame has no open iris",
+    "customer fresh-grove: closed-eye frame has no open iris",
+    "customer coastal-premium: closed-eye frame has no open iris",
+    "customer golden-harvest: closed-eye frame has no open iris",
+    "admin nariyal-signature: closed-eye frame has no open iris",
+    "admin fresh-grove: closed-eye frame has no open iris",
+    "admin coastal-premium: closed-eye frame has no open iris",
+    "admin golden-harvest: closed-eye frame has no open iris"
+  ],
+  "method": "Actual CSS timeline paused at 260ms, before leaf begins at 280ms."
+}

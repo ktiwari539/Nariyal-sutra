@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-const FALLBACK=['/assets/images/review/coastal-grove.png','/assets/images/review/backwater-grove.png','/assets/images/nariyal-coconut-grove.webp'];
+const FALLBACK=['/assets/images/review/coastal-grove.webp','/assets/images/review/backwater-grove.webp','/assets/images/nariyal-coconut-grove.webp'];
 function largeReady(m){if(!m||m.status!=='Approved'||m.visible===false||m.publicAllowed===false||m.brandFit==='Weak'||!(m.src||m.thumb))return false;if(m.largeSurfaceAllowed===false)return false;const w=Number(m.width||0),h=Number(m.height||0);return !w||!h||(Math.max(w,h)>=1000&&Math.min(w,h)>=600);}
 function eligibleOriginMedia(s){
   const Store=window.NSV421Store;if(!Store)return [];

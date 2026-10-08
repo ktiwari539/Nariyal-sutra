@@ -1,0 +1,20 @@
+{
+  "ok": true,
+  "checks": [
+    "Sanitized resolver matches storefront effective theme case 0",
+    "Sanitized resolver matches storefront effective theme case 1",
+    "Sanitized resolver matches storefront effective theme case 2",
+    "Sanitized resolver matches storefront effective theme case 3",
+    "Sanitized resolver matches storefront effective theme case 4",
+    "Sanitized resolver matches storefront effective theme case 5",
+    "Sanitized resolver matches storefront effective theme case 6",
+    "Sanitized resolver matches storefront effective theme case 7",
+    "Public response contains only allowlisted theme id",
+    "Theme endpoint reads only publicStories with no credentials or Admin bypass",
+    "Theme endpoint refuses all writes",
+    "Permission/App Check failure falls back safely",
+    "Network failure falls back safely",
+    "Unpublished source never affects auth",
+    "Animation code has no input-content/storage/analytics/network reads"
+  ]
+}

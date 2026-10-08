@@ -65,8 +65,8 @@ const sourceHeaders=fs.readFileSync(path.join(root,'_headers'),'utf8');
 if(!/upgrade-insecure-requests/i.test(sourceHeaders)) throw new Error('Production _headers unexpectedly lost upgrade-insecure-requests');
 if(/upgrade-insecure-requests/i.test(headers)) throw new Error('Netlify Dev _headers still contains upgrade-insecure-requests');
 if(residual.length) throw new Error(`Netlify Dev output still references the production site origin: ${residual.slice(0,12).join(', ')}`);
-for(const required of ['index.html','admin.html','admin-preview.html','admin-login.html','track.html','people-of-nariyal-sutra.html','assets/images/people-uploads/U002.png']){
+for(const required of ['index.html','admin.html','admin-preview.html','admin-login.html','track.html','people-of-nariyal-sutra.html','assets/images/people-uploads/U002.png','assets/images/people-uploads/U002.webp']){
   if(!fs.existsSync(path.join(out,required))) throw new Error(`Generated Netlify Dev output missing ${required}`);
 }
 
-console.log('NETLIFY DEV PREP: PASS',JSON.stringify({output:'.netlify-dev',rewrittenFiles,rewrittenRefs,productionHeadersPreserved:true,devUpgradeInsecureRequests:false,devAdminDirect:true,u002Present:true}));
+console.log('NETLIFY DEV PREP: PASS',JSON.stringify({output:'.netlify-dev',rewrittenFiles,rewrittenRefs,productionHeadersPreserved:true,devUpgradeInsecureRequests:false,devAdminDirect:true,u002OriginalPresent:true,u002OptimizedPresent:true}));

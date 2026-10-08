@@ -1,0 +1,21 @@
+// Compare preserved 26a8521 presentation against recovered behavior without checking out either tree.
+import {chromium} from 'playwright';import fs from 'node:fs';import {execFileSync} from 'node:child_process';import * as fixtures from './fixtures/auth-firebase.mjs';
+const base=process.env.NS_QA_BASE_URL||'http://127.0.0.1:4173',out='qa-artifacts/recovery/auth-before-after',shots=[];fs.mkdirSync(out,{recursive:true});const browser=await chromium.launch();
+const presentation=['assets/js/auth-shell.js','assets/css/auth-shell.css','assets/css/auth-guardian.css','admin-login.html','admin-bcc-login.html'];
+for(const revision of (process.env.NS_QA_REVISION?[process.env.NS_QA_REVISION]:['before','after']))for(const theme of ['nariyal-signature','fresh-grove','coastal-premium','golden-harvest'])for(const kind of (process.env.NS_QA_COMPARISON_KIND?[process.env.NS_QA_COMPARISON_KIND]:['customer','admin'])){
+ const c=await browser.newContext({viewport:{width:1440,height:1000},deviceScaleFactor:1});c.setDefaultTimeout(15000);
+ await c.addInitScript(()=>{window.__authCalls=[];window.NS_FIREBASE_READY=true;});
+ await c.route('**/*',r=>{const u=new URL(r.request().url());if(u.origin===base)return r.continue();const m=u.pathname.match(/firebase-(app-check|app|auth|firestore|storage|analytics|performance)\.js/);return m?r.fulfill({contentType:'application/javascript',body:fixtures[m[1]==='app-check'?'appCheck':m[1]]}):r.abort();});
+ await c.route('**/firebase-config.js',r=>r.fulfill({contentType:'application/javascript',body:`window.NS_FIREBASE_CONFIG={apiKey:'qa-only',projectId:'qa-only',appId:'qa-only'};window.NS_ADMIN_CONFIG={ownerUid:'qa-owner',ownerEmail:'owner@example.com'};window.NS_CUSTOMER_AUTH_PROVIDERS={};window.NS_INIT_APP_CHECK=async()=>null;window.NS_FIREBASE_READY=true;`}));
+ if(revision==='before')for(const file of presentation){const body=execFileSync('git',['show','26a8521:'+file],{encoding:'utf8'});await c.route(url=>url.origin===base&&url.pathname==='/'+file,r=>r.fulfill({contentType:file.endsWith('js')?'application/javascript':file.endsWith('css')?'text/css':'text/html',body}));}
+ const p=await c.newPage();await p.goto(base+(kind==='customer'?'/index.html':'/admin-bcc-login.html')+'?themePreview='+theme);
+ if(kind==='customer'){await p.waitForFunction(()=>window.NS_CUSTOMER_CONTEXT?.ready);await p.evaluate(()=>skipIntro());await p.locator('#nsacct-trigger').click();}else await p.waitForFunction(()=>!document.getElementById('submit').disabled);
+ await p.waitForFunction(()=>document.querySelector('.ns-nariyal-scene')?.dataset.guardianReady==='true');await p.waitForTimeout(1000);
+ const email=kind==='customer'?'#nsacct-login-email':'#email',password=kind==='customer'?'#nsacct-login-password':'#pw';
+ for(const state of ['idle','email','privacy','peek','error']){
+  if(state==='email')await p.locator(email).focus();if(state==='privacy')await p.locator(password).focus();if(state==='peek')await p.locator('.ns-auth-reveal').click();
+  if(state==='error'){await p.locator('.ns-auth-reveal').click();await p.locator(email).fill('review@example.com');await p.locator(password).fill('Synthetic-review-123');await p.evaluate(()=>window.__authScenario='wrong-password');await p.keyboard.press('Enter');await p.locator(kind==='customer'?'#nsacct-message.err':'#msg.err').waitFor();await p.evaluate(()=>NSAuthShell.signal(document.querySelector('.ns-auth-shell'),'error')); }
+  await p.waitForTimeout(1100);await p.locator('.ns-auth-art').evaluate(e=>e.scrollIntoView({block:'start',behavior:'instant'}));const file=`${revision}-${kind}-${theme}-${state}.png`;await p.locator('.ns-auth-art').screenshot({path:out+'/'+file});shots.push({revision,kind,theme,state,file});
+ }await c.close();console.log('CAPTURE '+revision+' '+kind+' '+theme);
+}
+await browser.close();const previous=fs.existsSync(out+'/results.json')?JSON.parse(fs.readFileSync(out+'/results.json')).shots:[];const merged=new Map(previous.map(x=>[x.file,x]));for(const shot of shots)merged.set(shot.file,shot);fs.writeFileSync(out+'/results.json',JSON.stringify({ok:true,baseline:'26a852190c75f592fdff2fbaf98ec16bb26b8706',scale:'100%; deviceScaleFactor 1; actual component crop',shots:[...merged.values()]},null,2));

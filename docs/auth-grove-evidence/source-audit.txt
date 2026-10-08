@@ -1,0 +1,6 @@
+
+Nariyal Sutra pre-deploy audit
+Text files checked: 253
+JavaScript files syntax-checked: 151
+
+PASS: stale deploy URLs, local customer-facing images, asset references, required media/runtimes, protected hashes, JS syntax and Netlify function redirects passed.
