@@ -141,6 +141,15 @@ jobs:
       - name: Firestore zero-downtime cutover QA
         run: npx firebase emulators:exec --only firestore --project nariyal-sutra --config firebase.cutover.json "node scripts/firestore-cutover-qa.mjs"
         timeout-minutes: 10
+      - name: Customer profile identity and cutover QA
+        run: npx firebase emulators:exec --only firestore --project demo-nariyal-profile-rules --config firebase.cutover.json "node scripts/customer-profile-rules-qa.mjs"
+        timeout-minutes: 10
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: firebase-customer-profile-evidence
+          path: qa-artifacts/firebase/
+          retention-days: 14
   media-targeted:
     runs-on: ubuntu-latest
     timeout-minutes: 45
