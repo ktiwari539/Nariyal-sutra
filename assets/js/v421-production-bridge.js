@@ -5,7 +5,8 @@ window.__NS_V421_PRODUCTION_BRIDGE__=true;
 const Store=window.NSV421Store;
 if(!Store)return;
 const LOCAL=/^(localhost|127\.0\.0\.1|\[::1\])$/i.test(location.hostname);
-if(LOCAL)return;
+// Fail closed outside the verified production hostname: draft deploys must never write live Firebase data.
+if(LOCAL||location.hostname!=='nariyal-sutra.netlify.app')return;
 const SDK='12.18.0';
 const isAdmin=/admin-preview\.html$/i.test(location.pathname);
 const PUBLIC_KEYS=['sections','pageSequences','sectionMedia','sectionMediaLayout','media','faceMarquee','peopleStreams','harvest','customSections','stories','content','schedule','settings','themeConfig'];
@@ -194,6 +195,30 @@ async function loadCustomerRuntime(){
 }
 function watchPublic(){const ref=fsMod.doc(db,'publicStories','site-config');const unsub=fsMod.onSnapshot(ref,snap=>{if(!snap.exists())return;const data=snap.data();lastPublicHash=configHash(data);mergeIntoLocal([data]);},e=>console.warn('[Nariyal Sutra public config watch]',e));unsubs.push(unsub);}
 function identityDiagnostic(){return {role,uid:user?.uid||'',email:user?.email||'',emailVerified:!!user?.emailVerified,roleStatus:roleRecord?.status||'',roleActive:roleRecord?.active===true,roleSource:roleRecord?.source||'',ownerUid:window.NS_ADMIN_CONFIG?.ownerUid||'',ownerEmail:window.NS_ADMIN_CONFIG?.ownerEmail||'',isConfiguredOwner:!!user&&user.uid===(window.NS_ADMIN_CONFIG?.ownerUid||''),appCheckStatus:window.NS_APP_CHECK_STATUS||'unknown'};}
+function installSignOut(){
+ if(!isAdmin||document.getElementById('apSignOut'))return;
+ const anchor=document.getElementById('apSessionPill');
+ if(!anchor)throw new Error('Admin session control is missing.');
+ const button=document.createElement('button');
+ button.id='apSignOut';button.type='button';button.className='ap-btn';
+ button.textContent='Sign out';button.setAttribute('aria-label','Sign out of secure Admin');
+ button.addEventListener('click',async()=>{
+  if(button.disabled)return;
+  button.disabled=true;button.textContent='Signing out…';
+  const wasReady=remoteReady;remoteReady=false;
+  try{
+   await authMod.signOut(auth);
+   user=null;role='';roleRecord=null;
+   try{sessionStorage.removeItem('ns_v10_admin_session');sessionStorage.removeItem('ns-v421-preview-role');}catch(_){}
+   location.replace('/admin-bcc-login.html?signed_out=1');
+  }catch(err){
+   remoteReady=wasReady;button.disabled=false;button.textContent='Retry sign out';
+   console.error('[BCC] Firebase sign-out failed',err);
+   overlay('Sign-out could not be confirmed. Your session remains active; retry sign-out.');
+  }
+ });
+ anchor.insertAdjacentElement('afterend',button);
+}
 async function initAdmin(){
  overlay('Authenticating secure Business Command Center…');user=await waitAuth();
  if(!user){const next=encodeURIComponent('admin-preview.html'+location.search+location.hash);location.replace('/admin-bcc-login.html?next='+next);return;}
@@ -203,7 +228,7 @@ async function initAdmin(){
  let pub=null,priv=null;try{[pub,priv]=await Promise.all([readPublicOnce(),CONTENT_ROLES.includes(role)?readPrivateOnce():Promise.resolve(null)]);}catch(e){console.warn('[BCC] Remote config initial read failed',e);}
  if(pub||priv)mergeIntoLocal([pub,priv]);
  await syncOperationalData();
- setEnvironmentLabel();lockRole();remoteReady=true;watchPublic();watchFollowups();lastPublicHash=pub?configHash(pub):'';lastPrivateHash=priv?configHash(priv):'';clearOverlay();
+ setEnvironmentLabel();lockRole();installSignOut();remoteReady=true;watchPublic();watchFollowups();lastPublicHash=pub?configHash(pub):'';lastPrivateHash=priv?configHash(priv):'';clearOverlay();
  resolveReady({mode:'admin',role,user,identity:identityDiagnostic()});window.dispatchEvent(new CustomEvent('nsv421:production-ready',{detail:{role,identity:identityDiagnostic()}}));
  loadCustomerRuntime().catch(e=>console.warn('[BCC] Customer runtime bootstrap failed',e));
 }
