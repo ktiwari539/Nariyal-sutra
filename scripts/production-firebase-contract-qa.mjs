@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import vm from 'node:vm';
 import {createRequire} from 'node:module';
 const require=createRequire(import.meta.url);
 const read=p=>fs.readFileSync(p,'utf8');
@@ -16,6 +17,29 @@ has(config,[
   'mod.getToken(window.NS_APP_CHECK_INSTANCE,false)',
   "customerAuthProviders:[\"password\"]"
 ],'firebase-config');
+
+// A draft Netlify hostname must NEVER initialize the production Firebase project.
+// Exercise the actual browser config in a sandbox: no network, secrets, or writes.
+for(const [host,expectedProduction] of [
+  ['nariyal-sutra.netlify.app',true],
+  ['deploy-preview-10--nariyal-sutra.netlify.app',false],
+  ['6aabbbb1784e0d2d89174d0d--nariyal-sutra.netlify.app',false],
+  ['localhost',false],
+  ['127.0.0.1',false],
+  ['some-other-domain.example',false]
+]){
+  const previewWindow={};
+  vm.runInNewContext(config,{
+    window:previewWindow,
+    document:{querySelector:()=>null},
+    location:{hostname:host},
+    console
+  },{timeout:1500});
+  must(!!previewWindow.NS_FIREBASE_CONFIG===expectedProduction,
+    'Firebase production initialization unexpectedly enabled for '+host);
+  must(previewWindow.NS_FIREBASE_LOCAL_DISABLED===!expectedProduction,
+    'Firebase fail-closed flag mismatch for '+host);
+}
 
 const order=read('ns-order-patch.js');
 has(order,[
