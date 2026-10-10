@@ -99,8 +99,12 @@ html[data-ns-theme] #collection .po-btn{background:var(--ns-cta)!important;color
 html[data-ns-theme] #order .ns-del-opt-state{color:inherit!important}
 html[data-ns-theme] nav{background:var(--ns-nav)!important}
 html[data-ns-theme] nav a{color:var(--ns-heading)!important}
+html[data-ns-theme] nav :is(.logo-name,.logo-tag){color:var(--ns-heading)!important}
 html[data-ns-theme] nav button,html[data-ns-theme] nav button span{color:var(--ns-heading)!important}
+html[data-ns-theme] nav .nav-menu-toggle{background:var(--ns-surface-2)!important;border-color:var(--ns-border)!important}
+@media(max-width:980px){html[data-ns-theme] nav .nav-links#primary-menu{background:var(--ns-nav)!important;border-color:var(--ns-border)!important}}
 html[data-ns-theme] nav .nav-cta{color:var(--ns-cta-ink)!important;background:var(--ns-cta)!important}
+html[data-ns-theme] .sticky-bar{--gold:var(--ns-accent);background:var(--ns-nav)!important;color:var(--ns-heading);border-color:var(--ns-border)}
 
 /* Moving People uses the active editorial surface, including captions/CTA.
    Edge fades belong to photograph rows and must never obscure surrounding copy. */
