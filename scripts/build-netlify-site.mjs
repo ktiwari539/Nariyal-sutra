@@ -14,7 +14,7 @@ const MAX_FILE_BYTES=8*1024*1024;
 const topFiles=new Set(['_headers','_redirects','robots.txt','sitemap.xml','llms.txt','site.webmanifest','PEOPLE-MEDIA-V26.json']);
 const assetTypes=new Set(['.js','.css','.svg','.png','.webp','.jpg','.jpeg','.avif','.gif','.woff','.woff2','.ico']);
 const functions=['admin-communication-send.js','media-sign-upload.js','order-delete-otp.js','published-auth-theme.js','send-email.js'];
-const helpers=['app-check-verify.js','email-template-contract.js'];
+const helpers=['app-check-verify.js','email-template-contract.js','release-boundary.js'];
 const picked=[],warnings=[];
 const posix=p=>p.split(path.sep).join('/');
 const assert=(ok,msg)=>{if(!ok)throw new Error('DEPLOY PACKAGE: '+msg)};

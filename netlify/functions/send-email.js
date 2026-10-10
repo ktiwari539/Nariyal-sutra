@@ -1,3 +1,4 @@
+const {allowedOrigin,productionRequest}=require('../lib/release-boundary');
 'use strict';
 const crypto=require('crypto');
 const {completeTemplateParams,orderStatusCopy}=require('../lib/email-template-contract');
@@ -13,7 +14,6 @@ const buckets=new Map();
 const STATUS_SET=new Set(['pending','confirmed','preparing','ready_for_dispatch','out_for_delivery','delivered','cancelled']);
 let certCache={expiresAt:0,certs:null};
 function json(status,body,origin){return {statusCode:status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store','access-control-allow-origin':origin||SITE_URL,'access-control-allow-methods':'POST, OPTIONS','access-control-allow-headers':'content-type, authorization, x-firebase-appcheck','vary':'Origin'},body:status===204?'':JSON.stringify(body)}}
-function allowedOrigin(v){if(!v)return false;try{const u=new URL(v);if(u.protocol!=='https:')return false;if(u.hostname==='nariyal-sutra.netlify.app')return true;if(u.hostname.endsWith('--nariyal-sutra.netlify.app'))return true;if(process.env.URL&&u.origin===new URL(process.env.URL).origin)return true;return false;}catch{return false}}
 function rateOk(ip){const now=Date.now(),key=String(ip||'unknown'),b=buckets.get(key)||[];const live=b.filter(x=>now-x<60000);if(live.length>=12)return false;live.push(now);buckets.set(key,live);return true;}
 function b64url(input){let s=String(input||'').replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';return Buffer.from(s,'base64');}
 async function googleCerts(){if(certCache.certs&&Date.now()<certCache.expiresAt)return certCache.certs;const r=await fetch('https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com');if(!r.ok)throw new Error('Firebase certificate lookup failed');const certs=await r.json(),cc=r.headers.get('cache-control')||'',maxAge=Number((cc.match(/max-age=(\d+)/)||[])[1]||1800);certCache={certs,expiresAt:Date.now()+Math.max(300,maxAge-60)*1000};return certs;}
@@ -63,6 +63,7 @@ function params(kind,d){
 }
 exports.handler=async function(event){
  const rawOrigin=event.headers?.origin||event.headers?.Origin||event.headers?.referer||event.headers?.Referer||'';let origin='';try{origin=new URL(rawOrigin).origin}catch(_){}
+ if(['POST','OPTIONS'].includes(event.httpMethod)&&!productionRequest(event))return json(403,{error:'Production services are disabled on this hostname.'});
  if(event.httpMethod==='OPTIONS')return allowedOrigin(origin)?json(204,{},origin):json(403,{error:'Origin not allowed'});
  if(event.httpMethod!=='POST')return json(405,{error:'Method not allowed'},origin||undefined);
  if(!allowedOrigin(origin))return json(403,{error:'Origin not allowed'});

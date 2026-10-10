@@ -9,6 +9,23 @@ concurrency:
   group: cinematic-rebuild-qa-${{ github.ref }}
   cancel-in-progress: true
 jobs:
+  function-packaging-isolation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - run: npm install --no-save --no-package-lock @netlify/zip-it-and-ship-it@16.3.0
+      - name: Real esbuild archives and production boundary regression
+        run: node scripts/netlify-function-package-qa.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: real-function-package-evidence
+          path: |
+            qa-artifacts/functions/
+            qa-artifacts/release-boundary/
+          retention-days: 14
   auth-experience:
     runs-on: ubuntu-latest
     timeout-minutes: 40
