@@ -75,7 +75,20 @@ has(storage,[
   'allow create, update: if isSelf(uid)'
 ],'storage rules');
 
+// The shipping Admin HTML must actually boot the verified production bridge.
+const adminDocument=read('admin-preview.html');
+must(adminDocument.includes('<script src="assets/js/v421-local-store.js"></script>\n<script src="assets/js/v421-production-bridge.js"></script>'),
+  'Shipping Admin must load production bridge immediately after its local store');
 const bridge=read('assets/js/v421-production-bridge.js');
+has(bridge,[
+  "if(LOCAL||location.hostname!=='nariyal-sutra.netlify.app')return;",
+  'function installSignOut(){',
+  "await authMod.signOut(auth);",
+  "sessionStorage.removeItem('ns_v10_admin_session')",
+  "location.replace('/admin-bcc-login.html?signed_out=1')",
+  "setEnvironmentLabel();lockRole();installSignOut();remoteReady=true;"
+],'safe production-only Admin and Firebase sign-out');
+
 has(bridge,[
   "if(!u?.emailVerified||!u?.email)return ''",
   "x.status!=='Active'",
@@ -290,6 +303,16 @@ const unauthorizedStatus=await require('../netlify/functions/send-email.js').han
   body:JSON.stringify({kind:'customer_status',data:{orderId:'NS-QA-EMAIL',email:'qa@example.com',status:'confirmed'}})
 });
 must(unauthorizedStatus.statusCode===401,'Unauthenticated order-status email was not rejected');
+
+// Handler-level smoke: all five deployed Functions must reject unsupported methods
+// without contacting EmailJS, Cloudinary, or issuing a destructive Firestore write.
+const writableFunctionNames=['admin-communication-send','media-sign-upload','order-delete-otp','send-email'];
+for(const name of writableFunctionNames){
+  const response=await require('../netlify/functions/'+name+'.js').handler({httpMethod:'GET',headers:{}});
+  must(response.statusCode===405,name+' must reject unsupported GET requests');
+}
+const publishedThemeResponse=await require('../netlify/functions/published-auth-theme.js').handler({httpMethod:'POST',headers:{}});
+must(publishedThemeResponse.statusCode===405,'published-auth-theme must reject unsupported POST requests');
 
 const firebaserc=JSON.parse(read('.firebaserc'));
 must(firebaserc?.projects?.default==='nariyal-sutra','.firebaserc must pin nariyal-sutra');
