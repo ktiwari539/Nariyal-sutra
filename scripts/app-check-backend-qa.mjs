@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import {createRequire} from 'node:module';
 const require=createRequire(import.meta.url);
-const {verifyAppCheckToken,verifyAppCheckRequest,DEFAULT_PROJECT_NUMBER,DEFAULT_APP_ID}=require('../netlify/functions/app-check-verify.js');
+const {verifyAppCheckToken,verifyAppCheckRequest,DEFAULT_PROJECT_NUMBER,DEFAULT_APP_ID}=require('../netlify/lib/app-check-verify.js');
 
 const must=(c,m)=>{if(!c)throw new Error(m)};
 const rejects=async(fn,label)=>{let failed=false;try{await fn();}catch(_){failed=true;}must(failed,label);};

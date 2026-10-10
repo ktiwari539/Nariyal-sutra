@@ -1,7 +1,7 @@
 'use strict';
 const crypto=require('crypto');
-const {completeTemplateParams,orderStatusCopy}=require('./email-template-contract');
-const {verifyAppCheckRequest}=require('./app-check-verify');
+const {completeTemplateParams,orderStatusCopy}=require('../lib/email-template-contract');
+const {verifyAppCheckRequest}=require('../lib/app-check-verify');
 const ALLOWED_KINDS=new Set(['customer_request','owner_order','customer_status','customer_inquiry','owner_inquiry']);
 const PUBLIC_KEY=process.env.EMAILJS_PUBLIC_KEY||'aDjTgmhSPrBeTpnOA';
 const SERVICE_ID=process.env.EMAILJS_SERVICE_ID||'service_c24xpf8';

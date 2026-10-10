@@ -229,7 +229,7 @@ has(delivery,[
 ],'delivery contract');
 not(delivery,["'arrived'"],'delivery contract');
 
-const verifier=read('netlify/functions/app-check-verify.js');
+const verifier=read('netlify/lib/app-check-verify.js');
 has(verifier,[
   "https://firebaseappcheck.googleapis.com/v1/jwks",
   "header.alg!=='RS256'",
@@ -310,7 +310,7 @@ not(cutoverBuilder,["deliveryOTP','updatedAt","legacy public tracking OTP"],'min
 const cutoverConfig=JSON.parse(read('firebase.cutover.json'));
 must(cutoverConfig?.firestore?.rules==='firestore.cutover.rules','Cutover Firebase config does not point at generated compatibility rules');
 
-const {TEMPLATE_FIELDS,completeTemplateParams,orderStatusCopy}=require('../netlify/functions/email-template-contract.js');
+const {TEMPLATE_FIELDS,completeTemplateParams,orderStatusCopy}=require('../netlify/lib/email-template-contract.js');
 must(TEMPLATE_FIELDS.length===35,'EmailJS canonical template contract field count changed without QA review');
 const clientFieldSource=clientEmail.match(/const TEMPLATE_FIELDS=Object\.freeze\(\[([\s\S]*?)\]\);/)?.[1]||'',clientFields=[...clientFieldSource.matchAll(/'([^']+)'/g)].map(x=>x[1]);
 must(JSON.stringify(clientFields)===JSON.stringify(TEMPLATE_FIELDS),'Client and server EmailJS template fields diverged');

@@ -1,7 +1,7 @@
 'use strict';
 const crypto=require('crypto');
-const {completeTemplateParams}=require('./email-template-contract');
-const {verifyAppCheckRequest}=require('./app-check-verify');
+const {completeTemplateParams}=require('../lib/email-template-contract');
+const {verifyAppCheckRequest}=require('../lib/app-check-verify');
 const MAX_IDS=25,OTP_TTL_MS=5*60*1000,REQUEST_COOLDOWN_MS=60*1000,REQUEST_WINDOW_MS=10*60*1000,REQUEST_MAX=5,ATTEMPT_MAX=5;
 let certCache={expiresAt:0,certs:null};
 const requestBuckets=new Map(),lastRequest=new Map(),attempts=new Map(),latestNonce=new Map();

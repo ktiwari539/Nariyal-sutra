@@ -1,7 +1,7 @@
 'use strict';
 const crypto=require('crypto');
-const {completeTemplateParams}=require('./email-template-contract');
-const {verifyAppCheckRequest}=require('./app-check-verify');
+const {completeTemplateParams}=require('../lib/email-template-contract');
+const {verifyAppCheckRequest}=require('../lib/app-check-verify');
 let certCache={expiresAt:0,certs:null};
 const buckets=new Map();
 function allowedOrigin(origin){if(!origin)return null;try{const u=new URL(origin);if(u.protocol!=='https:')return null;if(u.hostname==='nariyal-sutra.netlify.app'||/--nariyal-sutra\.netlify\.app$/i.test(u.hostname)||(process.env.URL&&u.origin===new URL(process.env.URL).origin))return origin;}catch(_){}return null;}

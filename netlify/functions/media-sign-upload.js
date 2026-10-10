@@ -1,5 +1,5 @@
 const crypto = require('crypto');
-const {verifyAppCheckRequest}=require('./app-check-verify');
+const {verifyAppCheckRequest}=require('../lib/app-check-verify');
 let certCache = { expiresAt: 0, certs: null };
 function json(statusCode, body, origin) {
   return {statusCode,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store','access-control-allow-origin':origin||'https://nariyal-sutra.netlify.app','access-control-allow-methods':'POST, OPTIONS','access-control-allow-headers':'content-type, authorization, x-firebase-appcheck','vary':'Origin'},body:statusCode===204?'':JSON.stringify(body)};

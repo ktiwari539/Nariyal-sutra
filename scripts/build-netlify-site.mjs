@@ -13,7 +13,8 @@ const MAX_TOTAL_BYTES=40*1024*1024;
 const MAX_FILE_BYTES=8*1024*1024;
 const topFiles=new Set(['_headers','_redirects','robots.txt','sitemap.xml','llms.txt','site.webmanifest','PEOPLE-MEDIA-V26.json']);
 const assetTypes=new Set(['.js','.css','.svg','.png','.webp','.jpg','.jpeg','.avif','.gif','.woff','.woff2','.ico']);
-const functions=['admin-communication-send.js','app-check-verify.js','email-template-contract.js','media-sign-upload.js','order-delete-otp.js','published-auth-theme.js','send-email.js'];
+const functions=['admin-communication-send.js','media-sign-upload.js','order-delete-otp.js','published-auth-theme.js','send-email.js'];
+const helpers=['app-check-verify.js','email-template-contract.js'];
 const picked=[],warnings=[];
 const posix=p=>p.split(path.sep).join('/');
 const assert=(ok,msg)=>{if(!ok)throw new Error('DEPLOY PACKAGE: '+msg)};
@@ -47,6 +48,7 @@ assert(picked.includes('admin.html')&&picked.includes('admin-preview.html'),'Adm
 for(const name of functions){
   assert((await fs.stat(path.join(ROOT,'netlify/functions',name))).isFile(),'Netlify function missing: '+name);
 }
+for(const name of helpers)assert((await fs.stat(path.join(ROOT,'netlify/lib',name))).isFile(),'Netlify helper missing: '+name);
 const routes=await fs.readFile(path.join(ROOT,'_redirects'),'utf8');
 assert(routes.includes('/.netlify/functions/media-sign-upload'),'media upload function route missing');
 let total=0;
@@ -70,7 +72,7 @@ for(const rel of picked){
 const staged=await getFiles(OUT);
 assert(staged.length===picked.length,'staged file-count mismatch');
 assert(!staged.some(p=>/(?:^|\/)(?:docs|scripts|qa-artifacts|\.github|\.git|netlify)(?:\/|$)/.test(posix(path.relative(OUT,p)))),'development file exposed');
-const report={ok:true,publicBytes:total,publicMiB:+(total/1048576).toFixed(2),publicFiles:picked.length,functions:functions.length,largeFiles:[...manifest].sort((a,b)=>b.bytes-a.bytes).slice(0,10),manifest};
+const report={ok:true,publicBytes:total,publicMiB:+(total/1048576).toFixed(2),publicFiles:picked.length,functions:functions.length,helpers:helpers.length,largeFiles:[...manifest].sort((a,b)=>b.bytes-a.bytes).slice(0,10),manifest};
 const qa=path.join(ROOT,'qa-artifacts/release-package');
 await fs.mkdir(qa,{recursive:true});
 await fs.writeFile(path.join(qa,'manifest.json'),JSON.stringify(report,null,2)+'\n');
