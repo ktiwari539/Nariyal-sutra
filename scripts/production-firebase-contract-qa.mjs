@@ -88,6 +88,12 @@ has(bridge,[
   "location.replace('/admin-bcc-login.html?signed_out=1')",
   "setEnvironmentLabel();lockRole();installSignOut();remoteReady=true;"
 ],'safe production-only Admin and Firebase sign-out');
+const profileActions=read('assets/js/admin-v37.js');
+has(profileActions,[
+  "if(window.NSV421ProductionBridge?.isProduction)",
+  "const secureSignOut=$('#apSignOut')",
+  "secureSignOut.click();return;"
+],'My profile sign-out must delegate to the Firebase-backed Admin sign-out');
 
 has(bridge,[
   "if(!u?.emailVerified||!u?.email)return ''",
