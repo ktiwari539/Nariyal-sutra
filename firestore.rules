@@ -271,6 +271,19 @@ service cloud.firestore {
         && d.createdAt == request.time && d.updatedAt == request.time;
     }
 
+    function hasEmailIdentityClaim() {
+      return isSignedIn() && request.auth.token.keys().hasAny(['email'])
+        && request.auth.token.email is string;
+    }
+    function hasPhoneIdentityClaim() {
+      return isSignedIn() && request.auth.token.keys().hasAny(['phone_number'])
+        && request.auth.token.phone_number is string;
+    }
+    function verifiedEmailIdentityClaim() {
+      return hasEmailIdentityClaim() && request.auth.token.keys().hasAny(['email_verified'])
+        && request.auth.token.email_verified == true;
+    }
+
     function validCustomerProfileCreate(uid) {
       let d = request.resource.data;
       return d.keys().hasOnly([
@@ -281,11 +294,11 @@ service cloud.firestore {
         && d.uid == uid && d.uid is string && d.uid.size() <= 128
         && d.email is string && d.email.size() <= 160
         && d.contactEmail is string && d.contactEmail.size() <= 160
-        && d.emailVerified is bool && d.emailVerified == (request.auth.token.email_verified == true)
-        && d.phoneVerified is bool && d.phoneVerified == (request.auth.token.phone_number is string)
+        && d.emailVerified is bool && d.emailVerified == verifiedEmailIdentityClaim()
+        && d.phoneVerified is bool && d.phoneVerified == hasPhoneIdentityClaim()
         && d.phone is string && d.phone.size() <= 24
-        && ((request.auth.token.email is string && d.email == request.auth.token.email)
-          || (request.auth.token.phone_number is string && d.email == '' && d.phone == request.auth.token.phone_number))
+        && ((hasEmailIdentityClaim() && d.email == request.auth.token.email)
+          || (hasPhoneIdentityClaim() && d.email == '' && d.phone == request.auth.token.phone_number))
         && d.displayName is string && d.displayName.size() <= 100
         && d.photoURL is string && d.photoURL.size() <= 700
         && d.photoPath is string && (d.photoPath == '' || d.photoPath == 'customer-profile-images/'+uid+'/avatar.webp')
@@ -312,8 +325,8 @@ service cloud.firestore {
         && d.uid == uid && d.email == resource.data.email
         && d.email is string && d.email.size() <= 160
         && d.contactEmail is string && d.contactEmail.size() <= 160
-        && d.emailVerified is bool && d.emailVerified == (request.auth.token.email_verified == true)
-        && d.phoneVerified is bool && d.phoneVerified == (request.auth.token.phone_number is string)
+        && d.emailVerified is bool && d.emailVerified == verifiedEmailIdentityClaim()
+        && d.phoneVerified is bool && d.phoneVerified == hasPhoneIdentityClaim()
         && d.displayName is string && d.displayName.size() <= 100
         && d.phone is string && d.phone.size() <= 24
         && d.photoURL is string && d.photoURL.size() <= 700

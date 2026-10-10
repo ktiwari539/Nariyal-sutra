@@ -1,10 +1,10 @@
+const {allowedOrigin,productionRequest}=require('../lib/release-boundary');
 'use strict';
 const crypto=require('crypto');
-const {completeTemplateParams}=require('./email-template-contract');
-const {verifyAppCheckRequest}=require('./app-check-verify');
+const {completeTemplateParams}=require('../lib/email-template-contract');
+const {verifyAppCheckRequest}=require('../lib/app-check-verify');
 let certCache={expiresAt:0,certs:null};
 const buckets=new Map();
-function allowedOrigin(origin){if(!origin)return null;try{const u=new URL(origin);if(u.protocol!=='https:')return null;if(u.hostname==='nariyal-sutra.netlify.app'||/--nariyal-sutra\.netlify\.app$/i.test(u.hostname)||(process.env.URL&&u.origin===new URL(process.env.URL).origin))return origin;}catch(_){}return null;}
 function json(statusCode,body,origin){return{statusCode,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store','access-control-allow-origin':origin||'https://nariyal-sutra.netlify.app','access-control-allow-methods':'POST, OPTIONS','access-control-allow-headers':'content-type, authorization, x-firebase-appcheck','vary':'Origin'},body:statusCode===204?'':JSON.stringify(body)};}
 function b64url(input){let s=String(input||'').replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';return Buffer.from(s,'base64');}
 async function googleCerts(){if(certCache.certs&&Date.now()<certCache.expiresAt)return certCache.certs;const r=await fetch('https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com');if(!r.ok)throw new Error('Firebase certificate lookup failed');const certs=await r.json(),cc=r.headers.get('cache-control')||'',maxAge=Number((cc.match(/max-age=(\d+)/)||[])[1]||1800);certCache={certs,expiresAt:Date.now()+Math.max(300,maxAge-60)*1000};return certs;}
@@ -17,6 +17,7 @@ function clean(v,max){return String(v??'').replace(/[\r\0]/g,' ').trim().slice(0
 function validEmail(v){return/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);}
 exports.handler=async(event)=>{
  const origin=allowedOrigin(event.headers?.origin||event.headers?.Origin);
+ if(['POST','OPTIONS'].includes(event.httpMethod)&&!productionRequest(event))return json(403,{error:'Production services are disabled on this hostname.'});
  if(event.httpMethod==='OPTIONS')return origin?json(204,{},origin):json(403,{error:'Origin not allowed'});
  if(event.httpMethod!=='POST')return json(405,{error:'Method not allowed'},origin||undefined);
  if(!origin)return json(403,{error:'Origin not allowed'});

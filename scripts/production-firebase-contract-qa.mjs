@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import vm from 'node:vm';
 import {createRequire} from 'node:module';
 const require=createRequire(import.meta.url);
 const read=p=>fs.readFileSync(p,'utf8');
@@ -16,6 +17,29 @@ has(config,[
   'mod.getToken(window.NS_APP_CHECK_INSTANCE,false)',
   "customerAuthProviders:[\"password\"]"
 ],'firebase-config');
+
+// A draft Netlify hostname must NEVER initialize the production Firebase project.
+// Exercise the actual browser config in a sandbox: no network, secrets, or writes.
+for(const [host,expectedProduction] of [
+  ['nariyal-sutra.netlify.app',true],
+  ['deploy-preview-10--nariyal-sutra.netlify.app',false],
+  ['6aabbbb1784e0d2d89174d0d--nariyal-sutra.netlify.app',false],
+  ['localhost',false],
+  ['127.0.0.1',false],
+  ['some-other-domain.example',false]
+]){
+  const previewWindow={};
+  vm.runInNewContext(config,{
+    window:previewWindow,
+    document:{querySelector:()=>null},
+    location:{hostname:host},
+    console
+  },{timeout:1500});
+  must(!!previewWindow.NS_FIREBASE_CONFIG===expectedProduction,
+    'Firebase production initialization unexpectedly enabled for '+host);
+  must(previewWindow.NS_FIREBASE_LOCAL_DISABLED===!expectedProduction,
+    'Firebase fail-closed flag mismatch for '+host);
+}
 
 const order=read('ns-order-patch.js');
 has(order,[
@@ -75,7 +99,26 @@ has(storage,[
   'allow create, update: if isSelf(uid)'
 ],'storage rules');
 
+// The shipping Admin HTML must actually boot the verified production bridge.
+const adminDocument=read('admin-preview.html');
+must(adminDocument.includes('<script src="assets/js/v421-local-store.js"></script>\n<script src="assets/js/v421-production-bridge.js"></script>'),
+  'Shipping Admin must load production bridge immediately after its local store');
 const bridge=read('assets/js/v421-production-bridge.js');
+has(bridge,[
+  "if(LOCAL||location.hostname!=='nariyal-sutra.netlify.app')return;",
+  'function installSignOut(){',
+  "await authMod.signOut(auth);",
+  "sessionStorage.removeItem('ns_v10_admin_session')",
+  "location.replace('/admin-bcc-login.html?signed_out=1')",
+  "setEnvironmentLabel();lockRole();installSignOut();remoteReady=true;"
+],'safe production-only Admin and Firebase sign-out');
+const profileActions=read('assets/js/admin-v37.js');
+has(profileActions,[
+  "if(window.NSV421ProductionBridge?.isProduction)",
+  "const secureSignOut=$('#apSignOut')",
+  "secureSignOut.click();return;"
+],'My profile sign-out must delegate to the Firebase-backed Admin sign-out');
+
 has(bridge,[
   "if(!u?.emailVerified||!u?.email)return ''",
   "x.status!=='Active'",
@@ -186,7 +229,7 @@ has(delivery,[
 ],'delivery contract');
 not(delivery,["'arrived'"],'delivery contract');
 
-const verifier=read('netlify/functions/app-check-verify.js');
+const verifier=read('netlify/lib/app-check-verify.js');
 has(verifier,[
   "https://firebaseappcheck.googleapis.com/v1/jwks",
   "header.alg!=='RS256'",
@@ -267,7 +310,7 @@ not(cutoverBuilder,["deliveryOTP','updatedAt","legacy public tracking OTP"],'min
 const cutoverConfig=JSON.parse(read('firebase.cutover.json'));
 must(cutoverConfig?.firestore?.rules==='firestore.cutover.rules','Cutover Firebase config does not point at generated compatibility rules');
 
-const {TEMPLATE_FIELDS,completeTemplateParams,orderStatusCopy}=require('../netlify/functions/email-template-contract.js');
+const {TEMPLATE_FIELDS,completeTemplateParams,orderStatusCopy}=require('../netlify/lib/email-template-contract.js');
 must(TEMPLATE_FIELDS.length===35,'EmailJS canonical template contract field count changed without QA review');
 const clientFieldSource=clientEmail.match(/const TEMPLATE_FIELDS=Object\.freeze\(\[([\s\S]*?)\]\);/)?.[1]||'',clientFields=[...clientFieldSource.matchAll(/'([^']+)'/g)].map(x=>x[1]);
 must(JSON.stringify(clientFields)===JSON.stringify(TEMPLATE_FIELDS),'Client and server EmailJS template fields diverged');
@@ -290,6 +333,16 @@ const unauthorizedStatus=await require('../netlify/functions/send-email.js').han
   body:JSON.stringify({kind:'customer_status',data:{orderId:'NS-QA-EMAIL',email:'qa@example.com',status:'confirmed'}})
 });
 must(unauthorizedStatus.statusCode===401,'Unauthenticated order-status email was not rejected');
+
+// Handler-level smoke: all five deployed Functions must reject unsupported methods
+// without contacting EmailJS, Cloudinary, or issuing a destructive Firestore write.
+const writableFunctionNames=['admin-communication-send','media-sign-upload','order-delete-otp','send-email'];
+for(const name of writableFunctionNames){
+  const response=await require('../netlify/functions/'+name+'.js').handler({httpMethod:'GET',headers:{}});
+  must(response.statusCode===405,name+' must reject unsupported GET requests');
+}
+const publishedThemeResponse=await require('../netlify/functions/published-auth-theme.js').handler({httpMethod:'POST',headers:{}});
+must(publishedThemeResponse.statusCode===405,'published-auth-theme must reject unsupported POST requests');
 
 const firebaserc=JSON.parse(read('.firebaserc'));
 must(firebaserc?.projects?.default==='nariyal-sutra','.firebaserc must pin nariyal-sutra');
