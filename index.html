@@ -2881,6 +2881,7 @@ function setT(t){
   var opt=currentProduct(),min=productMin(opt),stock=productStock(opt);
   if(q){q.min=String(min);q.max=String(stock);q.value=Math.min(stock,Math.max(min,parseInt(q.value)||min));}
   calc();
+  if(q)q.dispatchEvent(new Event('input',{bubbles:true})); // Synchronize delivery recap after a programmatic quantity change.
 }
 function chQ(d){
   var i=document.getElementById('oQ'),opt=currentProduct(),min=productMin(opt),stock=productStock(opt);
@@ -2888,6 +2889,7 @@ function chQ(d){
   i.value=Math.min(stock,next);
   if(next>stock)toast('Only '+stock+' currently available');
   calc();
+  i.dispatchEvent(new Event('input',{bubbles:true})); // DOM input value assignment does not emit input automatically.
 }
 function syncProductSelection(){
   var opt=currentProduct(); if(!opt)return;
@@ -2898,6 +2900,7 @@ function syncProductSelection(){
   var q=document.getElementById('oQ'),min=productMin(opt),stock=productStock(opt);
   if(q){q.min=String(min);q.max=String(stock);q.value=Math.min(stock,Math.max(min,parseInt(q.value)||min));}
   calc();
+  if(q)q.dispatchEvent(new Event('input',{bubbles:true}));
 }
 function getCurrentPrice(){ return window.NSLiveCatalog.price(currentProduct()?.value); }
 function getCurrentTotal(){ var q=parseInt(document.getElementById('oQ')?.value)||1,p=getCurrentPrice(); return p===null?null:q*p; }
