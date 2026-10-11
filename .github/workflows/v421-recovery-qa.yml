@@ -8,6 +8,10 @@ on:
       - 'index.html'
       - 'coconut-buying-guide.html'
       - 'scripts/seo-customer-discovery-qa.mjs'
+      - 'sitemap.html'
+      - 'sitemap.xml'
+      - 'llms.txt'
+      - 'scripts/html-sitemap-qa.mjs'
       - 'scripts/v421-media-map-regression-qa.mjs'
       - 'scripts/checkout-location-sync-qa.mjs'
       - 'scripts/v421-owner-login-browser-qa.mjs'
@@ -68,6 +72,7 @@ jobs:
           node scripts/netlify-release-boundary-qa.mjs
           node scripts/seo-go-live-acceptance.mjs
           node scripts/seo-customer-discovery-qa.mjs
+          node scripts/html-sitemap-qa.mjs
 
   local-browser-checkout:
     runs-on: ubuntu-latest
