@@ -84,3 +84,15 @@ Following the initial green release checks, a deeper auth lifecycle review ident
 4. **Google Search Console follow-through after release:** check live `robots.txt`, `sitemap.xml`, `llms.txt`, canonical URLs and structured data; re-submit the current sitemap and inspect the homepage and buyer landing pages. Crawling/indexing and AI search citations are not instant or guaranteed.
 
 **Decision stays HOLD for production** until #1 can be verified safely after an explicitly authorized release. The GitHub work is checkpointed and tested.
+
+## October 11 — final packaged release gate closed
+
+**Package-tested commit:** `6f13a3504dd20dfb8af3b6a4f0135e3d7b5cefcb`
+
+**Verified CI:** [Run 38146555381](https://github.com/ktiwari539/Nariyal-sutra/actions/runs/38146555381): all **three** jobs success (`release-package`, `offline-regression`, `local-browser-checkout`).
+
+The new CI release-package job executed the real static build locally with the exact Netlify publish script, asserted `dist-site/index.html`, `llms.txt`, `robots.txt`, `sitemap.xml`, and absence of docs/scripts/netlify internals in the static publish output. It installed the ephemeral bundler and executed `scripts/netlify-function-package-qa.mjs`, which packaged exactly **five callable Function handlers** and required bundled shared helpers. Packaged Function release-boundary QA passed **68 assertions**. No Netlify deployment or Function invocation against live providers occurred.
+
+The production rollback remained `6aabbbb1784e0d2d89174d0d` when checked; PR #10 remained unmerged.
+
+**Live release still not authorized or proven:** real Firebase Owner login/logout/refresh/new-tab/login, and production checkout, pricing, email, Functions and live SEO acceptance require a controlled authorized release and genuine Owner session. The user's zero-additional-credit restriction still applies.
