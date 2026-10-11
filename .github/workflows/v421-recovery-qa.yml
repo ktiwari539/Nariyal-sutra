@@ -55,3 +55,18 @@ jobs:
           node scripts/production-firebase-contract-qa.mjs
           node scripts/netlify-release-boundary-qa.mjs
           node scripts/seo-go-live-acceptance.mjs
+
+  local-browser-checkout:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout exact recovery commit
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Install ephemeral test-only browser
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Verify checkout against localhost with all external requests blocked
+        run: node scripts/v421-browser-checkout-local-qa.mjs
