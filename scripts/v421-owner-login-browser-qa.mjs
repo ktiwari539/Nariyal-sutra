@@ -9,12 +9,12 @@ import assert from 'node:assert/strict';
 
 const origin='https://nariyal-sutra.netlify.app';
 const html=readFileSync(new URL('../admin-bcc-login.html',import.meta.url),'utf8');
-const fakeApp=String.raw\`
+const fakeApp=String.raw`
 export const getApps=()=>[];
 export const initializeApp=cfg=>({name:'qa-mock-app'});
 export const getApp=()=>({name:'qa-mock-app'});
-\`;
-const fakeAuth=String.raw\`
+`;
+const fakeAuth=String.raw`
 function state(){
   if(!window.__ownerQaAuth){
     const cfg=window.__ownerQaFixture||{};
@@ -44,12 +44,12 @@ export async function signInWithEmailAndPassword(auth,email,password){
 }
 export async function sendEmailVerification(){}
 export async function sendPasswordResetEmail(){}
-\`;
-const fakeFirestore=String.raw\`
+`;
+const fakeFirestore=String.raw`
 export const getFirestore=()=>({});
 export const doc=(_db,...segments)=>segments.join('/');
 export async function getDoc(){return {exists:()=>false,data:()=>({})}};
-\`;
+`;
 const modules={
   '/firebase-app.js':fakeApp,
   '/firebase-auth.js':fakeAuth,
