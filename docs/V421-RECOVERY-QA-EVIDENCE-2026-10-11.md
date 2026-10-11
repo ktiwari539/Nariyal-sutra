@@ -115,3 +115,52 @@ The earlier V17/V18 incident report described missing `rain-coconut-*.png` refer
 **What is not proven:** physical touch/drag interactions on real iOS/Android, map tile-provider reachability in production, protected external asset loading, and **real authenticated Firebase Owner logout and refresh/fresh sign-in** on the undeployed corrected build. The current production site remains the restored deployment `6aabbbb1784e0d2d89174d0d`.
 
 The verified conclusion is **recovery source + offline/local-browser tests ready for further development**. This is **not** permission to publish, and does not certify the reported incidents are repaired on the live rolled-back site.
+
+
+## October 11 — Owner login HTML, mobile acceptance and Google Search Console baseline
+
+**Current tested application commit:** `c7cf0603ed2b0afbda295dfddd66a1bd55463b01`  
+**Green CI:** [run `38148989521`](https://github.com/ktiwari539/Nariyal-sutra/actions/runs/38148989521): **all three jobs success**, including local-browser-checkout, offline-regression, and release-package.
+
+### Real login HTML — isolated Firebase browser acceptance
+
+`scripts/v421-owner-login-browser-qa.mjs` loads the actual `admin-bcc-login.html` inline module on a synthetic production origin. Firebase ES modules are replaced with fully isolated mocks; every other network request is blocked. Six scenarios passed:
+
+1. An existing authenticated Owner visiting `?signed_out=1` stays on sign-in, clears the mock session, and remains there after refresh.
+2. Explicit manual Owner login succeeds after confirmed sign-out and reaches the Admin route.
+3. A failed Firebase sign-out leaves login disabled and reports an error.
+4. A normal valid persisted session may intentionally resume the Admin route (only without the explicit signed-out flag).
+5. A verified Owner email with incorrect Firebase UID cannot enter Admin.
+6. External `next=` URLs are rejected, keeping redirects on the same site.
+
+**This is not a genuine production Firebase Owner login/logout test.** The exact old production failure is still subject to live Owner acceptance.
+
+### Mobile layout QA
+
+`scripts/v421-mobile-visual-qa.mjs` tested 10 pages at **390×844 and 430×932** (20 view combinations) in headless Chromium against localhost. All non-local network calls were blocked; the public Netlify theme endpoint was replaced with a safe local fixture.
+
+- No page-wide horizontal overflow.
+- No broken local `<img>` sources.
+- No missing local resources beyond the locally mocked Function.
+- No unexpected inaccessible/offscreen controls after properly excluding intentionally clipped carousel slides and the closed Admin sidebar.
+- Fixed a genuine mobile Admin issue in `assets/css/admin-command-center-v52.css`: narrow top bar now wraps search into a second row and retains role/profile controls within the viewport.
+- Screenshot files were captured only on the ephemeral CI runner; **they were not visually reviewed by a human and were not uploaded**. Real Safari/iOS/Android/manual visual acceptance remains open.
+
+### Search Console current baseline (prior to release)
+
+Verified via the connected Google Search Console property:
+- Homepage: **Submitted and indexed**, mobile crawl recorded.
+- `/coconut-water` and `/fresh-tender-coconut.html`: **Discovered — currently not indexed**.
+- `/bulk-coconut-supply.html`, `/green-coconut.html`, and `/coconut-wholesale-export.html`: **Unknown to Google** in the last stored inspections.
+- Submitted sitemap: `https://nariyal-sutra.netlify.app/sitemap.xml`, last submitted 2026-10-08, **zero parsing errors/warnings**. The sitemap reporting index counts should not be confused with the homepage's separate inspection verdict.
+- Updated SEO pages, canonical declarations, crawl directives, and `llms.txt` have passed static acceptance but are **not live yet**.
+- After approved deployment, run `node scripts/seo-go-live-acceptance.mjs --live`, check the hosted sitemap/robots and critical landing URLs, then resubmit the **new hosted sitemap** through Search Console and inspect/track the pages. Google indexing and third-party AI citation are not guaranteed or immediate.
+
+### Final release dependencies
+
+1. Explicitly authorized deployment to `nariyal-sutra` while preserving rollback deployment `6aabbbb1784e0d2d89174d0d`, with approval of any applicable Netlify credits. **No deployment happened during this QA.**
+2. Secure genuine Firebase Owner login -> logout -> signed-out refresh -> new Admin tab remains blocked -> fresh Owner login. Restore rollback if any critical path fails.
+3. Controlled live checkout/Firestore/email/Netlify Functions smoke checks without corrupting customer data; confirm SEO resources on the published build.
+4. Physical mobile device and final image/interaction review at normal scale.
+
+**Production remains HOLD until the real Owner authentication gate is satisfied.**
