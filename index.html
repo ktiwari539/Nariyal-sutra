@@ -82,7 +82,7 @@
           "telephone": "+919203831705",
           "email": "nariyalsutra@gmail.com",
           "contactType": "customer support",
-          "areaServed": "IN",
+          "areaServed": "Worldwide",
           "availableLanguage": [
             "en",
             "hi"
@@ -2993,6 +2993,10 @@ function placeOrder(){
     '\nRate: ₹'+price+'/pc ('+(ot==='bulk'?'Bulk 10+':'Retail')+')'+
     '\nProduct subtotal: ₹'+total.toLocaleString('en-IN')+
     '\nPayment: '+payLabel+
+    '\nDestination country: '+String(deliveryExtra.country||'India')+
+    (deliveryExtra.state?'\nState / province: '+deliveryExtra.state:'')+
+    (deliveryExtra.pin?'\nPostal code: '+deliveryExtra.pin:'')+
+    (deliveryExtra.isInternational?'\nInternational quote requested — freight, customs, delivery and final price subject to confirmation.':'')+
     '\nDelivery preference: '+deliveryLine+' · '+deliveryTiming+
     (handoverPoint?'\nPreferred handover point: '+handoverPoint:'')+
     (handoverNote?'\nHandover note: '+handoverNote:'')+
