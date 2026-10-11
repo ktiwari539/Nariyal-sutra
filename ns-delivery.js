@@ -750,6 +750,13 @@ function patchPlaceOrder(){
     var chosen=opts.find(function(o){return o.id===nsDelivery.selectedDelivery;});
     var token=genToken();
     var otp=genOTP(6);
+    // Every destination is eligible for a quote request; an actual country is mandatory.
+    if(nsDelivery.country==='Other'&&!String((el('ns-country-other')||{}).value||'').trim()){
+      var countryInput=el('ns-country-other'),countryStatus=el('ns-del-choice-status');
+      if(countryStatus)countryStatus.textContent='Enter your destination country to request a delivery quote.';
+      if(countryInput)countryInput.focus();
+      return;
+    }
     var needsNamedPoint=nsDelivery.selectedDelivery==='railway_station'||nsDelivery.selectedDelivery==='bus_stop';
     if(needsNamedPoint&&!String(nsDelivery.handoverPointName||'').trim()){
       var handoverStatus=el('ns-handover-status'),handoverPanel=el('ns-handover-panel');
