@@ -195,6 +195,26 @@ async function loadCustomerRuntime(){
 }
 function watchPublic(){const ref=fsMod.doc(db,'publicStories','site-config');const unsub=fsMod.onSnapshot(ref,snap=>{if(!snap.exists())return;const data=snap.data();lastPublicHash=configHash(data);mergeIntoLocal([data]);},e=>console.warn('[Nariyal Sutra public config watch]',e));unsubs.push(unsub);}
 function identityDiagnostic(){return {role,uid:user?.uid||'',email:user?.email||'',emailVerified:!!user?.emailVerified,roleStatus:roleRecord?.status||'',roleActive:roleRecord?.active===true,roleSource:roleRecord?.source||'',ownerUid:window.NS_ADMIN_CONFIG?.ownerUid||'',ownerEmail:window.NS_ADMIN_CONFIG?.ownerEmail||'',isConfiguredOwner:!!user&&user.uid===(window.NS_ADMIN_CONFIG?.ownerUid||''),appCheckStatus:window.NS_APP_CHECK_STATUS||'unknown'};}
+let adminSessionTerminated=false;
+function monitorAdminAuthSession(){
+ if(!isAdmin)return;
+ const check=current=>{
+  if(!remoteReady||adminSessionTerminated)return;
+  if(current&&user&&current.uid===user.uid)return;
+  // Firebase signed out or switched identities in another tab: fail closed immediately.
+  adminSessionTerminated=true;
+  remoteReady=false;
+  clearTimeout(saveTimer);pendingState=null;
+  overlay('Admin session ended. Opening secure sign-in…');
+  user=null;role='';roleRecord=null;
+  try{Store.setSession?.(null);}catch(_){}
+  try{sessionStorage.removeItem('ns_v10_admin_session');sessionStorage.removeItem('ns-v421-preview-role');}catch(_){}
+  location.replace('/admin-bcc-login.html?signed_out=1');
+ };
+ unsubs.push(authMod.onAuthStateChanged(auth,check));
+ // Check after the listener is installed too: the session may have ended while initial data loaded.
+ check(auth.currentUser);
+}
 function installSignOut(){
  if(!isAdmin||document.getElementById('apSignOut'))return;
  const anchor=document.getElementById('apSessionPill');
@@ -230,7 +250,7 @@ async function initAdmin(){
  let pub=null,priv=null;try{[pub,priv]=await Promise.all([readPublicOnce(),CONTENT_ROLES.includes(role)?readPrivateOnce():Promise.resolve(null)]);}catch(e){console.warn('[BCC] Remote config initial read failed',e);}
  if(pub||priv)mergeIntoLocal([pub,priv]);
  await syncOperationalData();
- setEnvironmentLabel();lockRole();installSignOut();remoteReady=true;watchPublic();watchFollowups();lastPublicHash=pub?configHash(pub):'';lastPrivateHash=priv?configHash(priv):'';clearOverlay();
+ setEnvironmentLabel();lockRole();installSignOut();remoteReady=true;monitorAdminAuthSession();if(adminSessionTerminated)return;watchPublic();watchFollowups();lastPublicHash=pub?configHash(pub):'';lastPrivateHash=priv?configHash(priv):'';clearOverlay();
  resolveReady({mode:'admin',role,user,identity:identityDiagnostic()});window.dispatchEvent(new CustomEvent('nsv421:production-ready',{detail:{role,identity:identityDiagnostic()}}));
  loadCustomerRuntime().catch(e=>console.warn('[BCC] Customer runtime bootstrap failed',e));
 }
