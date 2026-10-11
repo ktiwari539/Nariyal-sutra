@@ -17,9 +17,6 @@ try {
     return route.abort();
   });
   const page=await context.newPage();
-  const pageErrors=[];
-  page.on('pageerror',err=>pageErrors.push(String(err)));
-  page.on('console',msg=>{if(msg.type()==='error')pageErrors.push('console: '+msg.text());});
   const response=await page.goto(base+'/#order',{waitUntil:'domcontentloaded',timeout:30000});
   assert.equal(response?.status(),200,'Local storefront loads');
   await page.waitForFunction(()=>typeof window.NSLiveCatalog?.accept==='function'
@@ -47,37 +44,14 @@ try {
   await page.evaluate(()=>{const q=document.getElementById('oQ');q.value='10';q.dispatchEvent(new Event('input',{bubbles:true}));});
   await page.locator('#ns-country').selectOption('UAE');
   await page.waitForFunction(()=>window.NSDeliveryState.country==='UAE');
-  const debugBefore=await page.evaluate(()=>({
-    price:window.getCurrentPrice?.(),product:document.getElementById('oPr')?.value,
-    qty:document.getElementById('oQ')?.value,
-    state:window.NSDeliveryState?.country,
-    deliveryMethod:window.NSDeliveryState?.selectedDelivery,
-    saveType:typeof window.NS_SAVE_ORDER,emailType:typeof window.NS_SEND_ORDER_EMAILS,
-    submitLock:sessionStorage.getItem('ns_last_submit'),
-    min:window.productMin?.(),stock:window.productStock?.(),
-    disabled:window.currentProduct?.()?.disabled,active:window.currentProduct?.()?.dataset?.active,
-    honeypot:document.getElementById('oWebsite')?.value,
-    toast:document.getElementById('toast')?.textContent,
-    placeOrderSource:String(window.placeOrder).slice(0,250),
-    saveBody:String(window.NS_SAVE_ORDER).slice(0,160),emailBody:String(window.NS_SEND_ORDER_EMAILS).slice(0,160)
-  }));
-  console.log('CHECKOUT PRECALL '+JSON.stringify(debugBefore));
+  // A legitimate customer must provide discovery attribution before checkout.
   await page.evaluate(()=>window.placeOrder());
-  await page.waitForTimeout(1200);
-  const debugAfter=await page.evaluate(()=>({
-    saved:!!window.__qa?.saved,emailed:!!window.__qa?.emailed,
-    extra:window.NS_DELIVERY_EXTRA?.country,
-    whatsapp:!!window.__qa?.whatsapp,
-    status:document.getElementById('orderSaveStatus')?.textContent,
-    error:document.getElementById('ns-del-choice-status')?.textContent,
-    confirm:document.getElementById('confirmModal')?.style.display,
-    toast:document.getElementById('toast')?.textContent,
-    selected:document.getElementById('oPr')?.value,
-    qty:document.getElementById('oQ')?.value
-  }));
-  console.log('CHECKOUT AFTERCALL '+JSON.stringify(debugAfter));
-  console.log('CHECKOUT PAGEERRORS '+JSON.stringify(pageErrors.slice(-12)));
-  assert.ok(debugAfter.saved&&debugAfter.emailed,'Local browser checkout must reach stubbed order and email callbacks');
+  assert.match(await page.locator('#toast').textContent()||'',/Please tell us how you heard/i,
+    'Required attribution prevents an incomplete checkout');
+  assert.equal(await page.evaluate(()=>window.__qa.saved),null,'Incomplete checkout cannot save an order');
+  await page.locator('#nsDiscoverySource').selectOption('google_search');
+  await page.evaluate(()=>window.placeOrder());
+  await page.waitForFunction(()=>!!window.__qa.saved&&!!window.__qa.emailed,null,{timeout:8000});
   const data=await page.evaluate(()=>({
     saved:window.__qa.saved,emailed:window.__qa.emailed,
     wa:window.__qa.whatsapp,extra:window.NS_DELIVERY_EXTRA,
@@ -96,7 +70,7 @@ try {
   assert.ok(message.includes('International quote requested'),'International quote qualification preserved');
   assert.equal(data.subtotal,770);
   await context.close();
-  console.log('PASS: local Chromium checkout, UAE destination, ₹770 subtotal, private/email projections, WhatsApp quote. All remote requests blocked.');
+  console.log('PASS: local Chromium blocks incomplete checkout and confirms complete 10-unit international order, email and WhatsApp projections. All remote requests blocked.');
 } finally {
   if(browser)await browser.close();
   server.kill();
