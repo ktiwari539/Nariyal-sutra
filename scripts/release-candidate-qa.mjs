@@ -18,7 +18,13 @@ function sourceContract(){
  const staffRoleSource=bridge.match(/const STAFF_ROLES=\[([^\]]+)\]/)?.[1]||'',staffRoles=[...staffRoleSource.matchAll(/'([^']+)'/g)].map(x=>x[1]),effectiveRoles=['Owner',...staffRoles],expectedRoles=['Owner','Admin','Manager','Operations','Content','Support','Sales'];
  if(JSON.stringify(effectiveRoles)!==JSON.stringify(expectedRoles))fail('source',`production Admin effective role contract changed: ${JSON.stringify(effectiveRoles)}`);
  if(!bridge.includes("const LOCAL=/^(localhost|127\\.0\\.0\\.1|\\[::1\\])$/i"))fail('source','production bridge local/production boundary is missing');
- if(!bridge.includes("const isAdmin=/admin-preview\\.html$/i"))fail('source','production bridge is not bound to approved Business Command Center');
+ const adminRouteExpression=bridge.match(/const isAdmin=([^;]+);/)?.[1];
+ if(!adminRouteExpression)fail('source','production Admin route predicate is missing');
+ else{
+  const matchesAdmin=pathname=>new Function('location','return '+adminRouteExpression)({pathname});
+  for(const pathname of ['/admin-preview.html','/admin-preview','/admin-preview/'])if(!matchesAdmin(pathname))fail('source',`production Admin guard misses approved route: ${pathname}`);
+  for(const pathname of ['/','/admin','/admin-preview-unsafe','/x/admin-preview.html'])if(matchesAdmin(pathname))fail('source',`production Admin guard accepts an unrelated route: ${pathname}`);
+ }
  if(!v32.includes("cinematic:()=>$('#v421-cinematic-film-pro')"))fail('source','homepage sequencing does not target the approved professional cinematic');
  if(!/function loadProfessionalCinematic/.test(v29))fail('source','professional cinematic loader is missing');
 }

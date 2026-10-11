@@ -148,3 +148,19 @@ html[data-bcc-v52="1"] .ap-toast{border-radius:10px;box-shadow:0 16px 45px rgba(
  .ns-cmd-layer{padding:6vh 8px 8px}
  .ns-cmd-card{border-radius:14px}
 }
+
+
+/* V42.1: keep secure Admin role/profile controls reachable on narrow screens.
+   Move search onto a second row instead of clipping essential session actions. */
+@media(max-width:620px){
+ html[data-bcc-v52="1"] .ap-topbar{
+   flex-wrap:wrap;height:auto;min-height:62px;gap:8px;padding:8px 12px
+ }
+ html[data-bcc-v52="1"] .ap-top-actions{
+   flex:1 1 auto;max-width:none;min-width:0;overflow:visible;
+   justify-content:flex-end;flex-wrap:wrap;gap:5px
+ }
+ html[data-bcc-v52="1"] .ap-search{
+   order:3;flex:1 1 100%;min-width:0;max-width:none;width:100%
+ }
+}

@@ -4,7 +4,7 @@
 */
 (function(){
   'use strict';
-  var LOCAL=/^(localhost|127\.0\.0\.1|\[::1\])$/i.test(location.hostname);
+  var LOCAL=/^(localhost|127\.0\.0\.1|\[::1\])$/i.test(location.hostname)||location.hostname!=='nariyal-sutra.netlify.app';
   var PROD_CONFIG={
     apiKey:"AIzaSyA-AcYHVwzqhkHgIwDxZfRNhWQ3jVRtoT0",
     authDomain:"nariyal-sutra.firebaseapp.com",
@@ -20,8 +20,9 @@
     || ''
   ).trim();
 
-  /* Local preview is intentionally fail-closed. It must never initialize the
-     production Firebase project. Local Admin/storefront QA uses local state;
+  /* Local, draft, and all other non-canonical hosts are fail-closed: none
+     may initialize production Firebase or create real customer orders.
+     Production is enabled exclusively on nariyal-sutra.netlify.app.
      Firestore rules are tested separately against the emulator in CI. */
   window.NS_FIREBASE_ENV=LOCAL?'local-preview':'production';
   window.NS_FIREBASE_CONFIG=LOCAL?null:PROD_CONFIG;

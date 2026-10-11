@@ -53,8 +53,8 @@ for(const phrase of [
 ])must(!dynamic.includes(phrase),`Dynamic People copy still exposes internal wording: ${phrase}`);
 
 const homepage=read('index.html');
-must(homepage.includes('supported locations across India'),'Homepage does not state India-wide serviceability positioning');
-must(homepage.includes('International requirements are handled through our Trade &amp; Supply Desk.'),'Homepage does not route international requirements professionally');
+must(homepage.includes('business location in India or worldwide')&&homepage.includes('delivery feasibility before accepting the order'),'Homepage must qualify domestic and international delivery requests before acceptance');
+must(homepage.includes('International and export requirements are reviewed through our Trade &amp; Supply Desk.'),'Homepage does not route international requirements professionally');
 must(homepage.includes('People of Nariyal Sutra · Stories in motion'),'Homepage People heading was not professionalized');
 must(homepage.includes('Address / locality for serviceability'),'Checkout location wording is not compatible with flexible handover modes');
 

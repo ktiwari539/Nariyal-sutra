@@ -16,12 +16,29 @@ const replaceOnce=(from,to,label)=>{
   final tracking schema; it is simply written after the private order instead of
   inside the new atomic batch. Keep the compatibility surface limited to those
   three missing private-order fields. Immediately after the new release smoke
-  passes, firestore.rules replaces this generated ruleset.
+  passes, firestore.rules replaces this generated ruleset. Existing customer
+  profiles may also lack the newer explicit marketing-consent fields. Absence
+  remains unconsented, and an existing consent field may never be removed.
 */
 replaceOnce(
   "        && d.deliveryAddress is string && d.deliveryAddress == d.address",
   "        && (!d.keys().hasAny(['deliveryAddress']) || (d.deliveryAddress is string && d.deliveryAddress == d.address))",
   'legacy deliveryAddress'
+);
+
+const consentFlags="        && d.marketingEmailOptIn is bool && d.marketingWhatsappOptIn is bool && d.marketingTelegramOptIn is bool";
+const createConsentTime="        && (!('marketingConsentUpdatedAt' in d) || (d.marketingConsentUpdatedAt is timestamp && d.marketingConsentUpdatedAt == request.time))";
+const updateConsentTime="        && (!('marketingConsentUpdatedAt' in d) || d.marketingConsentUpdatedAt is timestamp)";
+const flags=['marketingEmailOptIn','marketingWhatsappOptIn','marketingTelegramOptIn'];
+replaceOnce(
+  consentFlags+'\n'+createConsentTime,
+  flags.map(field=>`        && (!d.keys().hasAny(['${field}']) || d.${field} is bool)`).join('\n')+'\n'+createConsentTime,
+  'legacy customer profile creation'
+);
+replaceOnce(
+  consentFlags+'\n'+updateConsentTime,
+  flags.map(field=>`        && ((!d.keys().hasAny(['${field}']) && !resource.data.keys().hasAny(['${field}'])) || d.${field} is bool)`).join('\n')+'\n'+updateConsentTime,
+  'legacy customer profile updates without consent deletion'
 );
 replaceOnce(
   "        && d.deliveryLocationSource in ['manual','gps','pin','search']\n        && d.deliveryCoordinatesConfirmed is bool\n        && d.deliveryCoordinatesConfirmed == (d.deliveryLat is number && d.deliveryLng is number)",

@@ -41,6 +41,12 @@ const reverseBody={
   }
 };
 
+async function denyNonlocalNetwork(page){
+  await page.route('**/*',route=>{
+    const url=route.request().url();
+    return url.startsWith(BASE+'/')?route.continue():route.abort();
+  });
+}
 async function installGeocoderMock(page){
   await page.route('https://nominatim.openstreetmap.org/**',async route=>{
     const url=new URL(route.request().url());
@@ -63,6 +69,7 @@ try{
     serviceWorkers:'block'
   });
   const page=await context.newPage();
+  await denyNonlocalNetwork(page);
   await installGeocoderMock(page);
   const errors=[];
   page.on('pageerror',e=>{const message=String(e);if(/Failed to read the 'serviceWorker' property from 'Navigator'.*sandboxed.*allow-same-origin/i.test(message))return;errors.push(message);});
@@ -108,6 +115,7 @@ try{
   /* Permission-denied path must give a usable manual fallback, not silently guess. */
   const denied=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,serviceWorkers:'block'});
   const deniedPage=await denied.newPage();
+  await denyNonlocalNetwork(deniedPage);
   await installGeocoderMock(deniedPage);
   await deniedPage.goto(BASE+'/',{waitUntil:'domcontentloaded',timeout:30000});
   await deniedPage.waitForFunction(()=>window.NSCheckoutLocation&&document.getElementById('ns-gps-status'),null,{timeout:15000});

@@ -5,9 +5,10 @@ window.__NS_V421_PRODUCTION_BRIDGE__=true;
 const Store=window.NSV421Store;
 if(!Store)return;
 const LOCAL=/^(localhost|127\.0\.0\.1|\[::1\])$/i.test(location.hostname);
-if(LOCAL)return;
+// Fail closed outside the verified production hostname: draft deploys must never write live Firebase data.
+if(LOCAL||location.hostname!=='nariyal-sutra.netlify.app')return;
 const SDK='12.18.0';
-const isAdmin=/admin-preview\.html$/i.test(location.pathname);
+const isAdmin=/^\/admin-preview(?:\.html)?\/?$/i.test(location.pathname);
 const PUBLIC_KEYS=['sections','pageSequences','sectionMedia','sectionMediaLayout','media','faceMarquee','peopleStreams','harvest','customSections','stories','content','schedule','settings','themeConfig'];
 const PRIVATE_KEYS=['tasks','warehouses','deliveryServices','segments','communications','campaigns','notificationQueue'];
 const CUSTOMER_ROLES=['Owner','Admin','Manager','Operations','Support','Sales'];
@@ -53,7 +54,7 @@ function mergeIntoLocal(parts){
 }
 function loadScript(src){return new Promise((res,rej)=>{const suffix=src.replace(/^\//,'');if([...document.scripts].some(x=>x.src&&x.src.endsWith(suffix)))return res();const s=document.createElement('script');s.src=src;s.async=false;s.onload=res;s.onerror=rej;document.body.appendChild(s);});}
 function overlay(msg){if(!isAdmin)return;let e=document.getElementById('nsProductionAdminGuard');if(!e){e=document.createElement('div');e.id='nsProductionAdminGuard';e.style.cssText='position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;background:#071108;color:#f7f3e8;font:600 13px/1.6 Jost,Arial,sans-serif;letter-spacing:.08em;text-align:center;padding:24px';e.innerHTML='<div><div style="font:400 34px/1.1 Georgia,serif;margin-bottom:12px">Nariyal Sutra</div><div id="nsProductionAdminGuardText"></div></div>';document.documentElement.appendChild(e);}const t=e.querySelector('#nsProductionAdminGuardText');if(t)t.textContent=msg||'Connecting secure Business Command Center…';}
-function clearOverlay(){document.getElementById('nsProductionAdminGuard')?.remove();}
+function clearOverlay(){document.getElementById('nsProductionAdminGuard')?.remove();document.documentElement.classList.remove('ns-production-auth-pending');}
 function showError(msg){overlay('Admin connection blocked: '+msg);}
 function setEnvironmentLabel(){const e=document.querySelector('.ap-env');if(e)e.innerHTML='LIVE SECURE ADMIN<br>Real production data only. Demo fixtures are suppressed.';document.documentElement.dataset.nsAdminMode='production';}
 function lockRole(){const select=document.getElementById('apRole');if(select){if([...select.options].some(o=>o.value===role))select.value=role;select.disabled=true;select.title='Production role comes from verified Firebase identity and active Admin role mapping';select.dispatchEvent(new Event('change',{bubbles:true}));}try{Store.setSession({id:user?.uid||'',role,name:user?.email||role});}catch(e){}const pill=document.getElementById('apSessionPill');if(pill)pill.hidden=false;const n=document.getElementById('apSessionName');if(n)n.textContent=user?.email||'Signed-in staff';const r=document.getElementById('apSessionRole');if(r)r.textContent=role;}
@@ -194,6 +195,52 @@ async function loadCustomerRuntime(){
 }
 function watchPublic(){const ref=fsMod.doc(db,'publicStories','site-config');const unsub=fsMod.onSnapshot(ref,snap=>{if(!snap.exists())return;const data=snap.data();lastPublicHash=configHash(data);mergeIntoLocal([data]);},e=>console.warn('[Nariyal Sutra public config watch]',e));unsubs.push(unsub);}
 function identityDiagnostic(){return {role,uid:user?.uid||'',email:user?.email||'',emailVerified:!!user?.emailVerified,roleStatus:roleRecord?.status||'',roleActive:roleRecord?.active===true,roleSource:roleRecord?.source||'',ownerUid:window.NS_ADMIN_CONFIG?.ownerUid||'',ownerEmail:window.NS_ADMIN_CONFIG?.ownerEmail||'',isConfiguredOwner:!!user&&user.uid===(window.NS_ADMIN_CONFIG?.ownerUid||''),appCheckStatus:window.NS_APP_CHECK_STATUS||'unknown'};}
+let adminSessionTerminated=false;
+function monitorAdminAuthSession(){
+ if(!isAdmin)return;
+ const check=current=>{
+  if(!remoteReady||adminSessionTerminated)return;
+  if(current&&user&&current.uid===user.uid)return;
+  // Firebase signed out or switched identities in another tab: fail closed immediately.
+  adminSessionTerminated=true;
+  remoteReady=false;
+  clearTimeout(saveTimer);pendingState=null;
+  overlay('Admin session ended. Opening secure sign-in…');
+  user=null;role='';roleRecord=null;
+  try{Store.setSession?.(null);}catch(_){}
+  try{sessionStorage.removeItem('ns_v10_admin_session');sessionStorage.removeItem('ns-v421-preview-role');}catch(_){}
+  location.replace('/admin-bcc-login.html?signed_out=1');
+ };
+ unsubs.push(authMod.onAuthStateChanged(auth,check));
+ // Check after the listener is installed too: the session may have ended while initial data loaded.
+ check(auth.currentUser);
+}
+function installSignOut(){
+ if(!isAdmin||document.getElementById('apSignOut'))return;
+ const anchor=document.getElementById('apSessionPill');
+ if(!anchor)throw new Error('Admin session control is missing.');
+ const button=document.createElement('button');
+ button.id='apSignOut';button.type='button';button.className='ap-btn';
+ button.textContent='Sign out';button.setAttribute('aria-label','Sign out of secure Admin');
+ button.addEventListener('click',async()=>{
+  if(button.disabled)return;
+  button.disabled=true;button.textContent='Signing out…';
+  const wasReady=remoteReady;remoteReady=false;
+  try{
+   await authMod.signOut(auth);
+   if(typeof auth.authStateReady==='function')await auth.authStateReady();
+   if(auth.currentUser)throw new Error('Firebase session remained authenticated after sign-out.');
+   user=null;role='';roleRecord=null;
+   try{sessionStorage.removeItem('ns_v10_admin_session');sessionStorage.removeItem('ns-v421-preview-role');}catch(_){}
+   location.replace('/admin-bcc-login.html?signed_out=1');
+  }catch(err){
+   remoteReady=wasReady;button.disabled=false;button.textContent='Retry sign out';
+   console.error('[BCC] Firebase sign-out failed',err);
+   overlay('Sign-out could not be confirmed. Your session remains active; retry sign-out.');
+  }
+ });
+ anchor.insertAdjacentElement('afterend',button);
+}
 async function initAdmin(){
  overlay('Authenticating secure Business Command Center…');user=await waitAuth();
  if(!user){const next=encodeURIComponent('admin-preview.html'+location.search+location.hash);location.replace('/admin-bcc-login.html?next='+next);return;}
@@ -203,7 +250,7 @@ async function initAdmin(){
  let pub=null,priv=null;try{[pub,priv]=await Promise.all([readPublicOnce(),CONTENT_ROLES.includes(role)?readPrivateOnce():Promise.resolve(null)]);}catch(e){console.warn('[BCC] Remote config initial read failed',e);}
  if(pub||priv)mergeIntoLocal([pub,priv]);
  await syncOperationalData();
- setEnvironmentLabel();lockRole();remoteReady=true;watchPublic();watchFollowups();lastPublicHash=pub?configHash(pub):'';lastPrivateHash=priv?configHash(priv):'';clearOverlay();
+ setEnvironmentLabel();lockRole();installSignOut();remoteReady=true;monitorAdminAuthSession();if(adminSessionTerminated)return;watchPublic();watchFollowups();lastPublicHash=pub?configHash(pub):'';lastPrivateHash=priv?configHash(priv):'';clearOverlay();
  resolveReady({mode:'admin',role,user,identity:identityDiagnostic()});window.dispatchEvent(new CustomEvent('nsv421:production-ready',{detail:{role,identity:identityDiagnostic()}}));
  loadCustomerRuntime().catch(e=>console.warn('[BCC] Customer runtime bootstrap failed',e));
 }

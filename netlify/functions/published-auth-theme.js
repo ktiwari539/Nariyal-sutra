@@ -1,3 +1,4 @@
+const {productionRequest}=require('../lib/release-boundary');
 /* Anonymous read of an ALREADY PUBLIC document. No Admin SDK, secrets, private reads or writes.
    Only one allowlisted effective theme id crosses the public response boundary. */
 const IDS = ['nariyal-signature', 'fresh-grove', 'coastal-premium', 'golden-harvest'];
@@ -35,6 +36,7 @@ function decode(v) {
 exports.handler = async event => {
   const headers = {'content-type':'application/json; charset=utf-8', 'cache-control':'no-store', 'x-content-type-options':'nosniff'};
   if (event.httpMethod !== 'GET') return {statusCode:405, headers:{...headers, allow:'GET'}, body:'{}'};
+  if(!productionRequest(event))return {statusCode:403,headers,body:JSON.stringify({error:'Production services are disabled on this hostname.'})};
   let themeId = FALLBACK;
   try {
     const project = encodeURIComponent(process.env.FIREBASE_PROJECT_ID || 'nariyal-sutra');
