@@ -44,6 +44,7 @@ try {
   await page.locator('#oEmail').fill('checkout-test@example.test');
   await page.locator('#oA').fill('Test locality, Dubai delivery destination');
   await page.locator('#oCity').fill('Dubai');
+  await page.evaluate(()=>{const q=document.getElementById('oQ');q.value='10';q.dispatchEvent(new Event('input',{bubbles:true}));});
   await page.locator('#ns-country').selectOption('UAE');
   await page.waitForFunction(()=>window.NSDeliveryState.country==='UAE');
   const debugBefore=await page.evaluate(()=>({
@@ -53,6 +54,11 @@ try {
     deliveryMethod:window.NSDeliveryState?.selectedDelivery,
     saveType:typeof window.NS_SAVE_ORDER,emailType:typeof window.NS_SEND_ORDER_EMAILS,
     submitLock:sessionStorage.getItem('ns_last_submit'),
+    min:window.productMin?.(),stock:window.productStock?.(),
+    disabled:window.currentProduct?.()?.disabled,active:window.currentProduct?.()?.dataset?.active,
+    honeypot:document.getElementById('oWebsite')?.value,
+    toast:document.getElementById('toast')?.textContent,
+    placeOrderSource:String(window.placeOrder).slice(0,250),
     saveBody:String(window.NS_SAVE_ORDER).slice(0,160),emailBody:String(window.NS_SEND_ORDER_EMAILS).slice(0,160)
   }));
   console.log('CHECKOUT PRECALL '+JSON.stringify(debugBefore));
@@ -64,7 +70,10 @@ try {
     whatsapp:!!window.__qa?.whatsapp,
     status:document.getElementById('orderSaveStatus')?.textContent,
     error:document.getElementById('ns-del-choice-status')?.textContent,
-    confirm:document.getElementById('confirmModal')?.style.display
+    confirm:document.getElementById('confirmModal')?.style.display,
+    toast:document.getElementById('toast')?.textContent,
+    selected:document.getElementById('oPr')?.value,
+    qty:document.getElementById('oQ')?.value
   }));
   console.log('CHECKOUT AFTERCALL '+JSON.stringify(debugAfter));
   console.log('CHECKOUT PAGEERRORS '+JSON.stringify(pageErrors.slice(-12)));
@@ -76,18 +85,18 @@ try {
   }));
   assert.equal(data.saved.country,'UAE');
   assert.equal(data.saved.city,'Dubai');
-  assert.equal(data.saved.total,77);
+  assert.equal(data.saved.total,770);
   assert.equal(data.saved.unitPrice,77);
   assert.equal(data.emailed.country,'UAE');
-  assert.equal(data.emailed.total,77);
+  assert.equal(data.emailed.total,770);
   assert.equal(data.extra.isInternational,true);
   assert.ok(data.wa?.startsWith('https://wa.me/'),'WhatsApp URL is prepared, not opened');
   const message=decodeURIComponent(new URL(data.wa).searchParams.get('text')||'');
   assert.ok(message.includes('Destination country: UAE'),'WhatsApp destination included');
   assert.ok(message.includes('International quote requested'),'International quote qualification preserved');
-  assert.equal(data.subtotal,77);
+  assert.equal(data.subtotal,770);
   await context.close();
-  console.log('PASS: local Chromium checkout, UAE destination, ₹77 subtotal, private/email projections, WhatsApp quote. All remote requests blocked.');
+  console.log('PASS: local Chromium checkout, UAE destination, ₹770 subtotal, private/email projections, WhatsApp quote. All remote requests blocked.');
 } finally {
   if(browser)await browser.close();
   server.kill();
