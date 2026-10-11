@@ -45,6 +45,7 @@ jobs:
           node --check ns-delivery.js
           node --check ns-order-patch.js
           node scripts/v421-logout-flow-qa.mjs
+          node scripts/v421-admin-auth-session-qa.mjs
           node scripts/v421-checkout-recap-qa.mjs
           node scripts/v421-destination-data-qa.mjs
       - name: Firebase, Netlify and price contracts without remote writes
