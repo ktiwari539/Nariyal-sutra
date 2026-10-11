@@ -40,20 +40,27 @@ try {
   await page.waitForFunction(()=>document.readyState==='complete'
     && window.__NS_ATTRIBUTION_ORDER_PATCHED__===true
     && !!document.getElementById('nsDiscoverySource'),null,{timeout:10000});
+  await page.evaluate(()=>{const q=document.getElementById('oQ');q.value='10';q.dispatchEvent(new Event('input',{bubbles:true}));});
+  await page.locator('#ns-country').selectOption('UAE');
+  await page.waitForFunction(()=>window.NSDeliveryState.country==='UAE');
+  // Populate contact details only after destination and delayed form mounts settle.
   await page.locator('#oN').fill('Checkout Test Customer');
   await page.locator('#oP').fill('919876543210');
   await page.locator('#oEmail').fill('checkout-test@example.test');
   await page.locator('#oA').fill('Test locality, Dubai delivery destination');
   await page.locator('#oCity').fill('Dubai');
-  await page.evaluate(()=>{const q=document.getElementById('oQ');q.value='10';q.dispatchEvent(new Event('input',{bubbles:true}));});
-  await page.locator('#ns-country').selectOption('UAE');
-  await page.waitForFunction(()=>window.NSDeliveryState.country==='UAE');
   // A legitimate customer must provide discovery attribution before checkout.
   await page.evaluate(()=>window.placeOrder());
   assert.match(await page.locator('#toast').textContent()||'',/Please tell us how you heard/i,
     'Required attribution prevents an incomplete checkout');
   assert.equal(await page.evaluate(()=>window.__qa.saved),null,'Incomplete checkout cannot save an order');
   await page.locator('#nsDiscoverySource').selectOption('google_search');
+  const fields=await page.evaluate(()=>({
+    name:document.getElementById('oN')?.value,
+    phone:document.getElementById('oP')?.value,
+    address:document.getElementById('oA')?.value
+  }));
+  assert.ok(fields.name&&fields.phone&&fields.address,'Checkout contact inputs remain populated: '+JSON.stringify(fields));
   await page.evaluate(()=>{
     // Install the synthetic callbacks again after all deferred scripts have finished.
     window.NS_SAVE_ORDER=async record=>{window.__qa.saved=JSON.parse(JSON.stringify(record));return {ok:true};};
@@ -68,6 +75,9 @@ try {
       price:window.getCurrentPrice?.(),country:window.NSDeliveryState?.country,
       quantity:document.getElementById('oQ')?.value,
       attribution:document.getElementById('nsDiscoverySource')?.value,
+      name:document.getElementById('oN')?.value,
+      phone:document.getElementById('oP')?.value,
+      address:document.getElementById('oA')?.value,
       stored:!!window.__qa.saved,emailed:!!window.__qa.emailed,
       onlineStatus:document.getElementById('orderSaveStatus')?.textContent,
       firebaseSave:String(window.NS_SAVE_ORDER).slice(0,160),
