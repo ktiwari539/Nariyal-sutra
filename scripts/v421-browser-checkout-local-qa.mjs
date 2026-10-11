@@ -43,8 +43,27 @@ try {
   await page.locator('#oCity').fill('Dubai');
   await page.locator('#ns-country').selectOption('UAE');
   await page.waitForFunction(()=>window.NSDeliveryState.country==='UAE');
+  const debugBefore=await page.evaluate(()=>({
+    price:window.getCurrentPrice?.(),product:document.getElementById('oPr')?.value,
+    qty:document.getElementById('oQ')?.value,
+    state:window.NSDeliveryState?.country,
+    deliveryMethod:window.NSDeliveryState?.selectedDelivery,
+    saveType:typeof window.NS_SAVE_ORDER,emailType:typeof window.NS_SEND_ORDER_EMAILS,
+    submitLock:sessionStorage.getItem('ns_last_submit')
+  }));
+  console.log('CHECKOUT PRECALL '+JSON.stringify(debugBefore));
   await page.evaluate(()=>window.placeOrder());
-  await page.waitForFunction(()=>!!window.__qa.saved&&!!window.__qa.emailed);
+  await page.waitForTimeout(1200);
+  const debugAfter=await page.evaluate(()=>({
+    saved:!!window.__qa?.saved,emailed:!!window.__qa?.emailed,
+    extra:window.NS_DELIVERY_EXTRA?.country,
+    whatsapp:!!window.__qa?.whatsapp,
+    status:document.getElementById('orderSaveStatus')?.textContent,
+    error:document.getElementById('ns-del-choice-status')?.textContent,
+    confirm:document.getElementById('confirmModal')?.style.display
+  }));
+  console.log('CHECKOUT AFTERCALL '+JSON.stringify(debugAfter));
+  assert.ok(debugAfter.saved&&debugAfter.emailed,'Local browser checkout must reach stubbed order and email callbacks');
   const data=await page.evaluate(()=>({
     saved:window.__qa.saved,emailed:window.__qa.emailed,
     wa:window.__qa.whatsapp,extra:window.NS_DELIVERY_EXTRA,
