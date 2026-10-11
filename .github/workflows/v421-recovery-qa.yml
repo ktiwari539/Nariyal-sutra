@@ -74,3 +74,30 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Verify checkout against localhost with all external requests blocked
         run: node scripts/v421-browser-checkout-local-qa.mjs
+
+  release-package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout exact recovery commit
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Build static publish directory locally (no Netlify API or deployment)
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/build-netlify-site.mjs
+          test -f dist-site/index.html
+          test -f dist-site/llms.txt
+          test -f dist-site/robots.txt
+          test -f dist-site/sitemap.xml
+          test ! -e dist-site/docs
+          test ! -e dist-site/scripts
+          test ! -e dist-site/netlify
+      - name: Package actual five Netlify Functions with ephemeral bundler
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --no-save --no-package-lock --ignore-scripts @netlify/zip-it-and-ship-it esbuild
+          node scripts/netlify-function-package-qa.mjs
