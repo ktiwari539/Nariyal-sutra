@@ -6,6 +6,8 @@ on:
       - fix/v421-prod-logout-loop-20261011
     paths:
       - 'index.html'
+      - 'coconut-buying-guide.html'
+      - 'scripts/seo-customer-discovery-qa.mjs'
       - 'admin-bcc-login.html'
       - 'assets/js/v421-production-bridge.js'
       - 'assets/js/live-catalog.js'
@@ -56,6 +58,7 @@ jobs:
           node scripts/production-firebase-contract-qa.mjs
           node scripts/netlify-release-boundary-qa.mjs
           node scripts/seo-go-live-acceptance.mjs
+          node scripts/seo-customer-discovery-qa.mjs
 
   local-browser-checkout:
     runs-on: ubuntu-latest
