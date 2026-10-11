@@ -60,3 +60,27 @@ Following the initial green release checks, a deeper auth lifecycle review ident
 **Release decision remains HOLD:** This is compelling simulated and local-browser evidence, **not** authenticated Firebase Owner proof. Real Firebase logout and fresh Owner sign-in require an authenticated real session with the corrected candidate under the permitted production hostname. The existing production deployment remains `6aabbbb1784e0d2d89174d0d`, with no redeploy and no Netlify usage initiated here. Post-deploy live checkout and SEO indexing verification also remain pending.
 
 **Cost restriction:** no metered TinyFish automation, Netlify deployment, Firestore modification, or real outgoing email during these checks. Public GitHub Actions standard runners were used.
+
+
+## October 11 — final additional source hardening and buyer discovery
+
+**Latest passing tested source commit:** `4f925f87a76a9522d9a6733e570bdd04e6e16f70`  
+**CI:** [Recovery QA run 38142484137](https://github.com/ktiwari539/Nariyal-sutra/actions/runs/38142484137), **SUCCESS** (offline-regression and local-browser-checkout).
+
+### Newly completed
+
+- Fixed Netlify clean-route Admin mismatch: `/admin-preview` and `/admin-preview/` rewrite to the Admin HTML but the bridge previously only recognized `/admin-preview.html`. All three are now covered by the production Firebase Admin route predicate. Non-Admin URLs stay excluded.
+- Extended actual production-bridge regression to assert the path matrix.
+- Updated the buying guide with real, customer-visible guidance for search expressions “nariyal pani,” “narial paani,” “नारियल पानी” and “tender coconut delivery.” Added links to the product selection, order enquiry and trade pages. It states serviceability and final charges need confirmation and **does not promise worldwide delivery or hard-code volatile prices**.
+- Added dedicated source/sitemap/`llms.txt` discovery QA and workflow coverage.
+- Stabilized the synthetic Chromium checkout test by waiting for deferred scripts/attribution controls and installing mocks after page readiness. A transient test timeout was investigated; the final corrected run is fully green.
+- No production site or Firebase configuration was changed. Verified the rollback deployment remains `6aabbbb1784e0d2d89174d0d`.
+
+### Still genuine external gates — do not mislabel them as passed
+
+1. **Real authenticated Owner logout and fresh login** on a deployed build containing the new code. Verify no bounce back into Admin, including refresh and a second tab, and confirm the Owner can sign in again.
+2. **Production checkout/read/write/e-mail/Functions** acceptance with strictly controlled test identity, order, cleanup and consent; local browser tests only used mocked callbacks.
+3. **One expressly authorized Netlify production release** with rollback preserved, acknowledging possible usage/deployment credits. The zero-additional-credit instruction remains active.
+4. **Google Search Console follow-through after release:** check live `robots.txt`, `sitemap.xml`, `llms.txt`, canonical URLs and structured data; re-submit the current sitemap and inspect the homepage and buyer landing pages. Crawling/indexing and AI search citations are not instant or guaranteed.
+
+**Decision stays HOLD for production** until #1 can be verified safely after an explicitly authorized release. The GitHub work is checkpointed and tested.
