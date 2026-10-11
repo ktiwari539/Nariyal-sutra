@@ -9,6 +9,7 @@ on:
       - 'coconut-buying-guide.html'
       - 'scripts/seo-customer-discovery-qa.mjs'
       - 'scripts/v421-media-map-regression-qa.mjs'
+      - 'scripts/checkout-location-sync-qa.mjs'
       - 'assets/js/admin-v21.js'
       - 'assets/js/v21-public.js'
       - 'assets/js/map.js'
@@ -79,6 +80,8 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Verify checkout against localhost with all external requests blocked
         run: node scripts/v421-browser-checkout-local-qa.mjs
+      - name: Verify mobile checkout GPS and pin-to-address sync with mocked geocoder
+        run: node scripts/checkout-location-sync-qa.mjs
 
   release-package:
     runs-on: ubuntu-latest
