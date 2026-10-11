@@ -208,6 +208,8 @@ function installSignOut(){
   const wasReady=remoteReady;remoteReady=false;
   try{
    await authMod.signOut(auth);
+   if(typeof auth.authStateReady==='function')await auth.authStateReady();
+   if(auth.currentUser)throw new Error('Firebase session remained authenticated after sign-out.');
    user=null;role='';roleRecord=null;
    try{sessionStorage.removeItem('ns_v10_admin_session');sessionStorage.removeItem('ns-v421-preview-role');}catch(_){}
    location.replace('/admin-bcc-login.html?signed_out=1');
