@@ -96,3 +96,22 @@ The new CI release-package job executed the real static build locally with the e
 The production rollback remained `6aabbbb1784e0d2d89174d0d` when checked; PR #10 remained unmerged.
 
 **Live release still not authorized or proven:** real Firebase Owner login/logout/refresh/new-tab/login, and production checkout, pricing, email, Functions and live SEO acceptance require a controlled authorized release and genuine Owner session. The user's zero-additional-credit restriction still applies.
+
+## October 11 — explicit V17/V18 reported-image and map regression gate
+
+**Tested commit:** `f64f11fb95d693940f4498004261a29d461b351a`  
+**Verified CI:** [Run 38147924302](https://github.com/ktiwari539/Nariyal-sutra/actions/runs/38147924302), **3/3 jobs passed**: release-package, offline-regression, local-browser-checkout.
+
+The earlier V17/V18 incident report described missing `rain-coconut-*.png` references causing blue broken-image boxes, missing map styles, and pin moves that did not update the address/tracking preview. Rechecked the **current recovery branch** (not the old downloadable V18 archive).
+
+- Current homepage has **31 locally referenced image tags**, **13 distinct first-party image paths**, **0 missing** in the GitHub tree. The 3 story-coconut PNG pieces exist. The 4 removed rain-coconut asset names are still absent from the repository but are not active `img src` values; legacy rain drops remain disabled.
+- Verified source paths for Admin **Street / Satellite / Terrain** and **Open in Google Maps**, plus drag/click reverse-geocoding to update location label and coordinates and refresh tracking preview. Tested selected-pin Google Maps URL and reverse lookup against a fully mocked geocoder.
+- Verified customer map includes a drag handler, click handler, address update through shared delivery state and **Street / Satellite** options in tracking. No Google Maps billing/key setup was introduced.
+- Added and passed `scripts/v421-media-map-regression-qa.mjs` as an ongoing offline gate.
+- Added and passed `scripts/checkout-location-sync-qa.mjs` to the Chromium job with **all nonlocal requests blocked** (Nominatim reverse-geocoding mocked). Verified GPS precision/address fields, manually selected pin address/coordinates/source, and geolocation-permission denial fallback.
+- Existing Chromium checkout and Admin first-paint checks passed; the initial checkout test timeout was corrected through deterministic destination-first form setup.
+- Static Netlify package and exactly five callable bundled Functions passed again.
+
+**What is not proven:** physical touch/drag interactions on real iOS/Android, map tile-provider reachability in production, protected external asset loading, and **real authenticated Firebase Owner logout and refresh/fresh sign-in** on the undeployed corrected build. The current production site remains the restored deployment `6aabbbb1784e0d2d89174d0d`.
+
+The verified conclusion is **recovery source + offline/local-browser tests ready for further development**. This is **not** permission to publish, and does not certify the reported incidents are repaired on the live rolled-back site.
