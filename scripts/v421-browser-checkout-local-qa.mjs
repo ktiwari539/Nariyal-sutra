@@ -37,6 +37,9 @@ try {
       })});
     }});
   });
+  await page.waitForFunction(()=>document.readyState==='complete'
+    && window.__NS_ATTRIBUTION_ORDER_PATCHED__===true
+    && !!document.getElementById('nsDiscoverySource'),null,{timeout:10000});
   await page.locator('#oN').fill('Checkout Test Customer');
   await page.locator('#oP').fill('919876543210');
   await page.locator('#oEmail').fill('checkout-test@example.test');
@@ -51,8 +54,28 @@ try {
     'Required attribution prevents an incomplete checkout');
   assert.equal(await page.evaluate(()=>window.__qa.saved),null,'Incomplete checkout cannot save an order');
   await page.locator('#nsDiscoverySource').selectOption('google_search');
-  await page.evaluate(()=>window.placeOrder());
-  await page.waitForFunction(()=>!!window.__qa.saved&&!!window.__qa.emailed,null,{timeout:8000});
+  await page.evaluate(()=>{
+    // Install the synthetic callbacks again after all deferred scripts have finished.
+    window.NS_SAVE_ORDER=async record=>{window.__qa.saved=JSON.parse(JSON.stringify(record));return {ok:true};};
+    window.NS_SEND_ORDER_EMAILS=async record=>{window.__qa.emailed=JSON.parse(JSON.stringify(record));return [];};
+    window.placeOrder();
+  });
+  try{
+    await page.waitForFunction(()=>!!window.__qa.saved&&!!window.__qa.emailed,null,{timeout:12000});
+  }catch(error){
+    const diagnosis=await page.evaluate(()=>({
+      toast:document.getElementById('toast')?.textContent,
+      price:window.getCurrentPrice?.(),country:window.NSDeliveryState?.country,
+      quantity:document.getElementById('oQ')?.value,
+      attribution:document.getElementById('nsDiscoverySource')?.value,
+      stored:!!window.__qa.saved,emailed:!!window.__qa.emailed,
+      onlineStatus:document.getElementById('orderSaveStatus')?.textContent,
+      firebaseSave:String(window.NS_SAVE_ORDER).slice(0,160),
+      lastSubmit:sessionStorage.getItem('ns_last_submit')
+    }));
+    console.error('CHECKOUT QA DIAGNOSIS '+JSON.stringify(diagnosis));
+    throw error;
+  }
   const data=await page.evaluate(()=>({
     saved:window.__qa.saved,emailed:window.__qa.emailed,
     wa:window.__qa.whatsapp,extra:window.NS_DELIVERY_EXTRA,
