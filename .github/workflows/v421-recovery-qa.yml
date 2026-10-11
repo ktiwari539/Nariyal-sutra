@@ -8,6 +8,10 @@ on:
       - 'index.html'
       - 'coconut-buying-guide.html'
       - 'scripts/seo-customer-discovery-qa.mjs'
+      - 'scripts/v421-media-map-regression-qa.mjs'
+      - 'assets/js/admin-v21.js'
+      - 'assets/js/v21-public.js'
+      - 'assets/js/map.js'
       - 'admin-bcc-login.html'
       - 'assets/js/v421-production-bridge.js'
       - 'assets/js/live-catalog.js'
@@ -48,6 +52,7 @@ jobs:
           node --check ns-order-patch.js
           node scripts/v421-logout-flow-qa.mjs
           node scripts/v421-admin-auth-session-qa.mjs
+          node scripts/v421-media-map-regression-qa.mjs
           node scripts/v421-checkout-recap-qa.mjs
           node scripts/v421-destination-data-qa.mjs
       - name: Firebase, Netlify and price contracts without remote writes
