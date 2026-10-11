@@ -1,0 +1,57 @@
+name: V42.1 recovery safe QA
+
+on:
+  push:
+    branches:
+      - fix/v421-prod-logout-loop-20261011
+    paths:
+      - 'index.html'
+      - 'admin-bcc-login.html'
+      - 'assets/js/v421-production-bridge.js'
+      - 'assets/js/live-catalog.js'
+      - 'ns-delivery.js'
+      - 'ns-order-patch.js'
+      - 'scripts/v421-*.mjs'
+      - 'scripts/price-sync-qa.mjs'
+      - 'scripts/production-firebase-contract-qa.mjs'
+      - 'scripts/netlify-release-boundary-qa.mjs'
+      - 'scripts/seo-go-live-acceptance.mjs'
+      - '.github/workflows/v421-recovery-qa.yml'
+  workflow_dispatch:
+
+# No deploys, Firebase credentials, live requests, external providers, caches,
+# billable third-party browser agents or uploaded build artifacts.
+permissions:
+  contents: read
+
+concurrency:
+  group: v421-recovery-qa-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  offline-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout exact recovery commit
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Source parse and offline recovery regressions
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check assets/js/v421-production-bridge.js
+          node --check ns-delivery.js
+          node --check ns-order-patch.js
+          node scripts/v421-logout-flow-qa.mjs
+          node scripts/v421-checkout-recap-qa.mjs
+          node scripts/v421-destination-data-qa.mjs
+      - name: Firebase, Netlify and price contracts without remote writes
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/price-sync-qa.mjs
+          node scripts/production-firebase-contract-qa.mjs
+          node scripts/netlify-release-boundary-qa.mjs
+          node scripts/seo-go-live-acceptance.mjs
