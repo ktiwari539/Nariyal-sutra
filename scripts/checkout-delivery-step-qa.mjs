@@ -14,6 +14,9 @@ const browser=await chromium.launch({headless:true});
 try{
   for(const [size,width,height] of [['desktop',1440,900],['tablet',820,1100],['mobile',390,844]]){
     const context=await browser.newContext({viewport:{width,height},serviceWorkers:'block'});
+    // This is offline layout/interaction QA. The page-specific place-search fixture
+    // below takes precedence; maps, fonts and other hosted resources stay offline.
+    await context.route('**/*',route=>route.request().url().startsWith(BASE+'/')?route.continue():route.abort());
     const page=await context.newPage();
     const errors=[];
     page.on('pageerror',e=>{const message=String(e);if(/Failed to read the 'serviceWorker' property from 'Navigator'.*sandboxed.*allow-same-origin/i.test(message))return;errors.push(message);});
