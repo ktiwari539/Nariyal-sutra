@@ -3,6 +3,7 @@
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 
 const port=4215, base='http://127.0.0.1:'+port;
 const server=spawn('python3',['-m','http.server',String(port),'--bind','127.0.0.1'],{stdio:'ignore'});
@@ -70,7 +71,27 @@ try {
   assert.ok(message.includes('International quote requested'),'International quote qualification preserved');
   assert.equal(data.subtotal,770);
   await context.close();
-  console.log('PASS: local Chromium blocks incomplete checkout and confirms complete 10-unit international order, email and WhatsApp projections. All remote requests blocked.');
+  // Verify first paint from the canonical production hostname without contacting
+  // production: fulfill the HTML entirely from the checked-out repository.
+  const secure=await browser.newContext({serviceWorkers:'block'});
+  await secure.route('**/*',async route=>{
+    if(route.request().url()==='https://nariyal-sutra.netlify.app/admin-preview.html')
+      return route.fulfill({status:200,contentType:'text/html',
+        body:fs.readFileSync(new URL('../admin-preview.html',import.meta.url),'utf8')});
+    return route.abort();
+  });
+  const securePage=await secure.newPage();
+  const secureResponse=await securePage.goto('https://nariyal-sutra.netlify.app/admin-preview.html',
+    {waitUntil:'domcontentloaded',timeout:15000});
+  assert.equal(secureResponse?.status(),200,'Synthetic canonical Admin HTML loads');
+  const firstPaint=await securePage.evaluate(()=>({
+    gated:document.documentElement.classList.contains('ns-production-auth-pending'),
+    visibility:getComputedStyle(document.querySelector('.ap-app')).visibility
+  }));
+  assert.equal(firstPaint.gated,true,'Unauthenticated production Admin starts gated');
+  assert.equal(firstPaint.visibility,'hidden','Unauthenticated cached Admin shell stays hidden');
+  await secure.close();
+  console.log('PASS: localhost checkout and canonical-origin Admin first-paint gate. Zero external network requests.');
 } finally {
   if(browser)await browser.close();
   server.kill();
