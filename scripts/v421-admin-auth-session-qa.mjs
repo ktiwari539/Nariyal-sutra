@@ -3,6 +3,10 @@
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
 const bridge=fs.readFileSync(new URL('../assets/js/v421-production-bridge.js',import.meta.url),'utf8');
+const adminHtml=fs.readFileSync(new URL('../admin-preview.html',import.meta.url),'utf8');
+assert.ok(adminHtml.includes("location.hostname==='nariyal-sutra.netlify.app'"),'First paint gate restricted to production host');
+assert.ok(adminHtml.includes('html.ns-production-auth-pending .ap-app{visibility:hidden!important}'),'Production Admin UI hidden before auth finishes');
+assert.ok(bridge.includes("document.documentElement.classList.remove('ns-production-auth-pending')"),'Successful authenticated setup releases shell gate');
 const from=bridge.indexOf('let adminSessionTerminated=false;');
 const to=bridge.indexOf('function installSignOut(){',from);
 assert.ok(from>0&&to>from,'Find actual production Admin session watcher');
