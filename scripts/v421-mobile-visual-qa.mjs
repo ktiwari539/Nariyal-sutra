@@ -62,7 +62,7 @@ try {
           .map(img=>img.getAttribute('src')).slice(0,6);
         // Offscreen slide/carousel items and a closed Admin drawer do not cause
         // page-wide horizontal overflow; check these separately from stray controls.
-        const ignored=el=>!!el.closest('.promise-portals,.pc,#apSidebar');
+        const ignored=el=>!!el.closest('.promise-portals,.pc,#apSidebar,#nsPeopleMarquee');
         const controls=[...document.querySelectorAll('button,a,input,select,textarea')]
           .filter(visible).filter(el=>{
             const r=el.getBoundingClientRect();
