@@ -3,6 +3,17 @@
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
 const bridge=fs.readFileSync(new URL('../assets/js/v421-production-bridge.js',import.meta.url),'utf8');
+
+const routeExpression=bridge.match(/const isAdmin=([^;]+);/)?.[1];
+assert.ok(routeExpression,'Production Admin route predicate exists');
+const matchesAdmin=path=>new Function('location','return '+routeExpression)({pathname:path});
+for(const path of ['/admin-preview.html','/admin-preview','/admin-preview/']){
+  assert.equal(matchesAdmin(path),true,'Known Admin rewrite must require Firebase auth: '+path);
+}
+for(const path of ['/','/admin.html','/coconut-water','/admin-preview-not-really']){
+  assert.equal(matchesAdmin(path),false,'Non-Admin path must not enable Admin bridge: '+path);
+}
+
 const adminHtml=fs.readFileSync(new URL('../admin-preview.html',import.meta.url),'utf8');
 assert.ok(adminHtml.includes("location.hostname==='nariyal-sutra.netlify.app'"),'First paint gate restricted to production host');
 assert.ok(adminHtml.includes('html.ns-production-auth-pending .ap-app{visibility:hidden!important}'),'Production Admin UI hidden before auth finishes');

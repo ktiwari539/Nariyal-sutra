@@ -8,7 +8,7 @@ const LOCAL=/^(localhost|127\.0\.0\.1|\[::1\])$/i.test(location.hostname);
 // Fail closed outside the verified production hostname: draft deploys must never write live Firebase data.
 if(LOCAL||location.hostname!=='nariyal-sutra.netlify.app')return;
 const SDK='12.18.0';
-const isAdmin=/admin-preview\.html$/i.test(location.pathname);
+const isAdmin=/^\/admin-preview(?:\.html)?\/?$/i.test(location.pathname);
 const PUBLIC_KEYS=['sections','pageSequences','sectionMedia','sectionMediaLayout','media','faceMarquee','peopleStreams','harvest','customSections','stories','content','schedule','settings','themeConfig'];
 const PRIVATE_KEYS=['tasks','warehouses','deliveryServices','segments','communications','campaigns','notificationQueue'];
 const CUSTOMER_ROLES=['Owner','Admin','Manager','Operations','Support','Sales'];
