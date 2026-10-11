@@ -28,6 +28,12 @@ try {
     viewport:viewports[0],deviceScaleFactor:2,reducedMotion:'reduce'});
   await context.route('**/*',route=>{
     const url=route.request().url();
+    // The local HTTP server has no Netlify runtime. Supply the public theme
+    // endpoint as an inert fixture instead of counting its expected 404.
+    if(url.startsWith(base+'/.netlify/functions/published-auth-theme')){
+      return route.fulfill({status:200,contentType:'application/json',
+        body:JSON.stringify({published:false,enabled:false})});
+    }
     if(url===base||url.startsWith(base+'/'))return route.continue();
     report.blockedRemoteRequests++;
     return route.abort();
@@ -54,15 +60,23 @@ try {
           img.getAttribute('src')?.startsWith('/assets/')||img.getAttribute('src')?.startsWith('assets/'))
           .filter(img=>img.complete&&img.naturalWidth===0)
           .map(img=>img.getAttribute('src')).slice(0,6);
-        const fixed=[...document.querySelectorAll('button,a,input,select,textarea')]
+        // Offscreen slide/carousel items and a closed Admin drawer do not cause
+        // page-wide horizontal overflow; check these separately from stray controls.
+        const ignored=el=>!!el.closest('.promise-portals,.pc,#apSidebar');
+        const controls=[...document.querySelectorAll('button,a,input,select,textarea')]
           .filter(visible).filter(el=>{
             const r=el.getBoundingClientRect();
             return r.left< -9||r.right>vw+9;
-          }).map(el=>({id:el.id||null,label:el.getAttribute('aria-label')||el.textContent?.trim().slice(0,22)||el.tagName,
-            left:Math.round(el.getBoundingClientRect().left),right:Math.round(el.getBoundingClientRect().right)})).slice(0,6);
+          });
+        const fixed=controls.filter(el=>!ignored(el))
+          .map(el=>({id:el.id||null,
+            label:el.getAttribute('aria-label')||el.textContent?.trim().slice(0,22)||el.tagName,
+            left:Math.round(el.getBoundingClientRect().left),
+            right:Math.round(el.getBoundingClientRect().right)})).slice(0,6);
+        const intentionallyOffscreen=controls.filter(ignored).length;
         return {viewport:vw,scrollWidth:document.documentElement.scrollWidth,
           title:document.title,h1:document.querySelector('h1')?.textContent?.replace(/\s+/g,' ').trim().slice(0,100)||'',
-          broken,offscreenControls:fixed,main:!!document.querySelector('main'),numberOfImages:document.images.length};
+          broken,offscreenControls:fixed,intentionallyOffscreen,main:!!document.querySelector('main'),numberOfImages:document.images.length};
       });
       const scope=name+' @ '+vp.width+'x'+vp.height;
       if(!m.title)report.issues.push(scope+' missing title');
@@ -76,7 +90,7 @@ try {
           fullPage:false,timeout:10000});
       }
       report.checks.push({name,width:vp.width,layoutWidth:m.scrollWidth,
-        localImageCount:m.numberOfImages,brokenLocalImages:m.broken.length,offscreenControls:m.offscreenControls.length});
+        localImageCount:m.numberOfImages,brokenLocalImages:m.broken.length,offscreenControls:m.offscreenControls.length,clippedOrDrawerControls:m.intentionallyOffscreen});
     }
   }
   await context.close();
