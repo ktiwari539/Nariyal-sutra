@@ -45,7 +45,7 @@ try {
   await page.waitForFunction(()=>window.NSDeliveryState.country==='UAE');
   // Populate contact details only after destination and delayed form mounts settle.
   await page.locator('#oN').fill('Checkout Test Customer');
-  await page.locator('#oP').fill('919876543210');
+  await page.locator('#oP').fill('9876543210');
   await page.locator('#oEmail').fill('checkout-test@example.test');
   await page.locator('#oA').fill('Test locality, Dubai delivery destination');
   await page.locator('#oCity').fill('Dubai');
