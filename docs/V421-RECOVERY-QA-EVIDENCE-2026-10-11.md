@@ -43,3 +43,20 @@ No production deploy, staging build, Firestore rules change, credential change, 
 ## Cost posture
 
 This evidence was gathered through source reviews and GitHub Actions on free public-repository standard runners. No third-party metered browser automation was run. Do not create Netlify deploys, switch billing, or publish production without authorization.
+
+
+## October 11 — subsequent auth hardening and extended CI
+
+Following the initial green release checks, a deeper auth lifecycle review identified two additional fail-closed requirements and implemented them in the recovery branch:
+
+- `assets/js/v421-production-bridge.js`: subscribe to Firebase `onAuthStateChanged` after initial authorization. If an already-open Admin tab loses its session or switches identity, block remote writes, cancel queued saves, hide the Admin UI, clear cached session indicators and redirect to explicit sign-out login. Initial-session race and repeated events are handled.
+- `admin-preview.html`: hide the production Admin shell during first paint and Firebase bootstrap; the shell is released only by successful authorization. Local preview mode remains unchanged.
+- `scripts/v421-admin-auth-session-qa.mjs`: seven mock-auth lifecycle scenarios (same user, cross-tab logout, duplicate event, identity switch, in-progress logout, initial session loss, non-admin).
+- `scripts/v421-browser-checkout-local-qa.mjs`: Chromium now also loads the canonical production Admin HTML from a **local** repository fixture, intercepts all network traffic and verifies the first-paint gate stays closed before authorization.
+- `.github/workflows/v421-recovery-qa.yml`: invokes the new auth-event regression.
+
+**Authoritative latest CI:** [GitHub Actions run 38141302024](https://github.com/ktiwari539/Nariyal-sutra/actions/runs/38141302024): `completed / success`, `offline-regression=success`, `local-browser-checkout=success`. Tested code SHA: `c6acc7f66f7958fb3b0ca9e8642b5fc1890c59ef`.
+
+**Release decision remains HOLD:** This is compelling simulated and local-browser evidence, **not** authenticated Firebase Owner proof. Real Firebase logout and fresh Owner sign-in require an authenticated real session with the corrected candidate under the permitted production hostname. The existing production deployment remains `6aabbbb1784e0d2d89174d0d`, with no redeploy and no Netlify usage initiated here. Post-deploy live checkout and SEO indexing verification also remain pending.
+
+**Cost restriction:** no metered TinyFish automation, Netlify deployment, Firestore modification, or real outgoing email during these checks. Public GitHub Actions standard runners were used.
