@@ -17,6 +17,9 @@ try {
     return route.abort();
   });
   const page=await context.newPage();
+  const pageErrors=[];
+  page.on('pageerror',err=>pageErrors.push(String(err)));
+  page.on('console',msg=>{if(msg.type()==='error')pageErrors.push('console: '+msg.text());});
   const response=await page.goto(base+'/#order',{waitUntil:'domcontentloaded',timeout:30000});
   assert.equal(response?.status(),200,'Local storefront loads');
   await page.waitForFunction(()=>typeof window.NSLiveCatalog?.accept==='function'
@@ -49,7 +52,8 @@ try {
     state:window.NSDeliveryState?.country,
     deliveryMethod:window.NSDeliveryState?.selectedDelivery,
     saveType:typeof window.NS_SAVE_ORDER,emailType:typeof window.NS_SEND_ORDER_EMAILS,
-    submitLock:sessionStorage.getItem('ns_last_submit')
+    submitLock:sessionStorage.getItem('ns_last_submit'),
+    saveBody:String(window.NS_SAVE_ORDER).slice(0,160),emailBody:String(window.NS_SEND_ORDER_EMAILS).slice(0,160)
   }));
   console.log('CHECKOUT PRECALL '+JSON.stringify(debugBefore));
   await page.evaluate(()=>window.placeOrder());
@@ -63,6 +67,7 @@ try {
     confirm:document.getElementById('confirmModal')?.style.display
   }));
   console.log('CHECKOUT AFTERCALL '+JSON.stringify(debugAfter));
+  console.log('CHECKOUT PAGEERRORS '+JSON.stringify(pageErrors.slice(-12)));
   assert.ok(debugAfter.saved&&debugAfter.emailed,'Local browser checkout must reach stubbed order and email callbacks');
   const data=await page.evaluate(()=>({
     saved:window.__qa.saved,emailed:window.__qa.emailed,
