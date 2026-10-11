@@ -10,6 +10,8 @@ on:
       - 'scripts/seo-customer-discovery-qa.mjs'
       - 'scripts/v421-media-map-regression-qa.mjs'
       - 'scripts/checkout-location-sync-qa.mjs'
+      - 'scripts/v421-owner-login-browser-qa.mjs'
+      - 'scripts/v421-mobile-visual-qa.mjs'
       - 'assets/js/admin-v21.js'
       - 'assets/js/v21-public.js'
       - 'assets/js/map.js'
@@ -82,6 +84,10 @@ jobs:
         run: node scripts/v421-browser-checkout-local-qa.mjs
       - name: Verify mobile checkout GPS and pin-to-address sync with mocked geocoder
         run: node scripts/checkout-location-sync-qa.mjs
+      - name: Verify actual Owner login HTML with isolated Firebase ESM mocks
+        run: node scripts/v421-owner-login-browser-qa.mjs
+      - name: Audit mobile visual layouts and broken local imagery without external requests
+        run: node scripts/v421-mobile-visual-qa.mjs
 
   release-package:
     runs-on: ubuntu-latest
