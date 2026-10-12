@@ -59,6 +59,7 @@ jobs:
           fi
           timeout 15m node scripts/auth-guardian-qa.mjs
           timeout 3m node scripts/production-firebase-contract-qa.mjs
+          timeout 4m node scripts/v421-owner-login-browser-qa.mjs
           timeout 3m node scripts/admin-role-contract-qa.mjs
       - uses: actions/upload-artifact@v4
         if: always()

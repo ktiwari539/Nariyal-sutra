@@ -67,13 +67,14 @@ async function ensureFirebase(){
  auth=authMod.getAuth(app);db=fsMod.getFirestore(app);return cfg;
 }
 async function adminRole(u){
+ const normEmail=v=>String(v||'').trim().toLowerCase();
  const ownerUid=window.NS_ADMIN_CONFIG?.ownerUid||'',ownerEmail=window.NS_ADMIN_CONFIG?.ownerEmail||'';
  roleRecord=null;
  if(!u?.emailVerified||!u?.email)return '';
- if(u.uid===ownerUid){if(u.email!==ownerEmail)return '';roleRecord={uid:u.uid,email:u.email,role:'Owner',status:'Active',active:true,source:'configured-owner'};return 'Owner';}
+ if(u.uid===ownerUid){if(normEmail(u.email)!==normEmail(ownerEmail))return '';roleRecord={uid:u.uid,email:u.email,role:'Owner',status:'Active',active:true,source:'configured-owner'};return 'Owner';}
  const snap=await fsMod.getDoc(fsMod.doc(db,'adminRoles',u.uid));if(!snap.exists())return '';
  const x=snap.data()||{},candidate=String(x.role||'');
- if(!STAFF_ROLES.includes(candidate)||x.status!=='Active'||x.active!==true||String(x.email||'')!==String(u.email||''))return '';
+ if(!STAFF_ROLES.includes(candidate)||x.status!=='Active'||x.active!==true||normEmail(x.email)!==normEmail(u.email))return '';
  roleRecord={...x,uid:u.uid,source:'adminRoles'};return candidate;
 }
 async function waitAuth(){return new Promise(resolve=>{const off=authMod.onAuthStateChanged(auth,u=>{off();resolve(u);});});}
