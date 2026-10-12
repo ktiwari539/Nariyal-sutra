@@ -56,7 +56,7 @@ for(const kind of (process.env.NS_QA_KIND?[process.env.NS_QA_KIND]:['customer','
    ok(`${kind} ${theme} ${size}: all art loaded and visible`,loaded);
    await p.screenshot({path:`${out}/${kind}-${theme}-${size}.png`});
    const idle=await state(p);
-   ok(`${kind} ${theme} ${size}: subtle idle; intended element count`,idle.eyes<.03&&(kind==='admin'?idle.secondaryDisplay==='none':idle.secondaryDisplay!=='none'));
+   ok(`${kind} ${theme} ${size}: periodic idle blink; intended element count`,idle.pose==='idle'&&await p.locator('.ns-guardian-blink').first().evaluate(e=>getComputedStyle(e).animationName==='nsGuardianBlink')&&(kind==='admin'?idle.secondaryDisplay==='none':idle.secondaryDisplay!=='none'));
    await closeup(p,`${kind}-${theme}-${size}-idle-closeup`);
    await p.locator(q.email).focus();await p.waitForTimeout(800);const gaze=await state(p);
    ok(`${kind} ${theme} ${size}: gaze affects primary only`,gaze.eyes>idle.eyes&&gaze.group===idle.group&&gaze.secondary===idle.secondary);

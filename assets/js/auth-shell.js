@@ -37,14 +37,27 @@
       '<span class="ns-grove-privacy-leaf" data-guardian-leaf></span></div>'+
       '<div class="ns-nariyal-fallback">Rooted in nature.</div><span class="ns-nariyal-caption">Naturally considered.</span></div>';
   }
-  function hydrateArt(shell) {
+  function hydrateArt(shell, currentId) {
     var scene = shell.querySelector('.ns-nariyal-scene');
     var theme = window.NSAuthTheme, ready = theme && theme.ready ? theme.ready : Promise.resolve('nariyal-signature');
-    ready.then(function (id) {
+    (currentId ? Promise.resolve(currentId) : ready).then(function (id) {
       if (!shell.isConnected) return;
+      if (!currentId && theme) id = theme.id;
       var pairs = {'nariyal-signature':['signature','golden'],'fresh-grove':['fresh','coastal'],'coastal-premium':['coastal','fresh'],'golden-harvest':['golden','signature']};
+      if (!Object.prototype.hasOwnProperty.call(pairs, id)) id = 'nariyal-signature';
+      if (shell.dataset.guardianTheme === id) return;
+      shell.dataset.guardianTheme = id;
+      var version = (shell._guardianArtVersion || 0) + 1;
+      shell._guardianArtVersion = version;
+      scene.dataset.guardianReady = 'false';
+      delete shell.dataset.nariyalAsset;
       var pair = pairs[id] || pairs['nariyal-signature'], images = Array.from(scene.querySelectorAll('[data-guardian-product],[data-guardian-leaf]')), remaining = images.length;
-      function done(failed) { if (failed) shell.dataset.nariyalAsset = 'fallback'; if (--remaining === 0) scene.dataset.guardianReady = 'true'; }
+      function done(failed) {
+        // An earlier theme's late image callback cannot reveal or spoil newer art.
+        if (!shell.isConnected || shell._guardianArtVersion !== version) return;
+        if (failed) shell.dataset.nariyalAsset = 'fallback';
+        if (--remaining === 0) scene.dataset.guardianReady = 'true';
+      }
       images.forEach(function (slot) {
         // Insert a fully sourced image so storefront media guards never see an empty img.
         var img = document.createElement('img'); img.className = slot.className;
@@ -59,6 +72,10 @@
       });
     });
   }
+  window.addEventListener('ns:auth-theme-ready', function () {
+    var id = window.NSAuthTheme && window.NSAuthTheme.id;
+    document.querySelectorAll('.ns-auth-shell[data-auth-bound="true"]').forEach(function (shell) { hydrateArt(shell, id); });
+  });
   function markup(context, content, mode) {
     var c = copy[context] || copy.customer;
     return '<section class="ns-auth-shell" data-auth-context="'+context+'" data-auth-state="'+(mode||'signin')+'" data-nariyal-pose="idle">'+

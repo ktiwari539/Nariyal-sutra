@@ -8,12 +8,17 @@ on:
       - 'admin-bcc-login.html'
       - 'assets/js/v421-production-bridge.js'
       - 'assets/js/homepage-analytics.js'
+      - 'assets/js/auth-theme.js'
+      - 'assets/js/auth-shell.js'
+      - 'assets/css/auth-guardian.css'
       - 'index.html'
       - 'ns-delivery.js'
       - 'scripts/v422-fix-forward-qa.mjs'
       - 'scripts/v422-availability-recap-qa.mjs'
       - 'scripts/v422-startup-qa.mjs'
       - 'scripts/v422-storefront-browser-qa.mjs'
+      - 'scripts/v422-guardian-theme-browser-qa.mjs'
+      - 'scripts/v422-guardian-theme-qa.mjs'
       - 'scripts/v421-owner-login-browser-qa.mjs'
       - '.github/workflows/v422-fix-forward-qa.yml'
 permissions:
@@ -33,6 +38,8 @@ jobs:
           node scripts/v422-fix-forward-qa.mjs
           node scripts/v422-availability-recap-qa.mjs
           node scripts/v422-startup-qa.mjs
+          node scripts/v422-guardian-theme-qa.mjs
+          node scripts/auth-theme-contract-qa.mjs
           node scripts/v421-admin-auth-session-qa.mjs
           node scripts/v421-checkout-recap-qa.mjs
           node scripts/production-firebase-contract-qa.mjs
@@ -53,8 +60,12 @@ jobs:
         run: node scripts/v421-owner-login-browser-qa.mjs
       - name: Verify responsive live storefront preview with isolated catalog
         run: node scripts/v422-storefront-browser-qa.mjs
+      - name: Verify blinking, password privacy and live theme artwork
+        run: node scripts/v422-guardian-theme-browser-qa.mjs
       - uses: actions/upload-artifact@v4
         with:
           name: v422-storefront-browser-evidence
-          path: qa-artifacts/v422-storefront
+          path: |
+            qa-artifacts/v422-storefront
+            qa-artifacts/v422-guardian
           retention-days: 14

@@ -1,5 +1,5 @@
 /* Guardian edition: presentation only; all facial/leaf input is enum state. */
-.ns-auth-shell{--guardian-eye-well:#332b1b;--guardian-eye-rim:#806648;--guardian-iris:#776443;--guardian-gaze:1;--guardian-peek:.96;--guardian-intensity:1;--guardian-gaze-x:5px;--guardian-gaze-y:1px;--guardian-cycle:14s;--guardian-leaf-rest:-31deg;--guardian-leaf-y:5%;--guardian-turn:-4deg}
+.ns-auth-shell{--guardian-eye-well:#332b1b;--guardian-eye-rim:#806648;--guardian-iris:#776443;--guardian-gaze:1;--guardian-idle:.72;--guardian-blink-cycle:6.4s;--guardian-peek:.96;--guardian-intensity:1;--guardian-gaze-x:5px;--guardian-gaze-y:1px;--guardian-cycle:14s;--guardian-leaf-rest:-31deg;--guardian-leaf-y:5%;--guardian-turn:-4deg}
 .ns-nariyal-scene[data-guardian-ready="false"]{visibility:hidden}
 .ns-auth-shell .ns-nariyal-scene .ns-grove-product{display:block;filter:drop-shadow(3px 10px 8px #0004)}
 .ns-auth-shell .ns-nariyal-caption{display:none}
@@ -10,6 +10,9 @@
 .ns-auth-shell .ns-nariyal-eyes{opacity:.025;transform:none;transition:opacity .36s ease;animation:none}
 .ns-guardian-iris{transform:translate(0,0);transition:transform .75s cubic-bezier(.22,.7,.2,1)}
 .ns-guardian-blink{transform-box:fill-box;transform-origin:center;transform:scaleY(1)}
+/* A short visible glance/blink at rest; facial cues recede between glances. */
+.ns-auth-shell[data-nariyal-pose="idle"] .ns-nariyal-eyes{animation:nsGuardianIdleEyes var(--guardian-blink-cycle) linear infinite}
+.ns-auth-shell[data-nariyal-pose="idle"] .ns-guardian-blink{animation:nsGuardianBlink var(--guardian-blink-cycle) linear infinite}
 .ns-auth-shell .ns-nariyal-lids{opacity:0;transition:opacity .18s .12s;stroke-linecap:round}
 .ns-auth-shell .ns-nariyal-light{inset:0;mask-image:radial-gradient(ellipse,#000 25%,transparent 68%);opacity:.13;animation:nsGuardianLight var(--guardian-cycle) ease-in-out infinite}
 .ns-grove-leaf-rig{position:absolute;inset:0;z-index:4;perspective:800px;pointer-events:none;animation:nsGuardianPalm calc(var(--guardian-cycle) * 1.1) ease-in-out infinite}
@@ -19,7 +22,7 @@
 .ns-auth-shell .ns-nariyal-object{transition:transform .7s cubic-bezier(.2,.7,.2,1);perspective:800px}
 .ns-auth-shell[data-nariyal-pose="email"] .ns-nariyal-eyes{opacity:var(--guardian-gaze);transform:none}
 .ns-auth-shell[data-nariyal-pose="email"] .ns-guardian-iris{transform:translate(var(--guardian-gaze-x),var(--guardian-gaze-y))}
-.ns-auth-shell[data-nariyal-pose="email"] .ns-guardian-blink{animation:nsGuardianBlink 7.8s linear 1.6s infinite}
+.ns-auth-shell[data-nariyal-pose="email"] .ns-guardian-blink{animation:nsGuardianBlink var(--guardian-blink-cycle) linear infinite}
 .ns-auth-shell[data-nariyal-pose="email"] .ns-nariyal-glint{transform:none}
 .ns-auth-shell[data-nariyal-pose="email"] .ns-nariyal-object{transform:rotateZ(calc(.9deg * var(--guardian-intensity))) rotateY(calc(2deg * var(--guardian-intensity)))}
 .ns-auth-shell[data-nariyal-pose="privacy"] .ns-nariyal-object{transform:translateX(calc(-3px * var(--guardian-intensity))) rotateZ(var(--guardian-turn)) rotateY(calc(-5deg * var(--guardian-intensity)));transition-duration:520ms;transition-delay:360ms}
@@ -60,18 +63,18 @@ html[data-auth-theme="nariyal-signature"] .ns-auth-shell{grid-template-columns:4
 html[data-auth-theme="nariyal-signature"] .ns-auth-art{background:radial-gradient(ellipse at 15% 45%,#285342,#0a2a20 75%)}
 html[data-auth-theme="nariyal-signature"] .ns-auth-shell[data-auth-context="customer"] .ns-nariyal-scene{width:390px;height:340px}
 html[data-auth-theme="nariyal-signature"] .ns-auth-title{font-size:40px}
-html[data-auth-theme="fresh-grove"] .ns-auth-shell{grid-template-columns:45% 55%;border-radius:32px;--guardian-eye-well:#3b4622;--guardian-eye-rim:#63803d;--guardian-iris:#8b9755;--guardian-gaze:1;--guardian-peek:1;--guardian-cycle:11s;--guardian-turn:-3.5deg}
+html[data-auth-theme="fresh-grove"] .ns-auth-shell{grid-template-columns:45% 55%;border-radius:32px;--guardian-eye-well:#3b4622;--guardian-eye-rim:#63803d;--guardian-iris:#8b9755;--guardian-gaze:1;--guardian-peek:1;--guardian-cycle:11s;--guardian-blink-cycle:5.8s;--guardian-turn:-3.5deg}
 html[data-auth-theme="fresh-grove"] .ns-auth-content{padding-top:34px}
 html[data-auth-theme="fresh-grove"] .ns-auth-art{border-radius:210px 170px 18px 18px;margin-top:22px}
 html[data-auth-theme="fresh-grove"] .ns-auth-title{font-size:35px;letter-spacing:-.7px}
 html[data-auth-theme="fresh-grove"] .ns-auth-shell .ns-grove-privacy-leaf{filter:brightness(1.12) saturate(.86)}
 html[data-auth-theme="fresh-grove"] .ns-auth-transition :is(.ns-auth-sweep,.ns-auth-stage,.ns-nariyal-scene){animation-duration:940ms}
-html[data-auth-theme="coastal-premium"] .ns-auth-shell{grid-template-columns:43% 57%;--guardian-eye-well:#243d2d;--guardian-eye-rim:#557a4a;--guardian-iris:#68826b;--guardian-gaze:.94;--guardian-peek:.9;--guardian-cycle:19s}
+html[data-auth-theme="coastal-premium"] .ns-auth-shell{grid-template-columns:43% 57%;--guardian-eye-well:#243d2d;--guardian-eye-rim:#557a4a;--guardian-iris:#68826b;--guardian-gaze:.94;--guardian-peek:.9;--guardian-cycle:19s;--guardian-blink-cycle:7.2s}
 html[data-auth-theme="coastal-premium"] .ns-auth-content{border-left:1px solid #bacac064;padding-left:56px}
 html[data-auth-theme="coastal-premium"] .ns-auth-title{font-size:38px;letter-spacing:-1.2px}
 html[data-auth-theme="coastal-premium"] .ns-auth-shell .ns-grove-privacy-leaf{filter:brightness(.78) saturate(.48)}
 html[data-auth-theme="coastal-premium"] .ns-auth-shell .ns-nariyal-orbit{border-radius:130px 130px 2px 2px}
-html[data-auth-theme="golden-harvest"] .ns-auth-shell{grid-template-columns:46% 54%;--guardian-eye-well:#3a291b;--guardian-eye-rim:#a27d49;--guardian-iris:#947348;--guardian-gaze:1;--guardian-peek:.94;--guardian-cycle:13s}
+html[data-auth-theme="golden-harvest"] .ns-auth-shell{grid-template-columns:46% 54%;--guardian-eye-well:#3a291b;--guardian-eye-rim:#a27d49;--guardian-iris:#947348;--guardian-gaze:1;--guardian-peek:.94;--guardian-cycle:13s;--guardian-blink-cycle:6.8s}
 html[data-auth-theme="golden-harvest"] .ns-auth-content{padding-top:32px}
 html[data-auth-theme="golden-harvest"] .ns-auth-topline{padding-bottom:14px;border-bottom:1px solid #cbb99166}
 html[data-auth-theme="golden-harvest"] .ns-auth-title{font-size:37px}
@@ -79,7 +82,7 @@ html[data-auth-theme="golden-harvest"] .ns-auth-shell :is(.ns-grove-privacy-leaf
 html[data-auth-theme="golden-harvest"] .ns-auth-shell .ns-grove-privacy-leaf{filter:sepia(.35) saturate(.65) brightness(.94)}
 html[data-auth-theme="golden-harvest"] .ns-auth-art{border-color:#b59b6d}
 /* Admin is 35% intensity for turns, ambient motion and audio, with subdued eye contrast. */
-html .ns-auth-shell[data-auth-context="admin"]{--guardian-intensity:.35;--guardian-turn:-3deg;--guardian-gaze:.78;--guardian-peek:.7;--guardian-leaf-rest:-16deg;--guardian-leaf-y:28%}
+html .ns-auth-shell[data-auth-context="admin"]{--guardian-intensity:.35;--guardian-turn:-3deg;--guardian-gaze:.78;--guardian-idle:.58;--guardian-peek:.7;--guardian-blink-cycle:8.4s;--guardian-leaf-rest:-16deg;--guardian-leaf-y:28%}
 html[data-auth-theme="nariyal-signature"] .ns-auth-shell[data-auth-context="admin"]{grid-template-columns:44% 56%}
 .ns-auth-shell[data-auth-context="admin"] :is(.ns-grove-privacy-leaf,.ns-grove-leaf-shadow){left:10%;top:28%;width:95%}
 html[data-auth-theme="golden-harvest"] .ns-auth-shell[data-auth-context="admin"] :is(.ns-grove-privacy-leaf,.ns-grove-leaf-shadow){left:10%}
@@ -91,13 +94,13 @@ html[data-auth-theme="golden-harvest"] .ns-auth-shell[data-auth-context="admin"]
 .ns-auth-shell[data-auth-context="admin"][data-nariyal-pose="privacy"] :is(.ns-grove-privacy-leaf,.ns-grove-leaf-shadow){transform:translate3d(0,0,1px) rotateZ(0deg) rotateY(1deg)}
 .ns-auth-shell[data-auth-context="admin"][data-nariyal-pose="peek"] .ns-nariyal-eyes{opacity:var(--guardian-peek);transform:none}
 .ns-auth-shell[data-auth-context="admin"][data-auth-feedback="success"] .ns-nariyal-light{animation:nsGuardianBloom 400ms ease-out both}
-.ns-auth-shell[data-auth-context="admin"][data-nariyal-pose="email"] .ns-guardian-blink{animation-duration:11s}
 @keyframes nsGuardianBreath{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(0,calc(-1.6px * var(--guardian-intensity)),0)}}
 @keyframes nsGuardianDepth{0%,100%{transform:none}50%{transform:translate3d(-.6px,1px,0)}}
 @keyframes nsGuardianPalm{0%,100%{transform:rotate(0deg)}50%{transform:rotate(calc(.45deg * var(--guardian-intensity)))}}
 @keyframes nsGuardianGround{0%,100%{scale:1;opacity:.45}50%{scale:1.025;opacity:.4}}
 @keyframes nsGuardianLight{0%,100%{opacity:.1}50%{opacity:.19}}
-@keyframes nsGuardianBlink{0%,92%,96%,100%{transform:scaleY(1)}94%{transform:scaleY(.04)}}
+@keyframes nsGuardianIdleEyes{0%,38%,68%,100%{opacity:.025}44%,60%{opacity:var(--guardian-idle)}}
+@keyframes nsGuardianBlink{0%,46%,54%,100%{transform:scaleY(1)}50%{transform:scaleY(.04)}}
 @keyframes nsGuardianNotice{0%,20%{opacity:var(--guardian-gaze)}100%{opacity:0}}
 @keyframes nsGuardianConcern{0%,100%{rotate:0deg}45%{rotate:calc(-1.2deg * var(--guardian-intensity))}}
 @keyframes nsGuardianShade{0%,100%{opacity:.12}45%{opacity:.035}}
@@ -126,6 +129,7 @@ html[data-auth-theme="golden-harvest"] .ns-auth-shell[data-auth-context="admin"]
  .ns-auth-shell *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
  .ns-auth-shell .ns-nariyal-object,.ns-auth-shell .ns-guardian-core,.ns-auth-shell .ns-guardian-iris{transform:none!important;translate:none!important;rotate:none!important}
  .ns-auth-shell[data-nariyal-pose="peek"] .ns-nariyal-eyes{opacity:var(--guardian-peek)!important}
+ .ns-auth-shell[data-nariyal-pose="idle"] .ns-nariyal-eyes{opacity:.28!important}
  .ns-auth-shell[data-nariyal-pose="email"] .ns-nariyal-eyes,.ns-auth-shell[data-nariyal-pose="error"] .ns-nariyal-eyes{opacity:var(--guardian-gaze)!important}
  .ns-auth-shell .ns-nariyal-lids{opacity:0!important}
  .ns-auth-shell[data-nariyal-pose="privacy"] .ns-nariyal-eyes{opacity:0!important}

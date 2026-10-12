@@ -1,0 +1,32 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import vm from 'node:vm';
+const checks=[],ok=(name,value)=>{assert.ok(value,name);checks.push(name);console.log('PASS '+name);};
+async function boot({preview='',host='example.netlify.app'}={}){
+ const listeners={},root={dataset:{}},emitted=[];let deliver;
+ const response=new Promise(resolve=>{deliver=resolve;});
+ const window={addEventListener:(name,fn)=>listeners[name]=fn,dispatchEvent:e=>emitted.push(e)};
+ vm.runInNewContext(fs.readFileSync('assets/js/auth-theme.js','utf8'),{window,document:{documentElement:root},location:{hostname:host,search:preview?'?themePreview='+preview:''},URLSearchParams,AbortController,CustomEvent:class{constructor(type,options){this.type=type;this.detail=options.detail;}},setTimeout:()=>1,clearTimeout(){},fetch:()=>response});
+ const publish=(id,preview=false)=>{root.dataset.nsTheme=id;listeners['ns:theme-applied']({detail:{id,preview}});};
+ const reply=async id=>{deliver({ok:true,json:async()=>({themeId:id})});await new Promise(resolve=>setImmediate(resolve));};
+ return {window,root,emitted,publish,reply,listeners};
+}
+const s=await boot();s.publish('nariyal-signature');await s.reply('fresh-grove');
+ok('Placeholder storefront config does not replace sanitized initial published theme',s.window.NSAuthTheme.id==='fresh-grove');
+s.publish('fresh-grove');s.publish('coastal-premium');
+ok('A later public theme change updates the open login presentation',s.window.NSAuthTheme.id==='coastal-premium'&&s.root.dataset.authTheme==='coastal-premium');
+s.publish('unknown-private-draft');
+ok('Unknown theme IDs are ignored',s.window.NSAuthTheme.id==='coastal-premium');
+s.listeners['ns:theme-applied']({detail:{id:'golden-harvest'}});
+ok('Mismatched root/event theme IDs are ignored',s.window.NSAuthTheme.id==='coastal-premium');
+s.publish('golden-harvest');const count=s.emitted.length;s.publish('golden-harvest');
+ok('Repeated same-theme ticks do not restart art',s.emitted.length===count);
+const race=await boot();race.publish('nariyal-signature');race.publish('golden-harvest');await race.reply('fresh-grove');
+ok('Late initial endpoint response cannot overwrite a subsequent theme change',race.window.NSAuthTheme.id==='golden-harvest');
+const staged=await boot({preview:'fresh-grove'});await staged.reply('nariyal-signature');
+ok('An arbitrary remote query cannot select an Admin theme',staged.window.NSAuthTheme.id==='nariyal-signature');
+const local=await boot({preview:'fresh-grove',host:'127.0.0.1'});
+ok('Allowlisted local visual previews stay available',local.window.NSAuthTheme.id==='fresh-grove');
+const preview=await boot();preview.publish('coastal-premium',true);await preview.reply('nariyal-signature');
+ok('Explicit storefront preview synchronizes only presentation',preview.window.NSAuthTheme.id==='coastal-premium'&&preview.window.NSAuthTheme.status==='storefront-preview');
+fs.mkdirSync('qa-artifacts/v422-guardian',{recursive:true});fs.writeFileSync('qa-artifacts/v422-guardian/theme-events-results.json',JSON.stringify({ok:true,checks},null,2));
