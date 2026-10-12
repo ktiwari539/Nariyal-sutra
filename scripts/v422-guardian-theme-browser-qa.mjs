@@ -20,7 +20,7 @@ const server=http.createServer((req,res)=>{
 });
 await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
 const base='http://127.0.0.1:'+server.address().port,browser=await chromium.launch();
-async function context({theme='nariyal-signature',assetFail=false,delayFresh=false,...options}={}){
+async function context({theme='nariyal-signature',initialTheme=null,assetFail=false,delayFresh=false,...options}={}){
  const c=await browser.newContext({viewport:{width:1440,height:1000},...options});c.setDefaultTimeout(15000);
  await c.addInitScript(()=>{
   window.__authCalls=[];window.__credentialReads=[];window.NS_FIREBASE_READY=true;
@@ -28,6 +28,7 @@ async function context({theme='nariyal-signature',assetFail=false,delayFresh=fal
   Object.defineProperty(HTMLInputElement.prototype,'value',{...descriptor,get(){if(new Error().stack.includes('auth-shell.js'))__credentialReads.push('forbidden');return descriptor.get.call(this);}});
  });
  await c.addInitScript(fixtures.soundSpy);
+ if(initialTheme)await c.addInitScript(id=>localStorage.setItem('ns-v421-local-state-v28',JSON.stringify({themeConfig:{publishedTheme:id,manualOverride:null,schedules:[]}})),initialTheme);
  await c.route('**/*',r=>{
   const u=r.request().url();
   if(!['GET','HEAD'].includes(r.request().method())){blockedWrites.push(u);return r.abort();}
@@ -134,6 +135,11 @@ try{
  ok('Reopening My Account uses the latest theme',await p.locator('.ns-auth-shell').getAttribute('data-guardian-theme')==='golden-harvest');
  ok('Theme changes never invoke authentication or credential reads',await p.evaluate(()=>__authCalls.length===0&&__credentialReads.length===0));
  await c.close();
+ const initial=await context({initialTheme:'fresh-grove'}),ip=await open(initial,'customer','nariyal-signature',false);
+ ok('Initial storefront fixture can differ from bounded decorative endpoint fallback',await ip.evaluate(()=>NSStorefrontTheme.id==='fresh-grove'&&NSAuthTheme.id==='nariyal-signature'));
+ await ip.evaluate(()=>window.dispatchEvent(new CustomEvent('nsv421:production-ready',{detail:{mode:'public'}})));
+ await ip.waitForFunction(()=>NSAuthTheme.id==='fresh-grove'&&document.querySelector('.ns-auth-shell').dataset.guardianTheme==='fresh-grove'&&document.querySelector('.ns-nariyal-scene').dataset.guardianReady==='true');
+ ok('Resolved initial public theme updates real artwork without private reads or auth calls',await ip.locator('[data-guardian-product="primary"]').getAttribute('src')==='/assets/images/brand/guardian/fresh.webp'&&await ip.evaluate(()=>__authCalls.length===0&&__credentialReads.length===0));await initial.close();
  for(const kind of ['customer','admin']){
   const r=await context({reducedMotion:'reduce'}),rp=await open(r,kind);
   ok(kind+': reduced motion is static with usable controls',await rp.locator('.ns-auth-shell').evaluate(e=>[...e.querySelectorAll('*')].every(x=>getComputedStyle(x).animationName==='none'&&getComputedStyle(x).transitionDuration==='0s')));

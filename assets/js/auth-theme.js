@@ -2,7 +2,7 @@
 (function () {
   'use strict';
   var ids = ['nariyal-signature', 'fresh-grove', 'coastal-premium', 'golden-harvest'];
-  var root = document.documentElement, settled = false, resolveReady, storefrontId;
+  var root = document.documentElement, settled = false, resolveReady, storefrontId, storefrontReady = false;
   var ready = new Promise(function (resolve) { resolveReady = resolve; });
   var api = { id: ids[0], ready: ready, status: 'pending' };
   window.NSAuthTheme = api;
@@ -23,14 +23,22 @@
   // The storefront's first pass can use placeholder config. Initial login still
   // resolves the sanitized public endpoint; later published/scheduled changes
   // (or an explicit storefront preview) keep an open account panel in sync.
-  window.addEventListener('ns:theme-applied', function (event) {
+  function storefrontChanged(event) {
     var detail = event.detail || {}, id = detail.id;
     if (!ids.includes(id) || root.dataset.nsTheme !== id) return;
     var changed = storefrontId !== undefined && storefrontId !== id;
     storefrontId = id;
-    if ((!changed && !detail.preview) || (settled && api.id === id)) return;
+    if ((!changed && !detail.preview && !storefrontReady) || (settled && api.id === id)) return;
     settled = true;
     apply(id, detail.preview ? 'storefront-preview' : 'storefront');
+  }
+  window.addEventListener('ns:theme-applied', storefrontChanged);
+  window.addEventListener('nsv421:production-ready', function (event) {
+    if (!event.detail || event.detail.mode !== 'public') return;
+    storefrontReady = true;
+    // The public runtime handles this same event. Read its allowlisted result
+    // after its synchronous resolver, never its documents or private identity.
+    queueMicrotask(function () { storefrontChanged({detail:{id:root.dataset.nsTheme}}); });
   });
   // Explicit local visual previews cannot alter the published theme or escape the allowlist.
   if (/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)) {
