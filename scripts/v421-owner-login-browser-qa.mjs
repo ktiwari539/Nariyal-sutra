@@ -159,6 +159,26 @@ try {
     assert.equal(s.page.url().startsWith(origin),true,'Never redirect to external origin');
     await done(s);
   }
+  // Scenario 7: After a persisted-session restoration failure, do not auto-reenter Admin.
+  // Manual sign-in remains available and the failure is explained on screen.
+  {
+    const s=await openScenario({query:'?error=session-not-restored',persisted:true});
+    await s.page.getByText(/Firebase sign-in session was not restored on the Admin page/).waitFor();
+    await s.page.waitForTimeout(200);
+    assert.equal(new URL(s.page.url()).pathname,'/admin-bcc-login.html','No automatic re-entry after persistence failure');
+    await s.page.locator('#email').fill('qa-owner@example.test');
+    await s.page.locator('#pw').fill('qa-local-password');
+    await s.page.locator('#submit').click();
+    await s.page.waitForURL(url=>url.pathname==='/admin-preview.html',{timeout:8000});
+    await done(s);
+  }
+  // Scenario 8: Display actionable feedback if Admin role authorization fails.
+  {
+    const s=await openScenario({query:'?error=not-authorized'});
+    await s.page.getByText(/no verified active Admin access/).waitFor();
+    assert.equal(new URL(s.page.url()).pathname,'/admin-bcc-login.html');
+    await done(s);
+  }
   console.log('PASS real Admin login HTML in isolated Chromium: '+passed+' mocked Firebase scenarios; no external network');
 } finally {
   await browser.close();

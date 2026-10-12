@@ -9,6 +9,7 @@ on:
       - 'index.html'
       - 'ns-delivery.js'
       - 'scripts/v422-fix-forward-qa.mjs'
+      - 'scripts/v421-owner-login-browser-qa.mjs'
       - '.github/workflows/v422-fix-forward-qa.yml'
 permissions:
   contents: read
@@ -30,3 +31,16 @@ jobs:
           node scripts/production-firebase-contract-qa.mjs
           node scripts/price-sync-qa.mjs
           node scripts/build-netlify-site.mjs
+  mocked-owner-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Install isolated Chromium fixture dependencies
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Verify real login HTML with eight mocked Firebase scenarios
+        run: node scripts/v421-owner-login-browser-qa.mjs
