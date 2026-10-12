@@ -40,6 +40,8 @@ try{
       window.NSLiveCatalog.accept({metadata:{fromCache:false},forEach(fn){for(const [key,value] of Object.entries(base))fn({id:key,data:()=>({name:key==='tender'?'Fresh Tender Coconut':key==='green'?'Green Round Coconut':'Bulk Tender Coconut',active:true,...value,...(change?.[key]||{}),updatedAt:{seconds:3000+window.__v422QaRevision}})});}});
     },change);
     await publish();
+    assert.equal(await page.locator('#oQ').getAttribute('min'),'5',label+' live minimum attribute');
+    assert.equal(await page.locator('#oQ').getAttribute('max'),'100',label+' live stock maximum attribute');
     await page.locator('#oPr').selectOption('tender');
     const check=async(name,total,qty)=>{
       assert.equal(await page.locator('#oQ').inputValue(),String(qty),label+' '+name+' quantity');

@@ -33,9 +33,12 @@ function blocked(label){
   checks.push(label);
 }
 valid('Live tender minimum',5,385);
+assert.equal(nodes.oQ.min,'5','Live minimum must also update the quantity control');
+assert.equal(nodes.oQ.max,'100','Live stock must also update the quantity control');
 option.dataset.active='false';blocked('Product deactivated while selected');
 option.dataset.active='true';option.disabled=true;blocked('Selected option disabled');
 option.disabled=false;option.dataset.stock='3';blocked('Stock drops below live minimum');
+assert.equal(nodes.oQ.max,'3','Live stock changes must update the quantity maximum');
 option.dataset.stock='0';blocked('Selected product sells out');
 option.dataset.stock='100';price=null;blocked('Live price unavailable');
 price=77;selected=null;blocked('No product selected');

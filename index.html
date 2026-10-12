@@ -2919,6 +2919,7 @@ function calc(){
     return;
   }
   var min=productMin(opt),stock=productStock(opt),price=getCurrentPrice();
+  input.min=String(min);input.max=String(stock);
   var name=String(opt.dataset.name||opt.textContent||opt.value||'Coconut').replace(/\s*\(₹[\s\S]*$/,'').trim();
   if(summary)summary.textContent='Selected: '+name+' · minimum '+min+' piece'+(min===1?'':'s');
   if(price===null){
