@@ -29,8 +29,8 @@ const next=safeAdminNext(query.get('next'));
 if(returnedNotAuthorized){msg.className='msg err';msg.textContent='Sign-in was not completed because this account has no verified active Admin access. Ask the Owner to check the assigned role and identity.';}
 async function roleOf(u){
   if(!u?.emailVerified||!u?.email)return '';
-  if(u.uid===owner)return norm(u.email)===norm(ownerEmail)?'Owner':'';
-  try{const s=await getDoc(doc(db,'adminRoles',u.uid));if(!s.exists())return '';const x=s.data()||{},r=String(x.role||'');if(!['Admin','Manager','Operations','Content','Support','Sales'].includes(r))return '';if(x.status!=='Active'||x.active!==true||norm(x.email)!==norm(u.email))return '';return r;}catch{return '';}
+  if(u.uid===owner)return u.email===ownerEmail?'Owner':'';
+  try{const s=await getDoc(doc(db,'adminRoles',u.uid));if(!s.exists())return '';const x=s.data()||{},r=String(x.role||'');if(!['Admin','Manager','Operations','Content','Support','Sales'].includes(r))return '';if(x.status!=='Active'||x.active!==true||String(x.email||'')!==String(u.email||''))return '';return r;}catch{return '';}
 }
 let entering=null;
 async function enter(u){
@@ -55,6 +55,11 @@ async function enter(u){
       msg.textContent='The verified Owner email is correct, but its Firebase identity no longer matches the configured Owner binding.';
       await signOut(auth).catch(()=>{});
       return;
+    }
+    if(isConfiguredOwner&&u.uid===owner&&u.emailVerified&&u.email!==ownerEmail){
+      msg.className='msg err';
+      msg.textContent='The verified Owner account email does not exactly match the configured Firebase Owner identity. Access was blocked safely; contact the Owner administrator to review the account binding.';
+      await signOut(auth).catch(()=>{});return;
     }
     const r=await roleOf(u);
     if(!r){msg.className='msg err';msg.textContent='This verified account does not have active Business Command Center access.';await signOut(auth).catch(()=>{});return;}

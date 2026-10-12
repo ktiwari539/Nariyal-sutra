@@ -123,7 +123,7 @@ has(bridge,[
   "if(!u?.emailVerified||!u?.email)return ''",
   "x.status!=='Active'",
   'x.active!==true',
-  "normalizedEmail(x.email)!==normalizedEmail(u.email)",
+  "String(x.email||'')!==String(u.email||'')",
   "fsMod.collection(db,'customers')",
   "fsMod.collection(db,'customerAdmin')",
   'customerName:x.customerName',

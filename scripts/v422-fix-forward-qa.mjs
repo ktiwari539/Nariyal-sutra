@@ -8,27 +8,30 @@ const html=read('index.html');
 const delivery=read('ns-delivery.js');
 const login=read('admin-bcc-login.html');
 
-assert.ok(login.includes("const norm=v=>String(v||'').trim().toLowerCase()"));
-assert.ok(bridge.includes("const normalizedEmail=value=>String(value||'').trim().toLowerCase()"));
+assert.ok(login.includes("const returnedNotAuthorized=query.get('error')==='not-authorized'"));
+assert.ok(login.includes("if(u.uid===owner)return u.email===ownerEmail?'Owner':'';"),'Login role requires exact Owner email like Firestore rules');
+assert.ok(bridge.includes("if(u.uid===ownerUid){if(u.email!==ownerEmail)return '';"),'Production bridge must match Firestore Owner email exactly');
 const r0=bridge.indexOf('async function adminRole(u){');
 const r1=bridge.indexOf('async function waitAuth()',r0);
 assert.ok(r0>0&&r1>r0);
 const roleSource=bridge.slice(r0,r1);
 const roleFactory=new Function('roles',[
  "const STAFF_ROLES=['Admin','Manager','Operations','Content','Support','Sales'];",
- "const normalizedEmail=value=>String(value||'').trim().toLowerCase();",
+ // Firestore security rules require exact case-sensitive token/role email matching.
  "const window={NS_ADMIN_CONFIG:{ownerUid:'owner-uid',ownerEmail:'owner@example.test'}};",
  "const db={};let roleRecord=null;",
  "const fsMod={doc:(_db,c,id)=>({c,id}),getDoc:async ref=>({exists:()=>!!roles[ref.id],data:()=>roles[ref.id]})};",
  roleSource,
  "return adminRole;"
 ].join('\n'));
-const owner={uid:'owner-uid',email:'Owner@Example.Test ',emailVerified:true};
-assert.equal(await roleFactory({})(owner),'Owner','Owner case/whitespace variance must authenticate');
+const owner={uid:'owner-uid',email:'owner@example.test',emailVerified:true};
+assert.equal(await roleFactory({})(owner),'Owner','Exact verified Owner email and UID must authenticate');
+assert.equal(await roleFactory({})({...owner,email:'Owner@Example.Test'}),'','Case-mismatched email must fail closed to match Firestore rules');
 assert.equal(await roleFactory({})({...owner,uid:'wrong-uid'}),'','Wrong UID cannot obtain Owner access');
 assert.equal(await roleFactory({})({...owner,emailVerified:false}),'','Unverified account cannot obtain Owner access');
 const enabled={'staff-uid':{role:'Support',email:'STAFF@example.test',status:'Active',active:true}};
-assert.equal(await roleFactory(enabled)({uid:'staff-uid',email:'staff@example.test',emailVerified:true}),'Support','Assigned role should accept case variance');
+assert.equal(await roleFactory(enabled)({uid:'staff-uid',email:'staff@example.test',emailVerified:true}),'','Case-mismatched staff role must fail closed to match Firestore rules');
+assert.equal(await roleFactory(enabled)({uid:'staff-uid',email:'STAFF@example.test',emailVerified:true}),'Support','Matching verified staff role must authenticate');
 assert.equal(await roleFactory({'staff-uid':{...enabled['staff-uid'],email:'different@example.test'}})({uid:'staff-uid',email:'staff@example.test',emailVerified:true}),'','Different email cannot gain role');
 
 const c0=html.indexOf('function getCurrentPrice(){');
