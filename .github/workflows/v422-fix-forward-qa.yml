@@ -63,6 +63,7 @@ jobs:
       - name: Verify blinking, password privacy and live theme artwork
         run: node scripts/v422-guardian-theme-browser-qa.mjs
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: v422-storefront-browser-evidence
           path: |

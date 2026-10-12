@@ -8,6 +8,7 @@ import {chromium} from 'playwright';
 import * as fixtures from './fixtures/auth-firebase.mjs';
 
 const out='qa-artifacts/v422-guardian';fs.mkdirSync(out,{recursive:true});
+fs.rmSync(out+'/results.json',{force:true}); // A failed run must not inherit a previous PASS.
 const checks=[],errors=[],matrix=[],blockedWrites=[];
 const ok=(name,value)=>{assert.ok(value,name);checks.push(name);console.log('PASS '+name);};
 const themes={'nariyal-signature':'signature','fresh-grove':'fresh','coastal-premium':'coastal','golden-harvest':'golden'};
@@ -49,6 +50,9 @@ async function open(c,kind,theme='nariyal-signature',preview=true){
   await p.waitForFunction(()=>{const e=document.getElementById('main-site');return e&&getComputedStyle(e).pointerEvents!=='none';});
   ok('Customer login is hidden until My Account opens it',!await p.locator('#nsacct-overlay').isVisible());
   await p.locator('#nsacct-trigger').click();
+  // Opening the dialog schedules its accessible initial focus. Wait for that
+  // handoff before typing; it must not race the test's password-field focus.
+  await p.waitForFunction(()=>document.activeElement===document.getElementById('nsacct-panel'));
  }else await p.waitForFunction(()=>!document.getElementById('submit').disabled);
  await p.waitForFunction(()=>document.querySelector('.ns-auth-shell')?.dataset.authBound==='true'&&document.querySelector('.ns-nariyal-scene')?.dataset.guardianReady==='true');
  return p;
@@ -109,8 +113,12 @@ try{
  }
  const c=await context({delayFresh:true}),p=await open(c,'customer','nariyal-signature',false);
  await p.locator('#nsacct-login-password').fill('Synthetic-only-123');
+ await p.waitForFunction(()=>document.activeElement===document.getElementById('nsacct-login-password')&&document.querySelector('.ns-auth-shell').dataset.nariyalPose==='privacy');
+ const originalPassword=await p.locator('#nsacct-login-password').elementHandle();
  await publish(p,'fresh-grove');
- ok('An open customer login adopts the published theme without resetting focus or privacy',await p.locator('#nsacct-login-password').evaluate(e=>document.activeElement===e&&e.type==='password')&&await p.locator('.ns-auth-shell').getAttribute('data-nariyal-pose')==='privacy');
+ const retained=await originalPassword.evaluate(e=>({connected:e.isConnected,focused:document.activeElement===e,type:e.type,pose:e.closest('.ns-auth-shell')?.dataset.nariyalPose,active:document.activeElement.id}));
+ if(!(retained.connected&&retained.focused&&retained.type==='password'&&retained.pose==='privacy'))console.log('THEME FOCUS DIAGNOSTIC '+JSON.stringify(retained));
+ ok('An open customer login adopts the published theme without resetting focus or privacy',retained.connected&&retained.focused&&retained.type==='password'&&retained.pose==='privacy');
  await publish(p,'coastal-premium');await publish(p,'golden-harvest');await publish(p,'nariyal-signature');
  ok('Repeated published theme changes replace primary and secondary art',await p.locator('[data-guardian-product="primary"]').getAttribute('src')==='/assets/images/brand/guardian/signature.webp'&&await p.locator('[data-guardian-product="secondary"]').getAttribute('src')==='/assets/images/brand/guardian/golden.webp');
  // Rapid publication deliberately lets the obsolete green image finish last.
