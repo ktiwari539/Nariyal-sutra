@@ -60,6 +60,9 @@ function showError(msg){overlay('Admin connection blocked: '+msg);}
 function setEnvironmentLabel(){const e=document.querySelector('.ap-env');if(e)e.innerHTML='LIVE SECURE ADMIN<br>Real production data only. Demo fixtures are suppressed.';document.documentElement.dataset.nsAdminMode='production';}
 function lockRole(){const select=document.getElementById('apRole');if(select){if([...select.options].some(o=>o.value===role))select.value=role;select.disabled=true;select.title='Production role comes from verified Firebase identity and active Admin role mapping';select.dispatchEvent(new Event('change',{bubbles:true}));}try{Store.setSession({id:user?.uid||'',role,name:user?.email||role});}catch(e){}const pill=document.getElementById('apSessionPill');if(pill)pill.hidden=false;const n=document.getElementById('apSessionName');if(n)n.textContent=user?.email||'Signed-in staff';const r=document.getElementById('apSessionRole');if(r)r.textContent=role;}
 async function ensureFirebase(){
+ // Existing deferred scripts finish before DOMContentLoaded. A script tag alone
+ // does not mean firebase-config.js has executed when this bridge starts.
+ if(!window.NS_FIREBASE_CONFIG&&document.readyState==='loading')await new Promise(resolve=>document.addEventListener('DOMContentLoaded',resolve,{once:true}));
  if(!window.NS_FIREBASE_CONFIG)await loadScript('/firebase-config.js');
  const cfg=window.NS_FIREBASE_CONFIG||{};if(!cfg.apiKey||!cfg.projectId||!cfg.appId)throw new Error('Firebase configuration is missing.');
  [appMod,authMod,fsMod]=await Promise.all([import(`https://www.gstatic.com/firebasejs/${SDK}/firebase-app.js`),import(`https://www.gstatic.com/firebasejs/${SDK}/firebase-auth.js`),import(`https://www.gstatic.com/firebasejs/${SDK}/firebase-firestore.js`)]);

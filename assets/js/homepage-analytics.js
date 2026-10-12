@@ -1,7 +1,7 @@
 (function(){
   'use strict';
   const GA_ID='G-MXWV5S3CWY';
-  const TEST_ORIGIN=/^(localhost|127\.0\.0\.1|\[::1\]|[a-z0-9-]+--nariyal-sutra\.netlify\.app)$/i.test(location.hostname);
+  const TEST_ORIGIN=location.hostname!=='nariyal-sutra.netlify.app';
   window.__nsEventQueue=[];
   window.nsAnalyticsEvent=function(name,params){
     params=params||{};

@@ -1508,6 +1508,7 @@ body.ns-story-active .story-skip{display:block}.story-skip:hover{color:var(--gol
     if(document.readyState==='complete') setTimeout(resolve,250);
     else window.addEventListener('load',function(){setTimeout(resolve,250)},{once:true});
   });
+  const TEST_ORIGIN=location.hostname!=='nariyal-sutra.netlify.app';
   const cfg=window.NS_FIREBASE_CONFIG||{};
   const adminCfg=window.NS_ADMIN_CONFIG||{};
   const configured=Boolean(cfg.apiKey&&cfg.projectId&&cfg.appId);

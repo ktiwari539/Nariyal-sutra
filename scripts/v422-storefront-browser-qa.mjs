@@ -30,7 +30,10 @@ try{
     page.on('pageerror',err=>errors.push(String(err)));
     await page.goto(origin+'/#order',{waitUntil:'domcontentloaded'});
     await page.waitForFunction(()=>!!window.NSLiveCatalog&&!!window.NSDeliveryState&&window.__NS_ATTRIBUTION_ORDER_PATCHED__===true,null,{timeout:20000});
-    if(await page.locator('#ji-skip').isVisible())await page.locator('#ji-skip').click();
+    // The intro can finish between a visibility check and Playwright's click.
+    // Checkout QA completes the shipped intro directly; cinematic QA covers it.
+    await page.waitForFunction(()=>typeof window.skipIntro==='function');
+    await page.evaluate(()=>window.skipIntro());
     await page.waitForFunction(()=>getComputedStyle(document.getElementById('main-site')).pointerEvents!=='none');
     assert.equal(await page.locator('#pAmt').textContent(),'—',label+' initial price must not fabricate a subtotal');
     // Read-only public UX is hydrated with synthetic authoritative catalog values.
