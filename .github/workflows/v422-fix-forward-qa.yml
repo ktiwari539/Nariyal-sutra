@@ -1,0 +1,32 @@
+name: V42.2 fix-forward focused QA
+on:
+  push:
+    branches: [fix/v422-admin-login-checkout-preview-20261012]
+  pull_request:
+    branches: [main]
+    paths:
+      - 'assets/js/v421-production-bridge.js'
+      - 'index.html'
+      - 'ns-delivery.js'
+      - 'scripts/v422-fix-forward-qa.mjs'
+      - '.github/workflows/v422-fix-forward-qa.yml'
+permissions:
+  contents: read
+jobs:
+  focused-auth-checkout:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - run: |
+          set -euo pipefail
+          node --check assets/js/v421-production-bridge.js
+          node --check ns-delivery.js
+          node scripts/v422-fix-forward-qa.mjs
+          node scripts/v421-admin-auth-session-qa.mjs
+          node scripts/v421-checkout-recap-qa.mjs
+          node scripts/production-firebase-contract-qa.mjs
+          node scripts/price-sync-qa.mjs
+          node scripts/build-netlify-site.mjs
