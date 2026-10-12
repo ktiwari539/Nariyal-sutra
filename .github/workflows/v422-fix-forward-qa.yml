@@ -5,11 +5,13 @@ on:
   pull_request:
     branches: [main]
     paths:
+      - 'admin-bcc-login.html'
       - 'assets/js/v421-production-bridge.js'
       - 'index.html'
       - 'ns-delivery.js'
       - 'scripts/v422-fix-forward-qa.mjs'
       - 'scripts/v422-availability-recap-qa.mjs'
+      - 'scripts/v422-storefront-browser-qa.mjs'
       - 'scripts/v421-owner-login-browser-qa.mjs'
       - '.github/workflows/v422-fix-forward-qa.yml'
 permissions:
@@ -46,3 +48,10 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Verify real login HTML with eight mocked Firebase scenarios
         run: node scripts/v421-owner-login-browser-qa.mjs
+      - name: Verify responsive live storefront preview with isolated catalog
+        run: node scripts/v422-storefront-browser-qa.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v422-storefront-browser-evidence
+          path: qa-artifacts/v422-storefront
+          retention-days: 14
