@@ -85,9 +85,15 @@ try{
     await blinkFrame(p,.46);await p.screenshot({path:out+'/'+kind+'-'+theme+'-'+label+'.png'});
     await blinkFrame(p,.50);await p.locator('.ns-auth-art').screenshot({path:out+'/'+kind+'-'+theme+'-'+label+'-blink.png'});
    }
+   // Paused CSS timelines can survive as detached Web Animations after a style
+   // change. Release the sampled frames before testing the live privacy state.
+   await shell.evaluate(e=>{for(const a of e.getAnimations({subtree:true}))if(['nsGuardianIdleEyes','nsGuardianBlink'].includes(a.animationName))a.cancel();});
    const password=kind==='customer'?'#nsacct-login-password':'#pw';
-   await p.locator(password).focus();await p.waitForTimeout(450);
-   ok(prefix+': password stops blinking and closes eyes',await shell.evaluate(e=>e.dataset.nariyalPose==='privacy'&&Number(getComputedStyle(e.querySelector('.ns-nariyal-eyes')).opacity)===0&&getComputedStyle(e.querySelector('.ns-guardian-blink')).animationName==='none'));
+   await p.locator(password).focus();
+   await p.waitForFunction(()=>{const e=document.querySelector('.ns-auth-shell');return e.dataset.nariyalPose==='privacy'&&Number(getComputedStyle(e.querySelector('.ns-nariyal-eyes')).opacity)===0&&getComputedStyle(e.querySelector('.ns-guardian-blink')).animationName==='none';},null,{timeout:1500});
+   const privacy=await shell.evaluate(e=>({pose:e.dataset.nariyalPose,eyes:Number(getComputedStyle(e.querySelector('.ns-nariyal-eyes')).opacity),blink:getComputedStyle(e.querySelector('.ns-guardian-blink')).animationName,active:document.activeElement.id,animations:e.querySelector('.ns-nariyal-eyes').getAnimations().map(a=>({name:a.animationName,time:a.currentTime,state:a.playState}))}));
+   if(!(privacy.pose==='privacy'&&privacy.eyes===0&&privacy.blink==='none'))console.log('PRIVACY DIAGNOSTIC '+JSON.stringify(privacy));
+   ok(prefix+': password stops blinking and closes eyes',privacy.pose==='privacy'&&privacy.eyes===0&&privacy.blink==='none');
    await p.locator('.ns-auth-reveal').click();
    await p.waitForFunction(()=>{const e=document.querySelector('.ns-auth-shell');return e.dataset.nariyalPose==='peek'&&Number(getComputedStyle(e.querySelector('.ns-guardian-eye-far')).opacity)===0;});
    ok(prefix+': Show permits one-eye peek only',await shell.evaluate(e=>Number(getComputedStyle(e.querySelector('.ns-guardian-eye-near')).opacity)===1));
