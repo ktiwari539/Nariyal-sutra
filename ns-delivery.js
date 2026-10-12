@@ -718,7 +718,8 @@ function nsUpdateAddressPrompt(){
 function nsDelUpdateSummary(){
   var summaryEl=el('ns-del-summary');
   if(!summaryEl)return;
-  var q=parseInt((el('oQ')||{}).value)||1;
+  var q=parseInt((el('oQ')||{}).value,10);
+  if(!Number.isInteger(q)||q<1){summaryEl.style.display='block';summaryEl.textContent='Select your product and quantity to preview the order subtotal.';return;}
   var price=typeof getCurrentPrice==='function'?getCurrentPrice():null;
   if(price===null){summaryEl.style.display='block';summaryEl.textContent='Current product price unavailable. Please retry before ordering.';return;}
   var subtotal=q*price;
