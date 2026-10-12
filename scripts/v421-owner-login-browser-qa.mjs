@@ -109,6 +109,7 @@ try {
     assert.equal(state.auth.currentUser,null);
     assert.equal(state.auth.signouts,1);
     assert.equal(state.disabled,false);
+    assert.equal(new URL(s.page.url()).searchParams.has('signed_out'),false,'One-time sign-out query must be removed before future navigation');
     await s.page.reload({waitUntil:'domcontentloaded'});
     await s.page.waitForTimeout(250);
     assert.equal(new URL(s.page.url()).pathname,'/admin-bcc-login.html',
@@ -157,6 +158,13 @@ try {
     await s.page.locator('#submit').click();
     await s.page.waitForURL(url=>url.pathname==='/admin-preview.html',{timeout:8000});
     assert.equal(s.page.url().startsWith(origin),true,'Never redirect to external origin');
+    await done(s);
+  }
+  // Scenario 7: an Admin denial must be visible rather than silently looping.
+  {
+    const s=await openScenario({query:'?error=not-authorized'});
+    await s.page.getByText(/Firebase sign-in succeeded, but this account did not pass Admin role authorization/).waitFor();
+    assert.equal(new URL(s.page.url()).pathname,'/admin-bcc-login.html');
     await done(s);
   }
   console.log('PASS real Admin login HTML in isolated Chromium: '+passed+' mocked Firebase scenarios; no external network');

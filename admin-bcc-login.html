@@ -25,6 +25,7 @@ function safeAdminNext(raw){
 const query=new URLSearchParams(location.search);
 const explicitSignedOut=query.get('signed_out')==='1';
 const next=safeAdminNext(query.get('next'));
+const adminDenied=query.get('error')==='not-authorized';
 async function roleOf(u){
   if(!u?.emailVerified||!u?.email)return '';
   if(u.uid===owner)return norm(u.email)===norm(ownerEmail)?'Owner':'';
@@ -72,6 +73,11 @@ if(explicitSignedOut){
     if(auth.currentUser)throw new Error('Firebase authentication is still active after sign-out');
     try{sessionStorage.removeItem('ns_v10_admin_session');sessionStorage.removeItem('ns-v421-preview-role');}catch(_){}
     signedOutConfirmed=true;
+    // Explicit sign-out is a one-time action. A future reload must not sign out
+    // an Owner who has already signed in again in a different tab.
+    const safeUrl=new URL(location.href);
+    safeUrl.searchParams.delete('signed_out');
+    history.replaceState(null,'',safeUrl.pathname+safeUrl.search+safeUrl.hash);
     msg.className='msg ok';msg.textContent='You are signed out. Sign in again to access Admin.';
   }catch(error){
     console.error('[BCC] Could not verify signed-out Firebase session',error);
@@ -79,6 +85,10 @@ if(explicitSignedOut){
   }
 }
 btn.disabled=!signedOutConfirmed;
+if(adminDenied){
+  msg.className='msg err';
+  msg.textContent='Firebase sign-in succeeded, but this account did not pass Admin role authorization. Verify the account and its active role binding.';
+}
 document.getElementById('login').addEventListener('submit',async e=>{
   e.preventDefault();const form=e.currentTarget;if(!signedOutConfirmed||form.getAttribute('aria-busy')==='true')return;
   const reset=form.dataset.authMode==='reset';btn.disabled=true;form.setAttribute('aria-busy','true');
