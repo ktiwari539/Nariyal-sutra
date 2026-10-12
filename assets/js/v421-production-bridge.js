@@ -244,7 +244,7 @@ function installSignOut(){
 }
 async function initAdmin(){
  overlay('Authenticating secure Business Command Center…');user=await waitAuth();
- if(!user){const next=encodeURIComponent('admin-preview.html'+location.search+location.hash);location.replace('/admin-bcc-login.html?next='+next);return;}
+ if(!user){const next=encodeURIComponent('admin-preview.html'+location.search+location.hash);location.replace('/admin-bcc-login.html?error=session-not-restored&next='+next);return;}
  role=await adminRole(user);const allowed=['Owner',...STAFF_ROLES];
  if(!allowed.includes(role)){await authMod.signOut(auth).catch(()=>{});location.replace('/admin-bcc-login.html?error=not-authorized');return;}
  overlay('Loading live Admin configuration…');originalSave(scrubDemoOperational(originalLoad()));

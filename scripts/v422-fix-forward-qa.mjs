@@ -9,6 +9,10 @@ const delivery=read('ns-delivery.js');
 const login=read('admin-bcc-login.html');
 
 assert.ok(login.includes("const returnedNotAuthorized=query.get('error')==='not-authorized'"));
+assert.ok(login.includes("const returnedSessionMissing=query.get('error')==='session-not-restored'"),'Persisted Firebase auth failure must be explained');
+assert.ok(login.includes('!returnedSessionMissing&&u)enter(u)'),'Do not auto-redirect back into Admin after a session restoration failure');
+assert.ok(login.includes('if(explicitSignedOut||returnedSessionMissing)await enter(credential.user);'),'A manual sign-in can retry after session loss');
+assert.ok(bridge.includes("?error=session-not-restored&next="),'Admin missing session must redirect with a diagnosable reason');
 assert.ok(login.includes("if(u.uid===owner)return u.email===ownerEmail?'Owner':'';"),'Login role requires exact Owner email like Firestore rules');
 assert.ok(bridge.includes("if(u.uid===ownerUid){if(u.email!==ownerEmail)return '';"),'Production bridge must match Firestore Owner email exactly');
 const r0=bridge.indexOf('async function adminRole(u){');
