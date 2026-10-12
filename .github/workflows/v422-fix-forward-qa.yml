@@ -9,6 +9,7 @@ on:
       - 'index.html'
       - 'ns-delivery.js'
       - 'scripts/v422-fix-forward-qa.mjs'
+      - 'scripts/v422-availability-recap-qa.mjs'
       - 'scripts/v421-owner-login-browser-qa.mjs'
       - '.github/workflows/v422-fix-forward-qa.yml'
 permissions:
@@ -26,6 +27,7 @@ jobs:
           node --check assets/js/v421-production-bridge.js
           node --check ns-delivery.js
           node scripts/v422-fix-forward-qa.mjs
+          node scripts/v422-availability-recap-qa.mjs
           node scripts/v421-admin-auth-session-qa.mjs
           node scripts/v421-checkout-recap-qa.mjs
           node scripts/production-firebase-contract-qa.mjs

@@ -2906,13 +2906,18 @@ function syncProductSelection(){
 }
 function getCurrentPrice(){ return window.NSLiveCatalog.price(currentProduct()?.value); }
 function getCurrentTotal(){
-  var opt=currentProduct(),q=parseInt(document.getElementById('oQ')?.value,10),p=getCurrentPrice();
-  return p===null||!opt||!Number.isInteger(q)||q<productMin(opt)||q>productStock(opt)?null:q*p;
+  var opt=currentProduct(),q=Number(document.getElementById('oQ')?.value),p=getCurrentPrice();
+  return p===null||!opt||opt.disabled||opt.dataset.active==='false'||!Number.isInteger(q)||q<productMin(opt)||q>productStock(opt)?null:q*p;
 }
 function calc(){
   var amount=document.getElementById('pAmt'),note=document.getElementById('pNote'),
       summary=document.getElementById('orderSelectionSummary'),input=document.getElementById('oQ'),opt=currentProduct();
-  if(!amount||!note||!input||!opt)return;
+  if(!amount||!note||!input)return;
+  if(!opt){
+    amount.textContent='—';note.textContent='Select an available product to preview your order.';
+    if(summary)summary.textContent='Select your product and quantity to preview the order subtotal.';
+    return;
+  }
   var min=productMin(opt),stock=productStock(opt),price=getCurrentPrice();
   var name=String(opt.dataset.name||opt.textContent||opt.value||'Coconut').replace(/\s*\(₹[\s\S]*$/,'').trim();
   if(summary)summary.textContent='Selected: '+name+' · minimum '+min+' piece'+(min===1?'':'s');
@@ -2978,7 +2983,7 @@ function placeOrder(){
   var n=document.getElementById('oN').value.trim();
   var p=document.getElementById('oP').value.trim();
   var emEl=document.getElementById('oEmail'); var em=emEl?emEl.value.trim():'';
-  var q=parseInt(document.getElementById('oQ').value,10);
+  var q=Number(document.getElementById('oQ').value);
   if(!Number.isInteger(q)||q<1){toast('Please select a valid product quantity before ordering.');return;}
   var prOpt=currentProduct();
   var pr=prOpt?prOpt.textContent.trim():document.getElementById('oPr').value;

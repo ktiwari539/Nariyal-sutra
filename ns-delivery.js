@@ -463,6 +463,7 @@ function nsDelShowOptions(){
   var optsList=el('ns-del-opts-list');
   if(!optsSection||!optsList) return;
   if(!Number.isInteger(q)||q<1){optsSection.style.display='none';optsList.textContent='';return;}
+  if(typeof getCurrentTotal!=='function'||getCurrentTotal()===null){optsSection.style.display='none';optsList.textContent='';return;}
 
   var opts=deliveryEstimates(q, nsDelivery.isInternational);
   /* A later checkout layout stylesheet forces this section to a two-column grid. Keep the four delivery cards across the full section, not inside its first column. */
@@ -723,7 +724,8 @@ function nsDelUpdateSummary(){
   if(!Number.isInteger(q)||q<1){summaryEl.style.display='block';summaryEl.textContent='Select your product and quantity to preview the order subtotal.';return;}
   var price=typeof getCurrentPrice==='function'?getCurrentPrice():null;
   if(price===null){summaryEl.style.display='block';summaryEl.textContent='Current product price unavailable. Please retry before ordering.';return;}
-  var subtotal=q*price;
+  var subtotal=typeof getCurrentTotal==='function'?getCurrentTotal():null;
+  if(subtotal===null){summaryEl.style.display='block';summaryEl.textContent='Select an available product and quantity to preview the order subtotal.';return;}
   var opts=deliveryEstimates(q,nsDelivery.isInternational);
   var chosen=opts.find(function(o){return o.id===nsDelivery.selectedDelivery;});
   var freq={onetime:'One-time order',weekly:'Weekly (preference)',fortnightly:'Every 2 weeks (preference)',monthly:'Monthly (preference)',flexible:'Flexible repeat order (preference)'};
@@ -749,6 +751,7 @@ function patchPlaceOrder(){
     /* Build delivery data before calling original */
     var q=parseInt((el('oQ')||{}).value,10);
     if(!Number.isInteger(q)||q<1)return orig.apply(this,arguments); // Original form displays its validation error; never fabricate one item.
+    if(typeof getCurrentTotal!=='function'||getCurrentTotal()===null)return orig.apply(this,arguments);
     var opts=deliveryEstimates(q, nsDelivery.isInternational);
     var chosen=opts.find(function(o){return o.id===nsDelivery.selectedDelivery;});
     var token=genToken();
@@ -825,7 +828,8 @@ function nsShowOrderHub(){
   if(!Number.isInteger(q)||q<1)return;
   var price=typeof getCurrentPrice==='function'?getCurrentPrice():null;
   if(price===null)return;
-  var subtotal=q*price;
+  var subtotal=typeof getCurrentTotal==='function'?getCurrentTotal():null;
+  if(subtotal===null)return;
   var opts=deliveryEstimates(q, nsDelivery.isInternational);
   var chosen=opts.find(function(o){return o.id===nsDelivery.selectedDelivery;});
   var orderIdEl=el('confSummary');
