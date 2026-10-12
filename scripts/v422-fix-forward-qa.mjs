@@ -68,5 +68,7 @@ const d0=delivery.indexOf('function nsDelUpdateSummary(){');
 const d1=delivery.indexOf('function patchPlaceOrder()',d0);
 assert.ok(d0>0&&d1>d0);
 assert.ok(delivery.slice(d0,d1).includes("if(!Number.isInteger(q)||q<1)"),'Delivery preview needs explicit empty-quantity state');
+assert.ok(!delivery.includes("parseInt((el('oQ')||{}).value)||1"),'No delivery/order hub fallback may fabricate a one-piece subtotal');
+assert.ok(login.includes("const returnedNotAuthorized=query.get('error')==='not-authorized'"),'Rejected Admin roles need an explicit explanatory login message');
 assert.ok(html.includes('id="orderSelectionSummary" role="status" aria-live="polite"'),'Customer-visible live preview and screen-reader announcement');
 console.log('PASS fix-forward auth UID/email guards, verified roles, live order-preview normalization, exact prices, empty and unavailable states');

@@ -24,7 +24,9 @@ function safeAdminNext(raw){
 }
 const query=new URLSearchParams(location.search);
 const explicitSignedOut=query.get('signed_out')==='1';
+const returnedNotAuthorized=query.get('error')==='not-authorized';
 const next=safeAdminNext(query.get('next'));
+if(returnedNotAuthorized){msg.className='msg err';msg.textContent='Sign-in was not completed because this account has no verified active Admin access. Ask the Owner to check the assigned role and identity.';}
 async function roleOf(u){
   if(!u?.emailVerified||!u?.email)return '';
   if(u.uid===owner)return norm(u.email)===norm(ownerEmail)?'Owner':'';

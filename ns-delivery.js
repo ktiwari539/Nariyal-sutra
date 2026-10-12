@@ -458,10 +458,11 @@ window.nsDelCountryChange = function(){
 
 /* ─── Show delivery options ─── */
 function nsDelShowOptions(){
-  var q=parseInt((el('oQ')||{}).value)||1;
+  var q=parseInt((el('oQ')||{}).value,10);
   var optsSection=el('ns-del-opts-section');
   var optsList=el('ns-del-opts-list');
   if(!optsSection||!optsList) return;
+  if(!Number.isInteger(q)||q<1){optsSection.style.display='none';optsList.textContent='';return;}
 
   var opts=deliveryEstimates(q, nsDelivery.isInternational);
   /* A later checkout layout stylesheet forces this section to a two-column grid. Keep the four delivery cards across the full section, not inside its first column. */
@@ -746,7 +747,8 @@ function patchPlaceOrder(){
   var orig=window.placeOrder;
   window.placeOrder=function(){
     /* Build delivery data before calling original */
-    var q=parseInt((el('oQ')||{}).value)||1;
+    var q=parseInt((el('oQ')||{}).value,10);
+    if(!Number.isInteger(q)||q<1)return orig.apply(this,arguments); // Original form displays its validation error; never fabricate one item.
     var opts=deliveryEstimates(q, nsDelivery.isInternational);
     var chosen=opts.find(function(o){return o.id===nsDelivery.selectedDelivery;});
     var token=genToken();
@@ -819,7 +821,8 @@ function nsShowOrderHub(){
   if(!hub) return;
 
   var n=(el('oN')||{}).value||'Customer';
-  var q=parseInt((el('oQ')||{}).value)||1;
+  var q=parseInt((el('oQ')||{}).value,10);
+  if(!Number.isInteger(q)||q<1)return;
   var price=typeof getCurrentPrice==='function'?getCurrentPrice():null;
   if(price===null)return;
   var subtotal=q*price;
