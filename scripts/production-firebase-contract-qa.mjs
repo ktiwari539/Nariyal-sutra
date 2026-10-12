@@ -194,7 +194,7 @@ has(login,[
   'Owner email verification sent to ',
   "x.status!=='Active'",
   'x.active!==true',
-  'norm(x.email)!==norm(u.email)',
+  "String(x.email||'')!==String(u.email||'')",
   'NS_INIT_APP_CHECK'
 ],'admin login');
 
