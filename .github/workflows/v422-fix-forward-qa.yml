@@ -13,6 +13,11 @@ on:
       - 'assets/css/auth-guardian.css'
       - 'index.html'
       - 'ns-delivery.js'
+      - 'assets/css/storefront-themes.css'
+      - 'assets/js/v32-public.js'
+      - '_headers'
+      - 'privacy.html'
+      - 'scripts/v422-handover-browser-qa.mjs'
       - 'scripts/v422-fix-forward-qa.mjs'
       - 'scripts/v422-availability-recap-qa.mjs'
       - 'scripts/v422-startup-qa.mjs'
@@ -47,7 +52,7 @@ jobs:
           node scripts/build-netlify-site.mjs
   mocked-owner-browser:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
         with:
@@ -60,6 +65,8 @@ jobs:
         run: node scripts/v421-owner-login-browser-qa.mjs
       - name: Verify responsive live storefront preview with isolated catalog
         run: node scripts/v422-storefront-browser-qa.mjs
+      - name: Verify railway and bus dropdowns, distances and theme contrast
+        run: node scripts/v422-handover-browser-qa.mjs
       - name: Verify blinking, password privacy and live theme artwork
         run: node scripts/v422-guardian-theme-browser-qa.mjs
       - uses: actions/upload-artifact@v4
@@ -69,4 +76,5 @@ jobs:
           path: |
             qa-artifacts/v422-storefront
             qa-artifacts/v422-guardian
+            qa-artifacts/v422-handover
           retention-days: 14

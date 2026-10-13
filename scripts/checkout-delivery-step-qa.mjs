@@ -65,11 +65,11 @@ try{
       return document.querySelector('#ns-handover-distance')?.textContent||'';
     });
     must(!noCoords,size+' must not invent a distance before customer location is known');
-    await page.route(/https:\/\/nominatim\.openstreetmap\.org\/search\?/,async route=>{
-      await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify([
-        {lat:'23.19150',lon:'79.98640',display_name:'QA Station Alpha, Jabalpur, India'},
-        {lat:'23.20150',lon:'79.98640',display_name:'QA Station Beta, Jabalpur, India'}
-      ])});
+    await page.route(/https:\/\/(overpass-api\.de|overpass\.private\.coffee)\/api\/interpreter\?/,async route=>{
+      await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({elements:[
+        {type:'node',id:1,lat:23.19150,lon:79.98640,tags:{railway:'station',name:'QA Station Alpha'}},
+        {type:'node',id:2,lat:23.20150,lon:79.98640,tags:{railway:'station',name:'QA Station Beta'}}
+      ]})});
     });
     await page.evaluate(()=>{const state=window.NSDeliveryState;state.lat=23.1815;state.lng=79.9864;state.accuracy=35;window.dispatchEvent(new CustomEvent('ns:location-updated',{detail:{...state}}));});
     await page.evaluate(()=>window.nsFindHandover('railway_station'));
