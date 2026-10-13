@@ -30,9 +30,12 @@ const bus={elements:[
 function rgb(s){return s.match(/[\d.]+/g).slice(0,3).map(Number);}
 function luminance(s){const a=rgb(s).map(n=>{n/=255;return n<=.04045?n/12.92:((n+.055)/1.055)**2.4;});return .2126*a[0]+.7152*a[1]+.0722*a[2];}
 function contrast(a,b){const x=luminance(a),y=luminance(b);return (Math.max(x,y)+.05)/(Math.min(x,y)+.05);}
-const browser=await chromium.launch({headless:true});
+let browser=null;
 try{
   for(const theme of ['nariyal-signature','fresh-grove','coastal-premium','golden-harvest']){
+    // Each theme is an independent acceptance batch. Release the homepage's
+    // media/renderer resources rather than carrying them through all 12 pages.
+    browser=await chromium.launch({headless:true});
     for(const [viewport,width,height] of [['desktop',1440,1000],['tablet',820,1180],['mobile',390,844]]){
       console.log('CHECK transport '+theme+' '+viewport);
       const context=await browser.newContext({viewport:{width,height},serviceWorkers:'block',reducedMotion:'reduce'});
@@ -71,6 +74,7 @@ try{
         return route.fulfill({contentType:mime[path.extname(file)]||'application/octet-stream',body:fs.readFileSync(file),headers:url.pathname==='/'?{'Content-Security-Policy':csp}:{}});
       });
       const page=await context.newPage();page.on('pageerror',e=>errors.push(String(e)));
+      try{
       await page.goto(origin+'/?themePreview='+theme+'#order',{waitUntil:'domcontentloaded'});
       await page.waitForFunction(()=>window.NSLiveCatalog&&window.NSDeliveryState&&window.nsFindHandover&&window.skipIntro);
       await page.evaluate(()=>{skipIntro();NSLiveCatalog.accept({metadata:{fromCache:false},forEach(fn){for(const key of ['tender','green','bulk'])fn({id:key,data:()=>({name:'QA '+key,active:true,price:77,minQty:1,stock:100,updatedAt:{seconds:1000}})});}});});
@@ -196,6 +200,8 @@ try{
         await page.waitForFunction(()=>/No mapped option/.test(document.querySelector('#ns-handover-status').textContent));
         check(await page.locator('#ns-place-picker').isHidden(),'empty response has clear manual fallback, no fake options');
       }
+      await page.locator('#ns-opt-pickup_hub').click();
+      check(await page.locator('#ns-handover-status').textContent()===''&&await page.locator('#ns-place-picker').isHidden(),'switching to manual pickup area clears earlier transport status and choices');
       await page.locator('#ns-country').selectOption('UAE');
       check(await page.locator('#ns-handover-panel').isHidden(),'international trade hides India transport choices');
       geoCalls=await page.evaluate(()=>window.__geoCalls);
@@ -204,8 +210,17 @@ try{
       check(unexpected.length===0,'no uncaught browser errors: '+unexpected.join(' | '));
       results.push({theme,viewport,railwayCount:9,busCount:3,surfaces,requests,geoCalls,writes});
       await context.close();
+      }catch(error){
+        const diagnostic=await page.evaluate(()=>{
+          const city=document.getElementById('oCity');
+          return {city:city&&{connected:city.isConnected,disabled:city.disabled,readOnly:city.readOnly,rect:city.getBoundingClientRect().toJSON(),display:getComputedStyle(city).display,visibility:getComputedStyle(city).visibility},orderHidden:document.getElementById('order')?.hidden,active:document.activeElement?.id,status:document.getElementById('ns-handover-status')?.textContent,location:{...NSDeliveryState}};
+        }).catch(e=>({diagnosticError:String(e)}));
+        fs.writeFileSync(path.join(out,'failed-'+theme+'-'+viewport+'.json'),JSON.stringify({error:String(error),diagnostic,requests,errors},null,2));
+        console.error(JSON.stringify(diagnostic));throw error;
+      }
     }
+    await browser.close();browser=null;
   }
   fs.writeFileSync(path.join(out,'results.json'),JSON.stringify({ok:true,assertions,responsiveCases:results.length*2,source:'actual storefront HTML; production CSP; isolated public-map fixtures',results},null,2));
   console.log('PASS transport dropdowns: '+assertions+' assertions / '+results.length*2+' theme, viewport and mode cases');
-}finally{await browser.close();}
+}finally{if(browser)await browser.close();}

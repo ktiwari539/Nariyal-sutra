@@ -663,6 +663,7 @@ function nsHandoverStatus(message,kind){
   if(status){status.textContent=message;status.className='ns-handover-status'+(kind?' '+kind:'');}
 }
 function nsResetHandoverLookup(){
+  nsHandoverStatus('');
   nsHandoverLookup.version++;
   if(nsHandoverLookup.controller)nsHandoverLookup.controller.abort();
   nsHandoverLookup.controller=null;nsHandoverLookup.key='';nsHandoverLookup.kind='';nsHandoverLookup.origin=null;nsHandoverLookup.items=[];nsHandoverLookup.status='idle';
