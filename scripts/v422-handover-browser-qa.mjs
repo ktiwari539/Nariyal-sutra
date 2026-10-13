@@ -176,7 +176,10 @@ try{
         responseMode='hold';
         await page.locator('#ns-find-handover').click();
         await page.waitForFunction(()=>document.querySelector('#ns-find-handover').disabled);
-        while(!hold)await new Promise(r=>setTimeout(r,25));
+        const holdDeadline=Date.now()+3000;
+        while(!hold&&Date.now()<holdDeadline)await new Promise(r=>setTimeout(r,25));
+        if(!hold)console.error(JSON.stringify({delayedFixture:await page.evaluate(()=>({status:document.querySelector('#ns-handover-status').textContent,city:document.querySelector('#oCity').value,method:NSDeliveryState.selectedDelivery})),requests}));
+        check(!!hold,'delayed public-place fixture is intercepted before switching modes');
         const delayed=hold;responseMode='normal';
         await page.locator('#ns-opt-railway_station').click();
         await page.locator('#ns-find-handover').click();
