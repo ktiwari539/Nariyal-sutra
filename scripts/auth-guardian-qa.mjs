@@ -24,7 +24,14 @@ async function context(options={}){
 async function open(c,kind,theme,p=undefined){
  p ||= await c.newPage();p.on('pageerror',e=>errors.push(e.message));
  await p.goto(base+(kind==='customer'?'/index.html':'/admin-bcc-login.html')+'?themePreview='+theme);
- if(kind==='customer'){await p.waitForFunction(()=>window.NS_CUSTOMER_CONTEXT?.ready);await p.evaluate(()=>skipIntro());await p.locator('#nsacct-trigger').click();}
+ if(kind==='customer'){
+  await p.waitForFunction(()=>window.NS_CUSTOMER_CONTEXT?.ready);await p.evaluate(()=>skipIntro());
+  await p.waitForFunction(()=>getComputedStyle(document.getElementById('main-site')).pointerEvents!=='none'&&getComputedStyle(document.getElementById('jungle-intro')).display==='none');
+  // This opens a modal, so verify the modal/focus directly rather than waiting
+  // for unrelated scheduled navigation work from the storefront bootstrap.
+  await p.locator('#nsacct-trigger').click({noWaitAfter:true});
+  await p.waitForFunction(()=>document.activeElement===document.getElementById('nsacct-panel'));
+ }
  else await p.waitForFunction(()=>!document.getElementById('submit').disabled);
  await p.waitForFunction(()=>document.querySelector('.ns-nariyal-scene')?.dataset.guardianReady==='true');
  await p.waitForTimeout(900);return p;
