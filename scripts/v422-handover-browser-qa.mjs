@@ -56,9 +56,9 @@ try{
       await context.route('**/*',async route=>{
         const req=route.request(),url=new URL(req.url());
         if(!['GET','HEAD'].includes(req.method())){writes++;return route.abort();}
-        if(['overpass-api.de','overpass.private.coffee'].includes(url.hostname)){
+        if(['maps.mail.ru','overpass.osm.ch'].includes(url.hostname)){
           requests.push({provider:'overpass',host:url.hostname,query:url.searchParams.get('data')});
-          if(responseMode==='fail'||(responseMode==='primary-fail'&&url.hostname==='overpass-api.de'))return route.fulfill({status:503,body:'unavailable'});
+          if(responseMode==='fail'||(responseMode==='primary-fail'&&url.hostname==='maps.mail.ru'))return route.fulfill({status:503,body:'unavailable'});
           if(responseMode==='hold'){hold=route;return;}
           const rail=url.searchParams.get('data').includes('railway');
           return route.fulfill({contentType:'application/json',body:JSON.stringify(responseMode==='empty'?{elements:[]}:rail?railway:bus)});
@@ -175,7 +175,7 @@ try{
         responseMode='primary-fail';
         await page.locator('#ns-find-handover').click();
         await page.waitForFunction(()=>document.querySelectorAll('#ns-handover-options option').length===4);
-        check(requests.at(-1).host==='overpass.private.coffee','primary public-service failure uses exactly one bounded alternate service');
+        check(requests.at(-1).host==='overpass.osm.ch','primary public-service failure uses exactly one bounded alternate service');
         await page.locator('#oCity').fill('Delayed search city');
         responseMode='hold';
         await page.locator('#ns-find-handover').click();
