@@ -1,0 +1,48 @@
+name: V42.2 hosted follow-up validation
+on:
+  push:
+    branches: [qa/v422-hosted-followup-validation-20261015]
+permissions:
+  contents: read
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - run: |
+          set -euo pipefail
+          node --check ns-delivery.js
+          node scripts/v422-fix-forward-qa.mjs
+          node scripts/v422-availability-recap-qa.mjs
+          node scripts/v422-startup-qa.mjs
+          node scripts/v422-guardian-theme-qa.mjs
+          node scripts/auth-theme-contract-qa.mjs
+          node scripts/v421-checkout-recap-qa.mjs
+          node scripts/price-sync-qa.mjs
+          node scripts/build-netlify-site.mjs
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Storefront responsive/theme QA
+        run: node scripts/v422-storefront-browser-qa.mjs
+      - name: Handover rail/bus/theme QA
+        run: node scripts/v422-handover-browser-qa.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v422-followup-browser-evidence
+          path: |
+            qa-artifacts/v422-storefront
+            qa-artifacts/v422-handover
+          if-no-files-found: warn
+          retention-days: 7
