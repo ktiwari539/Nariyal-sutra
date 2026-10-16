@@ -15,9 +15,11 @@
 <!-- AUTH_FORM_END --></div></div><div class="ns-auth-sweep-track" aria-hidden="true"><div class="ns-auth-sweep"></div></div></section></main><script src="assets/js/auth-sonics.js"></script><script src="assets/js/auth-shell.js"></script><script src="assets/js/admin-auth-ui.js"></script><script src="/firebase-config.js"></script><script type="module">
 const SDK='12.18.0',cfg=window.NS_FIREBASE_CONFIG||{},owner=window.NS_ADMIN_CONFIG?.ownerUid||'',ownerEmail=window.NS_ADMIN_CONFIG?.ownerEmail||'',msg=document.getElementById('msg'),btn=document.getElementById('submit');
 try {
-const [{initializeApp,getApps,getApp},{getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut,sendEmailVerification,sendPasswordResetEmail},{getFirestore,doc,getDoc}]=await Promise.all([import(`https://www.gstatic.com/firebasejs/${SDK}/firebase-app.js`),import(`https://www.gstatic.com/firebasejs/${SDK}/firebase-auth.js`),import(`https://www.gstatic.com/firebasejs/${SDK}/firebase-firestore.js`)]);
+const [{initializeApp,getApps,getApp},{getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut,sendEmailVerification,sendPasswordResetEmail,setPersistence,browserLocalPersistence},{getFirestore,doc,getDoc}]=await Promise.all([import(`https://www.gstatic.com/firebasejs/${SDK}/firebase-app.js`),import(`https://www.gstatic.com/firebasejs/${SDK}/firebase-auth.js`),import(`https://www.gstatic.com/firebasejs/${SDK}/firebase-firestore.js`)]);
 if(!cfg.apiKey||!cfg.projectId||!cfg.appId){msg.className='msg err';msg.textContent='Production Firebase configuration is unavailable.';throw new Error('Firebase configuration unavailable');}
 const app=getApps().length?getApp():initializeApp(cfg);if(typeof window.NS_INIT_APP_CHECK==='function')await window.NS_INIT_APP_CHECK(app);const auth=getAuth(app),db=getFirestore(app);
+try{await setPersistence(auth,browserLocalPersistence);}catch(error){console.warn('[BCC] Browser-local Firebase persistence unavailable; continuing with the browser default.',error);}
+function markAdminHandoff(){try{sessionStorage.setItem('ns-admin-auth-handoff',String(Date.now()));}catch(_){}}
 const norm=v=>String(v||'').trim().toLowerCase();
 function safeAdminNext(raw){
   try{const u=new URL(raw||'admin-preview.html',location.origin);if(u.origin!==location.origin)return '/admin-preview.html';const clean=u.pathname.replace(/^\/+|\/+$/g,'');if(!['admin-preview.html','admin.html','admin'].includes(clean))return '/admin-preview.html';return u.pathname+u.search+u.hash;}catch{return '/admin-preview.html';}
@@ -65,7 +67,10 @@ async function enter(u){
     }
     const r=await roleOf(u);
     if(!r){msg.className='msg err';msg.textContent='This verified account does not have active Business Command Center access.';await signOut(auth).catch(()=>{});return;}
-    msg.className='msg ok';msg.textContent='Authenticated as '+r+'. Opening Admin…';window.NSAuthShell?.signal(document.getElementById('ns-admin-auth'),'success');location.replace(next);
+    msg.className='msg ok';msg.textContent='Authenticated as '+r+'. Opening Admin…';window.NSAuthShell?.signal(document.getElementById('ns-admin-auth'),'success');
+    try{if(typeof u.getIdToken==='function')await u.getIdToken(false);}catch(_){}
+    markAdminHandoff();
+    location.replace(next);
   })();
   try{return await entering;}finally{entering=null;}
 }
