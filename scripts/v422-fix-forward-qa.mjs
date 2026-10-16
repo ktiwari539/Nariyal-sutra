@@ -86,7 +86,7 @@ assert.ok(delivery.includes("handoverPointName:String(nsDelivery.handoverPointNa
 assert.ok(delivery.includes("handoverPointAddress:String(nsDelivery.handoverPointAddress||'').slice(0,300)"),'Selected handover address must be attached to the private order payload');
 assert.ok(adminOrders.includes("Preferred handover point"),'Seller/Admin order view must display the buyer-selected handover point');
 assert.ok(adminOrders.includes("Handover location"),'Seller/Admin order view must display the selected handover location detail');
-assert.ok(html.includes("'Preferred handover point: '+handoverPoint"),'Seller WhatsApp order summary must include the selected station/stand name');
+assert.ok(html.includes("Preferred handover point: '+handoverPoint"),'Seller WhatsApp order summary must include the selected station/stand name');
 assert.ok(login.includes("const returnedNotAuthorized=query.get('error')==='not-authorized'"),'Rejected Admin roles need an explicit explanatory login message');
 assert.ok(html.includes('id="orderSelectionSummary" role="status" aria-live="polite"'),'Customer-visible live preview and screen-reader announcement');
 console.log('PASS fix-forward auth UID/email guards, verified roles, live order-preview normalization, exact prices, empty and unavailable states');
