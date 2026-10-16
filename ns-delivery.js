@@ -514,7 +514,7 @@ function handoverConfig(id){
     help:'Choose or enter the station that is most convenient for you. Station handover is confirmed only when the route and timing are workable.',
     find:true,
     kind:'railway_station',
-    button:'Find nearby railway stations'
+    button:'Find nearest railway stations'
   };
   if(id==='bus_stop')return {
     title:'Preferred bus stand / stop',
@@ -523,7 +523,7 @@ function handoverConfig(id){
     help:'Choose or enter a convenient bus stand or stop. Bus handover is confirmed only when the route and timing are workable.',
     find:true,
     kind:'bus_stop',
-    button:'Find nearby bus stands'
+    button:'Find nearest bus stands / stops'
   };
   return null;
 }
@@ -556,9 +556,9 @@ function nsRenderHandoverPanel(){
   if(input){input.placeholder=cfg.placeholder;input.value=nsDelivery.handoverPointName||'';}
   var note=el('ns-handover-note');if(note)note.value=nsDelivery.handoverNote||'';
   var actions=el('ns-handover-actions');
-  if(actions&&changed)actions.innerHTML=cfg.find?'<button type="button" class="ns-find-btn" id="ns-find-handover" onclick="nsFindHandover(\''+cfg.kind+'\')">'+cfg.button+'</button><button type="button" class="ns-find-btn" onclick="nsHandoverLocation()">Add or change city</button>':'';
+  if(actions&&changed)actions.innerHTML=cfg.find?'<button type="button" class="ns-find-btn" id="ns-find-handover" onclick="nsFindNearestHandover(\''+cfg.kind+'\')">'+cfg.button+'</button><button type="button" class="ns-find-btn" id="ns-find-handover-city" onclick="nsFindHandover(\''+cfg.kind+'\')">Search by city / PIN</button>':'';
   if(changed&&cfg.find){
-    nsHandoverStatus('Enter your city below and find nearby options, or use your current location / map pin. You can also enter a preferred point manually.');
+    nsHandoverStatus('Use “Find nearest” to search from your current location, or search by City / PIN. You can also enter a preferred point manually.');
     if(nsValidCoordinates(nsDelivery.lat,nsDelivery.lng))window.nsFindHandover(cfg.kind);
   }
 }
@@ -677,6 +677,33 @@ function nsResetHandoverLookup(){
 window.nsHandoverLocation=function(){
   var city=el('oCity');if(city){city.scrollIntoView({block:'center',behavior:'auto'});city.focus();}
 };
+window.nsFindNearestHandover=function(kind){
+  if(!['railway_station','bus_stop'].includes(kind)||nsDelivery.isInternational||nsDelivery.selectedDelivery!==kind)return;
+  if(nsValidCoordinates(nsDelivery.lat,nsDelivery.lng))return window.nsFindHandover(kind);
+  if(!navigator.geolocation){
+    nsHandoverStatus('Current location is not supported in this browser. Enter City / PIN and use “Search by city / PIN”, or enter the point manually.','warn');
+    return;
+  }
+  nsHandoverStatus(kind==='railway_station'?'Allow location to find the nearest railway stations…':'Allow location to find the nearest bus stands and stops…');
+  var nearestButton=el('ns-find-handover');if(nearestButton)nearestButton.disabled=true;
+  navigator.geolocation.getCurrentPosition(function(pos){
+    nsDelivery.lat=pos.coords.latitude;
+    nsDelivery.lng=pos.coords.longitude;
+    nsDelivery.accuracy=pos.coords.accuracy;
+    nsDelivery.locationSource='gps';
+    var coordEl=el('ns-coords-display'),mapPh=el('ns-map-ph');
+    if(coordEl)coordEl.textContent=Number(nsDelivery.lat).toFixed(5)+', '+Number(nsDelivery.lng).toFixed(5);
+    if(mapPh)mapPh.style.display='block';
+    if(nearestButton)nearestButton.disabled=false;
+    nsDelUpdateSummary();
+    window.nsFindHandover(kind);
+  },function(err){
+    if(nearestButton)nearestButton.disabled=false;
+    var denied=err&&err.code===1;
+    nsHandoverStatus(denied?'Location permission was not allowed. Enter City / PIN and use “Search by city / PIN”, or type your preferred point manually.':'Current location could not be determined. Enter City / PIN and use “Search by city / PIN”, or type your preferred point manually.','warn');
+    if(denied)window.nsHandoverLocation();
+  },{enableHighAccuracy:true,timeout:12000,maximumAge:60000});
+};
 async function nsPlaceJson(url,signal){
   var response=await fetch(url,{headers:{Accept:'application/json','Accept-Language':'en'},signal:signal,credentials:'omit'});
   if(!response.ok)throw new Error('Public place lookup unavailable');
@@ -763,7 +790,7 @@ function nsMappedPlaces(body,kind,origin,radius){
 function nsRenderPlaceChoices(){
   var items=nsHandoverLookup.items,results=el('ns-place-results'),select=el('ns-handover-options');
   if(select){
-    select.innerHTML='<option value="">Choose a nearby option, or enter another manually</option>'+items.map(function(item,idx){return '<option value="'+idx+'">'+esc(nsDistanceText(item.lat,item.lon).split(' straight-line')[0])+' · '+esc(item.name)+'</option>';}).join('');
+    select.innerHTML='<option value="">Choose a nearby option, or enter another manually</option>'+items.map(function(item,idx){return '<option value="'+idx+'">'+(idx===0?'Nearest · ':'')+esc(nsDistanceText(item.lat,item.lon).split(' straight-line')[0])+' · '+esc(item.name)+'</option>';}).join('');
     var selected=items.findIndex(function(item){return item.name===nsDelivery.handoverPointName&&item.lat===nsDelivery.handoverPointLat&&item.lon===nsDelivery.handoverPointLng;});
     select.value=selected<0?'':String(selected);
   }
@@ -772,7 +799,7 @@ function nsRenderPlaceChoices(){
     results._nsPlaces=items;
     /* The first three are quick choices; the native dropdown contains every
        returned mapped point in range, without the former five-result cut-off. */
-    results.innerHTML=items.slice(0,3).map(function(item,idx){return '<button type="button" class="ns-place-choice" onclick="nsChooseHandover('+idx+')" data-ns-place="'+idx+'"><strong>'+esc(item.name)+'</strong><small>'+esc(item.display_name)+'</small><span class="ns-place-distance">'+esc(nsDistanceText(item.lat,item.lon))+'</span></button>';}).join('');
+    results.innerHTML=items.slice(0,3).map(function(item,idx){return '<button type="button" class="ns-place-choice" onclick="nsChooseHandover('+idx+')" data-ns-place="'+idx+'"><strong>'+(idx===0?'Nearest · ':'')+esc(item.name)+'</strong><small>'+esc(item.display_name)+'</small><span class="ns-place-distance">'+esc(nsDistanceText(item.lat,item.lon))+'</span></button>';}).join('');
   }
 }
 window.nsFindHandover=async function(kind){
