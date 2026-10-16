@@ -24,7 +24,14 @@ async function context(options={}){
 async function open(c,kind,theme,p=undefined){
  p ||= await c.newPage();p.on('pageerror',e=>errors.push(e.message));
  await p.goto(base+(kind==='customer'?'/index.html':'/admin-bcc-login.html')+'?themePreview='+theme);
- if(kind==='customer'){await p.waitForFunction(()=>window.NS_CUSTOMER_CONTEXT?.ready);await p.evaluate(()=>skipIntro());await p.locator('#nsacct-trigger').click();}
+ if(kind==='customer'){
+  await p.waitForFunction(()=>window.NS_CUSTOMER_CONTEXT?.ready);await p.evaluate(()=>skipIntro());
+  await p.waitForFunction(()=>getComputedStyle(document.getElementById('main-site')).pointerEvents!=='none'&&getComputedStyle(document.getElementById('jungle-intro')).display==='none');
+  // This opens a modal, so verify the modal/focus directly rather than waiting
+  // for unrelated scheduled navigation work from the storefront bootstrap.
+  await p.locator('#nsacct-trigger').click({noWaitAfter:true});
+  await p.waitForFunction(()=>document.activeElement===document.getElementById('nsacct-panel'));
+ }
  else await p.waitForFunction(()=>!document.getElementById('submit').disabled);
  await p.waitForFunction(()=>document.querySelector('.ns-nariyal-scene')?.dataset.guardianReady==='true');
  await p.waitForTimeout(900);return p;
@@ -56,7 +63,7 @@ for(const kind of (process.env.NS_QA_KIND?[process.env.NS_QA_KIND]:['customer','
    ok(`${kind} ${theme} ${size}: all art loaded and visible`,loaded);
    await p.screenshot({path:`${out}/${kind}-${theme}-${size}.png`});
    const idle=await state(p);
-   ok(`${kind} ${theme} ${size}: subtle idle; intended element count`,idle.eyes<.03&&(kind==='admin'?idle.secondaryDisplay==='none':idle.secondaryDisplay!=='none'));
+   ok(`${kind} ${theme} ${size}: periodic idle blink; intended element count`,idle.pose==='idle'&&await p.locator('.ns-guardian-blink').first().evaluate(e=>getComputedStyle(e).animationName==='nsGuardianBlink')&&(kind==='admin'?idle.secondaryDisplay==='none':idle.secondaryDisplay!=='none'));
    await closeup(p,`${kind}-${theme}-${size}-idle-closeup`);
    await p.locator(q.email).focus();await p.waitForTimeout(800);const gaze=await state(p);
    ok(`${kind} ${theme} ${size}: gaze affects primary only`,gaze.eyes>idle.eyes&&gaze.group===idle.group&&gaze.secondary===idle.secondary);

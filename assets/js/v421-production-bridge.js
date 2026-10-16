@@ -17,6 +17,7 @@ const FOLLOWUP_WRITE_ROLES=['Owner','Admin','Manager','Support','Sales'];
 const CATALOG_ROLES=['Owner','Admin','Manager','Operations'];
 const CONTENT_ROLES=['Owner','Admin','Manager','Content'];
 const STAFF_ROLES=['Admin','Manager','Operations','Content','Support','Sales'];
+// Keep token email comparisons identical to Firestore security rules (exact match).
 const originalSave=Store.save.bind(Store);
 const originalLoad=Store.load.bind(Store);
 let appMod=null,authMod=null,fsMod=null,app=null,auth=null,db=null,user=null,role='',roleRecord=null;
@@ -59,6 +60,9 @@ function showError(msg){overlay('Admin connection blocked: '+msg);}
 function setEnvironmentLabel(){const e=document.querySelector('.ap-env');if(e)e.innerHTML='LIVE SECURE ADMIN<br>Real production data only. Demo fixtures are suppressed.';document.documentElement.dataset.nsAdminMode='production';}
 function lockRole(){const select=document.getElementById('apRole');if(select){if([...select.options].some(o=>o.value===role))select.value=role;select.disabled=true;select.title='Production role comes from verified Firebase identity and active Admin role mapping';select.dispatchEvent(new Event('change',{bubbles:true}));}try{Store.setSession({id:user?.uid||'',role,name:user?.email||role});}catch(e){}const pill=document.getElementById('apSessionPill');if(pill)pill.hidden=false;const n=document.getElementById('apSessionName');if(n)n.textContent=user?.email||'Signed-in staff';const r=document.getElementById('apSessionRole');if(r)r.textContent=role;}
 async function ensureFirebase(){
+ // Existing deferred scripts finish before DOMContentLoaded. A script tag alone
+ // does not mean firebase-config.js has executed when this bridge starts.
+ if(!window.NS_FIREBASE_CONFIG&&document.readyState==='loading')await new Promise(resolve=>document.addEventListener('DOMContentLoaded',resolve,{once:true}));
  if(!window.NS_FIREBASE_CONFIG)await loadScript('/firebase-config.js');
  const cfg=window.NS_FIREBASE_CONFIG||{};if(!cfg.apiKey||!cfg.projectId||!cfg.appId)throw new Error('Firebase configuration is missing.');
  [appMod,authMod,fsMod]=await Promise.all([import(`https://www.gstatic.com/firebasejs/${SDK}/firebase-app.js`),import(`https://www.gstatic.com/firebasejs/${SDK}/firebase-auth.js`),import(`https://www.gstatic.com/firebasejs/${SDK}/firebase-firestore.js`)]);
@@ -76,7 +80,20 @@ async function adminRole(u){
  if(!STAFF_ROLES.includes(candidate)||x.status!=='Active'||x.active!==true||String(x.email||'')!==String(u.email||''))return '';
  roleRecord={...x,uid:u.uid,source:'adminRoles'};return candidate;
 }
-async function waitAuth(){return new Promise(resolve=>{const off=authMod.onAuthStateChanged(auth,u=>{off();resolve(u);});});}
+function recentAdminHandoff(){try{const at=Number(sessionStorage.getItem('ns-admin-auth-handoff')||0);return Number.isFinite(at)&&at>0&&Date.now()-at<10000;}catch(_){return false;}}
+function clearAdminHandoff(){try{sessionStorage.removeItem('ns-admin-auth-handoff');}catch(_){}}
+async function waitAuth(){
+ const allowGrace=recentAdminHandoff();
+ return new Promise(resolve=>{
+  let settled=false,timer=null,off=()=>{};
+  const finish=u=>{if(settled)return;settled=true;if(timer)clearTimeout(timer);try{off();}catch(_){}if(u)clearAdminHandoff();resolve(u||null);};
+  off=authMod.onAuthStateChanged(auth,u=>{
+   if(u)return finish(u);
+   if(!allowGrace)return finish(null);
+   if(!timer)timer=setTimeout(()=>finish(auth.currentUser||null),2500);
+  });
+ });
+}
 async function readPublicOnce(){const snap=await fsMod.getDoc(fsMod.doc(db,'publicStories','site-config'));return snap.exists()?snap.data():null;}
 async function readPrivateOnce(){const snap=await fsMod.getDoc(fsMod.doc(db,'contentStories','admin-state'));return snap.exists()?snap.data():null;}
 function publicPayload(s){return {...configSlice(s,PUBLIC_KEYS),status:'live',type:'site-config'};}
@@ -243,9 +260,9 @@ function installSignOut(){
 }
 async function initAdmin(){
  overlay('Authenticating secure Business Command Center…');user=await waitAuth();
- if(!user){const next=encodeURIComponent('admin-preview.html'+location.search+location.hash);location.replace('/admin-bcc-login.html?next='+next);return;}
+ if(!user){clearAdminHandoff();const next=encodeURIComponent('admin-preview.html'+location.search+location.hash);location.replace('/admin-bcc-login.html?error=session-not-restored&next='+next);return;}
  role=await adminRole(user);const allowed=['Owner',...STAFF_ROLES];
- if(!allowed.includes(role)){await authMod.signOut(auth).catch(()=>{});location.replace('/admin-bcc-login.html?error=not-authorized');return;}
+ if(!allowed.includes(role)){clearAdminHandoff();await authMod.signOut(auth).catch(()=>{});location.replace('/admin-bcc-login.html?error=not-authorized');return;}
  overlay('Loading live Admin configuration…');originalSave(scrubDemoOperational(originalLoad()));
  let pub=null,priv=null;try{[pub,priv]=await Promise.all([readPublicOnce(),CONTENT_ROLES.includes(role)?readPrivateOnce():Promise.resolve(null)]);}catch(e){console.warn('[BCC] Remote config initial read failed',e);}
  if(pub||priv)mergeIntoLocal([pub,priv]);

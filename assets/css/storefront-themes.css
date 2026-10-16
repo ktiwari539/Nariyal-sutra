@@ -118,3 +118,21 @@ html[data-ns-theme] .ns-people-marquee:not(.no-edge-fade) .ns-face-rows::before,
 html[data-ns-theme] .ns-people-marquee:not(.no-edge-fade) .ns-face-rows::after{content:"";position:absolute;top:0;bottom:0;width:min(6vw,64px);z-index:4;pointer-events:none}
 html[data-ns-theme] .ns-face-rows::before{left:0;background:linear-gradient(90deg,var(--ns-section),transparent)}
 html[data-ns-theme] .ns-face-rows::after{right:0;background:linear-gradient(-90deg,var(--ns-section),transparent)}
+
+/* Delivery's legacy injected dark gradients must not out-rank light themes.
+   Each checkout surface owns its matching ink, including the handover island. */
+html[data-ns-theme] #order #ns-del-root .ns-del-section{background:var(--ns-surface-2);color:var(--ns-body);border-color:var(--ns-border)}
+html[data-ns-theme] #order #ns-del-root .ns-handover-panel{background:var(--ns-surface);color:var(--ns-body);border-color:var(--ns-border)}
+html[data-ns-theme] #order #ns-del-root :is(.ns-step-heading,.ns-handover-title){color:var(--ns-heading)}
+html[data-ns-theme] #order #ns-del-root :is(.ns-step-tag,.ns-place-distance,.ns-handover-distance){color:var(--ns-accent)}
+html[data-ns-theme] #order #ns-del-root :is(.ns-step-intro,.ns-handover-help,.ns-handover-status,.ns-place-choice small,.ns-place-attribution,.ns-del-field label){color:var(--ns-muted)!important;font-size:12px;line-height:1.65}
+html[data-ns-theme] #order #ns-del-root .ns-del-field :is(input,select,option){background:var(--ns-field);color:var(--ns-body);border-color:var(--ns-border)}
+html[data-ns-theme] #order #ns-del-root .ns-del-field input::placeholder{color:var(--ns-muted);opacity:1}
+html[data-ns-theme] #order #ns-del-root .ns-place-choice{background:var(--ns-field)!important;color:var(--ns-body)!important;border-color:var(--ns-border)!important}
+html[data-ns-theme] #order #ns-del-root .ns-place-choice strong{color:var(--ns-heading)}
+html[data-ns-theme] #order #ns-del-root .ns-place-attribution a{color:var(--ns-link)}
+html[data-ns-theme] #order #ns-del-root :is(.ns-recur-btn.sel,.ns-del-opt.selected){background:var(--ns-cta);color:var(--ns-cta-ink);border-color:var(--ns-cta)}
+html[data-ns-theme] #order #ns-del-root .ns-del-opt.selected :is(.ns-del-opt-name,.ns-del-opt-desc){color:inherit}
+#ns-del-root .ns-place-picker[hidden]{display:none!important}
+#ns-del-root .ns-place-picker select{max-width:100%;min-width:0;font-size:16px;min-height:48px}
+#ns-del-root .ns-place-attribution{display:block;margin-top:10px;line-height:1.6}

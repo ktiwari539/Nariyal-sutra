@@ -10,7 +10,29 @@ function clearLegacySequenceMarkers(){['scroll-cinema','v421-cinematic-film'].fo
 function normalizeKnownSections(list){const current=new Map((Array.isArray(list)?list:[]).map(x=>[x.id,x]));const merged=DEFAULTS.map(d=>({...d,...(current.get(d.id)||{}),protected:false}));merged.sort((a,b)=>(+a.order||999)-(+b.order||999)).forEach((x,i)=>x.order=i+1);return merged;}
 function migrateState(){if(!Store)return null;const s=Store.load(),old=new Map((s.sections||[]).map(x=>[x.id,x]));if(s.v32HomepageSequenceSchema!==1){const hasCompleteTopLevel=DEFAULTS.every(d=>old.has(d.id));if(hasCompleteTopLevel){s.sections=normalizeKnownSections(s.sections);try{Store.audit?.(s,'V32 homepage sequence adopted','Preserved complete Admin-managed top-level order.');}catch(e){}}else{s.sections=DEFAULTS.map(d=>{const o=old.get(d.id);return {...d,visible:o?o.visible!==false:true};});s.sections.forEach((x,i)=>x.order=i+1);try{Store.audit?.(s,'V32 homepage sequence repaired','Reset incomplete/unsafe legacy nested-section order to approved top-level sequence.');}catch(e){}}s.v32HomepageSequenceSchema=1;s.v31CinematicPlacementDone=true;Store.save(s);}else s.sections=normalizeKnownSections(s.sections);return s;}
 let applying=false,orderRepairTimer=0;
-function applySequence(){if(!Store||!isHome()||applying)return;const main=$('#main-site'),footer=$('#main-site > footer');if(!main||!footer)return;clearLegacySequenceMarkers();const s=migrateState();if(!s||!Array.isArray(s.sections))return;applying=true;try{[...s.sections].sort((a,b)=>(+a.order||999)-(+b.order||999)).forEach(sec=>{const node=MAP[sec.id]?.();if(!node)return;node.hidden=sec.visible===false;node.dataset.v32Section=sec.id;if(sec.visible!==false)main.insertBefore(node,footer);});}finally{applying=false;}}
+function applySequence(){
+ if(!Store||!isHome()||applying)return;
+ const main=$('#main-site'),footer=$('#main-site > footer');if(!main||!footer)return;
+ clearLegacySequenceMarkers();const s=migrateState();if(!s||!Array.isArray(s.sections))return;
+ applying=true;
+ try{
+  const visible=[];
+  [...s.sections].sort((a,b)=>(+a.order||999)-(+b.order||999)).forEach(sec=>{
+   const node=MAP[sec.id]?.();if(!node)return;
+   node.hidden=sec.visible===false;node.dataset.v32Section=sec.id;if(sec.visible!==false)visible.push(node);
+  });
+  /* Re-inserting an unchanged order section detaches its focused inputs.
+     Work backwards from the footer and move only nodes actually out of place. */
+  const focused=document.activeElement;
+  let anchor=footer;
+  for(let i=visible.length-1;i>=0;i--){
+   const node=visible[i];
+   if(node.parentElement!==main||node.nextElementSibling!==anchor)main.insertBefore(node,anchor);
+   anchor=node;
+  }
+  if(focused&&focused!==document.body&&focused.isConnected&&document.activeElement===document.body&&main.contains(focused))focused.focus({preventScroll:true});
+ }finally{applying=false;}
+}
 function sequenceNeedsRepair(){if(!Store||!isHome())return false;const main=$('#main-site');if(!main)return false;const s=Store.load(),ordered=[...(s.sections||[])].sort((a,b)=>(+a.order||999)-(+b.order||999));const desired=ordered.filter(sec=>sec.visible!==false).map(sec=>MAP[sec.id]?.()).filter(node=>node&&node.parentElement===main);if(desired.length<2)return false;const wanted=new Set(desired),actual=[...main.children].filter(node=>wanted.has(node));return actual.length===desired.length&&actual.some((node,i)=>node!==desired[i]);}
 function watchTopLevelOrder(){if(!isHome())return;const main=$('#main-site');if(!main||main.dataset.v32OrderWatch==='1')return;main.dataset.v32OrderWatch='1';new MutationObserver(muts=>{if(!muts.some(m=>m.type==='childList'))return;clearTimeout(orderRepairTimer);orderRepairTimer=setTimeout(()=>{if(sequenceNeedsRepair())applySequence();},0);}).observe(main,{childList:true});}
 function settleAfterCinematicReady(film){if(!film)return;const settle=()=>[0,120,480,1100].forEach(ms=>setTimeout(applySequence,ms));if(film.dataset.ready==='1')settle();const readyObserver=new MutationObserver(()=>{if(film.dataset.ready==='1'){settle();readyObserver.disconnect();}});readyObserver.observe(film,{attributes:true,attributeFilter:['data-ready']});setTimeout(()=>readyObserver.disconnect(),12000);}

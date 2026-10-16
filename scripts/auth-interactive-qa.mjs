@@ -37,14 +37,18 @@ async function open(c,kind='customer'){
  if(kind==='customer'){
   await p.waitForFunction(()=>window.NS_CUSTOMER_CONTEXT?.ready);
   await p.evaluate(()=>{if(typeof window.skipIntro==='function')window.skipIntro();});
+  await p.waitForFunction(()=>getComputedStyle(document.getElementById('main-site')).pointerEvents!=='none'&&getComputedStyle(document.getElementById('jungle-intro')).display==='none');
   const trigger=p.locator('#nsacct-trigger'),overlay=p.locator('#nsacct-overlay'),signin=p.locator('#nsacct-signin');
   await trigger.waitFor({state:'visible'});
   for(let attempt=0;attempt<2;attempt++){
    if(await signin.isVisible().catch(()=>false))break;
-   try{await trigger.click({force:attempt>0,timeout:15000});}
+   try{await trigger.click({noWaitAfter:true,timeout:15000});}
    catch(e){if(attempt===1)throw e;await p.waitForTimeout(250);continue;}
    try{await overlay.waitFor({state:'visible',timeout:5000});await signin.waitFor({state:'visible',timeout:5000});break;}catch(e){if(attempt===1)throw e;await p.waitForTimeout(150);}
   }
+  // The modal deliberately schedules initial accessible focus; finish that
+  // handoff before simulating typing or password-manager insertion.
+  await p.waitForFunction(()=>document.activeElement===document.getElementById('nsacct-panel'));
  } else await p.waitForFunction(()=>!document.getElementById('submit').disabled);
  await p.waitForFunction(()=>window.NSAuthTheme&&NSAuthTheme.status!=='pending');
  await p.waitForFunction(()=>[...document.querySelectorAll('.ns-auth-shell')].some(shell=>shell.dataset.authBound==='true'&&shell.querySelector('.ns-nariyal-scene')?.dataset.guardianReady==='true'&&shell.getClientRects().length));

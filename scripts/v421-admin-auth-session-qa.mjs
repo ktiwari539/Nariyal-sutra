@@ -18,6 +18,27 @@ const adminHtml=fs.readFileSync(new URL('../admin-preview.html',import.meta.url)
 assert.ok(adminHtml.includes("location.hostname==='nariyal-sutra.netlify.app'"),'First paint gate restricted to production host');
 assert.ok(adminHtml.includes('html.ns-production-auth-pending .ap-app{visibility:hidden!important}'),'Production Admin UI hidden before auth finishes');
 assert.ok(bridge.includes("document.documentElement.classList.remove('ns-production-auth-pending')"),'Successful authenticated setup releases shell gate');
+const waitFrom=bridge.indexOf('function recentAdminHandoff(){');
+const waitTo=bridge.indexOf('async function readPublicOnce',waitFrom);
+assert.ok(waitFrom>0&&waitTo>waitFrom,'Admin auth restoration grace helper exists');
+const waitSource=bridge.slice(waitFrom,waitTo).replace('2500','25');
+const waitHarness=new Function('withHandoff','restoreLater',`return (async()=>{
+ const storage=new Map();if(withHandoff)storage.set('ns-admin-auth-handoff',String(Date.now()));
+ const sessionStorage={getItem:k=>storage.get(k)||null,removeItem:k=>storage.delete(k)};
+ let current=null,observer=null;
+ const auth={get currentUser(){return current},set currentUser(v){current=v}};
+ const authMod={onAuthStateChanged(_auth,fn){observer=fn;queueMicrotask(()=>fn(auth.currentUser));return ()=>{}}};
+ ${waitSource}
+ if(restoreLater)setTimeout(()=>{auth.currentUser={uid:'qa-owner'};observer(auth.currentUser);},5);
+ const user=await waitAuth();
+ return {uid:user&&user.uid||'',marker:storage.has('ns-admin-auth-handoff')};
+})()`);
+const restored=await waitHarness(true,true);
+assert.equal(restored.uid,'qa-owner','Recent verified login handoff must survive a transient initial null auth state');
+assert.equal(restored.marker,false,'Successful Admin restoration clears the one-time handoff marker');
+const noHandoff=await waitHarness(false,false);
+assert.equal(noHandoff.uid,'','Direct unauthenticated Admin visit must still fail closed without an artificial delay');
+
 const from=bridge.indexOf('let adminSessionTerminated=false;');
 const to=bridge.indexOf('function installSignOut(){',from);
 assert.ok(from>0&&to>from,'Find actual production Admin session watcher');

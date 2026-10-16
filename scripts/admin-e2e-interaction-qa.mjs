@@ -19,10 +19,15 @@ async function waitAdmin(page){
  await page.waitForTimeout(1400);
 }
 async function openNav(page,view,mobile=false){
- if(mobile){const btn=page.locator('#apMenuBtn');if(await btn.isVisible())await btn.click();await page.waitForTimeout(320);}
+ if(mobile){
+  const btn=page.locator('#apMenuBtn');
+  if(await btn.isVisible()&&!await page.locator('#apSidebar').evaluate(el=>el.classList.contains('is-open')))await btn.click();
+  await page.waitForFunction(()=>{const sidebar=document.getElementById('apSidebar'),r=sidebar.getBoundingClientRect();return sidebar.classList.contains('is-open')&&r.left>=-1;});
+ }
  const nav=page.locator(`#apNav button[data-view="${view}"]`);
  must(await nav.count()===1,`Missing nav button ${view}`);
- await nav.click({force:true});
+ await nav.scrollIntoViewIfNeeded();
+ await nav.click();
  await page.waitForTimeout(view==='delivery'?180:45);
  must(await page.locator(`.ap-view[data-view="${view}"].is-active`).count()===1,`View ${view} did not activate`);
 }
