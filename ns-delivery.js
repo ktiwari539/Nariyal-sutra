@@ -471,8 +471,10 @@ function nsDelShowOptions(){
   var optsList=el('ns-del-opts-list');
   if(!optsSection||!optsList) return;
   if(!Number.isInteger(q)||q<1){optsSection.style.display='none';optsList.textContent='';return;}
-  if(typeof getCurrentTotal!=='function'||getCurrentTotal()===null){optsSection.style.display='none';optsList.textContent='';return;}
 
+  /* Delivery preference is independent of price/catalog readiness. Keep railway,
+     bus, pickup and door choices visible while live pricing is loading so a
+     customer can enter location and inspect nearby handover points immediately. */
   var opts=deliveryEstimates(q, nsDelivery.isInternational);
   /* A later checkout layout stylesheet forces this section to a two-column grid. Keep the four delivery cards across the full section, not inside its first column. */
   optsSection.style.setProperty('display','block','important');
@@ -697,6 +699,47 @@ async function nsTransportJson(query,signal){
   }
   throw new Error('Public place services unavailable');
 }
+async function nsNominatimTransportPlaces(kind,origin,radius,signal){
+  /* Browser-safe fallback that restores the earlier working explicit Nominatim
+     lookup when public Overpass services are unavailable. No autocomplete,
+     no background lookup and no customer location write occurs here. */
+  var latRadius=radius/111320;
+  var cos=Math.max(.2,Math.cos(Number(origin.lat)*Math.PI/180));
+  var lngRadius=radius/(111320*cos);
+  var viewbox=[Number(origin.lng)-lngRadius,Number(origin.lat)+latRadius,Number(origin.lng)+lngRadius,Number(origin.lat)-latRadius].join(',');
+  var terms=kind==='railway_station'?['railway station']:['bus station','bus stop'];
+  var seen=new Set(),places=[];
+  for(var i=0;i<terms.length;i++){
+    if(signal.aborted)throw new Error('Lookup cancelled');
+    var wait=Math.max(0,1100-(Date.now()-(nsHandoverLookup.geocodeAt||0)));
+    if(wait)await new Promise(function(resolve){setTimeout(resolve,wait);});
+    if(signal.aborted)throw new Error('Lookup cancelled');
+    nsHandoverLookup.geocodeAt=Date.now();
+    var params=new URLSearchParams({
+      format:'jsonv2',
+      limit:'25',
+      addressdetails:'1',
+      countrycodes:'in',
+      q:terms[i],
+      viewbox:viewbox,
+      bounded:'1'
+    });
+    var raw=await nsPlaceJson('https://nominatim.openstreetmap.org/search?'+params.toString(),signal);
+    if(!Array.isArray(raw))continue;
+    raw.forEach(function(item){
+      if(!nsValidCoordinates(item.lat,item.lon))return;
+      var km=nsStraightLineKm(item.lat,item.lon,origin);
+      if(km===null||km>radius/1000)return;
+      var name=placeLabel(item);
+      var detail=String(item.display_name||name).slice(0,300);
+      var key=(name+'|'+Number(item.lat).toFixed(4)+'|'+Number(item.lon).toFixed(4)).toLowerCase();
+      if(seen.has(key))return;seen.add(key);
+      places.push({name:name,display_name:detail,lat:Number(item.lat),lon:Number(item.lon),source:'nominatim',distanceKm:km});
+    });
+  }
+  return places.sort(function(a,b){return a.distanceKm-b.distanceKm||a.name.localeCompare(b.name);});
+}
+
 function nsMappedPlaces(body,kind,origin,radius){
   if(!body||!Array.isArray(body.elements)||body.remark)throw new Error('Incomplete public place response');
   var seen=new Set(),places=[];
@@ -769,11 +812,26 @@ window.nsFindHandover=async function(kind){
     var around='(around:'+radius+','+origin.lat+','+origin.lng+')';
     var filters=kind==='railway_station'?['["railway"="station"]','["railway"="halt"]']:['["amenity"="bus_station"]','["highway"="bus_stop"]','["public_transport"="platform"]["bus"="yes"]'];
     var query='[out:json][timeout:20];('+filters.map(function(filter){return 'nwr'+around+filter+';';}).join('')+');out center tags;';
-    var body=await nsTransportJson(query,controller.signal);
-    if(!current())return;
-    var items=nsMappedPlaces(body,kind,origin,radius);
+    var items=[],fallbackUsed=false;
+    try{
+      var body=await nsTransportJson(query,controller.signal);
+      if(!current())return;
+      items=nsMappedPlaces(body,kind,origin,radius);
+    }catch(overpassError){
+      if(!current())return;
+      fallbackUsed=true;
+    }
+    /* An empty or failed Overpass response must not leave the customer with a
+       blank transport step. Fall back to the explicit Nominatim search that
+       previously worked in the browser, then keep the same nearest-first UI. */
+    if(!items.length){
+      fallbackUsed=true;
+      nsHandoverStatus('The detailed transport map is unavailable; checking nearby named locations…');
+      items=await nsNominatimTransportPlaces(kind,origin,radius,controller.signal);
+      if(!current())return;
+    }
     nsHandoverLookup.origin=origin;nsHandoverLookup.items=items;nsHandoverLookup.status='ready';
-    var message=items.length?items.length+' mapped '+(kind==='railway_station'?'railway stations':'bus stands / stops')+' within '+radius/1000+' km, nearest first. Approximate straight-line distances; road distance may differ. '+(origin.approximate?'Distances use your entered locality centre; set a map pin for greater precision.':'Distances use your selected location.')+' Choose below or enter another manually.':'No mapped option found within '+radius/1000+' km. Enter your preferred station / stop manually, or refine your city or map pin.';
+    var message=items.length?items.length+' nearby '+(kind==='railway_station'?'railway stations':'bus stands / stops')+' within '+radius/1000+' km, nearest first. Approximate straight-line distances; road distance may differ. '+(origin.approximate?'Distances use your entered locality centre; set a map pin for greater precision.':'Distances use your selected location.')+(fallbackUsed?' Public location-search fallback used.':'')+' Choose below or enter another manually.':'No mapped option found within '+radius/1000+' km. Enter your preferred station / stop manually, or refine your city or map pin.';
     nsHandoverLookup.cache.set(kind+'|'+key,{time:Date.now(),origin:origin,items:items,message:message});if(nsHandoverLookup.cache.size>16)nsHandoverLookup.cache.delete(nsHandoverLookup.cache.keys().next().value);
     nsRenderPlaceChoices();nsHandoverStatus(message,items.length?'ok':'warn');nsUpdateDisplayedDistances();nsDelUpdateSummary();
   }catch(err){
