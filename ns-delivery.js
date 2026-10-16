@@ -769,6 +769,11 @@ async function nsNominatimTransportPlaces(kind,origin,radius,signal){
     if(!Array.isArray(raw))continue;
     raw.forEach(function(item){
       if(!nsValidCoordinates(item.lat,item.lon))return;
+      var category=String(item.category||item.class||'').toLowerCase(),type=String(item.type||'').toLowerCase();
+      var transportMatch=kind==='railway_station'
+        ?(category==='railway'||['station','halt','train_station'].includes(type))
+        :((category==='amenity'&&type==='bus_station')||(category==='highway'&&type==='bus_stop')||type==='bus_station'||type==='bus_stop');
+      if(!transportMatch)return;
       var km=nsStraightLineKm(item.lat,item.lon,origin);
       if(km===null||km>radius/1000)return;
       var name=placeLabel(item);
