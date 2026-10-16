@@ -6,6 +6,7 @@ const read=name=>fs.readFileSync(new URL('../'+name,import.meta.url),'utf8');
 const bridge=read('assets/js/v421-production-bridge.js');
 const html=read('index.html');
 const delivery=read('ns-delivery.js');
+const adminOrders=read('assets/js/admin-v44-order-operations.js');
 const login=read('admin-bcc-login.html');
 
 assert.ok(login.includes("const returnedNotAuthorized=query.get('error')==='not-authorized'"));
@@ -79,6 +80,13 @@ assert.ok(!delivery.includes("parseInt((el('oQ')||{}).value)||1"),'No delivery/o
 assert.ok(!delivery.slice(delivery.indexOf('function nsDelShowOptions(){'),delivery.indexOf('function handoverConfig(')).includes("getCurrentTotal()===null"),'Delivery preference must remain visible while live pricing/catalog state is still loading or unavailable');
 assert.ok(delivery.includes('async function nsNominatimTransportPlaces('),'Railway/bus lookup must retain a browser-safe Nominatim fallback when Overpass is unavailable');
 assert.ok(delivery.includes("source:'nominatim'"),'Fallback handover selections must record their real lookup source');
+assert.ok(delivery.includes('window.nsFindNearestHandover=function(kind)'),'Transport choice must support an explicit nearest-from-current-location action');
+assert.ok(delivery.includes("nsDelivery.locationSource='gps'"),'Nearest lookup must preserve that the buyer explicitly chose GPS');
+assert.ok(delivery.includes("handoverPointName:String(nsDelivery.handoverPointName||'').slice(0,180)"),'Selected station/stand name must be attached to the private order payload');
+assert.ok(delivery.includes("handoverPointAddress:String(nsDelivery.handoverPointAddress||'').slice(0,300)"),'Selected handover address must be attached to the private order payload');
+assert.ok(adminOrders.includes("Preferred handover point"),'Seller/Admin order view must display the buyer-selected handover point');
+assert.ok(adminOrders.includes("Handover location"),'Seller/Admin order view must display the selected handover location detail');
+assert.ok(html.includes("'Preferred handover point: '+handoverPoint"),'Seller WhatsApp order summary must include the selected station/stand name');
 assert.ok(login.includes("const returnedNotAuthorized=query.get('error')==='not-authorized'"),'Rejected Admin roles need an explicit explanatory login message');
 assert.ok(html.includes('id="orderSelectionSummary" role="status" aria-live="polite"'),'Customer-visible live preview and screen-reader announcement');
 console.log('PASS fix-forward auth UID/email guards, verified roles, live order-preview normalization, exact prices, empty and unavailable states');
