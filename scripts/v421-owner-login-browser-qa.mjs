@@ -19,11 +19,13 @@ function state(){
   if(!window.__ownerQaAuth){
     const cfg=window.__ownerQaFixture||{};
     const initial=cfg.persisted?{uid:cfg.mismatch?'mismatched-uid':'qa-owner',email:'qa-owner@example.test',emailVerified:true}:null;
-    window.__ownerQaAuth={currentUser:initial,listeners:[],signouts:0,signins:0,mode:cfg.mode||'normal',authStateReady:async()=>{}};
+    window.__ownerQaAuth={currentUser:initial,listeners:[],signouts:0,signins:0,mode:cfg.mode||'normal',persistence:null,authStateReady:async()=>{}};
   }
   return window.__ownerQaAuth;
 }
 export const getAuth=()=>state();
+export const browserLocalPersistence={type:'LOCAL'};
+export async function setPersistence(auth,persistence){auth.persistence=persistence;}
 export function onAuthStateChanged(auth,listener){
   auth.listeners.push(listener);
   queueMicrotask(()=>listener(auth.currentUser));
@@ -38,7 +40,7 @@ export async function signOut(auth){
 export async function signInWithEmailAndPassword(auth,email,password){
   auth.signins++;
   if(auth.mode==='rejectSignin')throw new Error('QA sign-in failure');
-  auth.currentUser={uid:auth.mode==='mismatchSignin'?'wrong-owner':'qa-owner',email,emailVerified:true};
+  auth.currentUser={uid:auth.mode==='mismatchSignin'?'wrong-owner':'qa-owner',email,emailVerified:true,getIdToken:async()=>('qa-token')};
   auth.listeners.forEach(fn=>fn(auth.currentUser));
   return {user:auth.currentUser};
 }
@@ -124,6 +126,7 @@ try {
     await s.page.locator('#submit').click();
     await s.page.waitForURL(url=>url.pathname==='/admin-preview.html',{timeout:8000});
     assert.equal(await s.page.locator('#qa-admin').count(),1);
+    assert.ok(await s.page.evaluate(()=>Number(sessionStorage.getItem('ns-admin-auth-handoff')||0)>0),'Successful sign-in must leave a short-lived same-tab handoff marker for Admin session restoration');
     await done(s);
   }
   // Scenario 3: A failed sign-out must keep login disabled and fail closed.
