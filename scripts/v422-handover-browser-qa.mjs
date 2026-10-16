@@ -134,8 +134,9 @@ try{
         await page.evaluate(async()=>{NSV421Store.load=window.__qaOriginalStoreLoad;window.dispatchEvent(new CustomEvent('nsv421:change'));await new Promise(resolve=>setTimeout(resolve,80));});
         check(await cityNode.evaluate(e=>e.isConnected&&e.value==='Jabalpur')&&await page.locator('#order').isVisible(),'restoring published layout retains city input and visibility');
       }
+      const passiveRequestCount=requests.length,passiveGeoCalls=await page.evaluate(()=>window.__geoCalls);
       await page.locator('#ns-state').fill('Madhya Pradesh');
-      check(requests.length===0,'typing does not geocode or prompt GPS');
+      check(requests.length===passiveRequestCount&&await page.evaluate(()=>window.__geoCalls)===passiveGeoCalls,'typing City/State does not geocode or prompt GPS');
       await page.locator('#ns-find-handover-city').click();
       try{await page.waitForFunction(()=>document.querySelectorAll('#ns-handover-options option').length===10);}catch(error){
         const diagnostic=await page.evaluate(()=>({state:{...NSDeliveryState},status:document.querySelector('#ns-handover-status')?.textContent,city:document.querySelector('#oCity')?.value,cityEdits:window.__cityEdits,cityCount:document.querySelectorAll('#oCity').length,region:document.querySelector('#ns-state')?.value,options:document.querySelector('#ns-handover-options')?.innerHTML}));
