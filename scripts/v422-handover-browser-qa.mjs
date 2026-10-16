@@ -64,7 +64,23 @@ try{
           return route.fulfill({contentType:'application/json',body:JSON.stringify(responseMode==='empty'?{elements:[]}:rail?railway:bus)});
         }
         if(url.hostname==='nominatim.openstreetmap.org'){
-          requests.push({provider:'geocoder',query:url.searchParams.get('q')});
+          const q=url.searchParams.get('q')||'';
+          if(q==='railway station'||q==='bus station'||q==='bus stop'){
+            requests.push({provider:'nominatim-transport',query:q});
+            if(responseMode==='empty')return route.fulfill({contentType:'application/json',body:'[]'});
+            const fallback=q==='railway station'
+              ?[
+                {lat:'23.1915',lon:'79.9864',display_name:'Fallback Station 1, Jabalpur, Madhya Pradesh, India'},
+                {lat:'23.2115',lon:'79.9864',display_name:'Fallback Station 2, Jabalpur, Madhya Pradesh, India'},
+                {lat:'23.2315',lon:'79.9864',display_name:'Fallback Station 3, Jabalpur, Madhya Pradesh, India'}
+               ]
+              :[
+                {lat:'23.1915',lon:'79.9864',display_name:'Fallback Bus Stop, Jabalpur, Madhya Pradesh, India'},
+                {lat:'23.2115',lon:'79.9864',display_name:'Fallback Bus Stand, Jabalpur, Madhya Pradesh, India'}
+               ];
+            return route.fulfill({contentType:'application/json',body:JSON.stringify(fallback)});
+          }
+          requests.push({provider:'geocoder',query:q});
           return route.fulfill({contentType:'application/json',body:JSON.stringify([{lat:'23.1815',lon:'79.9864',display_name:'Jabalpur, Madhya Pradesh, India'}])});
         }
         if(url.origin!==origin)return route.abort();
@@ -192,13 +208,16 @@ try{
         check((await page.locator('#ns-handover-options option').nth(1).textContent()).includes('QA Station 1'),'late bus response cannot replace active railway options');
         responseMode='fail';
         await page.locator('#oCity').fill('Failed search city');await page.locator('#ns-find-handover').click();
-        await page.waitForFunction(()=>/unavailable/.test(document.querySelector('#ns-handover-status').textContent));
-        check(await page.locator('#ns-handover-name').isEnabled(),'provider failure preserves manual entry');
-        check(await page.locator('#ns-find-handover').isEnabled(),'provider failure permits retry');
+        await page.waitForFunction(()=>document.querySelectorAll('#ns-handover-options option').length===4);
+        check(requests.some(r=>r.provider==='nominatim-transport'&&r.query==='railway station'),'both Overpass failures restore the explicit Nominatim railway fallback');
+        check((await page.locator('#ns-handover-options option').nth(1).textContent()).includes('Fallback Station 1'),'Nominatim fallback is rendered nearest first');
+        check(/fallback used/.test(await page.locator('#ns-handover-status').textContent()),'customer is told that the public location-search fallback was used');
+        check(await page.locator('#ns-handover-name').isEnabled(),'fallback preserves manual entry');
+        check(await page.locator('#ns-find-handover').isEnabled(),'fallback permits retry');
         responseMode='empty';
-        await page.locator('#ns-find-handover').click();
+        await page.locator('#oCity').fill('Empty search city');await page.locator('#ns-find-handover').click();
         await page.waitForFunction(()=>/No mapped option/.test(document.querySelector('#ns-handover-status').textContent));
-        check(await page.locator('#ns-place-picker').isHidden(),'empty response has clear manual fallback, no fake options');
+        check(await page.locator('#ns-place-picker').isHidden(),'empty Overpass plus empty Nominatim has clear manual fallback, no fake options');
       }
       await page.locator('#ns-opt-pickup_hub').click();
       check(await page.locator('#ns-handover-status').textContent()===''&&await page.locator('#ns-place-picker').isHidden(),'switching to manual pickup area clears earlier transport status and choices');
