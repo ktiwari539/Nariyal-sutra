@@ -65,18 +65,18 @@ try{
         }
         if(url.hostname==='nominatim.openstreetmap.org'){
           const q=url.searchParams.get('q')||'';
-          if(q==='railway station'||q==='bus station'||q==='bus stop'){
+          if(q==='railway station'||q==='train station'||q==='bus station'||q==='bus stop'){
             requests.push({provider:'nominatim-transport',query:q});
             if(responseMode==='empty')return route.fulfill({contentType:'application/json',body:'[]'});
             const fallback=q==='railway station'
               ?[
-                {lat:'23.1915',lon:'79.9864',display_name:'Fallback Station 1, Jabalpur, Madhya Pradesh, India'},
-                {lat:'23.2115',lon:'79.9864',display_name:'Fallback Station 2, Jabalpur, Madhya Pradesh, India'},
-                {lat:'23.2315',lon:'79.9864',display_name:'Fallback Station 3, Jabalpur, Madhya Pradesh, India'}
+                {lat:'23.1915',lon:'79.9864',category:'railway',type:'station',display_name:'Fallback Station 1, Jabalpur, Madhya Pradesh, India'},
+                {lat:'23.2115',lon:'79.9864',category:'railway',type:'station',display_name:'Fallback Station 2, Jabalpur, Madhya Pradesh, India'},
+                {lat:'23.2315',lon:'79.9864',category:'railway',type:'halt',display_name:'Fallback Station 3, Jabalpur, Madhya Pradesh, India'}
                ]
               :[
-                {lat:'23.1915',lon:'79.9864',display_name:'Fallback Bus Stop, Jabalpur, Madhya Pradesh, India'},
-                {lat:'23.2115',lon:'79.9864',display_name:'Fallback Bus Stand, Jabalpur, Madhya Pradesh, India'}
+                {lat:'23.1915',lon:'79.9864',category:'highway',type:'bus_stop',display_name:'Fallback Bus Stop, Jabalpur, Madhya Pradesh, India'},
+                {lat:'23.2115',lon:'79.9864',category:'amenity',type:'bus_station',display_name:'Fallback Bus Stand, Jabalpur, Madhya Pradesh, India'}
                ];
             return route.fulfill({contentType:'application/json',body:JSON.stringify(fallback)});
           }
