@@ -42,7 +42,7 @@ try{
       const requests=[],errors=[];
       let writes=0,geoCalls=0,responseMode='normal',hold=null;
       await context.addInitScript(()=>{
-        window.__geoCalls=0;navigator.geolocation.getCurrentPosition=()=>{window.__geoCalls++;};
+        window.__geoCalls=0;window.__geoMode='success';navigator.geolocation.getCurrentPosition=(success,error)=>{window.__geoCalls++;if(window.__geoMode==='deny')return error&&error({code:1,message:'denied'});success&&success({coords:{latitude:23.1815,longitude:79.9864,accuracy:18}});};
         window.__cityEdits=[];
         window.__focusEdits=[];
         const nativeFocus=HTMLElement.prototype.focus;
@@ -99,13 +99,19 @@ try{
       await page.waitForFunction(()=>getComputedStyle(document.getElementById('jungle-intro')).display==='none'&&!document.body.classList.contains('ns-intro-owned'));
       await page.locator('#ns-opt-railway_station').click();
       await page.locator('#ns-find-handover').click();
+      await page.waitForFunction(()=>document.querySelectorAll('#ns-handover-options option').length===10);
+      check(await page.evaluate(()=>window.__geoCalls)===1,'Find nearest explicitly requests buyer location exactly once');
+      check(await page.evaluate(()=>NSDeliveryState.lat===23.1815&&NSDeliveryState.lng===79.9864&&NSDeliveryState.locationSource==='gps'),'nearest search uses precise buyer location without requiring City/PIN');
+      check(requests.filter(r=>r.provider==='geocoder').length===0,'nearest GPS search does not geocode a city centre');
+      check((await page.locator('#ns-handover-options option').nth(1).textContent()).startsWith('Nearest · '),'first transport choice is explicitly labelled nearest');
+      await page.locator('#oCity').fill('Jabalpur');
+      await page.evaluate(()=>{window.__geoMode='deny';});
+      await page.locator('#ns-find-handover').click();
       await page.waitForFunction(()=>document.getElementById('oCity')===document.activeElement,null,{timeout:1500});
       const focused=await page.locator('#oCity').evaluate(e=>e===document.activeElement);
       if(!focused)console.error(JSON.stringify(await page.evaluate(()=>({active:document.activeElement?.id,focusEvents:window.__focusEdits,cityEdits:window.__cityEdits}))));
-      check(focused,theme+' '+viewport+' missing-location action focuses city');
-      check(/city or PIN/.test(await page.locator('#ns-handover-status').textContent()),'missing-location guidance is actionable');
-      check(requests.length===0,'no place requests before an explicit location is provided');
-      await page.locator('#oCity').fill('Jabalpur');
+      check(focused,theme+' '+viewport+' denied-location fallback focuses city');
+      check(/Location permission was not allowed/.test(await page.locator('#ns-handover-status').textContent()),'denied location gives actionable City/PIN fallback');
       check(await page.locator('#oCity').inputValue()==='Jabalpur','city entry is committed before moving to state');
       const cityNode=await page.locator('#oCity').elementHandle();
       await page.evaluate(async()=>{window.dispatchEvent(new CustomEvent('nsv421:change'));await new Promise(resolve=>setTimeout(resolve,80));});
@@ -130,7 +136,7 @@ try{
       }
       await page.locator('#ns-state').fill('Madhya Pradesh');
       check(requests.length===0,'typing does not geocode or prompt GPS');
-      await page.locator('#ns-find-handover').click();
+      await page.locator('#ns-find-handover-city').click();
       try{await page.waitForFunction(()=>document.querySelectorAll('#ns-handover-options option').length===10);}catch(error){
         const diagnostic=await page.evaluate(()=>({state:{...NSDeliveryState},status:document.querySelector('#ns-handover-status')?.textContent,city:document.querySelector('#oCity')?.value,cityEdits:window.__cityEdits,cityCount:document.querySelectorAll('#oCity').length,region:document.querySelector('#ns-state')?.value,options:document.querySelector('#ns-handover-options')?.innerHTML}));
         fs.writeFileSync(path.join(out,'failed-'+theme+'-'+viewport+'.json'),JSON.stringify({diagnostic,requests,errors},null,2));
@@ -138,9 +144,9 @@ try{
       }
       const options=await page.locator('#ns-handover-options option').allTextContents();
       check(options[1].includes('QA Station 1 (NS1)')&&options[9].includes('QA Station 9 (NS9)'),'all nine valid mapped stations sorted nearest first, beyond former five limit');
-      check(options.slice(1).every(s=>/^Approx\. [\d.]+ km · /.test(s)),'every compact dropdown option starts with distance so it remains visible on mobile');
+      check(options.slice(1).every(s=>/^(?:Nearest · )?Approx\. [\d.]+ km · /.test(s)),'every compact dropdown option starts with distance, with the closest one labelled Nearest');
       check(/straight-line.*road distance may differ.*entered locality centre/.test(await page.locator('#ns-handover-status').textContent()),'city-only distances are clearly qualified by the dropdown description');
-      check(await page.evaluate(()=>NSDeliveryState.lat===null&&NSDeliveryState.lng===null),'locality centre is not saved as an exact customer pin');
+      check(await page.evaluate(()=>NSDeliveryState.lat===null&&NSDeliveryState.lng===null),'after buyer edits locality, the prior GPS position is invalidated and locality centre is not saved as an exact customer pin');
       check(requests.filter(r=>r.provider==='geocoder').length===1,'one explicit locality resolution');
       check(requests.find(r=>r.provider==='overpass').query.includes('around:30000'),'railway radius is explicit');
       await page.locator('#ns-handover-options').selectOption('8');
@@ -159,7 +165,7 @@ try{
       for(const surface of surfaces){check(surface.image==='none','owned checkout surface is opaque: '+surface.selector);check(contrast(surface.ink,surface.surface)>=4.5,theme+' '+surface.selector+' text contrast: '+JSON.stringify(surface));if(surface.placeholder)check(contrast(surface.placeholder,surface.surface)>=4.5,'placeholder contrast: '+surface.selector);}
       check(await page.locator('#ns-handover-options').evaluate(e=>e.getBoundingClientRect().right<=innerWidth),'native dropdown stays in viewport');
       await page.locator('#ns-opt-bus_stop').click();
-      await page.locator('#ns-find-handover').click();
+      await page.locator('#ns-find-handover-city').click();
       await page.waitForFunction(()=>document.querySelectorAll('#ns-handover-options option').length===4);
       const busOptions=await page.locator('#ns-handover-options option').allTextContents();
       check(busOptions[1].includes('QA Bus Stop')&&busOptions[2].includes('QA Bus Platform')&&busOptions[3].includes('QA Bus Stand'),'bus stops, platforms and stands all appear sorted by distance');
@@ -189,12 +195,12 @@ try{
 
       if(viewport==='mobile'&&theme==='golden-harvest'){
         responseMode='primary-fail';
-        await page.locator('#ns-find-handover').click();
+        await page.locator('#ns-find-handover-city').click();
         await page.waitForFunction(()=>document.querySelectorAll('#ns-handover-options option').length===4);
         check(requests.at(-1).host==='overpass.private.coffee','primary public-service failure uses exactly one bounded alternate service');
         await page.locator('#oCity').fill('Delayed search city');
         responseMode='hold';
-        await page.locator('#ns-find-handover').click();
+        await page.locator('#ns-find-handover-city').click();
         await page.waitForFunction(()=>document.querySelector('#ns-find-handover').disabled);
         const holdDeadline=Date.now()+3000;
         while(!hold&&Date.now()<holdDeadline)await new Promise(r=>setTimeout(r,25));
@@ -202,12 +208,12 @@ try{
         check(!!hold,'delayed public-place fixture is intercepted before switching modes');
         const delayed=hold;responseMode='normal';
         await page.locator('#ns-opt-railway_station').click();
-        await page.locator('#ns-find-handover').click();
+        await page.locator('#ns-find-handover-city').click();
         await page.waitForFunction(()=>document.querySelectorAll('#ns-handover-options option').length===10);
         await delayed.fulfill({contentType:'application/json',body:JSON.stringify(bus)}).catch(()=>{});
         check((await page.locator('#ns-handover-options option').nth(1).textContent()).includes('QA Station 1'),'late bus response cannot replace active railway options');
         responseMode='fail';
-        await page.locator('#oCity').fill('Failed search city');await page.locator('#ns-find-handover').click();
+        await page.locator('#oCity').fill('Failed search city');await page.locator('#ns-find-handover-city').click();
         await page.waitForFunction(()=>document.querySelectorAll('#ns-handover-options option').length===4);
         check(requests.some(r=>r.provider==='nominatim-transport'&&r.query==='railway station'),'both Overpass failures restore the explicit Nominatim railway fallback');
         check((await page.locator('#ns-handover-options option').nth(1).textContent()).includes('Fallback Station 1'),'Nominatim fallback is rendered nearest first');
@@ -215,7 +221,7 @@ try{
         check(await page.locator('#ns-handover-name').isEnabled(),'fallback preserves manual entry');
         check(await page.locator('#ns-find-handover').isEnabled(),'fallback permits retry');
         responseMode='empty';
-        await page.locator('#oCity').fill('Empty search city');await page.locator('#ns-find-handover').click();
+        await page.locator('#oCity').fill('Empty search city');await page.locator('#ns-find-handover-city').click();
         await page.waitForFunction(()=>/No mapped option/.test(document.querySelector('#ns-handover-status').textContent));
         check(await page.locator('#ns-place-picker').isHidden(),'empty Overpass plus empty Nominatim has clear manual fallback, no fake options');
       }
@@ -224,7 +230,7 @@ try{
       await page.locator('#ns-country').selectOption('UAE');
       check(await page.locator('#ns-handover-panel').isHidden(),'international trade hides India transport choices');
       geoCalls=await page.evaluate(()=>window.__geoCalls);
-      check(geoCalls===0,'no automatic GPS permission request');check(writes===0,'zero attempted order, notification or payment writes');
+      check(geoCalls===2,'GPS is requested only by the two explicit Find nearest clicks; no automatic location prompt');check(writes===0,'zero attempted order, notification or payment writes');
       const unexpected=errors.filter(s=>!/Failed to read the 'serviceWorker' property from 'Navigator'.*sandboxed.*allow-same-origin/.test(s));
       check(unexpected.length===0,'no uncaught browser errors: '+unexpected.join(' | '));
       results.push({theme,viewport,railwayCount:9,busCount:3,surfaces,requests,geoCalls,writes});
