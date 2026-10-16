@@ -710,21 +710,35 @@ async function nsPlaceJson(url,signal){
   return response.json();
 }
 async function nsTransportJson(query,signal){
-  /* One bounded fallback on a public-service outage, never a retry loop. */
+  /* Public Overpass mirrors are independent and can be slow. Query both in
+     parallel with a short bound so the customer does not wait ~24s before the
+     browser-safe fallback gets a chance to return real station/stop data. */
   var endpoints=['https://overpass-api.de/api/interpreter','https://overpass.private.coffee/api/interpreter'];
-  for(var i=0;i<endpoints.length;i++){
+  var controllers=[];
+  var attempts=endpoints.map(function(endpoint){
+    return new Promise(async function(resolve,reject){
+      if(signal.aborted)return reject(new Error('Lookup cancelled'));
+      var attempt=new AbortController();controllers.push(attempt);
+      var abort=function(){attempt.abort();};
+      signal.addEventListener('abort',abort,{once:true});
+      var timer=setTimeout(abort,6000);
+      try{
+        var body=await nsPlaceJson(endpoint+'?'+new URLSearchParams({data:query}).toString(),attempt.signal);
+        if(!body||!Array.isArray(body.elements)||body.remark)throw new Error('Incomplete public place response');
+        resolve(body);
+      }catch(err){reject(signal.aborted?new Error('Lookup cancelled'):err);}
+      finally{clearTimeout(timer);signal.removeEventListener('abort',abort);}
+    });
+  });
+  try{
+    var winner=await Promise.any(attempts);
+    controllers.forEach(function(c){if(!c.signal.aborted)c.abort();});
+    return winner;
+  }catch(err){
+    controllers.forEach(function(c){if(!c.signal.aborted)c.abort();});
     if(signal.aborted)throw new Error('Lookup cancelled');
-    var attempt=new AbortController(),abort=function(){attempt.abort();};
-    signal.addEventListener('abort',abort,{once:true});
-    var timer=setTimeout(abort,12000);
-    try{
-      var body=await nsPlaceJson(endpoints[i]+'?'+new URLSearchParams({data:query}).toString(),attempt.signal);
-      if(!body||!Array.isArray(body.elements)||body.remark)throw new Error('Incomplete public place response');
-      return body;
-    }catch(err){if(signal.aborted)throw err;}
-    finally{clearTimeout(timer);signal.removeEventListener('abort',abort);}
+    throw new Error('Public place services unavailable');
   }
-  throw new Error('Public place services unavailable');
 }
 async function nsNominatimTransportPlaces(kind,origin,radius,signal){
   /* Browser-safe fallback that restores the earlier working explicit Nominatim
@@ -734,7 +748,7 @@ async function nsNominatimTransportPlaces(kind,origin,radius,signal){
   var cos=Math.max(.2,Math.cos(Number(origin.lat)*Math.PI/180));
   var lngRadius=radius/(111320*cos);
   var viewbox=[Number(origin.lng)-lngRadius,Number(origin.lat)+latRadius,Number(origin.lng)+lngRadius,Number(origin.lat)-latRadius].join(',');
-  var terms=kind==='railway_station'?['railway station']:['bus station','bus stop'];
+  var terms=kind==='railway_station'?['railway station','train station']:['bus station','bus stop'];
   var seen=new Set(),places=[];
   for(var i=0;i<terms.length;i++){
     if(signal.aborted)throw new Error('Lookup cancelled');
@@ -744,7 +758,7 @@ async function nsNominatimTransportPlaces(kind,origin,radius,signal){
     nsHandoverLookup.geocodeAt=Date.now();
     var params=new URLSearchParams({
       format:'jsonv2',
-      limit:'25',
+      limit:'40',
       addressdetails:'1',
       countrycodes:'in',
       q:terms[i],
@@ -817,7 +831,7 @@ window.nsFindHandover=async function(kind){
   var current=function(){return version===nsHandoverLookup.version&&key===nsHandoverLocationKey()&&nsDelivery.selectedDelivery===kind&&!nsDelivery.isInternational;};
   nsHandoverStatus(kind==='railway_station'?'Finding nearby railway stations…':'Finding nearby bus stands and stops…');
   if(el('ns-find-handover'))el('ns-find-handover').disabled=true;
-  var timeout=setTimeout(function(){controller.abort();},28000);
+  var timeout=setTimeout(function(){controller.abort();},20000);
   nsHandoverLookup.pending=(async function(){
   try{
     var origin=nsValidCoordinates(nsDelivery.lat,nsDelivery.lng)?{lat:Number(nsDelivery.lat),lng:Number(nsDelivery.lng),approximate:false}:nsHandoverLookup.centres.get(key);
@@ -853,7 +867,7 @@ window.nsFindHandover=async function(kind){
        previously worked in the browser, then keep the same nearest-first UI. */
     if(!items.length){
       fallbackUsed=true;
-      nsHandoverStatus('The detailed transport map is unavailable; checking nearby named locations…');
+      nsHandoverStatus('The detailed transport map is slow or unavailable; checking nearby named locations now…');
       items=await nsNominatimTransportPlaces(kind,origin,radius,controller.signal);
       if(!current())return;
     }
