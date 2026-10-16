@@ -198,7 +198,7 @@ try{
         responseMode='primary-fail';
         await page.locator('#ns-find-handover-city').click();
         await page.waitForFunction(()=>document.querySelectorAll('#ns-handover-options option').length===4);
-        check(requests.at(-1).host==='overpass.private.coffee','primary public-service failure uses exactly one bounded alternate service');
+        check(['overpass-api.de','overpass.private.coffee'].every(host=>requests.some(r=>r.provider==='overpass'&&r.host===host)),'rail/bus lookup races both bounded Overpass mirrors so one slow service cannot starve the fallback');
         await page.locator('#oCity').fill('Delayed search city');
         responseMode='hold';
         await page.locator('#ns-find-handover-city').click();
