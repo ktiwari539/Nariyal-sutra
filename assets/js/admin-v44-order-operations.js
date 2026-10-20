@@ -14,7 +14,7 @@ let modules=null;
  const advancingOrders=new Set();
 function production(){return !!window.NSV421ProductionBridge?.isProduction;}
 function role(){return $('#apRole')?.value||window.NSV421ProductionBridge?.role||Store.getSession?.()?.role||'';}
-function normalize(v){return String(v||'pending').trim().toLowerCase().replaceAll(' ','_');}
+function normalize(v){const status=String(v||'pending').trim().toLowerCase().replaceAll(' ','_');return status==='canceled'?'cancelled':status;}
 function canManage(){return MANAGE_ROLES.has(role());}
 function validTransition(from,to){from=normalize(from);to=normalize(to);return to===from||NEXT[from]===to||(to==='cancelled'&&FLOW.includes(from)&&from!=='delivered');}
  function advancePlan(from,to){from=normalize(from);to=normalize(to);const start=FLOW.indexOf(from),end=FLOW.indexOf(to);if(start<0||end<=start)throw new Error('Choose a later fulfilment stage. Cancelled and delivered orders are closed.');return FLOW.slice(start+1,end+1);}
