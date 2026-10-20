@@ -23,8 +23,10 @@ const headers=fs.readFileSync(new URL('../_headers',import.meta.url),'utf8');
 assert.match(headers,/\/assets\/js\/\*\s*\n\s*Cache-Control: public, max-age=0, must-revalidate/,
  'Unversioned JavaScript must revalidate on every navigation so production fixes are not held for an hour');
 assert.ok(bridge.includes("document.documentElement.classList.remove('ns-production-auth-pending')"),'Successful authenticated setup releases shell gate');
-assert.ok(bridge.includes("authMod.setPersistence(auth,authMod.browserLocalPersistence)"),
- 'Production Admin route must explicitly request browser-local Firebase persistence');
+assert.ok(!bridge.includes("authMod.setPersistence(auth,"),
+ 'Production Admin must preserve the persistence selected during sign-in, including Safari fallback storage');
+assert.ok(bridge.includes("adminAuthTrace('firebase-auth-persistence-preserved')"),
+ 'Admin bootstrap must capture persistence-preservation diagnostics without identifying the user');
 assert.ok(bridge.includes("const ADMIN_AUTH_TRACE_KEY='ns-admin-auth-trace-v422'"),'Diagnostic trace key exists');
 assert.ok(bridge.includes('sessionStorage.setItem(ADMIN_AUTH_TRACE_KEY,JSON.stringify(events.slice(-40)))'),'Diagnostics remain bounded and tab-local');
 assert.ok(bridge.includes("adminAuthTrace('redirect-session-not-restored')"),'Missing restored session captures the actual redirect reason');
