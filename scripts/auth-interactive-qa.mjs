@@ -54,7 +54,7 @@ async function open(c,kind='customer'){
  await p.waitForFunction(()=>[...document.querySelectorAll('.ns-auth-shell')].some(shell=>shell.dataset.authBound==='true'&&shell.querySelector('.ns-nariyal-scene')?.dataset.guardianReady==='true'&&shell.getClientRects().length));
  return p;
 }
-async function shot(p,name){await p.waitForTimeout(900);await p.screenshot({path:`${out}/${engine}-${name}.png`});}
+async function shot(p,name){await p.waitForTimeout(900);await p.screenshot({path:`${out}/${engine}-${name}.png`,timeout:45000,animations:'disabled',caret:'hide'});}
 async function geometry(p){return p.evaluate(()=>{
  const shell=document.querySelector('.ns-auth-shell'),art=shell.querySelector('.ns-auth-art'),obj=shell.querySelector('.ns-nariyal-scene'),copy=shell.querySelector('.ns-auth-art-copy'),r=obj.getBoundingClientRect();
  const controls=[...shell.querySelectorAll('.ns-auth-content input,.ns-auth-content button,.ns-auth-content label,.ns-auth-content a')].filter(e=>e.getClientRects().length);
