@@ -240,6 +240,7 @@ function terminateAdminSession(){
  user=null;role='';roleRecord=null;
  try{Store.setSession?.(null);}catch(_){}
  try{sessionStorage.removeItem('ns_v10_admin_session');sessionStorage.removeItem('ns-v421-preview-role');}catch(_){}
+ clearAdminAuthMarkers();
  location.replace('/admin-bcc-login.html?signed_out=1');
 }
 function monitorAdminAuthSession(){
