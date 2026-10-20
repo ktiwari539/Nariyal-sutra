@@ -91,10 +91,10 @@ async function ensureFirebase(){
  app=appMod.getApps().length?appMod.getApp():appMod.initializeApp(cfg);
  if(typeof window.NS_INIT_APP_CHECK==='function')await window.NS_INIT_APP_CHECK(app);
  auth=authMod.getAuth(app);adminAuthTrace('firebase-auth-instantiated');
- if(isAdmin&&typeof authMod.setPersistence==='function'&&authMod.browserLocalPersistence){
-  try{await authMod.setPersistence(auth,authMod.browserLocalPersistence);}
-  catch(e){console.warn('[BCC] Browser-local Firebase persistence unavailable on Admin route',e);}
- }
+ // Login uses Firebase's default IndexedDB/localStorage/session fallback hierarchy.
+ // Do not switch to localStorage-only here: changing persistence after navigating
+ // can clear shared Auth state in other tabs and defeat Safari fallback storage.
+ adminAuthTrace('firebase-auth-persistence-preserved');
  db=fsMod.getFirestore(app);return cfg;
 }
 async function adminRole(u){
