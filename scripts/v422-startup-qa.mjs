@@ -78,7 +78,6 @@ assert.equal(await ready,config);
 assert.equal(calls.filter(x=>x==='load-script').length,0,'Do not load a second Firebase config');
 assert.equal(calls.filter(x=>x==='import').length,3);
 assert.equal(calls.filter(x=>x==='app-check').length,1,'Preserve App Check initialization');
-assert.equal(calls.filter(x=>x==='auth-persistence').length,1,'Admin bootstrap must request browser-local Firebase persistence');
 assert.equal(calls.filter(x=>x==='set-persistence').length,0,'Public bridge bootstrap must not change Firebase auth persistence');
 
 // Admin bootstrap must explicitly request durable browser-local persistence.
