@@ -23,13 +23,17 @@ const headers=fs.readFileSync(new URL('../_headers',import.meta.url),'utf8');
 assert.match(headers,/\/assets\/js\/\*\s*\n\s*Cache-Control: public, max-age=0, must-revalidate/,
  'Unversioned JavaScript must revalidate on every navigation so production fixes are not held for an hour');
 assert.ok(bridge.includes("document.documentElement.classList.remove('ns-production-auth-pending')"),'Successful authenticated setup releases shell gate');
-const waitFrom=bridge.indexOf('function recentAdminHandoff(){');
+assert.ok(bridge.includes("authMod.setPersistence(auth,authMod.browserLocalPersistence)"),
+ 'Production Admin route must explicitly request browser-local Firebase persistence');
+const waitFrom=bridge.indexOf('const ADMIN_RESTORE_GRACE_MS=');
 const waitTo=bridge.indexOf('async function readPublicOnce',waitFrom);
 assert.ok(waitFrom>0&&waitTo>waitFrom,'Admin auth restoration grace helper exists');
-const waitSource=bridge.slice(waitFrom,waitTo).replace('2500','25');
-const waitHarness=new Function('withHandoff','restoreLater','restoreDuringReady',`return (async()=>{
- const storage=new Map();if(withHandoff)storage.set('ns-admin-auth-handoff',String(Date.now()));
- const sessionStorage={getItem:k=>storage.get(k)||null,removeItem:k=>storage.delete(k)};
+const waitSource=bridge.slice(waitFrom,waitTo).replace('12000','60');
+const waitHarness=new Function('withHandoff','withVerifiedSession','restoreLater','restoreDuringReady',`return (async()=>{
+ const storage=new Map();
+ if(withHandoff)storage.set('ns-admin-auth-handoff',String(Date.now()));
+ if(withVerifiedSession)storage.set('ns-admin-verified-session',String(Date.now()));
+ const sessionStorage={getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,String(v)),removeItem:k=>storage.delete(k)};
  let current=null,observer=null;
  const auth={
   get currentUser(){return current},set currentUser(v){current=v},
@@ -39,33 +43,38 @@ const waitHarness=new Function('withHandoff','restoreLater','restoreDuringReady'
  };
  const authMod={onAuthStateChanged(_auth,fn){observer=fn;queueMicrotask(()=>fn(auth.currentUser));return ()=>{}}};
  ${waitSource}
- if(restoreLater)setTimeout(()=>{auth.currentUser={uid:'qa-owner'};observer?.(auth.currentUser);},5);
+ if(restoreLater)setTimeout(()=>{auth.currentUser={uid:'qa-owner'};observer?.(auth.currentUser);},10);
  const user=await waitAuth();
- return {uid:user&&user.uid||'',marker:storage.has('ns-admin-auth-handoff')};
+ return {uid:user&&user.uid||'',handoff:storage.has('ns-admin-auth-handoff'),verified:storage.has('ns-admin-verified-session')};
 })()`);
-const restored=await waitHarness(true,true,false);
-assert.equal(restored.uid,'qa-owner','Recent verified login handoff must survive a transient initial null auth state');
-assert.equal(restored.marker,false,'Successful Admin restoration clears the one-time handoff marker');
-const reloadRestored=await waitHarness(false,false,true);
-assert.equal(reloadRestored.uid,'qa-owner','Persisted Owner session must restore on Admin reload/tab wake even without a handoff marker');
-const noHandoff=await waitHarness(false,false,false);
+const restored=await waitHarness(true,false,true,false);
+assert.equal(restored.uid,'qa-owner','Recent verified login handoff must survive a delayed initial auth restoration');
+assert.equal(restored.handoff,false,'Successful Admin restoration clears the one-time handoff marker');
+const verifiedReload=await waitHarness(false,true,true,false);
+assert.equal(verifiedReload.uid,'qa-owner','Previously verified same-tab Admin session must get a bounded restoration window on reload');
+const reloadRestored=await waitHarness(false,false,false,true);
+assert.equal(reloadRestored.uid,'qa-owner','Firebase authStateReady restoration must resume Admin without relying on a marker');
+const noHandoff=await waitHarness(false,false,false,false);
 assert.equal(noHandoff.uid,'','Direct unauthenticated Admin visit must still fail closed after Firebase auth state is ready');
 
 const from=bridge.indexOf('let adminSessionTerminated=false');
 const to=bridge.indexOf('function installSignOut(){',from);
 assert.ok(from>0&&to>from,'Find actual production Admin session watcher');
-const source=bridge.slice(from,to).replace('2500','25');
+const source=bridge.slice(from,to);
 assert.ok(bridge.includes('remoteReady=true;monitorAdminAuthSession();if(adminSessionTerminated)return;'),
  'Admin must activate watcher immediately after remote readiness');
 const harness=new Function('initial','enabled','admin',String.raw`
  const events=[],unsubs=[],auth={currentUser:initial};
  let isAdmin=admin,remoteReady=enabled,user=initial,role='Owner',
    roleRecord={role:'Owner'},pendingState={private:'pending'},saveTimer=null;
+ const ADMIN_RESTORE_GRACE_MS=25;
  const overlay=text=>events.push(['overlay',text]);
  const clearOverlay=()=>events.push(['clearOverlay']);
  const Store={setSession:s=>events.push(['session',s])};
- const storage=new Map([['ns_v10_admin_session','stale'],['ns-v421-preview-role','Owner']]);
- const sessionStorage={removeItem:k=>storage.delete(k)};
+ const storage=new Map([['ns_v10_admin_session','stale'],['ns-v421-preview-role','Owner'],['ns-admin-verified-session','stale']]);
+ const sessionStorage={getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,String(v)),removeItem:k=>storage.delete(k)};
+ const markVerifiedAdminSession=()=>storage.set('ns-admin-verified-session',String(Date.now()));
+ const clearAdminAuthMarkers=()=>{storage.delete('ns-admin-auth-handoff');storage.delete('ns-admin-verified-session');};
  const location={replace:u=>events.push(['redirect',u])};
  let observer=null;
  const authMod={onAuthStateChanged(_auth,fn){observer=fn;return ()=>events.push(['unsubscribe']);}};
@@ -92,6 +101,7 @@ transient.emit({...owner});
 await transient.settle();
 assert.equal(transient.getState().remoteReady,true,'Same Owner restoration must resume Admin after transient null');
 assert.equal(transient.getState().adminSessionTerminated,false);
+assert.ok(transient.getState().storage.includes('ns-admin-verified-session'),'Recovered same-UID session refreshes verified-session marker');
 assert.equal(transient.getState().events.filter(e=>e[0]==='redirect').length,0);
 
 const endedSession=harness(owner,true,true);
