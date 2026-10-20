@@ -68,7 +68,12 @@ async function ensureFirebase(){
  [appMod,authMod,fsMod]=await Promise.all([import(`https://www.gstatic.com/firebasejs/${SDK}/firebase-app.js`),import(`https://www.gstatic.com/firebasejs/${SDK}/firebase-auth.js`),import(`https://www.gstatic.com/firebasejs/${SDK}/firebase-firestore.js`)]);
  app=appMod.getApps().length?appMod.getApp():appMod.initializeApp(cfg);
  if(typeof window.NS_INIT_APP_CHECK==='function')await window.NS_INIT_APP_CHECK(app);
- auth=authMod.getAuth(app);db=fsMod.getFirestore(app);return cfg;
+ auth=authMod.getAuth(app);
+ if(isAdmin&&typeof authMod.setPersistence==='function'&&authMod.browserLocalPersistence){
+  try{await authMod.setPersistence(auth,authMod.browserLocalPersistence);}
+  catch(e){console.warn('[BCC] Browser-local Firebase persistence unavailable on Admin route',e);}
+ }
+ db=fsMod.getFirestore(app);return cfg;
 }
 async function adminRole(u){
  const ownerUid=window.NS_ADMIN_CONFIG?.ownerUid||'',ownerEmail=window.NS_ADMIN_CONFIG?.ownerEmail||'';
@@ -80,24 +85,29 @@ async function adminRole(u){
  if(!STAFF_ROLES.includes(candidate)||x.status!=='Active'||x.active!==true||String(x.email||'')!==String(u.email||''))return '';
  roleRecord={...x,uid:u.uid,source:'adminRoles'};return candidate;
 }
-function recentAdminHandoff(){try{const at=Number(sessionStorage.getItem('ns-admin-auth-handoff')||0);return Number.isFinite(at)&&at>0&&Date.now()-at<10000;}catch(_){return false;}}
+const ADMIN_RESTORE_GRACE_MS=12000,ADMIN_SESSION_MARKER_MAX_AGE_MS=12*60*60*1000;
+function recentAdminHandoff(){try{const at=Number(sessionStorage.getItem('ns-admin-auth-handoff')||0);return Number.isFinite(at)&&at>0&&Date.now()-at<30000;}catch(_){return false;}}
+function recentVerifiedAdminSession(){try{const at=Number(sessionStorage.getItem('ns-admin-verified-session')||0);return Number.isFinite(at)&&at>0&&Date.now()-at<ADMIN_SESSION_MARKER_MAX_AGE_MS;}catch(_){return false;}}
+function markVerifiedAdminSession(){try{sessionStorage.setItem('ns-admin-verified-session',String(Date.now()));}catch(_){}}
+function clearAdminAuthMarkers(){try{sessionStorage.removeItem('ns-admin-auth-handoff');sessionStorage.removeItem('ns-admin-verified-session');}catch(_){}}
 function clearAdminHandoff(){try{sessionStorage.removeItem('ns-admin-auth-handoff');}catch(_){}}
 async function waitAuth(){
  // Firebase can briefly expose currentUser as null while restoring browser-local
- // persistence after a reload/tab wake. Wait for its authoritative initial auth
- // state before deciding that a persisted Admin session is absent.
+ // persistence after a redirect, reload or tab wake. authStateReady is checked
+ // first, then a bounded verified-only restoration window is allowed. Neither
+ // marker grants access: a real Firebase user is still mandatory.
  if(typeof auth.authStateReady==='function'){
   try{await auth.authStateReady();}catch(e){console.warn('[BCC] Firebase auth-state readiness check failed',e);}
   if(auth.currentUser){clearAdminHandoff();return auth.currentUser;}
  }
- const allowGrace=recentAdminHandoff();
+ const allowGrace=recentAdminHandoff()||recentVerifiedAdminSession();
  return new Promise(resolve=>{
   let settled=false,timer=null,off=()=>{};
   const finish=u=>{if(settled)return;settled=true;if(timer)clearTimeout(timer);try{off();}catch(_){}if(u)clearAdminHandoff();resolve(u||null);};
   off=authMod.onAuthStateChanged(auth,u=>{
    if(u)return finish(u);
    if(!allowGrace)return finish(null);
-   if(!timer)timer=setTimeout(()=>finish(auth.currentUser||null),2500);
+   if(!timer)timer=setTimeout(()=>finish(auth.currentUser||null),ADMIN_RESTORE_GRACE_MS);
   });
  });
 }
@@ -261,10 +271,10 @@ function monitorAdminAuthSession(){
    adminSessionRecheckTimer=null;
    const restored=auth.currentUser;
    if(restored&&restored.uid===expectedUid){
-    user=restored;remoteReady=true;clearOverlay();return;
+    user=restored;markVerifiedAdminSession();remoteReady=true;clearOverlay();return;
    }
    terminateAdminSession();
-  },2500);
+  },ADMIN_RESTORE_GRACE_MS);
  };
  unsubs.push(authMod.onAuthStateChanged(auth,check));
  // Check after the listener is installed too: the session may have ended while initial data loaded.
@@ -287,6 +297,7 @@ function installSignOut(){
    if(auth.currentUser)throw new Error('Firebase session remained authenticated after sign-out.');
    user=null;role='';roleRecord=null;
    try{sessionStorage.removeItem('ns_v10_admin_session');sessionStorage.removeItem('ns-v421-preview-role');}catch(_){}
+   clearAdminAuthMarkers();
    location.replace('/admin-bcc-login.html?signed_out=1');
   }catch(err){
    remoteReady=wasReady;button.disabled=false;button.textContent='Retry sign out';
@@ -298,9 +309,10 @@ function installSignOut(){
 }
 async function initAdmin(){
  overlay('Authenticating secure Business Command Center…');user=await waitAuth();
- if(!user){clearAdminHandoff();const next=encodeURIComponent('admin-preview.html'+location.search+location.hash);location.replace('/admin-bcc-login.html?error=session-not-restored&next='+next);return;}
+ if(!user){clearAdminAuthMarkers();const next=encodeURIComponent('admin-preview.html'+location.search+location.hash);location.replace('/admin-bcc-login.html?error=session-not-restored&next='+next);return;}
  role=await adminRole(user);const allowed=['Owner',...STAFF_ROLES];
- if(!allowed.includes(role)){clearAdminHandoff();await authMod.signOut(auth).catch(()=>{});location.replace('/admin-bcc-login.html?error=not-authorized');return;}
+ if(!allowed.includes(role)){clearAdminAuthMarkers();await authMod.signOut(auth).catch(()=>{});location.replace('/admin-bcc-login.html?error=not-authorized');return;}
+ markVerifiedAdminSession();
  overlay('Loading live Admin configuration…');originalSave(scrubDemoOperational(originalLoad()));
  let pub=null,priv=null;try{[pub,priv]=await Promise.all([readPublicOnce(),CONTENT_ROLES.includes(role)?readPrivateOnce():Promise.resolve(null)]);}catch(e){console.warn('[BCC] Remote config initial read failed',e);}
  if(pub||priv)mergeIntoLocal([pub,priv]);
