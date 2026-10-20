@@ -83,6 +83,13 @@ async function adminRole(u){
 function recentAdminHandoff(){try{const at=Number(sessionStorage.getItem('ns-admin-auth-handoff')||0);return Number.isFinite(at)&&at>0&&Date.now()-at<10000;}catch(_){return false;}}
 function clearAdminHandoff(){try{sessionStorage.removeItem('ns-admin-auth-handoff');}catch(_){}}
 async function waitAuth(){
+ // Firebase can briefly expose currentUser as null while restoring browser-local
+ // persistence after a reload/tab wake. Wait for its authoritative initial auth
+ // state before deciding that a persisted Admin session is absent.
+ if(typeof auth.authStateReady==='function'){
+  try{await auth.authStateReady();}catch(e){console.warn('[BCC] Firebase auth-state readiness check failed',e);}
+  if(auth.currentUser){clearAdminHandoff();return auth.currentUser;}
+ }
  const allowGrace=recentAdminHandoff();
  return new Promise(resolve=>{
   let settled=false,timer=null,off=()=>{};
@@ -212,21 +219,52 @@ async function loadCustomerRuntime(){
 }
 function watchPublic(){const ref=fsMod.doc(db,'publicStories','site-config');const unsub=fsMod.onSnapshot(ref,snap=>{if(!snap.exists())return;const data=snap.data();lastPublicHash=configHash(data);mergeIntoLocal([data]);},e=>console.warn('[Nariyal Sutra public config watch]',e));unsubs.push(unsub);}
 function identityDiagnostic(){return {role,uid:user?.uid||'',email:user?.email||'',emailVerified:!!user?.emailVerified,roleStatus:roleRecord?.status||'',roleActive:roleRecord?.active===true,roleSource:roleRecord?.source||'',ownerUid:window.NS_ADMIN_CONFIG?.ownerUid||'',ownerEmail:window.NS_ADMIN_CONFIG?.ownerEmail||'',isConfiguredOwner:!!user&&user.uid===(window.NS_ADMIN_CONFIG?.ownerUid||''),appCheckStatus:window.NS_APP_CHECK_STATUS||'unknown'};}
-let adminSessionTerminated=false;
+let adminSessionTerminated=false,adminSessionRecheckTimer=null;
+function terminateAdminSession(){
+ if(adminSessionTerminated)return;
+ adminSessionTerminated=true;
+ remoteReady=false;
+ if(adminSessionRecheckTimer){clearTimeout(adminSessionRecheckTimer);adminSessionRecheckTimer=null;}
+ clearTimeout(saveTimer);pendingState=null;
+ overlay('Admin session ended. Opening secure sign-in…');
+ user=null;role='';roleRecord=null;
+ try{Store.setSession?.(null);}catch(_){}
+ try{sessionStorage.removeItem('ns_v10_admin_session');sessionStorage.removeItem('ns-v421-preview-role');}catch(_){}
+ location.replace('/admin-bcc-login.html?signed_out=1');
+}
 function monitorAdminAuthSession(){
  if(!isAdmin)return;
  const check=current=>{
-  if(!remoteReady||adminSessionTerminated)return;
-  if(current&&user&&current.uid===user.uid)return;
-  // Firebase signed out or switched identities in another tab: fail closed immediately.
-  adminSessionTerminated=true;
+  if(adminSessionTerminated)return;
+  if(current&&user&&current.uid===user.uid){
+   if(adminSessionRecheckTimer){
+    clearTimeout(adminSessionRecheckTimer);adminSessionRecheckTimer=null;
+    remoteReady=true;clearOverlay();
+   }
+   return;
+  }
+  // A different authenticated UID is never a restoration race.
+  if(current&&user&&current.uid!==user.uid){terminateAdminSession();return;}
+  // Explicit sign-out pauses remoteReady before Firebase emits null and owns its redirect.
+  if(!remoteReady&&!adminSessionRecheckTimer)return;
+  if(current)return;
+  const expectedUid=user?.uid||'';
+  if(!expectedUid){terminateAdminSession();return;}
+  if(adminSessionRecheckTimer)return;
+  // Block Admin immediately, but allow Firebase a short bounded window to recover
+  // a transient null caused by browser persistence/tab restoration. A real logout
+  // remains blocked throughout and is redirected after the confirmation window.
   remoteReady=false;
   clearTimeout(saveTimer);pendingState=null;
-  overlay('Admin session ended. Opening secure sign-in…');
-  user=null;role='';roleRecord=null;
-  try{Store.setSession?.(null);}catch(_){}
-  try{sessionStorage.removeItem('ns_v10_admin_session');sessionStorage.removeItem('ns-v421-preview-role');}catch(_){}
-  location.replace('/admin-bcc-login.html?signed_out=1');
+  overlay('Verifying secure Admin session…');
+  adminSessionRecheckTimer=setTimeout(()=>{
+   adminSessionRecheckTimer=null;
+   const restored=auth.currentUser;
+   if(restored&&restored.uid===expectedUid){
+    user=restored;remoteReady=true;clearOverlay();return;
+   }
+   terminateAdminSession();
+  },2500);
  };
  unsubs.push(authMod.onAuthStateChanged(auth,check));
  // Check after the listener is installed too: the session may have ended while initial data loaded.
