@@ -25,6 +25,10 @@ assert.match(headers,/\/assets\/js\/\*\s*\n\s*Cache-Control: public, max-age=0, 
 assert.ok(bridge.includes("document.documentElement.classList.remove('ns-production-auth-pending')"),'Successful authenticated setup releases shell gate');
 assert.ok(bridge.includes("authMod.setPersistence(auth,authMod.browserLocalPersistence)"),
  'Production Admin route must explicitly request browser-local Firebase persistence');
+assert.ok(bridge.includes("const ADMIN_AUTH_TRACE_KEY='ns-admin-auth-trace-v422'"),'Diagnostic trace key exists');
+assert.ok(bridge.includes('sessionStorage.setItem(ADMIN_AUTH_TRACE_KEY,JSON.stringify(events.slice(-40)))'),'Diagnostics remain bounded and tab-local');
+assert.ok(bridge.includes("adminAuthTrace('redirect-session-not-restored')"),'Missing restored session captures the actual redirect reason');
+assert.ok(!bridge.includes('localStorage.setItem(ADMIN_AUTH_TRACE_KEY'),'Auth diagnostics must not write persistent data');
 const waitFrom=bridge.indexOf('const ADMIN_RESTORE_GRACE_MS=');
 const waitTo=bridge.indexOf('async function readPublicOnce',waitFrom);
 assert.ok(waitFrom>0&&waitTo>waitFrom,'Admin auth restoration grace helper exists');
@@ -42,6 +46,7 @@ const waitHarness=new Function('withHandoff','withVerifiedSession','restoreLater
   }
  };
  const authMod={onAuthStateChanged(_auth,fn){observer=fn;queueMicrotask(()=>fn(auth.currentUser));return ()=>{}}};
+ const adminAuthTrace=()=>{};
  ${waitSource}
  if(restoreLater)setTimeout(()=>{auth.currentUser={uid:'qa-owner'};observer?.(auth.currentUser);},10);
  const user=await waitAuth();
@@ -69,6 +74,7 @@ const harness=new Function('initial','enabled','admin',String.raw`
    roleRecord={role:'Owner'},pendingState={private:'pending'},saveTimer=null;
  const ADMIN_RESTORE_GRACE_MS=25;
  const overlay=text=>events.push(['overlay',text]);
+ const adminAuthTrace=()=>{};
  const clearOverlay=()=>events.push(['clearOverlay']);
  const Store={setSession:s=>events.push(['session',s])};
  const storage=new Map([['ns_v10_admin_session','stale'],['ns-v421-preview-role','Owner'],['ns-admin-verified-session','stale']]);
