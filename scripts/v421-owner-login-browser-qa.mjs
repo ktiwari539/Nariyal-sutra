@@ -18,7 +18,9 @@ const fakeAuth=String.raw`
 function state(){
   if(!window.__ownerQaAuth){
     const cfg=window.__ownerQaFixture||{};
-    const initial=cfg.persisted?{uid:cfg.mismatch?'mismatched-uid':'qa-owner',email:'qa-owner@example.test',emailVerified:true}:null;
+    const fallbackRaw=cfg.mode==='fallbackPersistence'?sessionStorage.getItem('qa-owner-fallback'):null;
+    const fallback=fallbackRaw?JSON.parse(fallbackRaw):null;
+    const initial=cfg.persisted?{uid:cfg.mismatch?'mismatched-uid':'qa-owner',email:'qa-owner@example.test',emailVerified:true}:fallback;
     window.__ownerQaAuth={currentUser:initial,listeners:[],signouts:0,signins:0,mode:cfg.mode||'normal',persistence:null,authStateReady:async()=>{}};
   }
   return window.__ownerQaAuth;
@@ -35,12 +37,16 @@ export async function signOut(auth){
   auth.signouts++;
   if(auth.mode==='rejectSignout')throw new Error('QA sign-out failure');
   auth.currentUser=null;
+  try{sessionStorage.removeItem('qa-owner-fallback');}catch(_){}
   auth.listeners.forEach(fn=>fn(null));
 }
 export async function signInWithEmailAndPassword(auth,email,password){
   auth.signins++;
   if(auth.mode==='rejectSignin')throw new Error('QA sign-in failure');
   auth.currentUser={uid:auth.mode==='mismatchSignin'?'wrong-owner':'qa-owner',email,emailVerified:true,getIdToken:async()=>('qa-token')};
+  if(auth.mode==='fallbackPersistence'&&auth.persistence?.type!=='LOCAL'){
+    sessionStorage.setItem('qa-owner-fallback',JSON.stringify({uid:auth.currentUser.uid,email:auth.currentUser.email,emailVerified:true}));
+  }
   auth.listeners.forEach(fn=>fn(auth.currentUser));
   return {user:auth.currentUser};
 }
@@ -180,6 +186,24 @@ try {
     const s=await openScenario({query:'?error=not-authorized'});
     await s.page.getByText(/no verified active Admin access/).waitFor();
     assert.equal(new URL(s.page.url()).pathname,'/admin-bcc-login.html');
+    await done(s);
+  }
+  // Scenario 9: Keep Firebase's browser persistence fallback hierarchy intact.
+  // Simulates a browser where a forced localStorage-only choice is not durable,
+  // while Firebase's default session fallback can safely restore the same Owner
+  // across a same-origin page navigation.
+  {
+    assert.equal(html.includes('setPersistence(auth,browserLocalPersistence)'),false,
+      'Admin login must not force Firebase down to localStorage-only persistence');
+    const s=await openScenario({mode:'fallbackPersistence'});
+    await s.page.locator('#email').fill('qa-owner@example.test');
+    await s.page.locator('#pw').fill('qa-local-password');
+    await s.page.locator('#submit').click();
+    await s.page.waitForURL(url=>url.pathname==='/admin-preview.html',{timeout:8000});
+    await s.page.goto(origin+'/admin-bcc-login.html',{waitUntil:'domcontentloaded',timeout:15000});
+    await s.page.waitForURL(url=>url.pathname==='/admin-preview.html',{timeout:8000});
+    assert.equal(await s.page.locator('#qa-admin').count(),1,
+      'Default Firebase persistence fallback must restore the Owner across page navigation');
     await done(s);
   }
   console.log('PASS real Admin login HTML in isolated Chromium: '+passed+' mocked Firebase scenarios; no external network');
