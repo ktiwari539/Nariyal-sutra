@@ -75,7 +75,7 @@ function renderOrders(){
   const select=()=>{
    const o=state.orders[+row.dataset.order];if(!o)return;
    selectedOrderId=String(o.id||o.orderId||'');
-   $('tr.is-selected',b).forEach(x=>x.classList.remove('is-selected'));row.classList.add('is-selected');
+   $$('tr.is-selected',b).forEach(x=>x.classList.remove('is-selected'));row.classList.add('is-selected');
    const stateLabel=status(o),final=String(o.status||o.delivery||'').toLowerCase(),pill=/deliver|complet/.test(final)?'green':/cancel|fail|return/.test(final)?'red':'gold';
    detail.innerHTML=`<div class="ap-order-detail-head"><div><span class="ap-detail-eyebrow">Selected order</span><h3>${esc(o.id||o.orderId)}</h3><p>${esc(o.customer)}</p></div><span class="ap-status ${pill}">${esc(stateLabel)}</span></div><div class="ap-divider"></div><div class="ap-detail-grid"><div class="ap-detail"><label>Product</label><span>${esc(o.product)}</span></div><div class="ap-detail"><label>Quantity</label><span>${Number(o.qty)||0}</span></div><div class="ap-detail"><label>Payment method</label><span>${esc(o.payment)}</span></div><div class="ap-detail"><label>Delivery preference</label><span>${esc(deliveryMethod(o))}</span></div></div><div class="ap-order-detail-actions"><button class="ap-btn" type="button" data-go="delivery">View delivery &amp; handover →</button></div>`;
    detail.querySelector('[data-go]')?.addEventListener('click',()=>openView('delivery'));
