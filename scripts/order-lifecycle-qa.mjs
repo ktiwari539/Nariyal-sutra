@@ -80,6 +80,7 @@ must(await quickRow.locator('[data-ns-row-status="delivered"]').count()===1,'Del
 await quickRow.click();await sleep(120);
 must((await page.locator('#nsOrderOperations .ns-order-life-status').innerText()).toLowerCase().includes('delivered'),'Delivered lifecycle wrong');
 must((await page.locator('#nsOrderOperations .ns-order-selection-note').innerText()).includes(ids.fast),'Wrong order in Delivered lifecycle');
+must((await page.locator('#apOrderDetail .ap-detail').filter({hasText:'Delivery preference'}).innerText()).includes('Method to confirm'),'Fulfilment status must not overwrite delivery preference');
 must(await page.locator('#nsOrderOperations [data-ns-order-fast-apply]').count()===0,'Delivered order can quick advance');
 const cancelledRow=page.locator('#apOrdersBody tr[data-order-id="'+ids.cancel+'"]');
 must(await cancelledRow.locator('[data-ns-row-status="cancelled"]').count()===1,'Cancelled row badge missing');
