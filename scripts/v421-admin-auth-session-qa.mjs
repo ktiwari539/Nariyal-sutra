@@ -17,6 +17,11 @@ for(const path of ['/','/admin.html','/coconut-water','/admin-preview-not-really
 const adminHtml=fs.readFileSync(new URL('../admin-preview.html',import.meta.url),'utf8');
 assert.ok(adminHtml.includes("location.hostname==='nariyal-sutra.netlify.app'"),'First paint gate restricted to production host');
 assert.ok(adminHtml.includes('html.ns-production-auth-pending .ap-app{visibility:hidden!important}'),'Production Admin UI hidden before auth finishes');
+assert.ok(adminHtml.includes('assets/js/v421-production-bridge.js?v=20261020-admin-session-cachefix'),
+ 'Admin HTML must bypass previously cached auth bridge versions after an auth fix');
+const headers=fs.readFileSync(new URL('../_headers',import.meta.url),'utf8');
+assert.match(headers,/\/assets\/js\/\*\s*\n\s*Cache-Control: public, max-age=0, must-revalidate/,
+ 'Unversioned JavaScript must revalidate on every navigation so production fixes are not held for an hour');
 assert.ok(bridge.includes("document.documentElement.classList.remove('ns-production-auth-pending')"),'Successful authenticated setup releases shell gate');
 const waitFrom=bridge.indexOf('function recentAdminHandoff(){');
 const waitTo=bridge.indexOf('async function readPublicOnce',waitFrom);
