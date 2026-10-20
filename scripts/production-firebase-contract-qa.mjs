@@ -184,6 +184,11 @@ has(operability,[
   "'handoverPointAddress'"
 ],'Admin Delivery Hub handover preference');
 
+const customerAccount=read('customer-account.js');
+not(customerAccount,[
+  "setPersistence(state.auth,mods[1].browserLocalPersistence)"
+],'Storefront must not override the shared Firebase Auth persistence hierarchy used by Admin');
+
 const login=read('admin-bcc-login.html');
 not(login,["setTimeout(()=>location.replace(next),250)"],'Admin login redirect delay regression');
 has(login,[
