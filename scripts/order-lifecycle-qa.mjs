@@ -32,7 +32,7 @@ const errors=[];const mutations=[];
 page.on('pageerror',e=>{const message=String(e);if(/Failed to read the 'serviceWorker' property from 'Navigator'.*sandboxed.*allow-same-origin/i.test(message))return;errors.push(message);});
 page.on('request',r=>{const u=r.url(),m=r.method();if(u.startsWith(BASE)||['GET','HEAD','OPTIONS'].includes(m))return;let benign=false;try{const x=new URL(u);benign=x.hostname.endsWith('googleapis.com')||x.hostname.endsWith('google-analytics.com');}catch{}if(!benign)mutations.push(`${m} ${u}`);});
 let original=null;
-const ids={owner:'QA-LIFE-OWNER',cancel:'QA-LIFE-CANCEL',ops:'QA-LIFE-OPS',support:'QA-LIFE-SUPPORT'};
+const ids={owner:'QA-LIFE-OWNER',fast:'QA-LIFE-FAST',cancel:'QA-LIFE-CANCEL',ops:'QA-LIFE-OPS',support:'QA-LIFE-SUPPORT'};
 try{
  const r=await page.goto(BASE+'/admin-preview.html',{waitUntil:'domcontentloaded',timeout:30000});must(r&&r.status()<400,`Admin returned ${r?.status()}`);
  await page.waitForFunction(()=>window.__NSV21_ADMIN_BOUND===true&&window.NSV421OrderOperations?.lifecycleV2===true,null,{timeout:15000});
@@ -41,7 +41,7 @@ try{
    const S=window.NSV421Store,s=S.load();
    const touch={classification:'organic_search',source:'google',medium:'organic',campaign:'wedding-season',content:'hero',referrerHost:'google.com',landingPath:'/fresh-tender-coconut.html',capturedAtClient:new Date().toISOString()};
    const base=id=>({id,orderId:id,customer:'QA Lifecycle',product:'Fresh Tender Coconut',qty:2,quantity:2,payment:'COD',delivery:'pending',status:'pending',total:110,trackingToken:'a'.repeat(48),createdAt:new Date().toISOString(),acquisition:{version:2,reportedSource:'google_search',reportedSourceLabel:'Google Search',reportedDetail:'',firstTouch:{...touch},lastTouch:{...touch}}});
-   s.orders=[base(ids.owner),base(ids.cancel),base(ids.ops),base(ids.support),...(s.orders||[]).filter(o=>![ids.owner,ids.cancel,ids.ops,ids.support].includes(String(o.id||o.orderId)))];
+   s.orders=[base(ids.owner),base(ids.fast),base(ids.cancel),base(ids.ops),base(ids.support),...(s.orders||[]).filter(o=>![ids.owner,ids.fast,ids.cancel,ids.ops,ids.support].includes(String(o.id||o.orderId)))];
    S.save(s);window.dispatchEvent(new CustomEvent('nsv421:change'));
  },ids);
  await sleep(150);
@@ -63,7 +63,31 @@ try{
  },ids.cancel);
  must(cancelResult.status==='cancelled','Cancellation did not set Cancelled');must(cancelResult.reason==='QA customer cancellation','Cancellation reason was not retained');must(cancelResult.terminal,'Cancelled order was not terminal');
 
- // Operations is an authorised fulfilment role.
+ // A single quick-advance action still applies each permitted state with an audit.
+const quick=await page.evaluate(async id=>{
+ const op=window.NSV421OrderOperations;
+ const plan=op.advancePlan('pending','delivered');
+ const result=await op.advanceOrder(id,'delivered',{source:'qa-fast-advance'});
+ let terminal=false;try{op.advancePlan('cancelled','delivered');}catch{terminal=true;}
+ const stored=window.NSV421Store.load().orders.find(o=>o.id===id);
+ return {plan,result,status:stored.status,terminal};
+},ids.fast);
+must(quick.plan.join(',')==='confirmed,preparing,ready_for_dispatch,out_for_delivery,delivered','Quick advance plan skips mandatory stages');
+must(quick.result.steps.length===5&&quick.status==='delivered','Quick advance did not finish at Delivered');
+must(quick.terminal,'Cancelled quick advance must remain blocked');
+const quickRow=page.locator('#apOrdersBody tr[data-order-id="'+ids.fast+'"]');
+must(await quickRow.locator('[data-ns-row-status="delivered"]').count()===1,'Delivered row badge missing');
+await quickRow.click();await sleep(120);
+must((await page.locator('#nsOrderOperations .ns-order-life-status').innerText()).toLowerCase().includes('delivered'),'Delivered lifecycle wrong');
+must((await page.locator('#nsOrderOperations .ns-order-selection-note').innerText()).includes(ids.fast),'Wrong order in Delivered lifecycle');
+must(await page.locator('#nsOrderOperations [data-ns-order-fast-apply]').count()===0,'Delivered order can quick advance');
+const cancelledRow=page.locator('#apOrdersBody tr[data-order-id="'+ids.cancel+'"]');
+must(await cancelledRow.locator('[data-ns-row-status="cancelled"]').count()===1,'Cancelled row badge missing');
+await cancelledRow.click();await sleep(120);
+must((await page.locator('#nsOrderOperations .ns-order-life-status').innerText()).toLowerCase().includes('cancelled'),'Cancelled lifecycle wrong');
+must(await page.locator('#nsOrderOperations [data-ns-order-fast-apply]').count()===0,'Cancelled order can quick advance');
+
+// Operations is an authorised fulfilment role.
  await page.evaluate(()=>{const e=document.querySelector('#apRole');e.value='Operations';e.dispatchEvent(new Event('change',{bubbles:true}));});
  const opsResult=await page.evaluate(async id=>{const op=window.NSV421OrderOperations;await op.transition(id,'confirmed',{source:'qa-ops'});return window.NSV421Store.load().orders.find(x=>x.id===id)?.status;},ids.ops);
  must(opsResult==='confirmed','Operations could not accept a pending order');
@@ -80,7 +104,13 @@ try{
  must(await page.locator('#nsOrderOperations .ns-order-readonly').count()===1,'Support order detail is not read-only');
  must(await page.locator('#nsOrderOperations [data-ns-order-next]').count()===0,'Support can see fulfilment mutation action');
  must(await page.locator('#nsOrderOperations [data-ns-order-cancel]').count()===0,'Support can see cancellation mutation action');
- const apiSupport=await page.evaluate(()=>window.NSV421OrderOperations.canManage);must(apiSupport===false,'Support API reports manage permission');
+ must(await page.locator('#nsOrderOperations [data-ns-order-fast-apply]').count()===0,'Support can see quick advance action');
+ // Refresh must retain the selected order rather than returning to the first row.
+await page.evaluate(()=>window.dispatchEvent(new CustomEvent('nsv421:change')));
+await sleep(120);
+must(await page.locator('#apOrdersBody tr.is-selected[data-order-id="'+ids.support+'"]').count()===1,'Refresh reset selected row');
+must((await page.locator('#nsOrderOperations .ns-order-selection-note').innerText()).includes(ids.support),'Refresh changed lifecycle order');
+const apiSupport=await page.evaluate(()=>window.NSV421OrderOperations.canManage);must(apiSupport===false,'Support API reports manage permission');
 
  // Owner UI must expose the next action and lifecycle stepper.
  await page.evaluate(()=>{const e=document.querySelector('#apRole');e.value='Owner';e.dispatchEvent(new Event('change',{bubbles:true}));});
@@ -88,6 +118,8 @@ try{
  must(await page.locator('#nsOrderOperations .ns-order-step').count()>=6,'Order lifecycle stepper missing');
  must(await page.locator('#nsOrderOperations [data-ns-order-next="confirmed"]').count()===1,'Pending Owner order does not expose Accept order');
  must(await page.locator('#nsOrderOperations [data-ns-order-cancel]').count()===1,'Pending Owner order does not expose Cancel order');
+ must(await page.locator('#nsOrderOperations [data-ns-order-fast-target] option[value="delivered"]').count()===1,'Pending Owner cannot choose Delivered for quick advance');
+ must((await page.locator('#nsOrderOperations .ns-order-selection-note').innerText()).includes(ids.support),'Lifecycle lacks selected order context');
 
  must(errors.length===0,`Order lifecycle page errors: ${errors.join(' | ')}`);
  must(mutations.length===0,`Local order lifecycle initiated external mutation(s): ${mutations.join(' | ')}`);
