@@ -75,6 +75,8 @@ const quick=await page.evaluate(async id=>{
 must(quick.plan.join(',')==='confirmed,preparing,ready_for_dispatch,out_for_delivery,delivered','Quick advance plan skips mandatory stages');
 must(quick.result.steps.length===5&&quick.status==='delivered','Quick advance did not finish at Delivered');
 must(quick.terminal,'Cancelled quick advance must remain blocked');
+await page.evaluate(()=>document.querySelector('#apNav button[data-view="orders"]')?.click());
+await page.waitForFunction(()=>document.querySelector('.ap-view[data-view="orders"]')?.classList.contains('is-active'));
 const quickRow=page.locator('#apOrdersBody tr[data-order-id="'+ids.fast+'"]');
 must(await quickRow.locator('[data-ns-row-status="delivered"]').count()===1,'Delivered row badge missing');
 await quickRow.click();await sleep(120);
