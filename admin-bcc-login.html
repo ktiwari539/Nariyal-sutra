@@ -15,12 +15,26 @@
 <!-- AUTH_FORM_END --></div></div><div class="ns-auth-sweep-track" aria-hidden="true"><div class="ns-auth-sweep"></div></div></section></main><script src="assets/js/auth-sonics.js"></script><script src="assets/js/auth-shell.js"></script><script src="assets/js/admin-auth-ui.js"></script><script src="/firebase-config.js"></script><script type="module">
 const SDK='12.18.0',cfg=window.NS_FIREBASE_CONFIG||{},owner=window.NS_ADMIN_CONFIG?.ownerUid||'',ownerEmail=window.NS_ADMIN_CONFIG?.ownerEmail||'',msg=document.getElementById('msg'),btn=document.getElementById('submit');
 try {
-const [{initializeApp,getApps,getApp},{getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut,sendEmailVerification,sendPasswordResetEmail},{getFirestore,doc,getDoc}]=await Promise.all([import(`https://www.gstatic.com/firebasejs/${SDK}/firebase-app.js`),import(`https://www.gstatic.com/firebasejs/${SDK}/firebase-auth.js`),import(`https://www.gstatic.com/firebasejs/${SDK}/firebase-firestore.js`)]);
+const [{initializeApp,getApps,getApp},{getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut,sendEmailVerification,sendPasswordResetEmail,setPersistence,browserLocalPersistence,browserSessionPersistence},{getFirestore,doc,getDoc}]=await Promise.all([import(`https://www.gstatic.com/firebasejs/${SDK}/firebase-app.js`),import(`https://www.gstatic.com/firebasejs/${SDK}/firebase-auth.js`),import(`https://www.gstatic.com/firebasejs/${SDK}/firebase-firestore.js`)]);
 if(!cfg.apiKey||!cfg.projectId||!cfg.appId){msg.className='msg err';msg.textContent='Production Firebase configuration is unavailable.';throw new Error('Firebase configuration unavailable');}
 const app=getApps().length?getApp():initializeApp(cfg);if(typeof window.NS_INIT_APP_CHECK==='function')await window.NS_INIT_APP_CHECK(app);
-// Keep Firebase's browser persistence hierarchy intact (IndexedDB -> localStorage -> sessionStorage).
-// Forcing a single persistence backend can make a valid Owner session disappear on the next page load.
 const auth=getAuth(app),db=getFirestore(app);
+// Admin access must survive the same-tab navigation to the Business Command Center.
+// Require durable browser persistence before allowing password sign-in. Safari/privacy
+// modes that reject local persistence may still use session persistence; if both
+// backends fail, fail closed instead of creating a short-lived in-memory Admin login.
+let adminPersistence='none',adminPersistenceError='';
+try{
+  await setPersistence(auth,browserLocalPersistence);
+  adminPersistence='local';
+}catch(localError){
+  try{
+    await setPersistence(auth,browserSessionPersistence);
+    adminPersistence='session';
+  }catch(sessionError){
+    adminPersistenceError=String(sessionError?.message||localError?.message||sessionError||localError||'Browser storage unavailable');
+  }
+}
 function markAdminHandoff(){try{sessionStorage.setItem('ns-admin-auth-handoff',String(Date.now()));}catch(_){}}
 const norm=v=>String(v||'').trim().toLowerCase();
 function safeAdminNext(raw){
@@ -93,6 +107,12 @@ if(explicitSignedOut){
     console.error('[BCC] Could not verify signed-out Firebase session',error);
     msg.className='msg err';msg.textContent='Sign-out could not be confirmed. Reload this page to retry.';
   }
+}
+if(adminPersistence==='none'){
+  signedOutConfirmed=false;
+  msg.className='msg err';
+  msg.textContent='Secure Admin sign-in cannot persist in this browser because site storage is unavailable. Enable site storage/cookies for this site, then reload.';
+  console.error('[BCC] Admin auth persistence unavailable',adminPersistenceError);
 }
 btn.disabled=!signedOutConfirmed;
 document.getElementById('login').addEventListener('submit',async e=>{
