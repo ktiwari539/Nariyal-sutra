@@ -84,7 +84,7 @@ if(explicitSignedOut){
     await signOut(auth);
     if(typeof auth.authStateReady==='function')await auth.authStateReady();
     if(auth.currentUser)throw new Error('Firebase authentication is still active after sign-out');
-    try{sessionStorage.removeItem('ns_v10_admin_session');sessionStorage.removeItem('ns-v421-preview-role');}catch(_){}
+    try{sessionStorage.removeItem('ns_v10_admin_session');sessionStorage.removeItem('ns-v421-preview-role');sessionStorage.removeItem('ns-admin-auth-handoff');sessionStorage.removeItem('ns-admin-verified-session');}catch(_){}
     signedOutConfirmed=true;
     msg.className='msg ok';msg.textContent='You are signed out. Sign in again to access Admin.';
   }catch(error){
