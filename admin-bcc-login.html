@@ -15,10 +15,13 @@
 <!-- AUTH_FORM_END --></div></div><div class="ns-auth-sweep-track" aria-hidden="true"><div class="ns-auth-sweep"></div></div></section></main><script src="assets/js/auth-sonics.js"></script><script src="assets/js/auth-shell.js"></script><script src="assets/js/admin-auth-ui.js"></script><script src="/firebase-config.js"></script><script type="module">
 const SDK='12.18.0',cfg=window.NS_FIREBASE_CONFIG||{},owner=window.NS_ADMIN_CONFIG?.ownerUid||'',ownerEmail=window.NS_ADMIN_CONFIG?.ownerEmail||'',msg=document.getElementById('msg'),btn=document.getElementById('submit');
 try {
-const [{initializeApp,getApps,getApp},{getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut,sendEmailVerification,sendPasswordResetEmail,setPersistence,browserLocalPersistence},{getFirestore,doc,getDoc}]=await Promise.all([import(`https://www.gstatic.com/firebasejs/${SDK}/firebase-app.js`),import(`https://www.gstatic.com/firebasejs/${SDK}/firebase-auth.js`),import(`https://www.gstatic.com/firebasejs/${SDK}/firebase-firestore.js`)]);
+const [{initializeApp,getApps,getApp},{getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut,sendEmailVerification,sendPasswordResetEmail},{getFirestore,doc,getDoc}]=await Promise.all([import(`https://www.gstatic.com/firebasejs/${SDK}/firebase-app.js`),import(`https://www.gstatic.com/firebasejs/${SDK}/firebase-auth.js`),import(`https://www.gstatic.com/firebasejs/${SDK}/firebase-firestore.js`)]);
 if(!cfg.apiKey||!cfg.projectId||!cfg.appId){msg.className='msg err';msg.textContent='Production Firebase configuration is unavailable.';throw new Error('Firebase configuration unavailable');}
-const app=getApps().length?getApp():initializeApp(cfg);if(typeof window.NS_INIT_APP_CHECK==='function')await window.NS_INIT_APP_CHECK(app);const auth=getAuth(app),db=getFirestore(app);
-try{await setPersistence(auth,browserLocalPersistence);}catch(error){console.warn('[BCC] Browser-local Firebase persistence unavailable; continuing with the browser default.',error);}
+const app=getApps().length?getApp():initializeApp(cfg);if(typeof window.NS_INIT_APP_CHECK==='function')await window.NS_INIT_APP_CHECK(app);
+// Do not force a single persistence backend. Firebase Auth's browser default
+// preserves its IndexedDB/local/session fallback hierarchy, which is required
+// for reliable same-origin Admin restoration in Safari/privacy modes.
+const auth=getAuth(app),db=getFirestore(app);
 function markAdminHandoff(){try{sessionStorage.setItem('ns-admin-auth-handoff',String(Date.now()));}catch(_){}}
 const norm=v=>String(v||'').trim().toLowerCase();
 function safeAdminNext(raw){
