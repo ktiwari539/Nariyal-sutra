@@ -80,7 +80,8 @@ assert.equal(calls.filter(x=>x==='import').length,3);
 assert.equal(calls.filter(x=>x==='app-check').length,1,'Preserve App Check initialization');
 assert.equal(calls.filter(x=>x==='set-persistence').length,0,'Public bridge bootstrap must not change Firebase auth persistence');
 
-// Admin bootstrap must explicitly request durable browser-local persistence.
+// Admin must preserve the original sign-in storage backend; Safari may select
+// IndexedDB or a browser session fallback that is not localStorage.
 const adminCalls=[],adminWindow={NS_FIREBASE_CONFIG:config,NS_INIT_APP_CHECK:async()=>adminCalls.push('app-check')};
 const adminDocument={readyState:'complete',addEventListener(){throw new Error('Admin config is already ready');}};
 const adminModules={'firebase-app.js':app,'firebase-auth.js':{
@@ -91,6 +92,7 @@ const adminEnsure=ensureFactory(adminWindow,adminDocument,async()=>adminCalls.pu
   async spec=>adminModules[spec.split('/').pop()],true);
 assert.equal(await adminEnsure(),config);
 assert.deepEqual(adminCalls.filter(x=>Array.isArray(x)&&x[0]==='set-persistence'),
-  [['set-persistence','LOCAL']],'Admin bridge must request browser-local Firebase persistence exactly once');
+  [],'Admin bootstrap must not change Firebase persistence after login/navigation');
+assert.equal(adminCalls.filter(x=>x==='app-check').length,1,'Admin must still initialize App Check exactly once');
 
 console.log('PASS shipped storefront analytics bootstrap, six-origin isolation, deferred Firebase configuration and App Check readiness');
