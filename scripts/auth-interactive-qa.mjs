@@ -6,7 +6,7 @@ const base=process.env.NS_QA_BASE_URL||'http://127.0.0.1:4173';
 const out='qa-artifacts/auth-interactive';fs.mkdirSync(out,{recursive:true});
 const checks=[],errors=[],metrics=[];const ok=(name,condition)=>{assert.ok(condition,name);checks.push(name);console.log('PASS '+name);};
 const engine=process.env.NS_QA_ENGINE==='webkit'?'webkit':'chromium';
-const browser=await (engine==='webkit'?webkit:chromium).launch();
+let browser=await (engine==='webkit'?webkit:chromium).launch();
 const themes=['nariyal-signature','fresh-grove','coastal-premium','golden-harvest'];
 async function context({theme=themes[0],themeMode='ok',assetFail=false,delayAsset=0,...options}={}){
  const c=await browser.newContext({viewport:{width:1440,height:1000},...options});c.setDefaultTimeout(15000);
@@ -37,20 +37,31 @@ async function open(c,kind='customer'){
  if(kind==='customer'){
   await p.waitForFunction(()=>window.NS_CUSTOMER_CONTEXT?.ready);
   await p.evaluate(()=>{if(typeof window.skipIntro==='function')window.skipIntro();});
+  await p.waitForFunction(()=>getComputedStyle(document.getElementById('main-site')).pointerEvents!=='none'&&getComputedStyle(document.getElementById('jungle-intro')).display==='none');
   const trigger=p.locator('#nsacct-trigger'),overlay=p.locator('#nsacct-overlay'),signin=p.locator('#nsacct-signin');
   await trigger.waitFor({state:'visible'});
   for(let attempt=0;attempt<2;attempt++){
    if(await signin.isVisible().catch(()=>false))break;
-   try{await trigger.click({force:attempt>0,timeout:15000});}
+   try{await trigger.click({noWaitAfter:true,timeout:15000});}
    catch(e){if(attempt===1)throw e;await p.waitForTimeout(250);continue;}
    try{await overlay.waitFor({state:'visible',timeout:5000});await signin.waitFor({state:'visible',timeout:5000});break;}catch(e){if(attempt===1)throw e;await p.waitForTimeout(150);}
   }
+  // The modal deliberately schedules initial accessible focus; finish that
+  // handoff before simulating typing or password-manager insertion.
+  await p.waitForFunction(()=>document.activeElement===document.getElementById('nsacct-panel'));
  } else await p.waitForFunction(()=>!document.getElementById('submit').disabled);
  await p.waitForFunction(()=>window.NSAuthTheme&&NSAuthTheme.status!=='pending');
  await p.waitForFunction(()=>[...document.querySelectorAll('.ns-auth-shell')].some(shell=>shell.dataset.authBound==='true'&&shell.querySelector('.ns-nariyal-scene')?.dataset.guardianReady==='true'&&shell.getClientRects().length));
  return p;
 }
-async function shot(p,name){await p.waitForTimeout(900);await p.screenshot({path:`${out}/${engine}-${name}.png`});}
+async function shot(p,name){
+ await p.waitForTimeout(900);
+ // Disabling *all* CSS animations caused Chromium screenshot capture to hang
+ // midway through the four-theme matrix. Capture the same full viewport with
+ // animation state left intact; geometry, contrast and pose checks remain.
+ try{await p.screenshot({path:`${out}/${engine}-${name}.png`,timeout:30000,animations:'allow',caret:'hide',scale:'css'});}
+ catch(e){throw new Error('Auth screenshot failed ('+engine+'/'+name+'): '+String(e?.message||e),{cause:e});}
+}
 async function geometry(p){return p.evaluate(()=>{
  const shell=document.querySelector('.ns-auth-shell'),art=shell.querySelector('.ns-auth-art'),obj=shell.querySelector('.ns-nariyal-scene'),copy=shell.querySelector('.ns-auth-art-copy'),r=obj.getBoundingClientRect();
  const controls=[...shell.querySelectorAll('.ns-auth-content input,.ns-auth-content button,.ns-auth-content label,.ns-auth-content a')].filter(e=>e.getClientRects().length);
@@ -83,6 +94,10 @@ for(const theme of (process.env.NS_QA_SKIP_MATRIX?[]:themes)){
    await p.close();
   }await c.close();
  }
+ // Drop accumulated image/CSS compositor state between published themes.
+ // Every viewport and assertion remains covered, with a fresh browser process.
+ await browser.close();
+ browser=await (engine==='webkit'?webkit:chromium).launch();
 }
 if(!process.env.NS_QA_SKIP_MATRIX)ok('Four themes have four different spatial compositions',new Set(compositions).size===4);
 // Theme resolution is bounded; pending shell is reserved and a late answer cannot recolor it.

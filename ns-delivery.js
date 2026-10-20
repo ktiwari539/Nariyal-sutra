@@ -228,6 +228,9 @@ var nsDelivery={
   isInternational:false
 };
 window.NSDeliveryState=nsDelivery;
+/* Public transport suggestions are separate from the customer's confirmed pin.
+   A city centre must never be saved as their exact delivery coordinates. */
+var nsHandoverLookup={version:0,key:'',kind:'',origin:null,items:[],status:'idle',controller:null,cache:new Map(),centres:new Map()};
 
 /* ─── Inject delivery fields into order form ─── */
 function injectDeliveryFields(){
@@ -255,11 +258,16 @@ function injectDeliveryFields(){
       <div class="ns-handover-help" id="ns-handover-help"></div>
       <div class="ns-del-field">
         <label for="ns-handover-name" id="ns-handover-label">Preferred point</label>
-        <input type="text" id="ns-handover-name" placeholder="Enter a station, stop or preferred area" oninput="nsHandoverInput()">
+        <input type="text" id="ns-handover-name" placeholder="Enter a station, stop or preferred area" oninput="nsHandoverInput()" aria-describedby="ns-handover-help ns-handover-status">
       </div>
       <div class="ns-handover-actions" id="ns-handover-actions"></div>
+      <div class="ns-del-field ns-place-picker" id="ns-place-picker" hidden>
+        <label for="ns-handover-options">Nearby options · nearest first</label>
+        <select id="ns-handover-options" onchange="nsChooseHandoverOption(this.value)" aria-describedby="ns-handover-status ns-handover-distance"></select>
+      </div>
       <div class="ns-place-results" id="ns-place-results"></div>
-      <div class="ns-handover-status" id="ns-handover-status"></div>
+      <div class="ns-handover-status" id="ns-handover-status" role="status" aria-live="polite"></div>
+      <small class="ns-place-attribution"><a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap contributors</a> · mapped locations; handover is subject to confirmation</small>
     <div class="ns-handover-distance" id="ns-handover-distance" aria-live="polite" hidden></div>
       <div class="ns-del-field" style="margin-top:10px">
         <label for="ns-handover-note">Handover note (optional)</label>
@@ -458,11 +466,15 @@ window.nsDelCountryChange = function(){
 
 /* ─── Show delivery options ─── */
 function nsDelShowOptions(){
-  var q=parseInt((el('oQ')||{}).value)||1;
+  var q=parseInt((el('oQ')||{}).value,10);
   var optsSection=el('ns-del-opts-section');
   var optsList=el('ns-del-opts-list');
   if(!optsSection||!optsList) return;
+  if(!Number.isInteger(q)||q<1){optsSection.style.display='none';optsList.textContent='';return;}
 
+  /* Delivery preference is independent of price/catalog readiness. Keep railway,
+     bus, pickup and door choices visible while live pricing is loading so a
+     customer can enter location and inspect nearby handover points immediately. */
   var opts=deliveryEstimates(q, nsDelivery.isInternational);
   /* A later checkout layout stylesheet forces this section to a two-column grid. Keep the four delivery cards across the full section, not inside its first column. */
   optsSection.style.setProperty('display','block','important');
@@ -502,7 +514,7 @@ function handoverConfig(id){
     help:'Choose or enter the station that is most convenient for you. Station handover is confirmed only when the route and timing are workable.',
     find:true,
     kind:'railway_station',
-    button:'Find nearby railway stations'
+    button:'Find nearest railway stations'
   };
   if(id==='bus_stop')return {
     title:'Preferred bus stand / stop',
@@ -511,7 +523,7 @@ function handoverConfig(id){
     help:'Choose or enter a convenient bus stand or stop. Bus handover is confirmed only when the route and timing are workable.',
     find:true,
     kind:'bus_stop',
-    button:'Find nearby bus stands'
+    button:'Find nearest bus stands / stops'
   };
   return null;
 }
@@ -520,6 +532,7 @@ function nsRenderHandoverPanel(){
   var panel=el('ns-handover-panel'),cfg=handoverConfig(nsDelivery.selectedDelivery);
   if(!panel)return;
   if(!cfg||nsDelivery.isInternational){
+    if(panel.dataset.kind){nsResetHandoverLookup();panel.dataset.kind='';}
     panel.classList.remove('show');
     if(nsDelivery.selectedDelivery==='door'||nsDelivery.selectedDelivery==='trade'){
       nsDelivery.handoverPointType=nsDelivery.selectedDelivery;
@@ -532,6 +545,8 @@ function nsRenderHandoverPanel(){
     }
     return;
   }
+  var changed=panel.dataset.kind!==nsDelivery.selectedDelivery;
+  if(changed){nsResetHandoverLookup();panel.dataset.kind=nsDelivery.selectedDelivery;}
   panel.classList.add('show');
   nsDelivery.handoverPointType=nsDelivery.selectedDelivery;
   if(el('ns-handover-title'))el('ns-handover-title').textContent=cfg.title;
@@ -541,9 +556,11 @@ function nsRenderHandoverPanel(){
   if(input){input.placeholder=cfg.placeholder;input.value=nsDelivery.handoverPointName||'';}
   var note=el('ns-handover-note');if(note)note.value=nsDelivery.handoverNote||'';
   var actions=el('ns-handover-actions');
-  if(actions)actions.innerHTML=cfg.find?'<button type="button" class="ns-find-btn" onclick="nsFindHandover(\''+cfg.kind+'\')">'+cfg.button+'</button>':'';
-  var results=el('ns-place-results');if(results)results.innerHTML='';
-  var status=el('ns-handover-status');if(status){status.textContent='';status.className='ns-handover-status';}
+  if(actions&&changed)actions.innerHTML=cfg.find?'<button type="button" class="ns-find-btn" id="ns-find-handover" onclick="nsFindNearestHandover(\''+cfg.kind+'\')">'+cfg.button+'</button><button type="button" class="ns-find-btn" id="ns-find-handover-city" onclick="nsFindHandover(\''+cfg.kind+'\')">Search by city / PIN</button>':'';
+  if(changed&&cfg.find){
+    nsHandoverStatus('Use “Find nearest” to search from your current location, or search by City / PIN. You can also enter a preferred point manually.');
+    if(nsValidCoordinates(nsDelivery.lat,nsDelivery.lng))window.nsFindHandover(cfg.kind);
+  }
 }
 
 window.nsSelectDelivery = function(id){
@@ -579,6 +596,8 @@ window.nsHandoverInput=function(){
   nsDelivery.handoverPointLat=null;
   nsDelivery.handoverPointLng=null;
   nsDelivery.handoverSearchSource=nsDelivery.handoverPointName?'manual':'';
+  if(el('ns-handover-options'))el('ns-handover-options').value='';
+  nsHandoverStatus(nsDelivery.handoverPointName?'Preferred point entered manually. We will confirm feasibility and timing.':'Choose a nearby point, or enter your preferred station / stop manually.');
   nsUpdateDisplayedDistances();
   nsDelUpdateSummary();
 };
@@ -589,7 +608,7 @@ window.nsHandoverNote=function(){
 };
 
 function placeLabel(result){
-  var name=String(result.display_name||'').split(',')[0].trim();
+  var name=String(result.name||'').trim()||String(result.display_name||'').split(',')[0].trim();
   return name||String(result.name||'').trim()||'Selected location';
 }
 
@@ -597,18 +616,25 @@ function placeLabel(result){
    selected checkout location and a returned handover-point coordinate. */
 function nsValidCoordinates(lat,lng){
   return lat!==null&&lat!==undefined&&lat!==''&&lng!==null&&lng!==undefined&&lng!==''&&
+    typeof lat!=='boolean'&&typeof lng!=='boolean'&&
+    !(typeof lat==='string'&&!lat.trim())&&!(typeof lng==='string'&&!lng.trim())&&
     Number.isFinite(Number(lat))&&Number.isFinite(Number(lng))&&
     Math.abs(Number(lat))<=90&&Math.abs(Number(lng))<=180;
 }
-function nsStraightLineKm(lat,lng){
-  if(!nsValidCoordinates(nsDelivery.lat,nsDelivery.lng)||!nsValidCoordinates(lat,lng))return null;
-  var rad=Math.PI/180,a1=Number(nsDelivery.lat)*rad,a2=Number(lat)*rad,deltaLat=(Number(lat)-Number(nsDelivery.lat))*rad,deltaLng=(Number(lng)-Number(nsDelivery.lng))*rad;
+function nsDistanceOrigin(){
+  if(nsValidCoordinates(nsDelivery.lat,nsDelivery.lng))return {lat:Number(nsDelivery.lat),lng:Number(nsDelivery.lng),approximate:false};
+  return nsHandoverLookup.key===nsHandoverLocationKey()?nsHandoverLookup.origin:null;
+}
+function nsStraightLineKm(lat,lng,origin){
+  origin=origin||nsDistanceOrigin();
+  if(!origin||!nsValidCoordinates(origin.lat,origin.lng)||!nsValidCoordinates(lat,lng))return null;
+  var rad=Math.PI/180,a1=Number(origin.lat)*rad,a2=Number(lat)*rad,deltaLat=(Number(lat)-Number(origin.lat))*rad,deltaLng=(Number(lng)-Number(origin.lng))*rad;
   var a=Math.sin(deltaLat/2)**2+Math.cos(a1)*Math.cos(a2)*Math.sin(deltaLng/2)**2;
   return 12742*Math.asin(Math.min(1,Math.sqrt(a)));
 }
 function nsDistanceText(lat,lng){
   var km=nsStraightLineKm(lat,lng);
-  return km===null?'':'Approx. '+(km<1?Math.round(km*1000/50)*50+' m':km.toFixed(1)+' km')+' straight-line · road distance may differ';
+  return km===null?'':'Approx. '+(km<1?Math.round(km*1000/50)*50+' m':km.toFixed(1)+' km')+' straight-line'+(nsDistanceOrigin().approximate?' from entered locality centre':'')+' · road distance may differ';
 }
 function nsUpdateDisplayedDistances(){
   var results=el('ns-place-results'),items=results&&results._nsPlaces||[];
@@ -623,63 +649,262 @@ function nsUpdateDisplayedDistances(){
   }
 }
 window.addEventListener('ns:location-updated',function(){
+  if(nsHandoverLookup.key&&nsHandoverLookup.key!==nsHandoverLocationKey())nsResetHandoverLookup();
   nsUpdateDisplayedDistances();
   nsDelUpdateSummary();
+  var cfg=handoverConfig(nsDelivery.selectedDelivery);
+  if(cfg&&cfg.find&&nsValidCoordinates(nsDelivery.lat,nsDelivery.lng))window.nsFindHandover(cfg.kind);
 });
 
-window.nsFindHandover=async function(kind){
-  var status=el('ns-handover-status'),results=el('ns-place-results');
-  if(status){status.textContent=kind==='railway_station'?'Finding railway stations…':'Finding bus stands…';status.className='ns-handover-status';}
-  if(results){results.innerHTML='';results._nsPlaces=[];}
-  try{
-    var city=((el('oCity')||{}).value||nsDelivery.city||'').trim();
-    var state=((el('ns-state')||{}).value||nsDelivery.state||'').trim();
-    var q=kind==='railway_station'?'railway station':'bus station';
-    var params=new URLSearchParams({format:'jsonv2',limit:'5',addressdetails:'1',countrycodes:'in'});
-    if(nsDelivery.lat!==null&&nsDelivery.lng!==null){
-      var d=.32,lat=Number(nsDelivery.lat),lng=Number(nsDelivery.lng);
-      params.set('q',q);
-      params.set('viewbox',[lng-d,lat+d,lng+d,lat-d].join(','));
-      params.set('bounded','1');
-    }else{
-      if(!city&&!state){
-        if(status){status.textContent='Add your city or use current location first, then search again.';status.className='ns-handover-status warn';}
-        return;
-      }
-      params.set('q',[q,city,state,'India'].filter(Boolean).join(', '));
-    }
-    var response=await fetch('https://nominatim.openstreetmap.org/search?'+params.toString(),{headers:{'Accept-Language':'en'}});
-    if(!response.ok)throw new Error('Location search returned '+response.status);
-    var items=await response.json();
-    if(!Array.isArray(items)||!items.length){
-      if(status){status.textContent='No nearby result was found. You can enter the station or stop manually.';status.className='ns-handover-status warn';}
-      return;
-    }
-    if(results){
-      results.innerHTML=items.slice(0,5).map(function(item,idx){
-        var label=placeLabel(item),detail=String(item.display_name||'');
-        return '<button type="button" class="ns-place-choice" onclick="nsChooseHandover('+idx+')" data-ns-place="'+idx+'"><strong>'+esc(label)+'</strong><small>'+esc(detail)+'</small><span class="ns-place-distance"'+(nsDistanceText(item.lat,item.lon)?'':' hidden')+'>'+esc(nsDistanceText(item.lat,item.lon))+'</span></button>';
-      }).join('');
-      results._nsPlaces=items.slice(0,5);
-      nsUpdateDisplayedDistances();
-    }
-    if(status){status.textContent='Choose the most convenient location below, or type another one manually.';status.className='ns-handover-status ok';}
-  }catch(err){
-    console.warn('[ns-delivery] handover search failed',err);
-    if(status){status.textContent='Nearby search is unavailable right now. Enter the station or stop manually and we will confirm it with you.';status.className='ns-handover-status warn';}
+function nsHandoverLocationKey(){
+  if(nsValidCoordinates(nsDelivery.lat,nsDelivery.lng))return 'pin:'+Number(nsDelivery.lat).toFixed(5)+','+Number(nsDelivery.lng).toFixed(5);
+  return 'city:'+[(el('oCity')||{}).value||nsDelivery.city||'',(el('ns-state')||{}).value||nsDelivery.state||'',(el('ns-pin')||{}).value||nsDelivery.pin||''].map(function(v){return String(v).trim().toLowerCase();}).join('|');
+}
+function nsHandoverStatus(message,kind){
+  var status=el('ns-handover-status');
+  if(status){status.textContent=message;status.className='ns-handover-status'+(kind?' '+kind:'');}
+}
+function nsResetHandoverLookup(){
+  nsHandoverStatus('');
+  nsHandoverLookup.version++;
+  if(nsHandoverLookup.controller)nsHandoverLookup.controller.abort();
+  nsHandoverLookup.controller=null;nsHandoverLookup.key='';nsHandoverLookup.kind='';nsHandoverLookup.origin=null;nsHandoverLookup.items=[];nsHandoverLookup.status='idle';
+  var results=el('ns-place-results');if(results){results.innerHTML='';results._nsPlaces=[];}
+  if(el('ns-place-picker'))el('ns-place-picker').hidden=true;
+  if(el('ns-handover-options'))el('ns-handover-options').innerHTML='';
+  if(el('ns-find-handover'))el('ns-find-handover').disabled=false;
+}
+window.nsHandoverLocation=function(){
+  var city=el('oCity');if(city){city.scrollIntoView({block:'center',behavior:'auto'});city.focus();}
+};
+window.nsFindNearestHandover=function(kind){
+  if(!['railway_station','bus_stop'].includes(kind)||nsDelivery.isInternational||nsDelivery.selectedDelivery!==kind)return;
+  if(nsValidCoordinates(nsDelivery.lat,nsDelivery.lng))return window.nsFindHandover(kind);
+  if(!navigator.geolocation){
+    nsHandoverStatus('Current location is not supported in this browser. Enter City / PIN and use “Search by city / PIN”, or enter the point manually.','warn');
+    return;
   }
+  nsHandoverStatus(kind==='railway_station'?'Allow location to find the nearest railway stations…':'Allow location to find the nearest bus stands and stops…');
+  var nearestButton=el('ns-find-handover');if(nearestButton)nearestButton.disabled=true;
+  navigator.geolocation.getCurrentPosition(function(pos){
+    nsDelivery.lat=pos.coords.latitude;
+    nsDelivery.lng=pos.coords.longitude;
+    nsDelivery.accuracy=pos.coords.accuracy;
+    nsDelivery.locationSource='gps';
+    var coordEl=el('ns-coords-display'),mapPh=el('ns-map-ph');
+    if(coordEl)coordEl.textContent=Number(nsDelivery.lat).toFixed(5)+', '+Number(nsDelivery.lng).toFixed(5);
+    if(mapPh)mapPh.style.display='block';
+    if(nearestButton)nearestButton.disabled=false;
+    nsDelUpdateSummary();
+    window.nsFindHandover(kind);
+  },function(err){
+    if(nearestButton)nearestButton.disabled=false;
+    var denied=err&&err.code===1;
+    nsHandoverStatus(denied?'Location permission was not allowed. Enter City / PIN and use “Search by city / PIN”, or type your preferred point manually.':'Current location could not be determined. Enter City / PIN and use “Search by city / PIN”, or type your preferred point manually.','warn');
+    if(denied)window.nsHandoverLocation();
+  },{enableHighAccuracy:true,timeout:12000,maximumAge:60000});
+};
+async function nsPlaceJson(url,signal){
+  var response=await fetch(url,{headers:{Accept:'application/json','Accept-Language':'en'},signal:signal,credentials:'omit'});
+  if(!response.ok)throw new Error('Public place lookup unavailable');
+  return response.json();
+}
+async function nsTransportJson(query,signal){
+  /* Public Overpass mirrors are independent and can be slow. Query both in
+     parallel with a short bound so the customer does not wait ~24s before the
+     browser-safe fallback gets a chance to return real station/stop data. */
+  var endpoints=['https://overpass-api.de/api/interpreter','https://overpass.private.coffee/api/interpreter'];
+  var controllers=[];
+  var attempts=endpoints.map(function(endpoint){
+    return new Promise(async function(resolve,reject){
+      if(signal.aborted)return reject(new Error('Lookup cancelled'));
+      var attempt=new AbortController();controllers.push(attempt);
+      var abort=function(){attempt.abort();};
+      signal.addEventListener('abort',abort,{once:true});
+      var timer=setTimeout(abort,6000);
+      try{
+        var body=await nsPlaceJson(endpoint+'?'+new URLSearchParams({data:query}).toString(),attempt.signal);
+        if(!body||!Array.isArray(body.elements)||body.remark)throw new Error('Incomplete public place response');
+        resolve(body);
+      }catch(err){reject(signal.aborted?new Error('Lookup cancelled'):err);}
+      finally{clearTimeout(timer);signal.removeEventListener('abort',abort);}
+    });
+  });
+  try{
+    var winner=await Promise.any(attempts);
+    controllers.forEach(function(c){if(!c.signal.aborted)c.abort();});
+    return winner;
+  }catch(err){
+    controllers.forEach(function(c){if(!c.signal.aborted)c.abort();});
+    if(signal.aborted)throw new Error('Lookup cancelled');
+    throw new Error('Public place services unavailable');
+  }
+}
+async function nsNominatimTransportPlaces(kind,origin,radius,signal){
+  /* Browser-safe fallback that restores the earlier working explicit Nominatim
+     lookup when public Overpass services are unavailable. No autocomplete,
+     no background lookup and no customer location write occurs here. */
+  var latRadius=radius/111320;
+  var cos=Math.max(.2,Math.cos(Number(origin.lat)*Math.PI/180));
+  var lngRadius=radius/(111320*cos);
+  var viewbox=[Number(origin.lng)-lngRadius,Number(origin.lat)+latRadius,Number(origin.lng)+lngRadius,Number(origin.lat)-latRadius].join(',');
+  var terms=kind==='railway_station'?['railway station','train station']:['bus station','bus stop'];
+  var seen=new Set(),places=[];
+  for(var i=0;i<terms.length;i++){
+    if(signal.aborted)throw new Error('Lookup cancelled');
+    var wait=Math.max(0,1100-(Date.now()-(nsHandoverLookup.geocodeAt||0)));
+    if(wait)await new Promise(function(resolve){setTimeout(resolve,wait);});
+    if(signal.aborted)throw new Error('Lookup cancelled');
+    nsHandoverLookup.geocodeAt=Date.now();
+    var params=new URLSearchParams({
+      format:'jsonv2',
+      limit:'40',
+      addressdetails:'1',
+      countrycodes:'in',
+      q:terms[i],
+      viewbox:viewbox,
+      bounded:'1'
+    });
+    var raw=await nsPlaceJson('https://nominatim.openstreetmap.org/search?'+params.toString(),signal);
+    if(!Array.isArray(raw))continue;
+    raw.forEach(function(item){
+      if(!nsValidCoordinates(item.lat,item.lon))return;
+      var category=String(item.category||item.class||'').toLowerCase(),type=String(item.type||'').toLowerCase();
+      var transportMatch=kind==='railway_station'
+        ?(category==='railway'||['station','halt','train_station'].includes(type))
+        :((category==='amenity'&&type==='bus_station')||(category==='highway'&&type==='bus_stop')||type==='bus_station'||type==='bus_stop');
+      if(!transportMatch)return;
+      var km=nsStraightLineKm(item.lat,item.lon,origin);
+      if(km===null||km>radius/1000)return;
+      var name=placeLabel(item);
+      var detail=String(item.display_name||name).slice(0,300);
+      var key=(name+'|'+Number(item.lat).toFixed(4)+'|'+Number(item.lon).toFixed(4)).toLowerCase();
+      if(seen.has(key))return;seen.add(key);
+      places.push({name:name,display_name:detail,lat:Number(item.lat),lon:Number(item.lon),source:'nominatim',distanceKm:km});
+    });
+  }
+  return places.sort(function(a,b){return a.distanceKm-b.distanceKm||a.name.localeCompare(b.name);});
+}
+
+function nsMappedPlaces(body,kind,origin,radius){
+  if(!body||!Array.isArray(body.elements)||body.remark)throw new Error('Incomplete public place response');
+  var seen=new Set(),places=[];
+  body.elements.forEach(function(item){
+    var tags=item.tags||{},lat=item.lat??item.center?.lat,lng=item.lon??item.center?.lon;
+    var matches=kind==='railway_station'?['station','halt'].includes(tags.railway):tags.amenity==='bus_station'||tags.highway==='bus_stop'||(tags.public_transport==='platform'&&tags.bus==='yes');
+    if(!matches||tags.access==='private'||!nsValidCoordinates(lat,lng))return;
+    var km=nsStraightLineKm(lat,lng,origin);if(km===null||km>radius/1000)return;
+    var name=String(tags['name:en']||tags.name||tags.local_ref||tags.ref||'').trim();
+    if(!name)name=kind==='railway_station'?'Unnamed railway station':'Unnamed bus stop';
+    var code=kind==='railway_station'?String(tags['railway:ref']||tags.ref||tags.uic_ref||'').trim():'';
+    var label=(name+(code?' ('+code+')':'')).slice(0,180);
+    var key=label.toLowerCase()+'|'+Number(lat).toFixed(4)+'|'+Number(lng).toFixed(4);
+    if(seen.has(key))return;seen.add(key);
+    var type=kind==='railway_station'?'Railway station':tags.amenity==='bus_station'?'Bus stand':'Bus stop';
+    var address=[type,tags['addr:street'],tags['addr:suburb'],tags['addr:city'],tags['addr:state']].filter(Boolean).join(', ');
+    places.push({name:label,display_name:label+', '+address,lat:Number(lat),lon:Number(lng),source:'overpass',distanceKm:km});
+  });
+  return places.sort(function(a,b){return a.distanceKm-b.distanceKm||a.name.localeCompare(b.name);});
+}
+function nsRenderPlaceChoices(){
+  var items=nsHandoverLookup.items,results=el('ns-place-results'),select=el('ns-handover-options');
+  if(select){
+    select.innerHTML='<option value="">Choose a nearby option, or enter another manually</option>'+items.map(function(item,idx){return '<option value="'+idx+'">'+(idx===0?'Nearest · ':'')+esc(nsDistanceText(item.lat,item.lon).split(' straight-line')[0])+' · '+esc(item.name)+'</option>';}).join('');
+    var selected=items.findIndex(function(item){return item.name===nsDelivery.handoverPointName&&item.lat===nsDelivery.handoverPointLat&&item.lon===nsDelivery.handoverPointLng;});
+    select.value=selected<0?'':String(selected);
+  }
+  if(el('ns-place-picker'))el('ns-place-picker').hidden=!items.length;
+  if(results){
+    results._nsPlaces=items;
+    /* The first three are quick choices; the native dropdown contains every
+       returned mapped point in range, without the former five-result cut-off. */
+    results.innerHTML=items.slice(0,3).map(function(item,idx){return '<button type="button" class="ns-place-choice" onclick="nsChooseHandover('+idx+')" data-ns-place="'+idx+'"><strong>'+(idx===0?'Nearest · ':'')+esc(item.name)+'</strong><small>'+esc(item.display_name)+'</small><span class="ns-place-distance">'+esc(nsDistanceText(item.lat,item.lon))+'</span></button>';}).join('');
+  }
+}
+window.nsFindHandover=async function(kind){
+  if(!['railway_station','bus_stop'].includes(kind)||nsDelivery.isInternational||nsDelivery.selectedDelivery!==kind)return;
+  var key=nsHandoverLocationKey();
+  if(nsHandoverLookup.key===key&&nsHandoverLookup.kind===kind&&nsHandoverLookup.status==='loading')return nsHandoverLookup.pending;
+  var cached=nsHandoverLookup.cache.get(kind+'|'+key);
+  if(cached&&Date.now()-cached.time<300000){
+    nsResetHandoverLookup();
+    nsHandoverLookup.key=key;nsHandoverLookup.kind=kind;nsHandoverLookup.origin=cached.origin;nsHandoverLookup.items=cached.items;nsHandoverLookup.status='ready';nsRenderPlaceChoices();nsHandoverStatus(cached.message,cached.items.length?'ok':'warn');nsUpdateDisplayedDistances();return;
+  }
+  nsResetHandoverLookup();
+  var version=nsHandoverLookup.version,controller=new AbortController(),radius=kind==='railway_station'?30000:15000;
+  nsHandoverLookup.controller=controller;nsHandoverLookup.key=key;nsHandoverLookup.kind=kind;nsHandoverLookup.status='loading';
+  var current=function(){return version===nsHandoverLookup.version&&key===nsHandoverLocationKey()&&nsDelivery.selectedDelivery===kind&&!nsDelivery.isInternational;};
+  nsHandoverStatus(kind==='railway_station'?'Finding nearby railway stations…':'Finding nearby bus stands and stops…');
+  if(el('ns-find-handover'))el('ns-find-handover').disabled=true;
+  var timeout=setTimeout(function(){controller.abort();},20000);
+  nsHandoverLookup.pending=(async function(){
+  try{
+    var origin=nsValidCoordinates(nsDelivery.lat,nsDelivery.lng)?{lat:Number(nsDelivery.lat),lng:Number(nsDelivery.lng),approximate:false}:nsHandoverLookup.centres.get(key);
+    if(!origin){
+      var city=String((el('oCity')||{}).value||nsDelivery.city||'').trim(),state=String((el('ns-state')||{}).value||nsDelivery.state||'').trim(),pin=String((el('ns-pin')||{}).value||nsDelivery.pin||'').trim();
+      if(!city&&!pin){nsHandoverStatus('Enter your city or PIN below, then find nearby options. Current location is optional; manual station / stop entry also works.','warn');window.nsHandoverLocation();return;}
+      var params=new URLSearchParams({format:'jsonv2',limit:'1',addressdetails:'1',countrycodes:'in',q:[city,state,pin,'India'].filter(Boolean).join(', ')});
+      /* Explicit requests only, cached per locality; no geocoder autocomplete. */
+      var delay=Math.max(0,1100-(Date.now()-(nsHandoverLookup.geocodeAt||0)));
+      if(delay)await new Promise(function(resolve){setTimeout(resolve,delay);});
+      if(!current())return;
+      nsHandoverLookup.geocodeAt=Date.now();
+      var centres=await nsPlaceJson('https://nominatim.openstreetmap.org/search?'+params.toString(),controller.signal);
+      if(!current())return;
+      if(!Array.isArray(centres)||!centres.length||!nsValidCoordinates(centres[0].lat,centres[0].lon))throw new Error('Locality could not be resolved');
+      origin={lat:Number(centres[0].lat),lng:Number(centres[0].lon),approximate:true};
+      nsHandoverLookup.centres.set(key,origin);if(nsHandoverLookup.centres.size>16)nsHandoverLookup.centres.delete(nsHandoverLookup.centres.keys().next().value);
+    }
+    var around='(around:'+radius+','+origin.lat+','+origin.lng+')';
+    var filters=kind==='railway_station'?['["railway"="station"]','["railway"="halt"]']:['["amenity"="bus_station"]','["highway"="bus_stop"]','["public_transport"="platform"]["bus"="yes"]'];
+    var query='[out:json][timeout:20];('+filters.map(function(filter){return 'nwr'+around+filter+';';}).join('')+');out center tags;';
+    var items=[],fallbackUsed=false;
+    try{
+      var body=await nsTransportJson(query,controller.signal);
+      if(!current())return;
+      items=nsMappedPlaces(body,kind,origin,radius);
+    }catch(overpassError){
+      if(!current())return;
+      fallbackUsed=true;
+    }
+    /* An empty or failed Overpass response must not leave the customer with a
+       blank transport step. Fall back to the explicit Nominatim search that
+       previously worked in the browser, then keep the same nearest-first UI. */
+    if(!items.length){
+      fallbackUsed=true;
+      nsHandoverStatus('The detailed transport map is slow or unavailable; checking nearby named locations now…');
+      items=await nsNominatimTransportPlaces(kind,origin,radius,controller.signal);
+      if(!current())return;
+    }
+    nsHandoverLookup.origin=origin;nsHandoverLookup.items=items;nsHandoverLookup.status='ready';
+    var message=items.length?items.length+' nearby '+(kind==='railway_station'?'railway stations':'bus stands / stops')+' within '+radius/1000+' km, nearest first. Approximate straight-line distances; road distance may differ. '+(origin.approximate?'Distances use your entered locality centre; set a map pin for greater precision.':'Distances use your selected location.')+(fallbackUsed?' Public location-search fallback used.':'')+' Choose below or enter another manually.':'No mapped option found within '+radius/1000+' km. Enter your preferred station / stop manually, or refine your city or map pin.';
+    nsHandoverLookup.cache.set(kind+'|'+key,{time:Date.now(),origin:origin,items:items,message:message});if(nsHandoverLookup.cache.size>16)nsHandoverLookup.cache.delete(nsHandoverLookup.cache.keys().next().value);
+    nsRenderPlaceChoices();nsHandoverStatus(message,items.length?'ok':'warn');nsUpdateDisplayedDistances();nsDelUpdateSummary();
+  }catch(err){
+    if(current()){nsHandoverLookup.status='error';nsHandoverStatus('Nearby search is unavailable right now. Retry, or enter the station / stop manually; we will confirm it with you.','warn');}
+  }finally{
+    clearTimeout(timeout);
+    if(current()){if(nsHandoverLookup.status==='loading')nsHandoverLookup.status='idle';if(el('ns-find-handover'))el('ns-find-handover').disabled=false;nsHandoverLookup.controller=null;}
+  }
+  })();
+  return nsHandoverLookup.pending;
+};
+window.nsChooseHandoverOption=function(value){
+  if(value===''){if(el('ns-handover-name'))el('ns-handover-name').value='';window.nsHandoverInput();return;}
+  if(/^\d+$/.test(value))window.nsChooseHandover(Number(value));
 };
 
 window.nsChooseHandover=function(idx){
   var results=el('ns-place-results'),items=results&&results._nsPlaces||[],item=items[idx];
-  if(!item)return;
+  if(!item||!Number.isInteger(idx)||!nsValidCoordinates(item.lat,item.lon)||nsHandoverLookup.kind!==nsDelivery.selectedDelivery||nsHandoverLookup.key!==nsHandoverLocationKey())return;
   nsDelivery.handoverPointName=placeLabel(item);
   nsDelivery.handoverPointAddress=String(item.display_name||'').slice(0,300);
   nsDelivery.handoverPointLat=Number(item.lat);
   nsDelivery.handoverPointLng=Number(item.lon);
-  nsDelivery.handoverSearchSource='nominatim';
+  nsDelivery.handoverSearchSource=item.source||'nominatim';
   var input=el('ns-handover-name');if(input)input.value=nsDelivery.handoverPointName;
-  if(results){results.innerHTML='';results._nsPlaces=[];}
+  if(results)results.innerHTML='';
+  if(el('ns-handover-options'))el('ns-handover-options').value=String(idx);
   var status=el('ns-handover-status');if(status){status.textContent='✓ Preferred handover point selected. We will confirm feasibility and timing before fulfilment.';status.className='ns-handover-status ok';}
   nsUpdateDisplayedDistances();
   nsDelUpdateSummary();
@@ -687,12 +912,20 @@ window.nsChooseHandover=function(idx){
 
 /* ─── Update on any change ─── */
 window.nsDelUpdate = function(){
+  var oldLocality=[nsDelivery.city,nsDelivery.state,nsDelivery.pin].join('|');
   nsDelivery.state=(el('ns-state')||{}).value||'';
   nsDelivery.city=(el('oCity')||{}).value||'';
   nsDelivery.pin=(el('ns-pin')||{}).value||'';
+  if(oldLocality!==[nsDelivery.city,nsDelivery.state,nsDelivery.pin].join('|')){
+    nsDelivery.lat=null;nsDelivery.lng=null;nsDelivery.accuracy=null;nsDelivery.locationSource='manual-address';
+    nsResetHandoverLookup();
+    if(el('ns-coords-display'))el('ns-coords-display').textContent='';
+    nsHandoverStatus('Locality changed. Find nearby options again, or set your delivery pin.','warn');
+  }
   nsDelivery.landmark=(el('ns-landmark')||{}).value||'';
   nsDelivery.handoverNote=((el('ns-handover-note')||{}).value||nsDelivery.handoverNote||'').trim();
   nsDelShowOptions();
+  nsUpdateDisplayedDistances();
 };
 
 /* ─── Recurring ─── */
@@ -718,10 +951,12 @@ function nsUpdateAddressPrompt(){
 function nsDelUpdateSummary(){
   var summaryEl=el('ns-del-summary');
   if(!summaryEl)return;
-  var q=parseInt((el('oQ')||{}).value)||1;
+  var q=parseInt((el('oQ')||{}).value,10);
+  if(!Number.isInteger(q)||q<1){summaryEl.style.display='block';summaryEl.textContent='Select your product and quantity to preview the order subtotal.';return;}
   var price=typeof getCurrentPrice==='function'?getCurrentPrice():null;
   if(price===null){summaryEl.style.display='block';summaryEl.textContent='Current product price unavailable. Please retry before ordering.';return;}
-  var subtotal=q*price;
+  var subtotal=typeof getCurrentTotal==='function'?getCurrentTotal():null;
+  if(subtotal===null){summaryEl.style.display='block';summaryEl.textContent='Select an available product and quantity to preview the order subtotal.';return;}
   var opts=deliveryEstimates(q,nsDelivery.isInternational);
   var chosen=opts.find(function(o){return o.id===nsDelivery.selectedDelivery;});
   var freq={onetime:'One-time order',weekly:'Weekly (preference)',fortnightly:'Every 2 weeks (preference)',monthly:'Monthly (preference)',flexible:'Flexible repeat order (preference)'};
@@ -745,7 +980,9 @@ function patchPlaceOrder(){
   var orig=window.placeOrder;
   window.placeOrder=function(){
     /* Build delivery data before calling original */
-    var q=parseInt((el('oQ')||{}).value)||1;
+    var q=parseInt((el('oQ')||{}).value,10);
+    if(!Number.isInteger(q)||q<1)return orig.apply(this,arguments); // Original form displays its validation error; never fabricate one item.
+    if(typeof getCurrentTotal!=='function'||getCurrentTotal()===null)return orig.apply(this,arguments);
     var opts=deliveryEstimates(q, nsDelivery.isInternational);
     var chosen=opts.find(function(o){return o.id===nsDelivery.selectedDelivery;});
     var token=genToken();
@@ -818,10 +1055,12 @@ function nsShowOrderHub(){
   if(!hub) return;
 
   var n=(el('oN')||{}).value||'Customer';
-  var q=parseInt((el('oQ')||{}).value)||1;
+  var q=parseInt((el('oQ')||{}).value,10);
+  if(!Number.isInteger(q)||q<1)return;
   var price=typeof getCurrentPrice==='function'?getCurrentPrice():null;
   if(price===null)return;
-  var subtotal=q*price;
+  var subtotal=typeof getCurrentTotal==='function'?getCurrentTotal():null;
+  if(subtotal===null)return;
   var opts=deliveryEstimates(q, nsDelivery.isInternational);
   var chosen=opts.find(function(o){return o.id===nsDelivery.selectedDelivery;});
   var orderIdEl=el('confSummary');
@@ -912,6 +1151,7 @@ function init(){
   injectOrderHub();
   patchPlaceOrder();
   watchQty();
+  var city=el('oCity');if(city)city.addEventListener('input',window.nsDelUpdate);
   /* Initial state */
   nsDelShowOptions();
 }

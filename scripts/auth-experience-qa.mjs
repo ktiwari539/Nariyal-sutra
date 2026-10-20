@@ -6,8 +6,8 @@ const base=process.env.NS_QA_BASE_URL||'http://127.0.0.1:4173',out='qa-artifacts
 fs.mkdirSync(out,{recursive:true});const checks=[],errors=[];
 const ok=(name,value)=>{assert.ok(value,name);checks.push(name);console.log('PASS '+name);};
 const browser=await chromium.launch();
-async function context(options={}){
- const c=await browser.newContext({viewport:{width:1440,height:1000},...options});c.setDefaultTimeout(15000);c.setDefaultNavigationTimeout(20000);
+async function context(options={},engine=browser){
+ const c=await engine.newContext({viewport:{width:1440,height:1000},...options});c.setDefaultTimeout(15000);c.setDefaultNavigationTimeout(20000);
  await c.addInitScript(()=>{
   window.__authCalls=[];window.__soundCalls=[];window.NS_FIREBASE_READY=true;
   // Audio instrumentation records requested envelopes without making forced sound during QA.
@@ -21,7 +21,17 @@ async function context(options={}){
  });
  return c;
 }
-async function customer(c){const p=await c.newPage();p.on('pageerror',e=>errors.push(e.message));await p.goto(base+'/index.html');await p.waitForFunction(()=>window.NS_CUSTOMER_CONTEXT?.ready);ok('Customer account remains closed on initial page load',!await p.locator('#nsacct-overlay').evaluate(e=>e.classList.contains('open')));await p.evaluate(()=>skipIntro());await p.locator('#nsacct-trigger').click();await p.locator('#nsacct-signin').waitFor();return p;}
+async function customer(c,theme=''){
+ const p=await c.newPage();p.on('pageerror',e=>errors.push(e.message));
+ await p.goto(base+'/index.html'+(theme?'?themePreview='+encodeURIComponent(theme):''));
+ await p.waitForFunction(()=>window.NS_CUSTOMER_CONTEXT?.ready);
+ ok('Customer account remains closed on initial page load',!await p.locator('#nsacct-overlay').evaluate(e=>e.classList.contains('open')));
+ await p.evaluate(()=>skipIntro());
+ await p.waitForFunction(()=>getComputedStyle(document.getElementById('main-site')).pointerEvents!=='none'&&getComputedStyle(document.getElementById('jungle-intro')).display==='none');
+ await p.locator('#nsacct-trigger').click({noWaitAfter:true});await p.locator('#nsacct-signin').waitFor();
+ await p.waitForFunction(()=>document.activeElement===document.getElementById('nsacct-panel'));
+ return p;
+}
 async function admin(c,suffix=''){const p=await c.newPage();p.on('pageerror',e=>errors.push(e.message));await p.goto(base+'/admin-bcc-login.html'+suffix);await p.waitForFunction(()=>!document.getElementById('submit').disabled);return p;}
 async function shot(p,name){await p.waitForTimeout(450);await p.screenshot({path:out+'/'+name+'.png',fullPage:false});}
 const c=await context({recordVideo:{dir:out+'/motion',size:{width:1200,height:900}}}),p=await customer(c);
@@ -88,8 +98,17 @@ async function contrast(page){return page.evaluate(()=>{
  }
  return failures;
 });}
-const colors=await context(),colorPage=await customer(colors);
-for(const theme of ['nariyal-signature','fresh-grove','coastal-premium','golden-harvest']){await colorPage.evaluate(t=>document.documentElement.dataset.nsTheme=t,theme);const failures=await contrast(colorPage);ok('Customer readable computed contrast under '+theme,failures.length===0);}
+// Theme attributes are owned by the runtime. Exercise actual coherent previews,
+// rather than mutating one attribute while auth/storefront themes disagree.
+for(const theme of ['nariyal-signature','fresh-grove','coastal-premium','golden-harvest']){
+ const colorBrowser=await chromium.launch(),colors=await context({},colorBrowser);
+ try{
+  const colorPage=await customer(colors,theme);
+  await colorPage.waitForFunction(id=>NSAuthTheme.id===id&&document.documentElement.dataset.nsTheme===id,theme);
+  const failures=await contrast(colorPage);ok('Customer readable computed contrast under '+theme,failures.length===0);
+ }finally{await colors.close();await colorBrowser.close();}
+}
+const colors=await context();
 const colorAdmin=await admin(colors);const adminContrast=await contrast(colorAdmin);if(adminContrast.length)console.log(adminContrast);ok('Admin inputs and copy meet computed contrast thresholds',adminContrast.length===0);
 await colors.close();
 await c.close();await p.video().saveAs(out+'/customer-motion.webm');await a.video().saveAs(out+'/admin-motion.webm');await browser.close();ok('No browser runtime exceptions',errors.length===0);fs.writeFileSync(out+'/results.json',JSON.stringify({ok:true,checks,errors,mode:'Local browser with intercepted Firebase adapters; zero production network calls'},null,2));console.log(`Auth experience QA PASS (${checks.length} assertions)`);

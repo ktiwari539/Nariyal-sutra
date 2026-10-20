@@ -289,7 +289,10 @@
         import('https://www.gstatic.com/firebasejs/'+SDK+'/firebase-storage.js')
       ]);
       state.appMod=mods[0];state.authMod=mods[1];state.fs=mods[2];state.storageMod=mods[3];state.app=mods[0].getApp();state.auth=mods[1].getAuth(state.app);state.db=mods[2].getFirestore(state.app);state.storage=mods[3].getStorage(state.app);
-      try{await mods[1].setPersistence(state.auth,mods[1].browserLocalPersistence)}catch(e){console.warn('[customer-account] auth persistence setup skipped:',e)}
+      // Keep Firebase's browser persistence hierarchy intact. This storefront
+      // shares the same production Auth instance with Admin; forcing
+      // browserLocalPersistence here can override Admin's durable fallback
+      // (notably in Safari/privacy modes) and terminate an otherwise valid session.
       try{var redirectResult=await mods[1].getRedirectResult(state.auth);if(redirectResult&&redirectResult.user)sessionStorage.setItem('nsacct_auth_return','1')}catch(redirectErr){console.warn('[customer-account] redirect result:',redirectErr)}
       window.NS_CUSTOMER_CONTEXT={ready:false,uid:'',user:null,profile:null};
       mods[1].onAuthStateChanged(state.auth,handleAuthState,function(err){state.authReady=true;state.authError=friendlyAuthError(err);render()});

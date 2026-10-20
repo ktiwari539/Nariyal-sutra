@@ -91,6 +91,8 @@ jobs:
       - name: Private packaged-water preview
         if: always()
         run: node scripts/water-formats-qa.mjs
+      - name: Railway and bus handover dropdowns and paired theme surfaces
+        run: node scripts/v422-handover-browser-qa.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:

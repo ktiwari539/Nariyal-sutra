@@ -101,8 +101,8 @@ has(storage,[
 
 // The shipping Admin HTML must actually boot the verified production bridge.
 const adminDocument=read('admin-preview.html');
-must(adminDocument.includes('<script src="assets/js/v421-local-store.js"></script>\n<script src="assets/js/v421-production-bridge.js"></script>'),
-  'Shipping Admin must load production bridge immediately after its local store');
+must(/<script src="assets\/js\/v421-local-store\.js"><\/script>\s*<script src="assets\/js\/v421-production-bridge\.js(?:\?[^"]+)?"><\/script>/.test(adminDocument),
+  'Shipping Admin must load production bridge immediately after its local store, with optional cache-busting version');
 const bridge=read('assets/js/v421-production-bridge.js');
 has(bridge,[
   "if(LOCAL||location.hostname!=='nariyal-sutra.netlify.app')return;",
@@ -184,6 +184,11 @@ has(operability,[
   "'handoverPointAddress'"
 ],'Admin Delivery Hub handover preference');
 
+const customerAccount=read('customer-account.js');
+not(customerAccount,[
+  "setPersistence(state.auth,mods[1].browserLocalPersistence)"
+],'Storefront must not override the shared Firebase Auth persistence hierarchy used by Admin');
+
 const login=read('admin-bcc-login.html');
 not(login,["setTimeout(()=>location.replace(next),250)"],'Admin login redirect delay regression');
 has(login,[
@@ -194,7 +199,7 @@ has(login,[
   'Owner email verification sent to ',
   "x.status!=='Active'",
   'x.active!==true',
-  'norm(x.email)!==norm(u.email)',
+  "String(x.email||'')!==String(u.email||'')",
   'NS_INIT_APP_CHECK'
 ],'admin login');
 

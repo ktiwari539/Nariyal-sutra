@@ -1,7 +1,7 @@
 // Keep immediately usable Admin HTML in sync with the shared shell. No network or backend changes.
 import fs from 'node:fs';
 import vm from 'node:vm';
-const window={matchMedia:()=>({matches:false})};
+const window={matchMedia:()=>({matches:false}),addEventListener(){}};
 vm.runInNewContext(fs.readFileSync('assets/js/auth-shell.js','utf8'),{window,Set});
 for(const file of ['admin-bcc-login.html','admin-login.html']){
  let html=fs.readFileSync(file,'utf8');

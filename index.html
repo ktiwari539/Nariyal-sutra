@@ -1508,6 +1508,7 @@ body.ns-story-active .story-skip{display:block}.story-skip:hover{color:var(--gol
     if(document.readyState==='complete') setTimeout(resolve,250);
     else window.addEventListener('load',function(){setTimeout(resolve,250)},{once:true});
   });
+  const TEST_ORIGIN=location.hostname!=='nariyal-sutra.netlify.app';
   const cfg=window.NS_FIREBASE_CONFIG||{};
   const adminCfg=window.NS_ADMIN_CONFIG||{};
   const configured=Boolean(cfg.apiKey&&cfg.projectId&&cfg.appId);
@@ -2421,7 +2422,7 @@ body.ns-story-active .story-skip{display:block}.story-skip:hover{color:var(--gol
 </div>
 </div>
 <div class="price-show">
-<div><div class="ps-lbl">Product Subtotal</div><div class="ps-note" id="pNote">Loading current price…</div></div>
+<div><div class="ps-lbl">Product Subtotal</div><div class="ps-note" id="pNote">Loading current price…</div><div class="ps-note" id="orderSelectionSummary" role="status" aria-live="polite">Your order preview will update when current product availability loads.</div></div>
 <div class="ps-amt" id="pAmt">—</div>
 </div>
 <button class="wa-btn" onclick="placeOrder()" type="button">📲 Continue to WhatsApp</button>
@@ -2905,12 +2906,40 @@ function syncProductSelection(){
   if(q)q.dispatchEvent(new Event('input',{bubbles:true}));
 }
 function getCurrentPrice(){ return window.NSLiveCatalog.price(currentProduct()?.value); }
-function getCurrentTotal(){ var q=parseInt(document.getElementById('oQ')?.value)||1,p=getCurrentPrice(); return p===null?null:q*p; }
+function getCurrentTotal(){
+  var opt=currentProduct(),q=Number(document.getElementById('oQ')?.value),p=getCurrentPrice();
+  return p===null||!opt||opt.disabled||opt.dataset.active==='false'||!Number.isInteger(q)||q<productMin(opt)||q>productStock(opt)?null:q*p;
+}
 function calc(){
-  if(getCurrentPrice()===null){document.getElementById('pAmt').textContent='—';document.getElementById('pNote').textContent=window.NSLiveCatalog.status==='loading'?'Loading current price…':'Current price unavailable. Please retry.';return;}
-  var q=parseInt(document.getElementById('oQ').value)||1,p=getCurrentPrice(),opt=currentProduct(),stock=productStock(opt);
-  document.getElementById('pAmt').textContent='₹'+(q*p).toLocaleString('en-IN');
-  document.getElementById('pNote').textContent=q+' coconut'+(q>1?'s':'')+' × ₹'+p+(stock<999999?' · '+stock+' available':'');
+  var amount=document.getElementById('pAmt'),note=document.getElementById('pNote'),
+      summary=document.getElementById('orderSelectionSummary'),input=document.getElementById('oQ'),opt=currentProduct();
+  if(!amount||!note||!input)return;
+  if(!opt){
+    amount.textContent='—';note.textContent='Select an available product to preview your order.';
+    if(summary)summary.textContent='Select your product and quantity to preview the order subtotal.';
+    return;
+  }
+  var min=productMin(opt),stock=productStock(opt),price=getCurrentPrice();
+  input.min=String(min);input.max=String(stock);
+  var name=String(opt.dataset.name||opt.textContent||opt.value||'Coconut').replace(/\s*\(₹[\s\S]*$/,'').trim();
+  if(summary)summary.textContent='Selected: '+name+' · minimum '+min+' piece'+(min===1?'':'s');
+  if(price===null){
+    amount.textContent='—';
+    note.textContent=window.NSLiveCatalog.status==='loading'?'Loading current price…':'Current price unavailable. Please retry.';
+    return;
+  }
+  if(opt.disabled||opt.dataset.active==='false'||stock<min){
+    amount.textContent='—';note.textContent='This product is currently unavailable.';return;
+  }
+  var raw=parseInt(input.value,10);
+  var q=Math.max(min,Math.min(stock,Number.isInteger(raw)?raw:min));
+  if(String(q)!==String(input.value)){
+    input.value=String(q);
+    input.dispatchEvent(new Event('input',{bubbles:true}));
+  }
+  amount.textContent='₹'+(q*price).toLocaleString('en-IN');
+  note.textContent=q+' coconut'+(q>1?'s':'')+' × ₹'+price+(stock<999999?' · '+stock+' available':'');
+  if(summary)summary.textContent='Your live order preview · '+name+' · '+q+' piece'+(q===1?'':'s')+' · delivery quoted after location review';
 }
 function pick(name,price,type){
   if(window.NSLiveCatalog.status!=='ready'){toast('Please wait for current pricing');return;}
@@ -2956,7 +2985,8 @@ function placeOrder(){
   var n=document.getElementById('oN').value.trim();
   var p=document.getElementById('oP').value.trim();
   var emEl=document.getElementById('oEmail'); var em=emEl?emEl.value.trim():'';
-  var q=parseInt(document.getElementById('oQ').value)||1;
+  var q=Number(document.getElementById('oQ').value);
+  if(!Number.isInteger(q)||q<1){toast('Please select a valid product quantity before ordering.');return;}
   var prOpt=currentProduct();
   var pr=prOpt?prOpt.textContent.trim():document.getElementById('oPr').value;
   var a=document.getElementById('oA').value.trim();

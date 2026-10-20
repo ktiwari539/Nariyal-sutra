@@ -18,12 +18,16 @@ const fakeAuth=String.raw`
 function state(){
   if(!window.__ownerQaAuth){
     const cfg=window.__ownerQaFixture||{};
-    const initial=cfg.persisted?{uid:cfg.mismatch?'mismatched-uid':'qa-owner',email:'qa-owner@example.test',emailVerified:true}:null;
-    window.__ownerQaAuth={currentUser:initial,listeners:[],signouts:0,signins:0,mode:cfg.mode||'normal',authStateReady:async()=>{}};
+    const fallbackRaw=cfg.mode==='fallbackPersistence'?sessionStorage.getItem('qa-owner-fallback'):null;
+    const fallback=fallbackRaw?JSON.parse(fallbackRaw):null;
+    const initial=cfg.persisted?{uid:cfg.mismatch?'mismatched-uid':'qa-owner',email:'qa-owner@example.test',emailVerified:true}:fallback;
+    window.__ownerQaAuth={currentUser:initial,listeners:[],signouts:0,signins:0,mode:cfg.mode||'normal',persistence:null,authStateReady:async()=>{}};
   }
   return window.__ownerQaAuth;
 }
 export const getAuth=()=>state();
+export const browserLocalPersistence={type:'LOCAL'};
+export async function setPersistence(auth,persistence){auth.persistence=persistence;}
 export function onAuthStateChanged(auth,listener){
   auth.listeners.push(listener);
   queueMicrotask(()=>listener(auth.currentUser));
@@ -33,12 +37,16 @@ export async function signOut(auth){
   auth.signouts++;
   if(auth.mode==='rejectSignout')throw new Error('QA sign-out failure');
   auth.currentUser=null;
+  try{sessionStorage.removeItem('qa-owner-fallback');}catch(_){}
   auth.listeners.forEach(fn=>fn(null));
 }
 export async function signInWithEmailAndPassword(auth,email,password){
   auth.signins++;
   if(auth.mode==='rejectSignin')throw new Error('QA sign-in failure');
-  auth.currentUser={uid:auth.mode==='mismatchSignin'?'wrong-owner':'qa-owner',email,emailVerified:true};
+  auth.currentUser={uid:auth.mode==='mismatchSignin'?'wrong-owner':'qa-owner',email,emailVerified:true,getIdToken:async()=>('qa-token')};
+  if(auth.mode==='fallbackPersistence'&&auth.persistence?.type!=='LOCAL'){
+    sessionStorage.setItem('qa-owner-fallback',JSON.stringify({uid:auth.currentUser.uid,email:auth.currentUser.email,emailVerified:true}));
+  }
   auth.listeners.forEach(fn=>fn(auth.currentUser));
   return {user:auth.currentUser};
 }
@@ -124,6 +132,7 @@ try {
     await s.page.locator('#submit').click();
     await s.page.waitForURL(url=>url.pathname==='/admin-preview.html',{timeout:8000});
     assert.equal(await s.page.locator('#qa-admin').count(),1);
+    assert.ok(await s.page.evaluate(()=>Number(sessionStorage.getItem('ns-admin-auth-handoff')||0)>0),'Successful sign-in must leave a short-lived same-tab handoff marker for Admin session restoration');
     await done(s);
   }
   // Scenario 3: A failed sign-out must keep login disabled and fail closed.
@@ -157,6 +166,44 @@ try {
     await s.page.locator('#submit').click();
     await s.page.waitForURL(url=>url.pathname==='/admin-preview.html',{timeout:8000});
     assert.equal(s.page.url().startsWith(origin),true,'Never redirect to external origin');
+    await done(s);
+  }
+  // Scenario 7: After a persisted-session restoration failure, do not auto-reenter Admin.
+  // Manual sign-in remains available and the failure is explained on screen.
+  {
+    const s=await openScenario({query:'?error=session-not-restored',persisted:true});
+    await s.page.getByText(/Firebase sign-in session was not restored on the Admin page/).waitFor();
+    await s.page.waitForTimeout(200);
+    assert.equal(new URL(s.page.url()).pathname,'/admin-bcc-login.html','No automatic re-entry after persistence failure');
+    await s.page.locator('#email').fill('qa-owner@example.test');
+    await s.page.locator('#pw').fill('qa-local-password');
+    await s.page.locator('#submit').click();
+    await s.page.waitForURL(url=>url.pathname==='/admin-preview.html',{timeout:8000});
+    await done(s);
+  }
+  // Scenario 8: Display actionable feedback if Admin role authorization fails.
+  {
+    const s=await openScenario({query:'?error=not-authorized'});
+    await s.page.getByText(/no verified active Admin access/).waitFor();
+    assert.equal(new URL(s.page.url()).pathname,'/admin-bcc-login.html');
+    await done(s);
+  }
+  // Scenario 9: Keep Firebase's browser persistence fallback hierarchy intact.
+  // Simulates a browser where a forced localStorage-only choice is not durable,
+  // while Firebase's default session fallback can safely restore the same Owner
+  // across a same-origin page navigation.
+  {
+    assert.equal(html.includes('setPersistence(auth,browserLocalPersistence)'),false,
+      'Admin login must not force Firebase down to localStorage-only persistence');
+    const s=await openScenario({mode:'fallbackPersistence'});
+    await s.page.locator('#email').fill('qa-owner@example.test');
+    await s.page.locator('#pw').fill('qa-local-password');
+    await s.page.locator('#submit').click();
+    await s.page.waitForURL(url=>url.pathname==='/admin-preview.html',{timeout:8000});
+    await s.page.goto(origin+'/admin-bcc-login.html',{waitUntil:'domcontentloaded',timeout:15000});
+    await s.page.waitForURL(url=>url.pathname==='/admin-preview.html',{timeout:8000});
+    assert.equal(await s.page.locator('#qa-admin').count(),1,
+      'Default Firebase persistence fallback must restore the Owner across page navigation');
     await done(s);
   }
   console.log('PASS real Admin login HTML in isolated Chromium: '+passed+' mocked Firebase scenarios; no external network');

@@ -1,0 +1,80 @@
+name: V42.2 fix-forward focused QA
+on:
+  push:
+    branches: [fix/v422-admin-login-checkout-preview-20261012]
+  pull_request:
+    branches: [main]
+    paths:
+      - 'admin-bcc-login.html'
+      - 'assets/js/v421-production-bridge.js'
+      - 'assets/js/homepage-analytics.js'
+      - 'assets/js/auth-theme.js'
+      - 'assets/js/auth-shell.js'
+      - 'assets/css/auth-guardian.css'
+      - 'index.html'
+      - 'ns-delivery.js'
+      - 'assets/css/storefront-themes.css'
+      - 'assets/js/v32-public.js'
+      - '_headers'
+      - 'privacy.html'
+      - 'scripts/v422-handover-browser-qa.mjs'
+      - 'scripts/v422-fix-forward-qa.mjs'
+      - 'scripts/v422-availability-recap-qa.mjs'
+      - 'scripts/v422-startup-qa.mjs'
+      - 'scripts/v422-storefront-browser-qa.mjs'
+      - 'scripts/v422-guardian-theme-browser-qa.mjs'
+      - 'scripts/v422-guardian-theme-qa.mjs'
+      - 'scripts/v421-owner-login-browser-qa.mjs'
+      - '.github/workflows/v422-fix-forward-qa.yml'
+permissions:
+  contents: read
+jobs:
+  focused-auth-checkout:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - run: |
+          set -euo pipefail
+          node --check assets/js/v421-production-bridge.js
+          node --check ns-delivery.js
+          node scripts/v422-fix-forward-qa.mjs
+          node scripts/v422-availability-recap-qa.mjs
+          node scripts/v422-startup-qa.mjs
+          node scripts/v422-guardian-theme-qa.mjs
+          node scripts/auth-theme-contract-qa.mjs
+          node scripts/v421-admin-auth-session-qa.mjs
+          node scripts/v421-checkout-recap-qa.mjs
+          node scripts/production-firebase-contract-qa.mjs
+          node scripts/price-sync-qa.mjs
+          node scripts/build-netlify-site.mjs
+  mocked-owner-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Install isolated Chromium fixture dependencies
+        run: |
+          npm install --no-save --no-package-lock playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Verify real login HTML with eight mocked Firebase scenarios
+        run: node scripts/v421-owner-login-browser-qa.mjs
+      - name: Verify responsive live storefront preview with isolated catalog
+        run: node scripts/v422-storefront-browser-qa.mjs
+      - name: Verify railway and bus dropdowns, distances and theme contrast
+        run: node scripts/v422-handover-browser-qa.mjs
+      - name: Verify blinking, password privacy and live theme artwork
+        run: node scripts/v422-guardian-theme-browser-qa.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v422-storefront-browser-evidence
+          path: |
+            qa-artifacts/v422-storefront
+            qa-artifacts/v422-guardian
+            qa-artifacts/v422-handover
+          retention-days: 14
