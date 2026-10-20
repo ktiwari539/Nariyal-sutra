@@ -57,7 +57,7 @@ const start=bridge.indexOf('async function ensureFirebase(){');
 const end=bridge.indexOf('async function adminRole(u){',start);
 assert.ok(start>=0&&end>start);
 const ensureFactory=new Function('window','document','loadScript','mockImport','isAdmin',
-  "const SDK='12.18.0';let appMod,authMod,fsMod,app,auth,db;"+
+  "const SDK='12.18.0';const adminAuthTrace=()=>{};let appMod,authMod,fsMod,app,auth,db;"+
   bridge.slice(start,end).replace(/\bimport\(/g,'mockImport(')+';return ensureFirebase;');
 const calls=[],listeners=new Map(),window={NS_INIT_APP_CHECK:async()=>calls.push('app-check')};
 const document={readyState:'loading',addEventListener:(name,fn)=>listeners.set(name,fn)};
